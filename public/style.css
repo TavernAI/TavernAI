@@ -28,6 +28,7 @@ body {
     /*background-color: #f1f1f1;*/
 
 }
+<<<<<<< HEAD
 /*
 @media screen and (min-width:1200px){
 body {font-size:1vw;}
@@ -41,6 +42,39 @@ i {
     color: grey !important;
 }
 /*#bg1{
+=======
+.mes_text i {
+    color: grey !important;
+}
+.mes_text em {
+    color: grey !important;
+}
+.mes_text p {
+    margin-top: 0px;
+    margin-bottom: 16px;
+}
+.mes_text strong {
+    font-weight: bold;
+    color: grey !important;
+}
+.mes_text h2 {
+    font-weight: bold;
+    color: rgb(229, 224, 216);
+}
+.mes_text h1 {
+    font-weight: bold;
+    color: rgb(229, 224, 216);
+}
+code {
+  background-color: #a8a8a8;
+  padding: 5px;
+  font-family: Consolas, monospace;
+  color: #333;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+#bg1{
+>>>>>>> 997146b4e6524c28c31fc47549b1c250cf390bc1
     background-image: linear-gradient(rgba(19,21,44,0.75), rgba(19,21,44,0.75)), url(backgrounds/tavern.png);
     background-size: auto 100%;
     background-repeat: no-repeat;
@@ -805,8 +839,12 @@ input[type=button] {
     margin-top: 36vh;
     box-shadow: 0 0 2px rgba(200,200,200,0.1);
     padding: 4px;
+<<<<<<< HEAD
     /*background: #191b3100;*/
 	background-color: rgb(36, 37, 37);
+=======
+    background: #191b3100;
+>>>>>>> 997146b4e6524c28c31fc47549b1c250cf390bc1
     border-radius: 10px;
 }
 #dialogue_popup{
@@ -889,7 +927,10 @@ input[type=button] {
     z-index: 2095;
 }
 #colab_shadow_popup{
+<<<<<<< HEAD
 /*background-color: rgb(36, 37, 37);   */
+=======
+>>>>>>> 997146b4e6524c28c31fc47549b1c250cf390bc1
     background-color: #00000066;
     display: none;
     opacity: 1.0;
