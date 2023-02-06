@@ -1,13 +1,17 @@
 @font-face {
-    font-family: "My Custom Font";
-    src: url(fonts/Comic_CAT.otf) format("truetype");
+    /*font-family: "My Custom Font";
+	/*src: url(fonts/Comic_CAT.otf) format("truetype");*/
+	font-family: "Noto Sans", "Noto Color Emoji", sans-serif;
+    
 }
-p.customfont {
-    font-family: "My Custom Font", Verdana, Tahoma;
+.customfont {
+    /*font-family: "My Custom Font", Verdana, Tahoma;*/
+	font-family: "Noto Sans", "Noto Color Emoji", sans-serif;
 }
 body {
     margin: 0;
-    background: linear-gradient(rgba(19,21,44,0.75), rgba(19,21,44,0.75)), url(backgrounds/tavern.png);
+ /*   background: linear-gradient(rgba(19,21,44,0.75), rgba(19,21,44,0.75)), url(backgrounds/tavern.png);*/
+    background-color: rgb(36, 37, 37);
     background-size: auto 100%;
     background-repeat: no-repeat;
     background-attachment: fixed;
@@ -15,12 +19,28 @@ body {
     backdrop-filter: blur(2px);
     scrollbar-width: thin;
     scrollbar-color: gray #191b31;
+	font-family: "Noto Sans", "Noto Color Emoji", sans-serif; /*add in custom font universally */
+	/*font-size:15px;*/
+	/*from the body tag of css/styles.css */
+	color: rgb(229, 224, 216);
+    /*font-family: "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;*/
+    /*//font: 1em 'Open Sans', sans-serif;*/
+    /*background-color: #f1f1f1;*/
 
 }
+/*
+@media screen and (min-width:1200px){
+body {font-size:1vw;}
+}
+*/
+::root {
+	--adaptive-font-size: 1vw
+}
+
 i {
     color: grey !important;
 }
-#bg1{
+/*#bg1{
     background-image: linear-gradient(rgba(19,21,44,0.75), rgba(19,21,44,0.75)), url(backgrounds/tavern.png);
     background-size: auto 100%;
     background-repeat: no-repeat;
@@ -46,11 +66,11 @@ i {
     width: 100%;
     height: 100%;
     z-index: -1;
-}
+}*/
 #sheld {
     display: grid;
     grid-template-rows: auto 145px;
-    background: #191b3133;
+    /*background: #191b3133;*/
     height: 100vh;
     overflow: auto;
     overflow-x: hidden;
@@ -69,7 +89,7 @@ i {
     //height: 80%;
     overflow: hidden;
     overflow-y: scroll;
-    background: #191b3100;
+ /*   background: #191b3100; */
     //white-space:nowrap;
     //margin-left: 30%; /* Отступ слева */
     //width: 40%; /* Ширина слоя */
@@ -82,7 +102,7 @@ i {
 }
 
 ::-webkit-scrollbar-track {
-    background-color: #191b31;
+/*    background-color: #191b31;*/
 }
 
 ::-webkit-scrollbar-thumb {
@@ -94,7 +114,7 @@ i {
     //box-shadow: 0 0 2px rgba(200,200,200,0.5);
     box-shadow: 0 0 2px rgba(200,200,200,0.1);
     white-space:nowrap;
-    background: #191b31A0;
+   /* background: #191b31A0;*/
     //height: 10%;
     //margin-left: 30%; /* Отступ слева */
     //width: 95%; /* Ширина слоя */
@@ -117,7 +137,7 @@ i {
     height: 89px;
     resize: none;
     display:inline-block;
-    background-color: #13152c;
+/*    background-color: #13152c;*/
     outline: none !important;
     border:0px solid grey;
     box-shadow: 0 0 2px rgba(200,200,200,0.5);
@@ -191,6 +211,8 @@ i {
   display: block;
   position: absolute;
   background-color: #191b31F3;
+  background-color: rgb(37, 38, 38);
+  border: 1px solid #444;
   min-width: 205px;
   z-index: 1;
   //bottom: 1px;
@@ -224,9 +246,9 @@ i {
     display: grid;
     grid-template-columns: fit-content(60px) 60px auto;
     border-radius: 5px;
-    box-shadow: 0 0 2px rgba(200,200,200,0.1);
+   /* box-shadow: 0 0 2px rgba(200,200,200,0.1);*/
     padding: 4px;
-    background: #191b31CC;
+ /*   background: #191b31CC;*/
     //box-shadow: 0 0 2px rgba(200,200,200,0.5);
     
     
@@ -236,9 +258,9 @@ i {
     //height:60px;
     //background: red;
     //font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;
-    font-family: "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+   /* font-family: "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;*/
     color: rgb(229, 224, 216);
-    font-size: 18px;
+    font-size: var*(--adaptive-font-size)/*15px; /*18px;*/
     //background: blue;
     margin-bottom: 26px;
 }
@@ -271,7 +293,8 @@ i {
 .mes_text{
     //background: olive;
     
-    font-weight:lighter;
+    font-weight:400;
+	font-size:var(--adaptive-font-size);
     padding-top: 3px;
     margin-bottom: 10px;
     padding-right: 40px;
@@ -307,19 +330,23 @@ textarea{
     height: 400px;
     resize: none;
     display:block;
-    background-color: #13152c;
+ /*   background-color: #13152c;*/
+ background-color: rgb(40, 42, 42);
     outline: none !important;
     border:0px solid grey;
     box-shadow: 0 0 2px rgba(200,200,200,0.5);
     padding: 10px;
     color: #cacaca;
-    font-family: "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
-    font-size: 18px;
+  /*  font-family: "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;*/
+    font-size: 15px; /*18px;*/
+	font-family: "Noto Sans", "Noto Color Emoji", sans-serif;
     margin-left: 10px;
     margin-top: 10px;
 }
+
+	
 #rm_ch_create_block textarea {
-    font-size: 11pt;
+    font-size: 15px; /*11pt;*/
 }
 
 #description_textarea{
@@ -342,7 +369,8 @@ textarea{
     
     border:0px solid grey;
     box-shadow: 0 0 2px rgba(200,200,200,0.5);
-    background-color: #13152c;
+    /*background-color: #13152c;*/
+	background-color: rgb(36, 37, 37);
     //padding: 10px;
 
     margin-left: 10px;
@@ -395,7 +423,8 @@ input::file-selector-button {
     padding: 0.5em;
     border: thin solid rgba(200,200,200,0.2);
     border-radius: 3px;
-    background-color: #191b31;
+   /* background-color: #191b31;*/
+	background-color: rgb(36, 37, 37);
     cursor: pointer;
 }
 input[type=submit] {
@@ -404,7 +433,8 @@ input[type=submit] {
     padding: 0.5em;
     border: thin solid rgba(200,200,200,0.2);
     border-radius: 3px;
-    background-color: #191b31;
+  /*  background-color: #191b31;*/
+  	background-color: rgb(36, 37, 37);
 }
 input[type=button] {
     font-weight: bold;
@@ -412,7 +442,8 @@ input[type=button] {
     padding: 0.5em;
     border: thin solid rgba(200,200,200,0.2);
     border-radius: 3px;
-    background-color: #191b31;
+    /*background-color: #191b31;*/
+	background-color: rgb(36, 37, 37);
 }
 .right_menu_button{
     display:inline-block;
@@ -429,8 +460,8 @@ input[type=button] {
 #character_import_button{
     cursor: pointer;
     display: inline-block;
-    margin-left: 15px;//274px;
-    margin-top: 6px;//10px;
+    margin-left: 15px;
+    margin-top: 6px;
     
 }
 #character_import_button h2{
@@ -538,10 +569,10 @@ input[type=button] {
 #bg_menu_button{
     display: inline-block;
     opacity: 0.4;
-     //transition: 0.5s
+     
      cursor: pointer;
      width: 20px;
-     //background: #191b3188;
+     
      text-align: center;
      height: 20px;
      color: #ffffff88;
@@ -556,10 +587,10 @@ input[type=button] {
     margin-top: 0px;
     margin-left: 6px;
     opacity: 0.0;
-    //padding-top: 10px;
+    
     cursor:auto;
     display: block;
-    width: 122px;//114px;
+    width: 122px;
     height: 0px;
     background: #191b3100;
     overflow: hidden;
@@ -569,7 +600,7 @@ input[type=button] {
     scrollbar-color: #ffffff11 #191b3111;
 }
 #bg_menu_content::-webkit-scrollbar-track {
-    background-color: #191b3111;
+ /*   background-color: #191b3111;*/
 }
 
 #bg_menu_content::-webkit-scrollbar-thumb {
@@ -645,6 +676,8 @@ input[type=button] {
     vertical-align: top;
     display: inline-block;
     margin-top: 52px;
+	background-color: rgb(36, 37, 37);
+	border: 1px solid #444;
 }
 #description_div{
     margin-top: 6px;
@@ -696,13 +729,13 @@ input[type=button] {
     margin-right: auto;
 }
 #delete_button{
-    opacity: 0.51;//0.5
+    opacity: 0.51;
     cursor: pointer;
     display: block;
     float:right;
     margin-top: 25px;
     margin-right: 10px; 
-    color: #ffffff68;//66
+    color: #ffffff68;
 }
 #export_button{
     opacity: 0.51;
@@ -757,7 +790,25 @@ input[type=button] {
     margin-bottom: 2px;
 }
 /* Focus */
-
+#colab_popup{
+    
+    width:300px;
+    height: 150px;
+    position: absolute;
+    z-index: 2060;
+    background-color: blue;
+    margin-left: auto;
+    margin-right: auto;
+    left: 0;
+    right: 0;
+    text-align: center;
+    margin-top: 36vh;
+    box-shadow: 0 0 2px rgba(200,200,200,0.1);
+    padding: 4px;
+    /*background: #191b3100;*/
+	background-color: rgb(36, 37, 37);
+    border-radius: 10px;
+}
 #dialogue_popup{
     
     width:300px;
@@ -773,7 +824,8 @@ input[type=button] {
     margin-top: 36vh;
     box-shadow: 0 0 2px rgba(200,200,200,0.1);
     padding: 4px;
-    background: #191b31CC;
+    /*background: #191b31CC;*/
+	background-color: rgb(36, 37, 37);
     border-radius: 10px;
 }
 #dialogue_popup_ok{
@@ -827,12 +879,24 @@ input[type=button] {
 }
 #shadow_popup{
     background-color: #00000066;
+	backdrop-filter: blur(50px);
+/*	background-color: rgb(36, 37, 37);*/
     display: none;
     opacity: 0.0;
     position: absolute;
     width: 100%;
     height: 100vh;
     z-index: 2095;
+}
+#colab_shadow_popup{
+/*background-color: rgb(36, 37, 37);   */
+    background-color: #00000066;
+    display: none;
+    opacity: 1.0;
+    position: absolute;
+    width: 100%;
+    height: 100vh;
+    z-index: 2298;
 }
 #bgtest{
     display: none;
@@ -936,7 +1000,8 @@ select {
     margin-bottom: 35px;
     color: #ffffff9d;
     box-shadow: 0 0 2px rgba(200,200,200,0.5);
-    background-color:#13152c;
+    /*background-color:#13152c;*/
+	background-color: rgb(36, 37, 37);
 }
 
 .option_select_right_menu{
@@ -945,7 +1010,8 @@ select {
     margin-bottom: 35px;
     color: #ffffff9d;
     box-shadow: 0 0 2px rgba(200,200,200,0.5);
-    background-color:#13152c;
+    /*background-color:#13152c;*/
+	background-color: rgb(36, 37, 37);
 }
 #user_avatar_block{
     margin-left: 6px;
@@ -1085,7 +1151,8 @@ input[type="range"] {
     border-color: transparent;
     outline: none;
     box-shadow: none;
-    background-color: transparent;
+    /*background-color: transparent;*/
+	background-color: rgb(40, 42, 42);
 }
 #your_name{
     outline: none;
@@ -1142,7 +1209,8 @@ label.checkbox :checked + span:after {
     margin-bottom: 15px;
     color: #ffffff9d;
     box-shadow: 0 0 2px rgba(200,200,200,0.5);
-    background-color:#13152c;
+    /*background-color:#13152c;*/
+	background-color: rgb(36, 37, 37);
 }
 #anchor_checkbox{
     margin-left: 10px;
@@ -1154,6 +1222,8 @@ label.checkbox :checked + span:after {
 
 
 #shadow_character_popup{
+	background-color: #00000066;
+	backdrop-filter: blur(50px);
     display: block;
     opacity: 1.0;
     position: absolute;
@@ -1163,6 +1233,8 @@ label.checkbox :checked + span:after {
 }
 #character_popup{
     display: none;
+		background-color: #00000066;
+	backdrop-filter: blur(50px);
     grid-template-rows: 50px 100px 100px 40px auto 45px 45px;
     max-width:800px;
     height: 83vh;
@@ -1177,7 +1249,8 @@ label.checkbox :checked + span:after {
     margin-top: 0px;
     box-shadow: 0 0 2px rgba(200,200,200,0.1);
     padding: 4px;
-    background: #191b31F5;
+    /*background: #191b31F5;*/
+	background-color: rgb(36, 37, 37);
     border-radius: 1px;
 }
 #character_popup h5 a{
@@ -1245,21 +1318,17 @@ label.checkbox :checked + span:after {
 }
 #character_popup_ok{
     cursor: pointer;
-    display: none;//grid;
+    display: none;
     place-items: center;
     height: 40px;
     margin-top: 15px;
-    margin-left: 36px;//36px;329px;/
-    //margin-right: auto;
-    width: 110px;//80px
+    margin-left: 36px;
+	background-color: #00000066;
+	backdrop-filter: blur(50px);
+    
+    width: 110px;
     text-align: center;
 }
-
-
-
-
-
-
 
 
 #shadow_select_chat_popup{
@@ -1269,6 +1338,7 @@ label.checkbox :checked + span:after {
     width: 100%;
     height: 100vh;
     z-index: 2059;
+	/*background-color: rgb(36, 37, 37);*/
     background-color: #00000066;
 }
 #select_chat_popup{
@@ -1287,7 +1357,8 @@ label.checkbox :checked + span:after {
     margin-top: 21vh;
     box-shadow: 0 0 2px rgba(200,200,200,0.1);
     padding: 4px;
-    background: #191b31F0;
+    /*background: #191b31F0;*/
+	background-color: rgb(36, 37, 37);
     border-radius: 5px;
 }
 #select_chat_popup a{
@@ -1345,9 +1416,11 @@ label.checkbox :checked + span:after {
 }
 .select_chat_block:hover {
     background-color: #ffffff07;
+	/*background-color: rgb(39, 40, 40);*/
 }
 .select_chat_block[highlight]{
-    background-color: #ffffff09;//#c2b07a12;
+   /* background-color: #ffffff09;//#c2b07a12;*/
+		background-color: rgb(39, 40, 40);
 }
 
 .select_chat_block .avatar{
@@ -1375,9 +1448,10 @@ label.checkbox :checked + span:after {
     padding: 0.5em;
     border: thin solid rgba(200,200,200,0.2);
     border-radius: 3px;
-    background-color: #191b3133;
+   /* background-color: #191b3133;*/
+		background-color: rgb(39, 40, 40);
     opacity: 1.0;
-    font-family: "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+   /* font-family: "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;*/
 }
 #advanced_book_logo{
     width: 35px;

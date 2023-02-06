@@ -70,8 +70,29 @@ app.post("/getlastversion", jsonParser, function(request, response_getlastversio
         
 
 });
-app.use(express.static(__dirname + "/public"));
-
+app.use(express.static(__dirname + "/public", { refresh: true }));
+app.use('/backgrounds', (req, res) => {
+  const filePath = path.join(process.cwd(), 'public/backgrounds', req.url);
+  fs.readFile(filePath, (err, data) => {
+    if (err) {
+      res.status(404).send('File not found');
+      return;
+    }
+    //res.contentType('image/jpeg');
+    res.send(data);
+  });
+});
+app.use('/characters', (req, res) => {
+  const filePath = path.join(process.cwd(), 'public/characters', req.url);
+  fs.readFile(filePath, (err, data) => {
+    if (err) {
+      res.status(404).send('File not found');
+      return;
+    }
+    //res.contentType('image/jpeg');
+    res.send(data);
+  });
+});
 app.use(multer({dest:"uploads"}).single("avatar"));
 app.get("/", function(request, response){
     response.sendFile(__dirname + "/public/index.html"); 
@@ -228,11 +249,7 @@ app.post("/getchat", jsonParser, function(request, response){
 });
 app.post("/getstatus", jsonParser, function(request, response_getstatus = response){
     if(!request.body) return response_getstatus.sendStatus(400);
-    if(is_colab === true){
-        api_server = '127.0.0.1:5000';
-    }else{
-        api_server = request.body.api_server;
-    }
+    api_server = request.body.api_server;
     if(api_server.indexOf('localhost') != -1){
         api_server = api_server.replace('localhost','127.0.0.1');
     }
@@ -485,8 +502,11 @@ app.post("/getbackgrounds", jsonParser, function(request, response){
     
 });
 app.post("/iscolab", jsonParser, function(request, response){
-
-    response.send({is_colab:is_colab});
+    let send_data = false;
+    if(process.env.colaburl !== undefined){
+        send_data = String(process.env.colaburl).trim();
+    }
+    response.send({colaburl:send_data});
     
 });
 app.post("/getuseravatars", jsonParser, function(request, response){

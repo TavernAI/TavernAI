@@ -16,12 +16,14 @@
     -moz-transition: right 0.14s ease-in-out  0.02s;
     transition: right 0.14s ease-in-out  0.02s;
 
-    background: #16a085;
+    /*background: #16a085;*/
 
     z-index: 2000;
     box-shadow: 0 0 2px rgba(200,200,200,0.1);
     white-space:nowrap;
-    background: #191b31A0;
+    /*background: #191b31A0;*/
+  background-color: rgb(38, 39, 39);
+  border: 1px solid #444;
 
 }
 
