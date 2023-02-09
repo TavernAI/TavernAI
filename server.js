@@ -20,6 +20,7 @@ const config = require('./config.json');
 const server_port = config.port;
 const whitelist = config.whitelist;
 const whitelistMode = config.whitelistMode;
+const listenIp = config.listenIp || '127.0.0.1';
 
 var Client = require('node-rest-client').Client;
 var client = new Client();
@@ -1044,7 +1045,7 @@ app.post("/importchat", urlencodedParser, function(request, response){
 
 
 
-app.listen(server_port, function() {
+app.listen(server_port, listenIp, function() {
     if(process.env.colab !== undefined){
         if(process.env.colab == 2){
             is_colab = true;
@@ -1052,7 +1053,7 @@ app.listen(server_port, function() {
     }
     console.log('Launching...');
     open('http:127.0.0.1:'+server_port);
-    console.log('TavernAI started: http://127.0.0.1:'+server_port);
+    console.log('TavernAI started: http://' + listenIp + ':'+server_port);
     if (fs.existsSync('public/characters/update.txt')) { //&& !is_colab <- this need to put again
         convertStage1();
     }
