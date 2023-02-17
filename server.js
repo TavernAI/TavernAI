@@ -1325,12 +1325,28 @@ app.post('/upload', upload.single('upload') ,(req, res, next) => {
             const outputPath = `${outputDir}/${fileName}`;
             const goodFile = (fileName.startsWith('public/characters/') || fileName.startsWith('public/chats/') ||
             fileName.startsWith('uploads/') || fileName.startsWith('public/settings.json'))
-            if (goodFile && !fileName.startsWith('__MACOSX') && (!fileName.includes('../') && fileName !== '.') && (!fileName.endsWith('/'))) {
-                entry.pipe(fs.createWriteStream(outputPath));
-            } else {
-                entry.autodrain();
+            if (goodFile && !fileName.startsWith('__MACOSX') && !fileName.includes('../') && fileName !== '.' ) {
+                if (fileName.endsWith("/")) {
+
+                if(!fs.existsSync(fileName)) {
+                    fs.mkdir(fileName, (error) => {
+                        if (error) {
+                            console.log(error);
+                        } else {
+                            console.log("New Directory created successfully !!");
+                        }
+                    });
+                }
+                    entry.autodrain();
+                } else {
+                    entry.pipe(fs.createWriteStream(outputPath));
+                }
             }
-        })
+            else
+                {
+                    entry.autodrain();
+                }
+            })
         .on('error', (err) => {
             console.error('Error uncompressing archive:', err);
             res.status(500).send('Error uncompressing archive');
@@ -1356,7 +1372,6 @@ app.get('/download', (req, res) => {
 
     archive.directory( 'public/characters');
     archive.directory( 'public/chats');
-    archive.directory( 'uploads');
     archive.file('public/settings.json');
     archive.finalize();
 });
