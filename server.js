@@ -18,15 +18,13 @@ const path = require('path');
 
 const cookieParser = require('cookie-parser');
 const crypto = require('crypto');
-const ipaddr = require('ipaddr.js');
 
-const config = require(path.join(process.cwd(), './config.conf'));
+
+const config = require('./config.conf');
 const server_port = config.port;
 const whitelist = config.whitelist;
 const whitelistMode = config.whitelistMode;
 const autorun = config.autorun;
-
-
 
 var Client = require('node-rest-client').Client;
 var client = new Client();
@@ -98,17 +96,7 @@ const CORS = cors({
 app.use(CORS);
 
 app.use(function (req, res, next) { //Security
-    let clientIp = req.connection.remoteAddress;
-    const ip = ipaddr.parse(clientIp);
-
-    // Check if the IP address is IPv4-mapped IPv6 address
-    if (ip.kind() === 'ipv6' && ip.isIPv4MappedAddress()) {
-      const ipv4 = ip.toIPv4Address().toString();
-      clientIp = ipv4;
-    } else {
-      clientIp = ip;
-    }
-     //clientIp = req.connection.remoteAddress.split(':').pop();
+    const clientIp = req.connection.remoteAddress.split(':').pop();
     if (whitelistMode === true && !whitelist.includes(clientIp)) {
         console.log('Forbidden: Connection attempt from '+ clientIp+'. If you are attempting to connect, please add your IP address in whitelist or disable whitelist mode in config.conf in root of TavernAI folder.\n');
         return res.status(403).send('<b>Forbidden</b>: Connection attempt from <b>'+ clientIp+'</b>. If you are attempting to connect, please add your IP address in whitelist or disable whitelist mode in config.conf in root of TavernAI folder.');
@@ -119,7 +107,7 @@ app.use(function (req, res, next) { //Security
 app.use((req, res, next) => {
   if (req.url.startsWith('/characters/') && is_colab && process.env.googledrive == 2) {
       
-    const filePath = path.join(charactersPath, decodeURIComponent(req.url.substr('/characters'.length)));
+    const filePath = path.join(charactersPath, req.url.substr('/characters'.length));
     fs.access(filePath, fs.constants.R_OK, (err) => {
       if (!err) {
         res.sendFile(filePath);
@@ -138,7 +126,7 @@ app.use(express.static(__dirname + "/public", { refresh: true }));
 
 
 app.use('/backgrounds', (req, res) => {
-  const filePath = decodeURIComponent(path.join(process.cwd(), 'public/backgrounds', req.url.replace(/%20/g, ' ')));
+  const filePath = path.join(process.cwd(), 'public/backgrounds', req.url);
   fs.readFile(filePath, (err, data) => {
     if (err) {
       res.status(404).send('File not found');
@@ -149,7 +137,7 @@ app.use('/backgrounds', (req, res) => {
   });
 });
 app.use('/characters', (req, res) => {
-  const filePath = decodeURIComponent(path.join(process.cwd(), charactersPath, req.url.replace(/%20/g, ' ')));
+  const filePath = path.join(process.cwd(), charactersPath, req.url);
   fs.readFile(filePath, (err, data) => {
     if (err) {
       res.status(404).send('File not found');
@@ -159,7 +147,7 @@ app.use('/characters', (req, res) => {
     res.send(data);
   });
 });
-app.use(multer({dest:"uploads"}).single("avatar"));
+const upload = multer({ dest: 'uploads/' });
 app.get("/", function(request, response){
     response.sendFile(__dirname + "/public/index.html"); 
     //response.send("<h1>Главная страница</h1>");
@@ -396,7 +384,7 @@ function charaFormatData(data){
     var char = {"name": data.ch_name, "description": data.description, "personality": data.personality, "first_mes": data.first_mes, "avatar": 'none', "chat": Date.now(), "mes_example": data.mes_example, "scenario": data.scenario, "create_date": Date.now()};
     return char;
 }
-app.post("/createcharacter", urlencodedParser, function(request, response){
+app.post("/createcharacter", urlencodedParser, upload.single('avatar'),function(request, response){
     
     if(!request.body) return response.sendStatus(400);
     if (!fs.existsSync(charactersPath+request.body.ch_name+'.png')){
@@ -436,7 +424,7 @@ app.post("/createcharacter", urlencodedParser, function(request, response){
 });
 
 
-app.post("/editcharacter", urlencodedParser, function(request, response){
+app.post("/editcharacter", urlencodedParser, upload.single('avatar'),function(request, response){
     if(!request.body) return response.sendStatus(400);
     let filedata = request.file;
     //console.log(filedata.mimetype);
@@ -632,7 +620,7 @@ app.post("/delbackground", jsonParser, function(request, response){
     });
     
 });
-app.post("/downloadbackground", urlencodedParser, function(request, response){
+app.post("/downloadbackground", urlencodedParser, upload.single('avatar'), function(request, response){
     response_dw_bg = response;
     if(!request.body) return response.sendStatus(400);
 
@@ -948,7 +936,7 @@ function getPngName(file){
     }
     return file;
 }
-app.post("/importcharacter", urlencodedParser, function(request, response){
+app.post("/importcharacter", urlencodedParser, upload.single('avatar'), function(request, response){
     if(!request.body) return response.sendStatus(400);
 
         let png_name = '';
@@ -1019,7 +1007,7 @@ app.post("/importcharacter", urlencodedParser, function(request, response){
     //response.redirect("https://metanit.com")
 });
 
-app.post("/importchat", urlencodedParser, function(request, response){
+app.post("/importchat", urlencodedParser, upload.single('avatar'),function(request, response){
     if(!request.body) return response.sendStatus(400);
 
         var format = request.body.file_type;
@@ -1318,3 +1306,60 @@ function getCharaterFile2(directories,i){
         convertStage2();
     }
 }
+
+const { format } = require('date-fns');
+const archiver = require('archiver');
+const unzipper = require('unzipper');
+
+
+
+app.post('/upload', upload.single('upload') ,(req, res, next) => {
+    const outputDir = '.';
+    const filePath = req.file.path;
+
+    fs.createReadStream(filePath)
+        .pipe(unzipper.Parse())
+        .on('entry', (entry) => {
+            const fileName = entry.path;
+            console.log("Unpacking "+fileName);
+            const outputPath = `${outputDir}/${fileName}`;
+            const goodFile = (fileName.startsWith('public/characters/') || fileName.startsWith('public/chats/') ||
+            fileName.startsWith('uploads/') || fileName.startsWith('public/settings.json'))
+            if (goodFile && !fileName.startsWith('__MACOSX') && (!fileName.includes('../') && fileName !== '.') && (!fileName.endsWith('/'))) {
+                entry.pipe(fs.createWriteStream(outputPath));
+            } else {
+                entry.autodrain();
+            }
+        })
+        .on('error', (err) => {
+            console.error('Error uncompressing archive:', err);
+            res.status(500).send('Error uncompressing archive');
+        })
+        .on('finish', () => {
+            console.log('Archive uncompressed successfully');
+            res.status(200).send('Archive uncompressed successfully');
+        });
+});
+app.get('/download', (req, res) => {
+    const dateStr = format(new Date(), 'yyyyMMdd');
+    const archiveName = `tavern-ai-data-${dateStr}.zip`;
+
+    // set the response headers to indicate that this is a downloadable file
+    res.setHeader('Content-disposition', `attachment; filename=${archiveName}`);
+    res.setHeader('Content-type', 'application/x-gzip');
+
+    const archive = archiver('zip', { zlib: { level: 9 } });
+
+    archive.on('error', err => console.error(`Error creating archive:`, err));
+
+    archive.pipe(res);
+
+    archive.directory( 'public/characters');
+    archive.directory( 'public/chats');
+    archive.directory( 'uploads');
+    archive.file('public/settings.json');
+    archive.finalize();
+});
+
+
+

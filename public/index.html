@@ -1247,6 +1247,7 @@
                     
                 }
                 $( "#rm_charaters_block" ).css("display", "none");
+                $( "#rm_upload").css("display","none");
                 $( "#rm_api_block" ).css("display", "none");
                 $( "#rm_ch_create_block" ).css("display", "block");
                 
@@ -2643,7 +2644,47 @@
             }
             
             
-            
+            // *************************State Import/Export ****************************//
+            $( "#upload_button" ).click(function() {
+                $("#upload_file").click();
+            });
+            $("#upload_file").on("change", function(e){
+                console.log('upload file');
+                var file = e.target.files[0];
+                //console.log(1);
+                if (!file) {
+                    return;
+                }
+                var ext = file.name.match(/\.(\w+)$/);
+                if(!ext || (ext[1].toLowerCase() != "zip")) {
+                    return;
+                }
+
+                //console.log(format);
+                var formData = new FormData($("#form_upload").get(0));
+
+                jQuery.ajax({
+                    type: 'POST',
+                    url: '/upload',
+                    data: formData,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    success: function(data){
+                        console.log('success')
+                        location.reload();
+                    },
+                    error: function (jqXHR, exception) {
+                        console.log(error,exception);
+                    }
+                });
+            });
+            $('#download_button').click(function(){
+                var link = document.createElement('a');
+                link.href = '/download';
+                link.click();
+            });
+
             //**************************CHARACTER IMPORT EXPORT*************************//
             $( "#character_import_button" ).click(function() {
                 $("#character_import_file").click();
@@ -2653,29 +2694,29 @@
                 var file = e.target.files[0];
                 //console.log(1);
                 if (!file) {
-                  return;
+                    return;
                 }
                 var ext = file.name.match(/\.(\w+)$/);
                 if(!ext || (ext[1].toLowerCase() != "json" && ext[1].toLowerCase() != "png")){
                     return;
                 }
-                
+
                 var format = ext[1].toLowerCase();
                 $("#character_import_file_type").val(format);
                 //console.log(format);
                 var formData = new FormData($("#form_import").get(0));
-                
-                jQuery.ajax({    
-                    type: 'POST', 
-                    url: '/importcharacter', 
+
+                jQuery.ajax({
+                    type: 'POST',
+                    url: '/importcharacter',
                     data: formData,
                     beforeSend: function(){
                         //$('#create_button').attr('disabled',true);
-                        //$('#create_button').attr('value','Creating...'); 
+                        //$('#create_button').attr('value','Creating...');
                     },
                     cache: false,
                     contentType: false,
-                    processData: false, 
+                    processData: false,
                     success: function(data){
                         if(data.file_name !== undefined){
 
@@ -2693,19 +2734,19 @@
                     error: function (jqXHR, exception) {
                         $('#create_button').removeAttr("disabled");
                     }
-                });  
+                });
             });
             $('#export_button').click(function(){
                 var link = document.createElement('a');
-                link.href = 'characters/'+characters[this_chid].avatar;  
+                link.href = 'characters/'+characters[this_chid].avatar;
                 link.download = characters[this_chid].avatar;
                 document.body.appendChild(link);
                 link.click();
-           });
-        
-        
-        
-        //**************************CHAT IMPORT EXPORT*************************//
+            });
+
+
+
+            //**************************CHAT IMPORT EXPORT*************************//
             $( "#chat_import_button" ).click(function() {
                 $("#chat_import_file").click();
             });
@@ -2934,9 +2975,9 @@
             <div id="delete_button_div">
                 <input id="delete_button" type="submit" value="Delete">
                 <input id="export_button" type="submit" value="Export">
-                
+
             </div>
-        </div>
+       </div>
         <div id="rm_api_block" class="right_menu" >
             
             <h3 id="title_api">API</h3>
@@ -2956,6 +2997,7 @@
                 <div id="online_status2">
                     <div id="online_status_indicator2"></div><div id="online_status_text2">No connection...</div>
                 </div>
+
                 <h4>Preset settings</h4><h5>Selecting settings (<a href="/notes/4" target="_blank">?</a>)</h5>
                 <select id="settings_perset">
                     <option value="gui">GUI KoboldAI Settings</option>
@@ -2983,6 +3025,7 @@
                 <div id="online_status3">
                     <div id="online_status_indicator3"></div><div id="online_status_text3">No connection...</div>
                 </div>
+
                 <h4>Model</h4><h5>Selecting NovelAI model (<a href="/notes/8" target="_blank">?</a>)</h5>
                 <select id="model_novel_select" class="option_select_right_menu" style='margin-bottom: 16px;'>
                     <option value="euterpe-v2">Euterpe</option>
@@ -3041,8 +3084,13 @@
         </div>
         <div id="rm_charater_import" class="right_menu" style="display: none;">
             <form id="form_import"  action="javascript:void(null);" method="post" enctype="multipart/form-data">
-            <input type="file" id="character_import_file" accept=".json, image/png" name="avatar">
-            <input id="character_import_file_type" name="file_type" class="text_pole" maxlength="999" size="2" value="" autocomplete="off">
+                <input type="file" id="character_import_file" accept=".json, image/png" name="avatar">
+                <input id="character_import_file_type" name="file_type" class="text_pole" maxlength="999" size="2" value="" autocomplete="off">
+            </form>
+        </div>
+        <div id="rm_upload" class="right_menu" style="display: none;">
+            <form id="form_upload"  action="javascript:void(null);" method="post" enctype="multipart/form-data">
+                <input type="file" id="upload_file" accept=".zip" name="upload">
             </form>
         </div>
         <div id="rm_charaters_block" class="right_menu">
@@ -3086,7 +3134,15 @@
             </form>
             <div id="online_status">
                 <div id="online_status_indicator"></div><div id="online_status_text">No connection...</div>
+                <div style="display:inline" id="download button div">
+                    <input id="download_button" type="submit" value="Download">
+                </div>
+                <div style="display:inline" id="upload_button div">
+                    <input id="upload_button" type="submit" value="Upload">
+                </div>
+
             </div>
+
         </div>
     </div>
    
