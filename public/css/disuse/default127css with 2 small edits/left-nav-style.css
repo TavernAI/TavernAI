@@ -3,46 +3,42 @@
 
 
 .nav {
-    width: 450px;
-    min-width: 450px;
+
+    width: 320px;
+    min-width: 320px;
+
     height: 100%;
     position: fixed;
     top: 0;
     bottom: 0;
     margin: 0;
-    right: -450px;
-    padding: 0px 20px;
-    -webkit-transition: right 0.14s ease-in-out  0.02s;
-    -moz-transition: right 0.14s ease-in-out  0.02s;
-    transition: right 0.14s ease-in-out  0.02s;
 
-    /*background: #16a085;*/
+    left: -320px;
+    padding: 15px 20px;
+
+    -webkit-transition: left 0.3s;
+    -moz-transition: left 0.3s;
+    transition: left 0.3s;
+
+    background: #16a085;
 
     z-index: 2000;
-    box-shadow: 0 0 2px rgba(200,200,200,0.1);
-    white-space:nowrap;
-    /*background: #191b31A0;*/
-  background-color: rgb(38, 39, 39);
-  border: 1px solid #444;
-
 }
 
 
 
-
 .nav-toggle {
-    border-radius: 5px;
 
     position: absolute;
 
-    right: 450px;
+    left: 320px;
 
     top: 1em;
 
     padding: 0.5em;
 
     background: inherit;
-
+ 
     color: #dadada;
 
     cursor: pointer;
@@ -59,6 +55,7 @@
 
 
 
+
 .nav-toggle:after {
     content: '\2630';
     text-decoration: none;
@@ -72,10 +69,12 @@
 
 
 
+
 [id='nav-toggle'] {
     position: absolute;
     display: none;
 }
+
 
 
 
@@ -89,10 +88,10 @@
 
 
 [id='nav-toggle']:checked ~ .nav {
-    right: 0;
-    box-shadow:-4px 0px 20px 0px rgba(0,0,0, 0.01);
-    -moz-box-shadow:-4px 0px 20px 0px rgba(0,0,0, 0.01);
-    -webkit-box-shadow:-4px 0px 20px 0px rgba(0,0,0, 0.01);
+    left: 0;
+    box-shadow:4px 0px 20px 0px rgba(0,0,0, 0.5);
+    -moz-box-shadow:4px 0px 20px 0px rgba(0,0,0, 0.5);
+    -webkit-box-shadow:4px 0px 20px 0px rgba(0,0,0, 0.5);
     overflow-y: auto;
 }
 
@@ -100,9 +99,9 @@
 
 
 [id='nav-toggle']:checked ~ main > article {
-    -webkit-transform: translateX(-450px);
-    -moz-transform: translateX(-450px);
-    transform: translateX(-450px);
+    -webkit-transform: translateX(320px);
+    -moz-transform: translateX(320px);
+    transform: translateX(320px);
 }
 
 
@@ -128,7 +127,7 @@ body {
 
 
 
-@media screen and (min-width: 450px) {
+@media screen and (min-width: 320px) {
     html,
     body {
       margin: 0;
@@ -136,7 +135,7 @@ body {
     }
 }
 
-@media screen and (max-width: 450px) {
+@media screen and (max-width: 320px) {
     html,
     body {
       margin: 0;
@@ -149,7 +148,9 @@ body {
 }
 
 
-.nav h22 {
+
+
+.nav h2 {
     width: 90%;
     padding: 0;
     margin: 10px 0;
@@ -172,20 +173,21 @@ body {
     -webkit-transition: opacity 0.8s, -webkit-transform 0.8s;
 }
 
-.nav h22 a {
+.nav h2 a {
     color: #dadada;
     text-decoration: none;
     text-transform: uppercase;
 }
 
 
-[id='nav-toggle']:checked ~ .nav h22 {
+[id='nav-toggle']:checked ~ .nav h2 {
     opacity: 1;
     transform: scale(1, 1);
     -ms-transform: scale(1, 1);
     -moz-transform: scale(1, 1);
     -webkit-transform: scale(1, 1);
 }
+
 
 
 
@@ -199,10 +201,10 @@ body {
 .nav > ul > li {
     line-height: 2.5;
     opacity: 0;
-    -webkit-transform: translateX(50%);
-    -moz-transform: translateX(50%);
-    -ms-transform: translateX(50%);
-    transform: translateX(50%);
+    -webkit-transform: translateX(-50%);
+    -moz-transform: translateX(-50%);
+    -ms-transform: translateX(-50%);
+    transform: translateX(-50%);
     -webkit-transition: opacity .5s .1s, -webkit-transform .5s .1s;
     -moz-transition: opacity .5s .1s, -moz-transform .5s .1s;
     -ms-transition: opacity .5s .1s, -ms-transform .5s .1s;
@@ -216,6 +218,7 @@ body {
     -ms-transform: translateX(0);
     transform: translateX(0);
 }
+
 
 
 .nav > ul > li:nth-child(2) {
@@ -278,7 +281,6 @@ body {
 
 
 
-
 .nav > ul > li > a:before {
     content: '';
     display: block;
@@ -303,7 +305,6 @@ body {
     -webkit-transition: width .5s ease;
     transition: width .5s ease;
 }
-
 
 
 

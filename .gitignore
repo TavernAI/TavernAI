@@ -1,0 +1,12 @@
+
+node_modules
+/node_modules
+/readme
+/uploads
+/docker
+/colab
+/config.conf
+/public/characters
+/public/chats
+/public/User Avatars
+/public/notes
