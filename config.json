@@ -1,5 +1,10 @@
 {
     "port": 8000,
     "whitelist": ["127.0.0.1"],
+<<<<<<< Updated upstream
     "whitelistMode": true
+=======
+    "whitelistMode": false
+	
+>>>>>>> Stashed changes
 }
