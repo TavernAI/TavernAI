@@ -79,6 +79,7 @@
             var online_status = 'no_connection';
             
             var api_server = "";
+            var api_server_textgenerationwebui = "";
             //var interval_timer = setInterval(getStatus, 2000);
             var interval_timer_novel = setInterval(getStatusNovel, 3000);
             var is_get_status = false;
@@ -107,6 +108,15 @@
             var max_context = 2048;//2048;
             var rep_pen = 1;
             var rep_pen_size = 100;
+
+            var textgenerationwebui_settings = {
+                temp: 0.5,
+                top_p: 0.9,
+                top_k: 0,
+                typical_p: 1,
+                rep_pen: 1.1,
+                rep_pen_size: 0,
+            }
             
             var is_pygmalion = false;
             var tokens_already_generated = 0;
@@ -200,6 +210,8 @@
                     $("#online_status_text2").html(online_status);
                     $("#online_status_indicator3").css("background-color", "green");
                     $("#online_status_text3").html(online_status);
+                    $("#online_status_indicator4").css("background-color", "green");
+                    $("#online_status_text4").html(online_status);
                 }
                 
             }
@@ -242,7 +254,8 @@
                         type: 'POST', // 
                         url: '/getstatus', // 
                         data: JSON.stringify({
-                                api_server: api_server
+                                api_server: (main_api == "kobold" ? api_server : api_server_textgenerationwebui),
+                                main_api: main_api,
                             }),
                         beforeSend: function(){
                             if(is_api_button_press){
@@ -295,6 +308,8 @@
                 checkOnlineStatus();
                 $("#api_loading").css("display", 'none');
                 $("#api_button").css("display", 'inline-block');
+                $("#api_loading_textgenerationwebui").css("display", 'none');
+                $("#api_button_textgenerationwebui").css("display", 'inline-block');
             }
             
             function printCharaters(){
@@ -916,29 +931,31 @@
                         }
                         finalPromt = storyString+mesExmString+mesSendString+generatedPromtCache;
                         
+                        var this_settings = koboldai_settings[koboldai_setting_names[preset_settings]];
+                        var this_amount_gen = parseInt(amount_gen);
+                        if(is_pygmalion){
+                            if(tokens_already_generated === 0){
+                                if(parseInt(amount_gen) >= 50){
+                                    this_amount_gen = 50;
+                                }else{
+                                    this_amount_gen = parseInt(amount_gen);
+                                }
+                                
+                            }else{
+                                if(parseInt(amount_gen) - tokens_already_generated < tokens_cycle_count){
+                                    this_amount_gen = parseInt(amount_gen) - tokens_already_generated;
+                                }else{
+                                    this_amount_gen = tokens_cycle_count;
+                                }
+                            }
+                        }
+
+
                         var generate_data;
                         if(main_api == 'kobold'){
                             var generate_data = {prompt: finalPromt, gui_settings: true,max_length: amount_gen,temperature: temp, max_context_length: max_context};
                             if(preset_settings != 'gui'){
 
-                                var this_settings = koboldai_settings[koboldai_setting_names[preset_settings]];
-                                var this_amount_gen = parseInt(amount_gen);
-                                if(is_pygmalion){
-                                    if(tokens_already_generated === 0){
-                                        if(parseInt(amount_gen) >= 50){
-                                            this_amount_gen = 50;
-                                        }else{
-                                            this_amount_gen = parseInt(amount_gen);
-                                        }
-                                        
-                                    }else{
-                                        if(parseInt(amount_gen) - tokens_already_generated < tokens_cycle_count){
-                                            this_amount_gen = parseInt(amount_gen) - tokens_already_generated;
-                                        }else{
-                                            this_amount_gen = tokens_cycle_count;
-                                        }
-                                    }
-                                }
                                 generate_data = {prompt: finalPromt, 
                                                 gui_settings: false, 
                                                 sampler_order: this_settings.sampler_order,
@@ -963,6 +980,35 @@
                                                 };
                             }
                         }
+
+                        if(main_api == 'textgenerationwebui'){
+
+                            var generate_data = {
+                               data: [
+                                    finalPromt,
+                                    this_amount_gen, // min_length
+                                    true, // do_sample
+                                    textgenerationwebui_settings.temp, // temperature
+                                    textgenerationwebui_settings.top_p, // top_p
+                                    textgenerationwebui_settings.typical_p, // typical_p
+                                    textgenerationwebui_settings.rep_pen, // repetition_penalty
+                                    textgenerationwebui_settings.top_k, // top_k
+                                    0, // min_length
+                                    textgenerationwebui_settings.rep_pen_size, // no_repeat_ngram_size
+                                    1, // num_beams
+                                    0, // penalty_alpha
+                                    1, // length_penalty
+                                    false, // early_stopping
+                                    name1, // name1
+                                    name2, // name2
+                                    "",  // Context
+                                    true, // stop at newline
+                                    1300, // Maximum prompt size in tokens
+                                    1, // num attempts
+                                ]
+                            };
+                        }
+
                         if(main_api == 'novel'){
                             var this_settings = novelai_settings[novelai_setting_names[preset_settings_novel]];
                             generate_data = {"input": finalPromt,
@@ -989,8 +1035,9 @@
                         var generate_url = '';
                         if(main_api == 'kobold'){
                             generate_url = '/generate';
-                        }
-                        if(main_api == 'novel'){
+                        } else if(main_api == 'textgenerationwebui') {
+                            generate_url = '/generate_textgenerationwebui';
+                        } else if(main_api == 'novel'){
                             generate_url = '/generate_novelai';
                         }
                         jQuery.ajax({    
@@ -1008,13 +1055,20 @@
                                 //$("#send_textarea").focus();
                                 //$("#send_textarea").removeAttr('disabled');
                                 is_send_press = false;
-                                if(data.error != true){
+                                if(!data.error) {
                                     //const getData = await response.json();
+                                    var getMessage = "";
                                     if(main_api == 'kobold'){
-                                        var getMessage = data.results[0].text;
-                                    }
-                                    if(main_api == 'novel'){
-                                        var getMessage = data.output;
+                                        getMessage = data.results[0].text;
+                                    } else if (main_api == 'textgenerationwebui') {
+                                        getMessage = data.data[0];
+                                        if (getMessage == null) {
+                                            runGenerate("");
+                                            return;
+                                        }
+                                        getMessage = getMessage.substring(finalPromt.length);
+                                    } else if(main_api == 'novel'){
+                                        getMessage = data.output;
                                     }
 
                                     //Pygmalion run again
@@ -1851,12 +1905,33 @@
                         api_server = api_server+"/api";
                     }
                     //console.log("2: "+api_server);
+                    main_api = "kobold";
                     saveSettings();
                     is_get_status = true;
                     is_api_button_press = true;
                     getStatus();
                 }
             });
+
+
+            $( "#api_button_textgenerationwebui" ).click(function() {
+                if($('#textgenerationwebui_api_url_text').val() != ''){
+                    $("#api_loading_textgenerationwebui").css("display", 'inline-block');
+                    $("#api_button_textgenerationwebui").css("display", 'none');
+                    api_server_textgenerationwebui = $('#textgenerationwebui_api_url_text').val();
+                    api_server_textgenerationwebui = $.trim(api_server_textgenerationwebui);
+                    if(api_server_textgenerationwebui.substr(api_server_textgenerationwebui.length-1,1) == "/"){
+                        api_server_textgenerationwebui = api_server_textgenerationwebui.substr(0,api_server_textgenerationwebui.length-1);
+                    }
+                    //console.log("2: "+api_server_textgenerationwebui);
+                    main_api = "textgenerationwebui";
+                    saveSettings();
+                    is_get_status = true;
+                    is_api_button_press = true;
+                    getStatus();
+                }
+            });
+
             
             $( "body" ).click(function() {
                 if($("#options").css('opacity') == 1.0){
@@ -2028,13 +2103,25 @@
                 if($('#main_api').find(":selected").val() == 'kobold'){
                     $('#kobold_api').css("display", "block");
                     $('#novel_api').css("display", "none");
+                    $('#textgenerationwebui_api').css("display", "none");
                     main_api = 'kobold';
                     $('#max_context_block').css('display', 'block');
                     $('#amount_gen_block').css('display', 'block');
                 }
+                if($('#main_api').find(":selected").val() == 'textgenerationwebui'){
+                    $('#kobold_api').css("display", "none");
+                    $('#novel_api').css("display", "none");
+                    $('#textgenerationwebui_api').css("display", "block");
+                    main_api = 'textgenerationwebui';
+                    $('#max_context_block').css('display', 'block');
+                    $('#amount_gen_block').css('display', 'block');
+                    $('#softprompt_block').css('display', 'block');
+                }
+
                 if($('#main_api').find(":selected").val() == 'novel'){
                     $('#kobold_api').css("display", "none");
                     $('#novel_api').css("display", "block");
+                    $('#textgenerationwebui_api').css("display", "none");
                     main_api = 'novel';
                     $('#max_context_block').css('display', 'none');
                     $('#amount_gen_block').css('display', 'none');
@@ -2066,8 +2153,22 @@
 
                 }
             }
-            
-            
+
+            for (var i of ["temp", "rep_pen", "rep_pen_size", "top_k", "top_p", "typical_p"]) {
+                $('#' + i + '_textgenerationwebui').attr('x-setting-id', i);
+                $(document).on('input', '#' + i + '_textgenerationwebui', function() {
+                    var i = $(this).attr('x-setting-id');
+                    var val = $(this).val();
+                    if(isInt(val)){
+                        $('#' + i + '_counter_textgenerationwebui').html( $(this).val()+".00" );
+                    }else{
+                        $('#' + i + '_counter_textgenerationwebui').html( $(this).val() );
+                    }
+                    textgenerationwebui_settings[i] = val;
+                    setTimeout(saveSettings, 500);
+                });
+            }
+
             $(document).on('input', '#temp', function() {
                 temp = $(this).val();
                 if(isInt(temp)){
@@ -2212,6 +2313,8 @@
 
                             preset_settings = settings.preset_settings;
 
+                            textgenerationwebui_settings = settings.textgenerationwebui_settings || textgenerationwebui_settings;
+
                             temp = settings.temp;
                             amount_gen = settings.amount_gen;
                             if(settings.max_context !== undefined) max_context = parseInt(settings.max_context);
@@ -2298,9 +2401,19 @@
 
                             api_server = settings.api_server;
                             $('#api_url_text').val(api_server);
-                        }
+                            api_server_textgenerationwebui = settings.api_server_textgenerationwebui;
+                            $("#textgenerationwebui_api_url_text").val(api_server_textgenerationwebui);
+
+
+                            for (var i of ["temp", "rep_pen", "rep_pen_size", "top_k", "top_p", "typical_p"]) {
+                                $("#" + i + "_textgenerationwebui")
+                                    .val(textgenerationwebui_settings[i]);
+                                $("#" + i + "_counter_textgenerationwebui")
+                                    .html(textgenerationwebui_settings[i]);
+                            }
+
                         if(!is_checked_colab) isColab();
-                        
+                        }
                     },
                     error: function (jqXHR, exception) {
                         console.log(exception);
@@ -2319,6 +2432,7 @@
                     data: JSON.stringify({
                             username: name1,
                             api_server: api_server,
+                            api_server_textgenerationwebui: api_server_textgenerationwebui,
                             preset_settings: preset_settings,
                             preset_settings_novel: preset_settings_novel,
                             user_avatar: user_avatar,
@@ -2335,7 +2449,8 @@
                             model_novel: model_novel,
                             temp_novel: temp_novel,
                             rep_pen_novel: rep_pen_novel,
-                            rep_pen_size_novel: rep_pen_size_novel
+                            rep_pen_size_novel: rep_pen_size_novel,
+                            textgenerationwebui_settings: textgenerationwebui_settings,
                         }),
                     beforeSend: function(){
 
@@ -2947,10 +3062,11 @@
             <h3 id="title_api">API</h3>
             <select id="main_api" style="color:#fff;background-color:#13152c;" >
                 <option value="kobold">KoboldAI</option>
+                <option value="textgenerationwebui">Text generation web UI</option>
                 <option value="novel">NovelAI</option>
             </select>
             <div id="kobold_api" style="position: relative;">
-                <div style="display:none; position: absolute; right:188px; top:-34px; opacity:0.20;"><a href="https://github.com/KoboldAI/KoboldAI-Client" target="_blank"><img src="img/kobold.png" style="width:40px;height:40px;"></a></div>
+                <div style="display:block; position: absolute; right:188px; top:-34px; opacity:0.20;"><a href="https://github.com/KoboldAI/KoboldAI-Client" target="_blank"><img src="img/kobold.png" style="width:40px;height:40px;"></a></div>
                 <form  action="javascript:void(null);" method="post" enctype="multipart/form-data">
 
                 <h4>API url</h4><h5>Example: http://127.0.0.1:5000/api </h5>
@@ -2974,6 +3090,36 @@
                     <input type="range" id="rep_pen" name="volume" min="1" max="1.5" step="0.01">
                     <h4>Repetition Penalty Range</h4><h5 id="rep_pen_size_counter">select</h5>
                     <input type="range" id="rep_pen_size" name="volume" min="0" max="2048" step="1">
+                </div>
+            </div>
+            <div id="textgenerationwebui_api" style="display: none;position: relative;">
+                <div style="display:block; position: absolute; right:88px; top:-34px; opacity:0.90;"><a href="https://github.com/oobabooga/text-generation-webui" target="_blank">
+                   oobabooga/text-generation-webui
+                </a></div>
+                <form  action="javascript:void(null);" method="post" enctype="multipart/form-data">
+
+                <h4>API url</h4><h5>Example: http://127.0.0.1:7860/ </h5>
+                <input id="textgenerationwebui_api_url_text" name="textgenerationwebui_api_url" class="text_pole" maxlength="500" size="35" value="" autocomplete="off">
+                <input id="api_button_textgenerationwebui" type="submit" value="Connect">
+                <img id="api_loading_textgenerationwebui" src="img/load.svg" >
+                </form>
+                <div id="online_status4">
+                    <div id="online_status_indicator4"></div><div id="online_status_text4">Not connected</div>
+                </div>
+                <div id="range_block">
+                    <h4>Temperature </h4><h5 id="temp_counter_textgenerationwebui">select</h5>
+                    <input type="range" id="temp_textgenerationwebui" name="volume" min="0.1" max="2.0" step="0.01">
+                    <h4>Repetition Penalty </h4><h5 id="rep_pen_counter_textgenerationwebui">select</h5>
+                    <input type="range" id="rep_pen_textgenerationwebui" name="volume" min="1" max="1.5" step="0.01">
+                    <h4>Repetition Penalty Range</h4><h5 id="rep_pen_size_counter_textgenerationwebui">select</h5>
+                    <input type="range" id="rep_pen_size_textgenerationwebui" name="volume" min="0" max="2048" step="1">
+
+                    <h4>Top K</h4><h5 id="top_k_counter_textgenerationwebui">select</h5>
+                    <input type="range" id="top_k_textgenerationwebui" name="volume" min="0" max="200" step="1">
+                    <h4>Top P</h4><h5 id="top_p_counter_textgenerationwebui">select</h5>
+                    <input type="range" id="top_p_textgenerationwebui" name="volume" min="0" max="1" step="0.1">
+                    <h4>Typical P</h4><h5 id="typical_p_counter_textgenerationwebui">select</h5>
+                    <input type="range" id="typical_p_textgenerationwebui" name="volume" min="0" max="1" step="0.1">
                 </div>
             </div>
             <div id="novel_api" style="display: none;position: relative;">
