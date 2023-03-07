@@ -483,10 +483,10 @@ input[type=button] {
     padding-bottom: 5px;
     /* visibility: hidden; */
 }
-#api_url_text{
+#api_url_text, #textgenerationwebui_api_url_text{
     margin-right: 4px;
 }
-#api_button{
+#api_button,#api_button_textgenerationwebui{
     cursor: pointer;
     color:#ffffffaa;
 }
@@ -494,7 +494,7 @@ input[type=button] {
     cursor: pointer;
     color:#ffffffaa;
 }
-#api_loading{
+#api_loading, #api_loading_textgenerationwebui{
     width: 25px;
     height: 25px;
     display: none;
@@ -919,20 +919,20 @@ input[type=button] {
     margin-left: 4px;
     display: inline-block;
 }
-#online_status2{
+#online_status2, #online_status4{
     opacity: 0.5;
     margin-top: 2px;
     margin-left: 10px;
     margin-bottom: 30px;
 }
-#online_status_indicator2{
+#online_status_indicator2, #online_status_indicator4{
     border-radius: 7px;
     width: 14px;
     height: 14px;
     background-color: red;
     display: inline-block;
 }
-#online_status_text2{
+#online_status_text2, #online_status_text4{
     margin-left: 4px;
     display: inline-block;
 }
