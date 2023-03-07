@@ -2164,7 +2164,7 @@
                     }else{
                         $('#' + i + '_counter_textgenerationwebui').html( $(this).val() );
                     }
-                    textgenerationwebui_settings[i] = val;
+                    textgenerationwebui_settings[i] = parseFloat(val);
                     setTimeout(saveSettings, 500);
                 });
             }
