@@ -166,6 +166,10 @@
             
             var colab_ini_step = 1;
 			
+			var stickyNavPref;		//defaults panels to not be sticky
+			var NavOpenClosePref;	//defaults to panel being closed, will remember the open/close state between page loads if user has stickyNavPref enabled.
+			var RefreshByDelChar = false;
+			
            setInterval(function() {
                 switch(colab_ini_step){
                     case 0:
@@ -206,7 +210,11 @@
 					getUserAvatars();
 					autoloadchat();
 					autoconnect();
+					//console.log('BaseLoader -- calling FixRememberedTabs');
+					//FixRememberedTabs();
 				});
+
+			
 				
 			//RossAscends: a smaller load-up function to be used instead of refreshing the page in cases like deleting a character and changing username	
 			function QuickRefresh(){  
@@ -219,15 +227,33 @@
 					getUserAvatars();
 					//console.log(chat);
 					printMessages();
-					$( "#rm_button_selected_ch" ).css("class","deselected-right-tab");
-					$( "#rm_button_selected_ch" ).children("h2").text('');
-					if (NavToggle.checked === false) {
-						document.getElementById('nav-toggle').click();
-					};
+					if(RefreshByDelChar==true){				// checks if we just deleted a character, and if so, deselect them and remove name from nav tab.
+						$( "#rm_button_selected_ch" ).css("class","deselected-right-tab");
+						$( "#rm_button_selected_ch" ).children("h2").text('');
+						RefreshByDelChar = false;
+					}
+					//console.log('QuickRefresh -- calling FixRememberedTabs');
+					//FixRememberedTabs();
 			}
+		function FixRememberedTabs(){
+			console.log('FixRememberedTabs -- starting -- target: '+selected_button);
+			if(selected_button == 'characters'){
+				$('#rm_button_characters').click();
+				console.log('FixRememberedTabs -- BAM -- clicked CHARACTERS LIST');
+			}
+			if(selected_button == 'settings'){
+				$('#rm_button_settings').click();
+				console.log('FixRememberedTabs -- BAM -- clicked SETTINGS');
+			}
+			if(selected_button == 'character_edit'){
+				$('#rm_button_selected_ch').click();
+				console.log('FixRememberedTabs -- BAM -- clicked EDITOR');
+			}
+		}
 
 			//RossAscends: a utility function for counting characters, even works for unsaved characters. 
 			function CountCharTokens(){
+				this_chid = active_character;
 				$('#result_info').html('');
 				if (selected_button == 'create'){
 					var count_tokens = encode(JSON.stringify(create_save_description+create_save_personality+create_save_scenario+create_save_mes_example)).length;
@@ -1241,7 +1267,11 @@
                 });
             }
             async function getChat() {
-                console.log('/getchat -- entered for -- '+characters[this_chid].name);
+                if (this_chid == undefined){
+					this_chid = active_character
+				}
+					
+				console.log('/getchat -- entered for -- '+characters[this_chid].name);
                 jQuery.ajax({    
                     type: 'POST', 
                     url: '/getchat', 
@@ -1305,8 +1335,60 @@
                     }
                 }
                 printMessages();
-                select_selected_character(this_chid);
+				//console.log('getChatResult -- ending and calling FixRememberedTabs');
+				//FixRememberedTabs();
+                //select_selected_character(this_chid);
             }
+		//RossAscends: This is a copy of select_selected_character that doesn't force the edit_character tab to be displayed, used during AutoLoadChat to preserve last nav tab opened.
+			function QuietCharSelect(){
+				console.log('QuietCharSelect -- beginning');
+				var chid = active_character;
+				var this_chid = active_character;
+				var display_name = characters[chid].name;
+				 $( "#rm_button_selected_ch" ).children("h2").text(display_name);
+				 
+				var i = 0;
+                while($( "#rm_button_selected_ch" ).width() > 170 && i < 100){
+                    display_name = display_name.slice(0,display_name.length-2);
+                    //console.log(display_name);
+                    $( "#rm_button_selected_ch" ).children("h2").text($.trim(display_name)+'...');
+                    i++;
+                }
+                $("#add_avatar_button").val('');
+
+                $('#character_popup_text_h3').text(characters[chid].name);
+				
+                $("#character_name_pole").val(characters[chid].name);
+                $("#description_textarea").val(characters[chid].description);
+                $("#personality_textarea").val(characters[chid].personality);
+                $("#firstmessage_textarea").val(characters[chid].first_mes);
+                $("#scenario_pole").val(characters[chid].scenario);
+                $("#mes_example_textarea").val(characters[chid].mes_example);
+                $("#selected_chat_pole").val(characters[chid].chat);
+                $("#create_date_pole").val(characters[chid].create_date);
+                $("#avatar_url_pole").val(characters[chid].avatar);
+                $("#chat_import_avatar_url").val(characters[chid].avatar);
+                $("#chat_import_character_name").val(characters[chid].name);
+                //$("#avatar_div").css("display", "none");
+                var this_avatar = default_avatar;
+                if(characters[chid].avatar != 'none'){
+                        this_avatar = "characters/"+characters[chid].avatar;
+                }
+                $("#avatar_load_preview").attr('src',this_avatar+"#"+Date.now());
+                $("#name_div").css("display", "none");
+                
+                $("#form_create").attr("actiontype", "editcharacter");
+                clearChat();
+                chat.length = 0;
+                getChat();
+				//console.log('QuietCharSelect -- calling FixRememberedTabs');
+				FixRememberedTabs();
+				//console.log('select_selected_character() -- active_character -- '+chid+'(ChID of '+display_name+')');
+				saveSettings();
+				//console.log('QuietCharSelect -- finished');
+				//console.log('select_selected_character() -- called saveSettings() to save -- active_character -- '+active_character+'(ChID of '+display_name+')');
+
+			}
 			
 			//hotkey to send input with enter (shift+enter generates a new line in the chat input box)
 			//this is not ideal for touch device users with virtual keyboards.
@@ -1364,9 +1446,11 @@
                 $( "#rm_button_characters" ).css("class","deselected-right-tab");
                 $( "#rm_button_settings" ).css("class","selected-right-tab");
                 $( "#rm_button_selected_ch" ).css("class","deselected-right-tab");
+				saveSettings();
             });
             $( "#rm_button_characters" ).click(function() {
                 selected_button = 'characters';
+				saveSettings();
                 select_rm_characters();
             });
             $( "#rm_button_back" ).click(function() {
@@ -1456,6 +1540,7 @@
                 $( "#rm_button_characters" ).css("class","selected-right-tab");
                 $( "#rm_button_settings" ).css("class","deselected-right-tab");
                 $( "#rm_button_selected_ch" ).css("class","deselected-right-tab");
+				saveSettings();
             }
             function select_rm_info(text){
                 $( "#rm_characters_block" ).css("display", "none");
@@ -1471,7 +1556,8 @@
             }
             function select_selected_character(chid){ //character select
                 //console.log('select_selected_character() -- starting with input of -- '+chid+' (name:'+characters[chid].name+')');
-                select_rm_create();
+                chid = active_character;
+				select_rm_create();
                 menu_type = 'character_edit';
                 $( "#delete_button" ).css("display", "block");
 				$( "#export_button" ).css("display", "block");
@@ -1525,8 +1611,9 @@
             $(document).on('click', '.character_select', function(){
                 if(this_chid !== $(this).attr("chid")){					//if clicked on a different character from what was currently selected
                     if(!is_send_press){
+
 						this_edit_mes_id = undefined;
-                        selected_button = 'character_edit';
+                        //selected_button = 'character_edit';
                         this_chid = $(this).attr("chid");
 						active_character = this_chid;
                         clearChat();
@@ -1536,8 +1623,8 @@
 						//console.log('Clicked on '+characters[this_chid].name+' Active_Character set to: '+active_character+' (ChID:'+this_chid+')');
                     }
                 }else{	//if clicked on character that was already selected
-                    selected_button = 'character_edit';
-                    select_selected_character(this_chid);
+                    //selected_button = 'character_edit';
+                   // select_selected_character(this_chid);
                 }
                 
             });
@@ -1682,6 +1769,7 @@
 							characters.length = 0;						// resets the characters array, forcing getcharacters to reset
 							name2="Chloe";								// replaces deleted charcter name with Chloe, since she wil be displayed next.
 							chat = safetychat;							// sets up chloe to tell user about having deleted a character
+							RefreshByDelChar = true;					// this tells QuickRefresh that it's happenening due to a character being deleted.
 							saveSettings();								// saving settings to keep changes to variables
 							QuickRefresh();								// call quick refresh of Char list, clears chat, and loads Chloe 'post-char-delete' message.
                             //location.reload();						// this is Humi's original code
@@ -2039,7 +2127,6 @@
 			}); 
 
 		// RossAscends: Added functionality that will close the RightNav panel click outside of it or related panels (adv editing popup, or dialog popups)		
-			
 			var NavToggle = document.getElementById("nav-toggle");
 			var PanelPin = document.getElementById("rm_button_panel_pin");
 			$('document').ready(function(){
@@ -2057,6 +2144,18 @@
 					};
 				});
 			});
+			
+		//RossAscends: saving the state of the right nav panel lock toggle and the open/closed state of nav panel itself
+			$('#nav-toggle').change(function() {			// saves the open/close state of the right nav 
+				NavOpenClosePref = NavToggle.checked;
+				console.log('NavToggle sensor: '+NavOpenClosePref);
+				saveSettings();
+				});
+            $('#rm_button_panel_pin').change(function() {			// saves the state of the right nav lock between page loads
+                stickyNavPref = PanelPin.checked;
+				console.log('Pin Change -- Sticky: '+stickyNavPref+', NavOpen: '+NavOpenClosePref);
+                saveSettings();
+            });
             
             $( "#options_button" ).click(function() {					// this is the options button click function, shows the options menu if closed
                 if($("#options").css('display') === 'none' && $("#options").css('opacity') == 0.0){
@@ -2427,6 +2526,11 @@
 							if(settings.auto_connect !== undefined) auto_connect = !!settings.auto_connect;
                             if(settings.auto_load_chat !== undefined) auto_load_chat = !!settings.auto_load_chat;
 						
+							stickyNavPref = settings.stickyNavPref;									//getsettings
+							NavOpenClosePref = settings.NavOpenClosePref;							//getsettings
+							selected_button = settings.selected_button;
+							//console.log('getSettings -- loaded selected_button as: '+selected_button);
+						
                             rep_pen = settings.rep_pen;
                             rep_pen_size = settings.rep_pen_size;
    
@@ -2441,6 +2545,10 @@
                             
 							$('#auto-connect-checkbox').prop('checked', auto_connect);
                             $('#auto-load-chat-checkbox').prop('checked', auto_load_chat);
+							
+							//console.log('getSettings() -- applying -- StickyPin:'+stickyNavPref);
+							$('#rm_button_panel_pin').prop('checked', stickyNavPref);
+							$('#nav-toggle').prop('checked', NavOpenClosePref);
 							
                             $('#max_context').val(max_context);
                             $('#max_context_counter').html(max_context+' Tokens');
@@ -2556,7 +2664,10 @@
                             temp_novel: temp_novel,
                             rep_pen_novel: rep_pen_novel,
                             rep_pen_size_novel: rep_pen_size_novel,
-							active_character: active_character
+							active_character: active_character,
+							stickyNavPref: stickyNavPref,
+							NavOpenClosePref: NavOpenClosePref,
+							selected_button: selected_button
                         }),
                     beforeSend: function(){
 //console.log('saveSettings() -- active_character -- '+active_character);
@@ -2568,9 +2679,15 @@
                     //processData: false, 
                     success: function(data){
                         //online_status = data.result;
-                        if(type === 'change_name'){
+                        console.log('saveSettings() -- saving -- selected_button: '+selected_button);
+
+						
+						if(type === 'change_name'){
+
                             QuickRefresh();				//RossAscends: No more page reload on username change
 							//location.reload();
+							//console.log('saveSettings - finishing and calling FixRememberedTabs');
+							//FixRememberedTabs();
                         }
 
                     },
@@ -2580,7 +2697,7 @@
 
                     }
                 });
-
+			
             }
             $('#donation').click(function(){
                 $('#shadow_tips_popup').css('display', 'block');
@@ -2988,7 +3105,7 @@
 
             });
 			//RossAscends: auto-load last character function (fires when active_character is defined and auto_load_chat is true)					
-			function autoloadchat(){
+			async function autoloadchat(){
 				console.log('starting autoloadchat routine');
 				jQuery.ajax({    
                     type: 'POST', 
@@ -3013,8 +3130,16 @@
 						console.log('auto_load_chat = '+auto_load_chat);
 						
 						if (active_character !== undefined && auto_load_chat == true){
-							$('#CharID'+active_character).click(); //will auto-select and load chat of last selected character is auto_load_chat is true
+							//console.log('autoloadchat -- incoming selected_button: '+selected_button);
+							var true_selected_button = selected_button;
+							//console.log('autoloadchat -- entering QCS -- selected_button as: '+selected_button);
+							QuietCharSelect();
+							//console.log('autoloadchat -- post QCS -- selected_button: '+selected_button);
+							selected_button = true_selected_button;
 						}
+						//console.log('autoloadchat -- finishing and calling FixRememberedTabs');
+						//FixRememberedTabs();
+
 					},
 					error: function (jqXHR, exception) {
                         console.log(exception);
@@ -3026,7 +3151,9 @@
 			}	
 			//RossAscends: auto-connect to last API function (fires when API URL exists in settings and auto_connect is true)		
 			function autoconnect(){
-				console.log('starting autoconnect routine');
+				//console.log('autoconnect -- entered');
+				//console.log('autoconnect -- Calling FixRememberedTabs');
+				//FixRememberedTabs();
 				jQuery.ajax({    
                     type: 'POST', 
                     url: '/getsettings', 
@@ -3059,6 +3186,8 @@
                 });
 							
 			}	
+		
+
 			
 		});
 		
