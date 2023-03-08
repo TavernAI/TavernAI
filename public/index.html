@@ -1337,58 +1337,66 @@
                 printMessages();
 				//console.log('getChatResult -- ending and calling FixRememberedTabs');
 				//FixRememberedTabs();
-                //select_selected_character(this_chid);
+                //select_selected_character(this_chid);	//getchatresults - this makes it switch on charlist click.
             }
-		//RossAscends: This is a copy of select_selected_character that doesn't force the edit_character tab to be displayed, used during AutoLoadChat to preserve last nav tab opened.
-			function QuietCharSelect(){
-				console.log('QuietCharSelect -- beginning');
-				var chid = active_character;
-				var this_chid = active_character;
-				var display_name = characters[chid].name;
-				 $( "#rm_button_selected_ch" ).children("h2").text(display_name);
-				 
-				var i = 0;
-                while($( "#rm_button_selected_ch" ).width() > 170 && i < 100){
-                    display_name = display_name.slice(0,display_name.length-2);
-                    //console.log(display_name);
-                    $( "#rm_button_selected_ch" ).children("h2").text($.trim(display_name)+'...');
-                    i++;
-                }
-                $("#add_avatar_button").val('');
-
-                $('#character_popup_text_h3').text(characters[chid].name);
+		//RossAscends: This is a copy of select_selected_char that doesn't force the edit_character tab to be displayed, used during AutoLoadChat to preserve last nav tab opened.
+		function QuietCharSelect(){
+			
+			var chid = active_character;
+			var this_chid = active_character;
+			
+			if(this_chid != undefined){
+				//console.log('QCS - detected character to load');
+				if (this_chid != 'invalid-safety-id') {
+					//console.log('QCS - defined char is not invalid safety ID');
+					//console.log('QuietCharSelect -- beginning');
+					
 				
-                $("#character_name_pole").val(characters[chid].name);
-                $("#description_textarea").val(characters[chid].description);
-                $("#personality_textarea").val(characters[chid].personality);
-                $("#firstmessage_textarea").val(characters[chid].first_mes);
-                $("#scenario_pole").val(characters[chid].scenario);
-                $("#mes_example_textarea").val(characters[chid].mes_example);
-                $("#selected_chat_pole").val(characters[chid].chat);
-                $("#create_date_pole").val(characters[chid].create_date);
-                $("#avatar_url_pole").val(characters[chid].avatar);
-                $("#chat_import_avatar_url").val(characters[chid].avatar);
-                $("#chat_import_character_name").val(characters[chid].name);
-                //$("#avatar_div").css("display", "none");
-                var this_avatar = default_avatar;
-                if(characters[chid].avatar != 'none'){
-                        this_avatar = "characters/"+characters[chid].avatar;
-                }
-                $("#avatar_load_preview").attr('src',this_avatar+"#"+Date.now());
-                $("#name_div").css("display", "none");
-                
-                $("#form_create").attr("actiontype", "editcharacter");
-                clearChat();
-                chat.length = 0;
-                getChat();
-				//console.log('QuietCharSelect -- calling FixRememberedTabs');
-				FixRememberedTabs();
-				//console.log('select_selected_character() -- active_character -- '+chid+'(ChID of '+display_name+')');
-				saveSettings();
-				//console.log('QuietCharSelect -- finished');
-				//console.log('select_selected_character() -- called saveSettings() to save -- active_character -- '+active_character+'(ChID of '+display_name+')');
+					var display_name = characters[chid].name;
+					$( "#rm_button_selected_ch" ).children("h2").text(display_name);
+				 
+					var i = 0;
+					while($( "#rm_button_selected_ch" ).width() > 170 && i < 100){
+						display_name = display_name.slice(0,display_name.length-2);
+						//console.log(display_name);
+						$( "#rm_button_selected_ch" ).children("h2").text($.trim(display_name)+'...');
+						i++;
+					}
+					$("#add_avatar_button").val('');
 
+					$('#character_popup_text_h3').text(characters[chid].name);
+				
+					$("#character_name_pole").val(characters[chid].name);
+					$("#description_textarea").val(characters[chid].description);
+					$("#personality_textarea").val(characters[chid].personality);
+					$("#firstmessage_textarea").val(characters[chid].first_mes);
+					$("#scenario_pole").val(characters[chid].scenario);
+					$("#mes_example_textarea").val(characters[chid].mes_example);
+					$("#selected_chat_pole").val(characters[chid].chat);
+					$("#create_date_pole").val(characters[chid].create_date);
+					$("#avatar_url_pole").val(characters[chid].avatar);
+					$("#chat_import_avatar_url").val(characters[chid].avatar);
+					$("#chat_import_character_name").val(characters[chid].name);
+					//$("#avatar_div").css("display", "none");
+					var this_avatar = default_avatar;
+					if(characters[chid].avatar != 'none'){
+                        this_avatar = "characters/"+characters[chid].avatar;
+					}
+					$("#avatar_load_preview").attr('src',this_avatar+"#"+Date.now());
+					$("#name_div").css("display", "none");
+                
+					$("#form_create").attr("actiontype", "editcharacter");
+					clearChat();
+					chat.length = 0;
+					getChat();
+					//console.log('QuietCharSelect -- calling FixRememberedTabs');
+					FixRememberedTabs();
+					//console.log('select_selected_character() -- active_character -- '+chid+'(ChID of '+display_name+')');
+					saveSettings();
+					//console.log('QuietCharSelect -- finished');
+				}
 			}
+		}
 			
 			//hotkey to send input with enter (shift+enter generates a new line in the chat input box)
 			//this is not ideal for touch device users with virtual keyboards.
@@ -1459,11 +1467,11 @@
             });
             $( "#rm_button_create" ).click(function() {
                 selected_button = 'create';
-                select_rm_create();
+                select_rm_create();		//when the actual tab button is pressed
             });
             $( "#rm_button_selected_ch" ).click(function() {
                 selected_button = 'character_edit';
-                select_selected_character(this_chid);
+                select_selected_character(this_chid);	//triggers when the tab icon is clicked
             });
             function select_rm_create(){
                 menu_type = 'create';
@@ -1557,7 +1565,7 @@
             function select_selected_character(chid){ //character select
                 //console.log('select_selected_character() -- starting with input of -- '+chid+' (name:'+characters[chid].name+')');
                 chid = active_character;
-				select_rm_create();
+				select_rm_create();		//select_selected_character
                 menu_type = 'character_edit';
                 $( "#delete_button" ).css("display", "block");
 				$( "#export_button" ).css("display", "block");
@@ -1609,6 +1617,7 @@
 				
             }
             $(document).on('click', '.character_select', function(){
+				this_chid = active_character;
                 if(this_chid !== $(this).attr("chid")){					//if clicked on a different character from what was currently selected
                     if(!is_send_press){
 
@@ -1619,12 +1628,13 @@
                         clearChat();
                         chat.length = 0;
                         getChat();
+						select_selected_character(this_chid);
 
 						//console.log('Clicked on '+characters[this_chid].name+' Active_Character set to: '+active_character+' (ChID:'+this_chid+')');
                     }
                 }else{	//if clicked on character that was already selected
                     //selected_button = 'character_edit';
-                   // select_selected_character(this_chid);
+                   select_selected_character(this_chid);		// .character_Select char list click only swaps nav panels when same char is clicked
                 }
                 
             });
@@ -3126,19 +3136,23 @@
                                 }
                            }
                         }
-						console.log('active_character = '+active_character);
-						console.log('auto_load_chat = '+auto_load_chat);
+						//console.log('autoloadchat -- active_character -- '+ active_character);
+						//console.log('auto_load_chat = '+ auto_load_chat);
 						
-						if (active_character !== undefined && auto_load_chat == true){
-							//console.log('autoloadchat -- incoming selected_button: '+selected_button);
-							var true_selected_button = selected_button;
-							//console.log('autoloadchat -- entering QCS -- selected_button as: '+selected_button);
-							QuietCharSelect();
-							//console.log('autoloadchat -- post QCS -- selected_button: '+selected_button);
-							selected_button = true_selected_button;
+						if (active_character !== undefined){
+							//console.log('detected defined character');
+							if(auto_load_chat == true){
+								//console.log('detected active autoloadchat setting');
+								//console.log('autoloadchat -- incoming selected_button: '+selected_button);
+								//var true_selected_button = selected_button;
+								//console.log('autoloadchat -- entering QCS -- selected_button as: '+selected_button);
+								QuietCharSelect();
+								//console.log('autoloadchat -- post QCS -- selected_button: '+selected_button);
+								//selected_button = true_selected_button;
+							}
 						}
 						//console.log('autoloadchat -- finishing and calling FixRememberedTabs');
-						//FixRememberedTabs();
+						FixRememberedTabs();
 
 					},
 					error: function (jqXHR, exception) {
@@ -3172,8 +3186,8 @@
                             api_server = settings.api_server;
                             $('#api_url_text').val(api_server);
                         }
-						console.log('api_server = '+ api_server );
-						console.log('auto_connect = '+ auto_connect);
+						//console.log('api_server = '+ api_server );
+						//console.log('auto_connect = '+ auto_connect);
 						if(api_server !== ''&& auto_connect == true){
 							$('#api_button').click();	
 						}
