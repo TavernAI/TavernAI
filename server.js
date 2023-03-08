@@ -215,6 +215,10 @@ app.post("/generate", jsonParser, function(request, response_generate = response
                         //temperature: request.body.temperature,
                         //max_length: request.body.max_length
                         };
+
+    if(request.body.singleline) {
+        this_settings.singleline = true;
+    }
                         
     if(request.body.gui_settings == false){
         var sampler_order = [request.body.s1,request.body.s2,request.body.s3,request.body.s4,request.body.s5,request.body.s6,request.body.s7];
@@ -229,6 +233,7 @@ app.post("/generate", jsonParser, function(request, response_generate = response
                         rep_pen_range: request.body.rep_pen_range,
                         rep_pen_slope: request.body.rep_pen_slope,
                         temperature: request.body.temperature,
+                        singleline: request.body.singleline,
                         tfs: request.body.tfs,
                         top_a: request.body.top_a,
                         top_k: request.body.top_k,
@@ -236,6 +241,10 @@ app.post("/generate", jsonParser, function(request, response_generate = response
                         typical: request.body.typical,
                         sampler_order: sampler_order
                         };
+
+        if(request.body.singleline) {
+            this_settings.singleline = true;
+        }
     }
 
     console.log(this_settings);

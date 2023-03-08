@@ -1207,6 +1207,11 @@ label.checkbox :checked + span:after {
     grid-template-rows: 30px auto;
     grid-template-columns: auto auto;
 }
+#anchor_checkbox h4 {
+    height: 30px;
+    line-height: 24px;
+    text-anchor: middle;
+}
 
 
 #shadow_character_popup{
