@@ -7,3 +7,4 @@ public/backgrounds/
 *.jsonl
 public/settings.json
 config.conf
+.vscode
