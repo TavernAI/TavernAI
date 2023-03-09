@@ -1,4 +1,4 @@
-import { encode, decode } from "../scripts/gpt-2-3-tokenizer/mod.js";
+import { encode } from "../scripts/gpt-2-3-tokenizer/mod.js";
 
 //importing functions from RossAscends-mods.js
 import {
