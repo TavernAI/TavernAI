@@ -1777,8 +1777,8 @@
 							active_character = 'invalid-safety-id';		//unsets the chid in settings (this prevents AutoLoadChat from trying to load the wrong ChID
 							this_chid = 'invalid-safety-id';			//unsets expected chid before reloading (related to getCharacters/printCharacters from using old arrays)
 							characters.length = 0;						// resets the characters array, forcing getcharacters to reset
-							name2="Chloe";								// replaces deleted charcter name with Chloe, since she wil be displayed next.
-							chat = safetychat;							// sets up chloe to tell user about having deleted a character
+							name2="Chloe";								// replaces deleted charcter name with Chloe, since she will be displayed next.
+							chat = [...safetychat];						// sets up chloe to tell user about having deleted a character
 							RefreshByDelChar = true;					// this tells QuickRefresh that it's happenening due to a character being deleted.
 							saveSettings();								// saving settings to keep changes to variables
 							QuickRefresh();								// call quick refresh of Char list, clears chat, and loads Chloe 'post-char-delete' message.
