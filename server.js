@@ -694,7 +694,7 @@ app.post("/downloadbackground", urlencodedParser, function(request, response){
 app.post("/savesettings", jsonParser, function(request, response){
 
 
-    fs.writeFile('public/settings.json', JSON.stringify(request.body), 'utf8', function(err) {
+    fs.writeFile('public/settings.json', JSON.stringify(request.body, undefined, 2), 'utf8', function(err) {
         if(err) {
             response.send(err);
             return console.log(err);
