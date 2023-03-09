@@ -93,8 +93,8 @@
                     type: 'POST', // 
                     url: '/getlastversion', // 
                     data: JSON.stringify({
-                            '': ''
-                        }),
+                        '': ''
+                    }),
                     beforeSend: function(){
 
 
@@ -126,8 +126,8 @@
                         type: 'POST', // 
                         url: '/getstatus', // 
                         data: JSON.stringify({
-                                api_server: api_server
-                            }),
+                        api_server: api_server
+                        }),
                         beforeSend: function(){
                             if(is_api_button_press){
                                 //$("#api_loading").css("display", 'inline-block');
@@ -251,8 +251,8 @@
 						"X-CSRF-Token": token
 					},
                     body: JSON.stringify({
-                            "": ""
-                        })
+                        "": ""
+                    })
 
                 });
                 if (response.ok === true) {
@@ -278,8 +278,8 @@
 						"X-CSRF-Token": token
 					},
                     body: JSON.stringify({
-                            "": ""
-                        })
+                        "": ""
+                    })
 
                 });
                 if (response.ok === true) {
@@ -304,8 +304,8 @@
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
-                            "bg": bg
-                        })
+                        "bg": bg
+                    })
 
                 });
                 if (response.ok === true) {
@@ -320,8 +320,8 @@
                     type: 'POST', // 
                     url: '/setbackground', // 
                     data: JSON.stringify({
-                            bg: bg
-                        }),
+                        bg: bg
+                    }),
                     beforeSend: function(){
                         //$('#create_button').attr('value','Creating...'); // 
                     },
@@ -348,8 +348,8 @@
 						"X-CSRF-Token": token
 					},
                     body: JSON.stringify({
-                            "bg": bg
-                        })
+                        "bg": bg
+                        })
 
                 });
                 if (response.ok === true) {
@@ -2020,8 +2020,8 @@ console.log('Generate() -- type: '+type);
 						"X-CSRF-Token": token
 					},
                     body: JSON.stringify({
-                            "": ""
-                        })
+                        "": ""
+                    })
 
                 });
                 if (response.ok === true) {
@@ -2314,7 +2314,7 @@ console.log('Generate() -- type: '+type);
                     url: '/savesettings', 
                     data: JSON.stringify({
                             username: name1,
-                            api_server: api_server,
+                            api_server: api_server,
                             preset_settings: preset_settings,
                             preset_settings_novel: preset_settings_novel,
                             user_avatar: user_avatar,
@@ -2338,7 +2338,7 @@ console.log('Generate() -- type: '+type);
 							stickyNavPref: stickyNavPref,
 							auto_connect: auto_connect,
 							auto_load_chat: auto_load_chat
-                        }),
+                        }),
                     beforeSend: function(){
 
 
