@@ -140,7 +140,6 @@
 		//console.log('finished loading global vars for RA-mods');
 	</script>
 
-
 	<script type="module" src="TAI-main.js"></script> <!--moved main TAI functions outside HTML-->
 	<script type="module" src="scripts/RossAscends-mods.js"></script>
 	<link rel="stylesheet" type="text/css" href="style.css">
@@ -421,7 +420,7 @@
 								<div class="range-block-counter">
 									<h5 id="temp_counter">select</h5>
 								</div>
-								<div class="range-block-range"><input type="range" id="temp" name="volume" min="0.1"
+								<div class="range-block-range"><input type="range" id="temp" class="isrange" name="volume" min="0.1"
 										max="2.0" step="0.01"></div>
 							</div>
 							<div class="range-block">
@@ -431,7 +430,7 @@
 								<div class="range-block-counter">
 									<h5 id="rep_pen_counter">select</h5>
 								</div>
-								<div class="range-block-range"><input type="range" id="rep_pen" name="volume" min="1"
+								<div class="range-block-range"><input type="range" id="rep_pen" class="isrange" name="volume" min="1"
 										max="1.5" step="0.01"></div>
 							</div>
 							<div class="range-block">
@@ -441,13 +440,12 @@
 								<div class="range-block-counter">
 									<h5 id="rep_pen_size_counter">select</h5>
 								</div>
-								<div class="range-block-range"><input type="range" id="rep_pen_size" name="volume"
-										min="0" max="2048" step="1"></div>
+								<div class="range-block-range"><input type="range" id="rep_pen_size" class="isrange" name="volume"
+										min="0" max="2048" step="8"></div>
 							</div>
 						</div>
 					</div>
 				</div>
-
 				<div id="novel_api" style="display: none;position: relative;"> <!-- shows the novel settings -->
 					<div class="API-logo">
 						<a href="https://novelai.net/" target="_blank">
@@ -480,14 +478,20 @@
 					</select>
 					<div id="range_block_novel">
 						<h4>Temperature </h4>
-						<h5 id="temp_counter_novel">select</h5>
-						<input type="range" id="temp_novel" name="volume" min="0.1" max="2.0" step="0.01">
+						<div class="range-block-counter">
+							<h5 id="temp_novel_counter">select</h5>
+						</div>
+						<input type="range" id="temp_novel" class="isrange" name="volume" min="0.1" max="2.0" step="0.01">
 						<h4>Repetition Penalty </h4>
-						<h5 id="rep_pen_counter_novel">select</h5>
-						<input type="range" id="rep_pen_novel" name="volume" min="1" max="1.5" step="0.01">
+						<div class="range-block-counter">
+							<h5 id="rep_pen_novel_counter">select</h5>
+						</div>
+						<input type="range" id="rep_pen_novel" class="isrange" name="volume" min="1" max="1.5" step="0.01">
 						<h4>Repetition Penalty Range</h4>
-						<h5 id="rep_pen_size_counter_novel">select</h5>
-						<input type="range" id="rep_pen_size_novel" name="volume" min="0" max="2048" step="1">
+						<div class="range-block-counter">
+							<h5 id="rep_pen_size_novel_counter">select</h5>
+						</div>
+						<input type="range" id="rep_pen_size_novel" class="isrange" name="volume" min="0" max="2048" step="8">
 					</div>
 				</div>
 			</div>
@@ -510,16 +514,20 @@
 			<hr>
 
 			<div id="pro-settings-block">
-				<h3>Pro Settings</h3>
+				<h3>Context Settings</h3>
 				<div id="amount_gen_block">
-					<h4>Amount generation </h4>
-					<h5 id="amount_gen_counter">select</h5>
-					<input type="range" id="amount_gen" name="volume" min="16" max="512" step="1">
+					<h4>Amount generation</h4>
+					<div class="range-block-counter">
+						<h5 id="amount_gen_counter" class="range-block-counter">select</h5>
+					</div>
+					<input type="range" id="amount_gen" class="isrange" name="volume" min="16" max="512" step="2">
 				</div>
 				<div id="max_context_block">
 					<h4>Context Size</h4>
-					<h5 id="max_context_counter">select</h5>
-					<input type="range" id="max_context" name="volume" min="512" max="2048" step="1">
+					<div class="range-block-counter">
+						<h5 id="max_context_counter" class="range-block-counter">select</h5>
+					</div>
+					<input type="range" id="max_context" class="isrange" name="volume" min="512" max="2048" step="8">
 				</div>
 				<div id="anchors-block">
 					<h4>Anchors Order</h4>

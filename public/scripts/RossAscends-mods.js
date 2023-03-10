@@ -12,7 +12,11 @@ import {
 
 var NavToggle = document.getElementById("nav-toggle");
 var PanelPin = document.getElementById("rm_button_panel_pin");
-
+var SelectedCharacterTab = document.getElementById("rm_button_selected_ch");
+var RightNavPanel = document.querySelector('#right-nav-panel');
+var AdvancedCharDefsPopup = document.querySelector('#character_popup');
+var ConfirmationPopup = document.querySelector('#dialogue_popup');
+var active_character;
 
 //RossAscends: Added function to format dates used in files and chat timestamps to a humanized format.
 //Mostly I wanted this to be for file names, but couldn't figure out exactly where the filename save code was as everything seemed to be connected. 
@@ -31,25 +35,22 @@ export function humanizedISO8601DateTime() {
 	let humanMillisecond = (baseDate.getMilliseconds() < 10 ? '0' : '') + baseDate.getMilliseconds();
 	let HumanizedDateTime = (humanYear + "-" + humanMonth + "-" + humanDate + " @" + humanHour + "h " + humanMinute + "m " + humanSecond + "s " + humanMillisecond + "ms");
 	return HumanizedDateTime;
-};
+}
 
 //RossAscends: a smaller load-up function to be used instead of refreshing the page in cases like deleting a character and changing username	
 export function RA_QuickRefresh(RefreshByDelChar) {
 	console.log('RA_QR -- RefreshByDelChar: ' + RefreshByDelChar);
 	clearChat();
-
-	//characters.length = 0		//if this could be enabled it would allow the GetCharacters function to detect files added or removed from the char dir on each panel load
 	//console.log('RA_QR() -- active_character -- '+active_character);
 	//console.log('RA_QR() -- this_chid -- '+this_chid);
 	getSettings("def");
 	getCharacters();
 	getUserAvatars();
-	//console.log(chat);
 	printMessages();
-	if (RefreshByDelChar == true || active_character == 'invalid-safety-id') {				// checks if we just deleted a character, and if so, deselect them and remove name from nav tab.
-		console.log('RA_QR -- delete is true, clearing sel char tab');
-		$("#rm_button_selected_ch").css("class", "deselected-right-tab");
-		$("#rm_button_selected_ch").children("h2").text('');
+	//checked for a deleted character, and if so clear the selected character tab's name
+	if (RefreshByDelChar == true || active_character == 'invalid-safety-id') {
+		$(SelectedCharacterTab).css("class", "deselected-right-tab");
+		$(SelectedCharacterTab).children("h2").text('');
 		RefreshByDelChar = false;
 	}
 	//console.log('QuickRefresh -- calling FixRememberedTabs');
@@ -107,73 +108,7 @@ export function RA_checkOnlineStatus() {
 }
 //RossAscends: updated character sorting to be alphabetical
 export function RA_CharListSort() {
-	characters.sort(function (a, b) {
-		//console.log('sorting characters: '+a.name+' vs '+b.name);
-		if (a.name < b.name) {
-			return -1
-		}
-		if (a.name > b.name) {
-			return 1;
-		}
-		return 0;
-
-	});
-}
-//RossAscends: This is a copy of select_selected_char that doesn't force the edit_character tab to be displayed, used during AutoLoadChat to preserve last nav tab opened.
-async function RA_QuietCharSelect(active_character) {
-	console.log('RA_QCS -- load -- target: ' + active_character);
-
-	//var this_chid = active_character;
-
-	if (active_character != undefined) {
-		console.log('RA_QCS -- start -- target: ' + active_character);
-		console.log('RA_QCS -- this_chid: ' + this_chid);
-		if (this_chid != 'invalid-safety-id') {
-			var chid = active_character;
-			var display_name = characters[chid].name;
-
-			$("#rm_button_selected_ch").children("h2").text(display_name);
-
-			var i = 0;
-			while ($("#rm_button_selected_ch").width() > 170 && i < 100) {
-				display_name = display_name.slice(0, display_name.length - 2);
-				//console.log(display_name);
-				$("#rm_button_selected_ch").children("h2").text($.trim(display_name) + '...');
-				i++;
-			}
-			$("#add_avatar_button").val('');
-			$('#character_popup_text_h3').text(characters[chid].name);
-			$("#character_name_pole").val(characters[chid].name);
-			$("#description_textarea").val(characters[chid].description);
-			$("#personality_textarea").val(characters[chid].personality);
-			$("#firstmessage_textarea").val(characters[chid].first_mes);
-			$("#scenario_pole").val(characters[chid].scenario);
-			$("#mes_example_textarea").val(characters[chid].mes_example);
-			$("#selected_chat_pole").val(characters[chid].chat);
-			$("#create_date_pole").val(characters[chid].create_date);
-			$("#avatar_url_pole").val(characters[chid].avatar);
-			$("#chat_import_avatar_url").val(characters[chid].avatar);
-			$("#chat_import_character_name").val(characters[chid].name);
-			//$("#avatar_div").css("display", "none");
-			var this_avatar = default_avatar;
-			if (characters[chid].avatar != 'none') {
-				this_avatar = "characters/" + characters[chid].avatar;
-			}
-			$("#avatar_load_preview").attr('src', this_avatar + "#" + Date.now());
-			$("#name_div").css("display", "none");
-			$("#form_create").attr("actiontype", "editcharacter");
-			console.log('RA_QCS - calling RA_clearChat()');
-			clearChat();
-			chat.length = 0;
-			console.log('RA_QCS - calling RA_getChat()');
-			getChat();
-			//console.log('QuietCharSelect -- calling FixRememberedTabs');
-			FixRememberedTabs();
-			//console.log('select_selected_character() -- active_character -- '+chid+'(ChID of '+display_name+')');
-			saveSettings();
-			console.log('RA_QCS -- done.');
-		}
-	} else { console.log('RA_QCS -- no defined character detected. chid=' + chid + ' active_char=' + active_character) };
+	characters.sort(Intl.Collator().compare)
 }
 //RossAscends: auto-load last character function (fires when active_character is defined and auto_load_chat is true)					
 export function RA_autoloadchat() {
@@ -181,7 +116,7 @@ export function RA_autoloadchat() {
 		type: 'POST',
 		url: '/getsettings',
 		data: JSON.stringify({}),
-		beforeSend: function () { },
+		beforeSend: function () {},
 		cache: false,
 		dataType: "json",
 		contentType: "application/json",
@@ -189,26 +124,58 @@ export function RA_autoloadchat() {
 			if (data.result != 'file not find') {
 				settings = JSON.parse(data.settings);
 				//get the character to auto-load
-				if (settings.active_character !== undefined) {
-					if (settings.active_character !== '') {
-						var active_character = settings.active_character;
+				auto_load_chat = settings.auto_load_chat;
+				
+				if (auto_load_chat == true) {					
+					if (active_character !== undefined) {
+						if (active_character !== '') {
+							active_character = settings.active_character;
+						}
 					}
-				}
-			}
-			if (auto_load_chat == true) {
-				console.log('RA_ALC -- function enabled');
-				//console.log('RA_ALC -- incoming selected_button: '+selected_button);
-				//var true_selected_button = selected_button;
-				if (active_character !== undefined) {
-					console.log('RA_ALC -- targeting -- ' + active_character);
-					console.log('RA_ALC -- calling QCS -- selected_button as: ' + selected_button);
-					RA_QuietCharSelect(active_character);
-					console.log('RA_ALC -- post QCS -- selected_button: ' + selected_button);
-					//selected_button = true_selected_button;
-				}
-				console.log('RA_ALC -- Done. Fixing Tabs.');
-				FixRememberedTabs();
-			} else { console.log('RA_ALC -- disabled') };
+					console.log('RA_ALC - enabled, going. target: ' + active_character+' ('+characters[this_chid].name+')');
+					this_chid = active_character;
+					if (this_chid != 'invalid-safety-id') {
+						var display_name = characters[chid].name;
+						$(SelectedCharacterTab).children("h2").text(display_name);
+						var i = 0;
+						while ($(SelectedCharacterTab).width() > 170 && i < 100) {						// shrink the char name in tab if width >170px
+							display_name = display_name.slice(0, display_name.length - 2);				// reduce by 2 characters
+							$(SelectedCharacterTab).children("h2").text($.trim(display_name) + '...');	// add ... at the end
+							i++;																		// repeat until it fits
+						}
+						// loads character attributes into their respective textareas
+						$("#add_avatar_button").val('');
+						$('#character_popup_text_h3').text(characters[chid].name);
+						$("#character_name_pole").val(characters[chid].name);
+						$("#description_textarea").val(characters[chid].description);
+						$("#personality_textarea").val(characters[chid].personality);
+						$("#firstmessage_textarea").val(characters[chid].first_mes);
+						$("#scenario_pole").val(characters[chid].scenario);
+						$("#mes_example_textarea").val(characters[chid].mes_example);
+						$("#selected_chat_pole").val(characters[chid].chat);
+						$("#create_date_pole").val(characters[chid].create_date);
+						$("#avatar_url_pole").val(characters[chid].avatar);
+						$("#chat_import_avatar_url").val(characters[chid].avatar);
+						$("#chat_import_character_name").val(characters[chid].name);
+						var this_avatar = default_avatar;										// flush avatar to default
+						if (characters[chid].avatar != 'none') {								// look for avatar in sel'd char
+							this_avatar = "characters/" + characters[chid].avatar;				// apply avatar if found
+						}
+						$("#avatar_load_preview").attr('src', this_avatar + "#" + Date.now());	//loads the avatar in editChar Panel
+						$("#name_div").css("display", "none");									// hides name input as usual
+						$("#form_create").attr("actiontype", "editcharacter");					// sets formcreate to edit mode
+						console.log('RA_QCS - calling RA_clearChat()');
+						clearChat();															// clears chat
+						chat.length = 0;
+						console.log('RA_QCS - calling RA_getChat()'); //?
+						getChat();																// gets chat for the character
+						FixRememberedTabs();													// sets remembered tab back
+						saveSettings();															// saves		
+						console.log('RA_QCS -- done.');
+						}else{console.log('RA_ALC -- found invalid chid ('+active_character+'). Stopping.');}
+					FixRememberedTabs();
+				} else { console.log('RA_ALC -- disabled') };
+			}else{console.log('RA_ALC -- settings file not found, stopping.');}
 		},
 		error: function (jqXHR, exception) {
 			console.log(exception);
@@ -223,16 +190,14 @@ export function RA_autoconnect() {
 		type: 'POST',
 		url: '/getsettings',
 		data: JSON.stringify({}),
-		beforeSend: function () {
-		},
+		beforeSend: function () {},
 		cache: false,
 		dataType: "json",
 		contentType: "application/json",
-		//processData: false, 
 		success: function (data) {
 			if (data.result != 'file not find') {
 				settings = JSON.parse(data.settings);
-				if (settings.auto_connect == true) {
+				if (settings.auto_connect === true) {
 					if (api_server !== '') {
 						api_server = settings.api_server;
 						$('#api_url_text').val(api_server);
@@ -249,24 +214,23 @@ export function RA_autoconnect() {
 	});
 
 }
-
 // RossAscends: close the RightNav panel when user clicks outside of it or related panels (adv editing popup, or dialog popups)		
 $('document').ready(function () {
 	$("html").click(function (e) {
 		if (NavToggle.checked === true && PanelPin.checked === false) {
 			if ($(e.target).attr('id') !== "nav-toggle") {
-				if (document.querySelector('#right-nav-panel').contains(e.target) === false) {
-					if (document.querySelector('#character_popup').contains(e.target) === false) {
-						if (document.querySelector('#dialogue_popup').contains(e.target) === false) {
-							document.getElementById('nav-toggle').click();
+				if (RightNavPanel.contains(e.target) === false) {
+					if (AdvancedCharDefsPopup.contains(e.target) === false) {
+						if (ConfirmationPopup.contains(e.target) === false) {
+							NavToggle.click();
 						}
 					}
 				}
 			}
-		};
-	});
-});
-
+		}
+	})
+})
+			
 //RossAscends: Additional hotkeys CTRL+ENTER and CTRL+UPARROW
 document.addEventListener('keydown', (event) => {
 	if (event.ctrlKey && event.key == "Enter") {				// Ctrl+Enter for Regeneration Last Response
@@ -285,14 +249,14 @@ document.addEventListener('keydown', (event) => {
 });
 
 //RossAscends: saving the state of the right nav panel lock toggle and the open/closed state of nav panel itself
-$('#nav-toggle').change(function () {
+$(NavToggle).change(function () {
 	NavOpenClosePref = NavToggle.checked;
 	//console.log('NavToggle sensor: '+NavOpenClosePref);
 	//console.log('RA -- trying to save');
 	saveSettings();
 });
 //RossAscends: saves the state of the right nav lock between page loads
-$('#rm_button_panel_pin').change(function () {
+$(PanelPin).change(function () {
 	stickyNavPref = PanelPin.checked;
 	//console.log('Pin Change -- Sticky: '+stickyNavPref+', NavOpen: '+NavOpenClosePref);
 	//console.log('RA -- trying to save');
