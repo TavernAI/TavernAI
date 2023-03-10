@@ -1337,7 +1337,7 @@ $(document).on('click', '.character_select', function () {
             chat.length = 0;
             getChat();
             select_selected_character(this_chid);
-            console.log('.s_c -- active_character:' + active_character + ', (ChID:' + this_chid + ')');
+            console.log('.s_c -- active_character:' + active_character + ', (ChID:' + this_chid + ')'+name2);
         }
     } else {	//if clicked on character that was already selected
         selected_button = 'character_edit';
@@ -1751,7 +1751,7 @@ $("#delete_button").click(function () {
 });
 $("#rm_info_button").click(function () {
     // $('#rm_info_avatar').html('');
-    console.log('rm-info-button -- active-char: ' + active_character + ', chid: ' + chid + ', this-chid: ' + this_chid + '(' + characters[chid].name + ')');
+    console.log('rm-info-button -- active-char: ' + active_character + ', chid: ' + chid + ', this-chid: ' + this_chid + '(' + name2 + ')');
     select_rm_characters();
 });
 //@@@@@@@@@@@@@@@@@@@@@@@@
@@ -2117,12 +2117,14 @@ async function getSettings(type) {//timer
         url: '/getsettings',
         data: JSON.stringify({}),
         beforeSend: function () {
+            
         },
         cache: false,
         dataType: "json",
         contentType: "application/json",
         //processData: false, 
         success: function (data) {
+            console.log(data);
             if (data.result != 'file not find') {
                 settings = JSON.parse(data.settings);
                 if (settings.username !== undefined) {
