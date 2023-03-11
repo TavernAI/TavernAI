@@ -4,11 +4,7 @@ import { encode } from "../scripts/gpt-2-3-tokenizer/mod.js";
 import {
     humanizedISO8601DateTime,
     RA_CharListSort,
-    RA_CountCharTokens,
     RA_QuickRefresh,
-    RA_checkOnlineStatus,
-    RA_autoconnect,
-    RA_autoloadchat
 } from "../scripts/RossAscends-mods.js";
 
 // exporting for mods to use
@@ -27,7 +23,7 @@ export {
 
 /////////////
 var safetychat = [{ name: 'Chloe', is_user: false, is_name: true, create_date: 0, mes: '\n*You deleted a charcter and arrived back here for safety reasons! Pick another character!*\n\n' }];
-var token;
+//var token;
 var scroll_holder = 0;
 var is_use_scroll_holder = false;
 ////////////
@@ -45,8 +41,6 @@ $.get("/csrf-token")
         printMessages();
         getBackgrounds();
         getUserAvatars();
-        RA_autoloadchat();
-        RA_autoconnect();
     });
 
 // -----------System Functions -----------
@@ -183,7 +177,6 @@ function callPopup(text) {
     $('#shadow_popup').transition({ opacity: 1.0, duration: animation_rm_duration, easing: animation_rm_easing });
 }
 async function getSettings(type) {//timer
-
     //console.log('GS() -- start');
     jQuery.ajax({
         type: 'POST',
@@ -332,7 +325,9 @@ async function getSettings(type) {//timer
                 api_server = settings.api_server;
                 $('#api_url_text').val(api_server);
             }
-            //RossAscends: variables added/adjusted/applied with RA-mods
+            if (!is_checked_colab) isColab();
+
+    //RossAscends: getting variables added/adjusted/applied with RA-mods
             active_character = settings.active_character;
             chid = active_character;
             this_chid = active_character;
@@ -345,17 +340,15 @@ async function getSettings(type) {//timer
             $('#rm_button_panel_pin').prop('checked', stickyNavPref);
             $('#auto-connect-checkbox').prop('checked', auto_connect);
             $('#auto-load-chat-checkbox').prop('checked', auto_load_chat);
-            //		console.log('GS() chid:'+chid);
-            //		console.log('GS() this_chid:'+this_chid);
-            //		console.log('GS() active_character:'+active_character);
-            if (!is_checked_colab) isColab();
+
+            
         },
         error: function (jqXHR, exception) {
             console.log(exception);
             console.log(jqXHR);
         }
+        
     });
-
 }
 async function saveSettings(type) {
     //console.log('SS() -- start.');
@@ -382,6 +375,7 @@ async function saveSettings(type) {
             temp_novel: temp_novel,
             rep_pen_novel: rep_pen_novel,
             rep_pen_size_novel: rep_pen_size_novel,
+            
             active_character: active_character,
             selected_button: selected_button,
             NavOpenClosePref: NavOpenClosePref,
@@ -396,14 +390,14 @@ async function saveSettings(type) {
         //processData: false, 
         success: function (data) {
             //online_status = data.result;
-            console.log('saveSettings() -- saving -- selected_button: ' + selected_button);
+            console.log('saveSettings() >>>> saving');
             if (type === 'change_name') {
                 RA_QuickRefresh();				//RossAscends: No more page reload on username change
                 //location.reload();
                 //console.log('saveSettings - finishing and calling FixRememberedTabs');
                 //FixRememberedTabs();
             }
-            //console.log('SS() -- active_character -- '+active_character);
+            console.log('SS() -- active_character -- '+active_character);
         },
         error: function (jqXHR, exception) {
             console.log(exception);
@@ -418,8 +412,7 @@ function isInt(value) {
 }
 // ---------- API and Preferences Functions ---------
 function checkOnlineStatus() {
-    //console.log(online_status);
-    RA_checkOnlineStatus();
+    
     if (online_status == 'no_connection') {
         $("#online_status_indicator2").css("background-color", "red");
         $("#online_status_text2").html("No connection...");
@@ -444,11 +437,6 @@ async function getStatus() {
                 api_server: api_server
             }),
             beforeSend: function () {
-                if (is_api_button_press) {
-                    //$("#api_loading").css("display", 'inline-block');
-                    //$("#api_button").css("display", 'none');
-                }
-                //$('#create_button').attr('value','Creating...'); // 
 
             },
             cache: false,
@@ -487,55 +475,12 @@ async function getStatus() {
             online_status = 'no_connection';
         }
     }
-}
-function resultCheckStatus() {
-    is_api_button_press = false;
-    checkOnlineStatus();
-    $("#api_loading").css("display", 'none');
-    $("#api_button").css("display", 'inline-block');
-}
-function changeMainAPI() {
-    if ($('#main_api').find(":selected").val() == 'kobold') {
-        $('#kobold_api').css("display", "block");
-        $('#novel_api').css("display", "none");
-        main_api = 'kobold';
-        $('#max_context_block').css('display', 'block');
-        $('#amount_gen_block').css('display', 'block');
-    }
-    if ($('#main_api').find(":selected").val() == 'novel') {
-        $('#kobold_api').css("display", "none");
-        $('#novel_api').css("display", "block");
-        main_api = 'novel';
-        $('#max_context_block').css('display', 'none');
-        $('#amount_gen_block').css('display', 'none');
-    }
-}
-async function getUserAvatars() {
-    $("#user_avatar_block").html("");		//RossAscends: necessary to avoid doubling avatars each QuickRefresh.
-    const response = await fetch("/getuseravatars", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "X-CSRF-Token": token
-        },
-        body: JSON.stringify({
-            "": ""
-        })
 
-    });
-    if (response.ok === true) {
-        const getData = await response.json();
-        //background = getData;
-        //console.log(getData.length);
-
-        for (var i = 0; i < getData.length; i++) {
-            //console.log(1);
-            $("#user_avatar_block").append('<div imgfile="' + getData[i] + '" class="avatar"><img src="User Avatars/' + getData[i] + '"</div>');
-        }
-        //var aa = JSON.parse(getData[0]);
-        //const load_ch_coint = Object.getOwnPropertyNames(getData);
-
-
+    function resultCheckStatus() {
+        is_api_button_press = false;
+        checkOnlineStatus();
+        $("#api_loading").css("display", 'none');
+        $("#api_button").css("display", 'inline-block');
     }
 }
 function resultCheckStatusNovel() {
@@ -598,6 +543,51 @@ async function getStatusNovel() {
         }
     }
 }
+function changeMainAPI() {
+    if ($('#main_api').find(":selected").val() == 'kobold') {
+        $('#kobold_api').css("display", "block");
+        $('#novel_api').css("display", "none");
+        main_api = 'kobold';
+        $('#max_context_block').css('display', 'block');
+        $('#amount_gen_block').css('display', 'block');
+    }
+    if ($('#main_api').find(":selected").val() == 'novel') {
+        $('#kobold_api').css("display", "none");
+        $('#novel_api').css("display", "block");
+        main_api = 'novel';
+        $('#max_context_block').css('display', 'none');
+        $('#amount_gen_block').css('display', 'none');
+    }
+}
+async function getUserAvatars() {
+    $("#user_avatar_block").html("");		//RossAscends: necessary to avoid doubling avatars each QuickRefresh.
+    const response = await fetch("/getuseravatars", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-Token": token
+        },
+        body: JSON.stringify({
+            "": ""
+        })
+
+    });
+    if (response.ok === true) {
+        const getData = await response.json();
+        //background = getData;
+        //console.log(getData.length);
+
+        for (var i = 0; i < getData.length; i++) {
+            //console.log(1);
+            $("#user_avatar_block").append('<div imgfile="' + getData[i] + '" class="avatar"><img src="User Avatars/' + getData[i] + '"</div>');
+        }
+        //var aa = JSON.parse(getData[0]);
+        //const load_ch_coint = Object.getOwnPropertyNames(getData);
+
+
+    }
+}
+
 //-------- Character Management Functions --------
 function printCharacters() {
     //console.log('printCharacters() entered');
@@ -618,8 +608,8 @@ function printCharacters() {
 
 }
 async function getCharacters() {
-    console.log('getCharacters() -- entered');
-    console.log(characters);
+    //console.log('getCharacters() -- entered');
+    //console.log(characters);
     var response = await fetch("/getcharacters", {						//RossAscends: changed from const
         method: "POST",
         headers: {
@@ -716,7 +706,7 @@ function select_rm_create() {
     $("#name_div").css("display", "block");
 
     $("#form_create").attr("actiontype", "createcharacter");
-    RA_CountCharTokens();
+    //RA_CountCharTokens();
 }
 function select_rm_characters() {
     RA_QuickRefresh();
@@ -737,6 +727,7 @@ function select_rm_characters() {
     $("#rm_button_characters").css("class", "selected-right-tab");
     $("#rm_button_settings").css("class", "deselected-right-tab");
     $("#rm_button_selected_ch").css("class", "deselected-right-tab");
+    console.log('select_rm_chars >>>> saveSettings');
     saveSettings();
 }
 function select_rm_info(text) {
@@ -802,7 +793,7 @@ function select_selected_character(chid) { //character select
     $("#form_create").attr("actiontype", "editcharacter");
     active_character = chid;
 
-
+    console.log('sel_seld_char() >>>> saveSettings');
     saveSettings();
     console.log('SSC() end - active_character: ' + active_character);
 
@@ -1538,7 +1529,6 @@ function printMessages() {
     });
 }
 function clearChat() {
-    console.log('clearChat() -- BAM');
     count_view_mes = 0;
     $('#chat').html('');
 }
@@ -1820,9 +1810,10 @@ $(document).ready(function(){       //listen for DOM events after HTML loads
     });
     //------ class-specific click functions must be attached to document object ----
     $(document).on("click", ".character_select", function () {
-        console.log('.s_c - this_chid: ' + active_character);
-        console.log('.s_c - active_character: ' + active_character);
-        this_chid = active_character;
+        console.log('.s_c -- this_chid: ' + $(this).attr("chid"));
+        console.log('.s_c -- active_character: ' + active_character);
+        active_character = this_chid;
+        console.log('.s_c -- A_C: '+active_character+', T_C: '+this_chid);
 
         if (this_chid !== $(this).attr("chid")) {					//if clicked on a different character from what was currently selected
             if (!is_send_press) {
@@ -2003,10 +1994,12 @@ $(document).ready(function(){       //listen for DOM events after HTML loads
         $("#rm_button_characters").css("class", "deselected-right-tab");
         $("#rm_button_settings").css("class", "selected-right-tab");
         $("#rm_button_selected_ch").css("class", "deselected-right-tab");
+        console.log('rm_button_Settings.click >>>> saveSettings');
         saveSettings();
     });
     $("#rm_button_characters").click(function () {
         selected_button = 'characters';
+        console.log('#rm_button_characters.click >>>> saveSettings');
         saveSettings();
         select_rm_characters();
     });
@@ -2030,6 +2023,7 @@ $(document).ready(function(){       //listen for DOM events after HTML loads
                 $(this).children('.avatar').children('img').attr('src', 'User Avatars/' + user_avatar);
             }
         });
+        console.log('user_avatar_block .avatar.click >>>> saveSettings');
         saveSettings();
 
     });
@@ -2103,8 +2097,9 @@ $(document).ready(function(){       //listen for DOM events after HTML loads
                     name2 = "Chloe";								// replaces deleted charcter name with Chloe, since she will be displayed next.
                     chat = [...safetychat];						// sets up chloe to tell user about having deleted a character
                     RefreshByDelChar = true;					// this tells QuickRefresh that it's happenening due to a character being deleted.
-                    console.log('#dialogpopupok --DELETING CHAR - RefreshByDelChar:' + RefreshByDelChar + ', active_character: ' + active_character + ' ,this_chid: ' + this_chid + ', chid: ' + chid);
-                    saveSettings();								// saving settings to keep changes to variables
+                    //console.log('#dialogpopupok --DELETING CHAR - RefreshByDelChar:' + RefreshByDelChar + ', active_character: ' + active_character + ' ,this_chid: ' + this_chid + ', chid: ' + chid);
+                    saveSettings();	
+                    console.log("#dialogue_popup_ok(del-char) >>>> saving");							// saving settings to keep changes to variables
                     RA_QuickRefresh(RefreshByDelChar);								// call quick refresh of Char list, clears chat, and loads Chloe 'post-char-delete' message.
                     //location.reload();						// this is Humi's original code
                     //getCharacters();
@@ -2242,10 +2237,14 @@ $(document).ready(function(){       //listen for DOM events after HTML loads
 
                     $("#add_avatar_button").replaceWith($("#add_avatar_button").val('').clone(true));
                     $('#create_button').attr('value', 'Save');
-                    //console.log('/editcharacters -- this_chid -- '+this_chid);
-                    if (this_chid != undefined && this_chid != 'invalid-safety-id') {   //added check to avoid trying to load tokens in case of character deletion
-                        RA_CountCharTokens();
-                    }
+                   
+                    //if (this_chid != undefined && this_chid != 'invalid-safety-id') {   //added check to avoid trying to load tokens in case of character deletion
+                    //    var count_tokens = encode(JSON.stringify(characters[this_chid].description+characters[this_chid].personality+characters[this_chid].scenario+characters[this_chid].mes_example)).length;
+                    //    if(count_tokens < 1024){
+                    //        $('#result_info').html(count_tokens+" Tokens");
+                    //    }else{
+                    //        $('#result_info').html("<font color=red>"+count_tokens+" Tokens(TOO MANY TOKENS)</font>");
+                    //    }                
                 },
                 error: function (jqXHR, exception) {
                     $('#create_button').removeAttr("disabled");
@@ -2278,10 +2277,24 @@ $(document).ready(function(){       //listen for DOM events after HTML loads
                 api_server = api_server + "/api";
             }
             //console.log("2: "+api_server);
+            console.log('api_button.click >>>> saving.')
             saveSettings();
             is_get_status = true;
             is_api_button_press = true;
             getStatus();
+        }
+    });
+    $("#api_button_novel").click(function () {
+        if ($('#api_key_novel').val() != '') {
+            $("#api_loading_novel").css("display", 'inline-block');
+            $("#api_button_novel").css("display", 'none');
+            api_key_novel = $('#api_key_novel').val();
+            api_key_novel = $.trim(api_key_novel);
+            //console.log("1: "+api_server);
+            console.log('api-button-novel.click >>>> saving')
+            saveSettings();
+            is_get_status_novel = true;
+            is_api_button_press_novel = true;
         }
     });
     $("#options_button").click(function () {					// this is the options button click function, shows the options menu if closed
@@ -2394,18 +2407,6 @@ $(document).ready(function(){       //listen for DOM events after HTML loads
         $('#shadow_select_chat_popup').css('display', 'none');
         $('#load_select_chat_div').css('display', 'block');
     });
-    $("#api_button_novel").click(function () {
-        if ($('#api_key_novel').val() != '') {
-            $("#api_loading_novel").css("display", 'inline-block');
-            $("#api_button_novel").css("display", 'none');
-            api_key_novel = $('#api_key_novel').val();
-            api_key_novel = $.trim(api_key_novel);
-            //console.log("1: "+api_server);
-            saveSettings();
-            is_get_status_novel = true;
-            is_api_button_press_novel = true;
-        }
-    });
     $('#export_button').click(function () {
         var link = document.createElement('a');
         link.href = 'characters/' + characters[this_chid].avatar;
@@ -2423,7 +2424,7 @@ $(document).ready(function(){       //listen for DOM events after HTML loads
         if (!is_send_press) {
             name1 = $("#your_name").val();
             if (name1 === undefined || name1 == '') name1 = default_user_name;
-            //console.log(name1);
+            console.log('your_name_change >> saving');
             saveSettings('change_name');
 
         }
@@ -2549,7 +2550,7 @@ $(document).ready(function(){       //listen for DOM events after HTML loads
 
         if (menu_type == 'create') {
             create_save_description = $('#description_textarea').val();
-            RA_CountCharTokens();
+           
         } else {
             timerSaveEdit = setTimeout(() => { $("#create_button").click(); }, durationSaveEdit);
         }
@@ -2559,7 +2560,7 @@ $(document).ready(function(){       //listen for DOM events after HTML loads
 
         if (menu_type == 'create') {
             create_save_first_message = $('#firstmessage_textarea').val();
-            RA_CountCharTokens();
+         
         } else {
             timerSaveEdit = setTimeout(() => { $("#create_button").click(); }, durationSaveEdit);
         }
@@ -2569,7 +2570,7 @@ $(document).ready(function(){       //listen for DOM events after HTML loads
     $('#personality_textarea').on('keyup paste cut', function () {
         if (menu_type == 'create') {
             create_save_personality = $('#personality_textarea').val();
-            RA_CountCharTokens();
+            
         } else {
             timerSaveEdit = setTimeout(() => { $("#create_button").click(); }, durationSaveEdit);
         }
@@ -2578,7 +2579,7 @@ $(document).ready(function(){       //listen for DOM events after HTML loads
         if (menu_type == 'create') {
 
             create_save_scenario = $('#scenario_pole').val();
-            RA_CountCharTokens();
+            
         } else {
             timerSaveEdit = setTimeout(() => { $("#create_button").click(); }, durationSaveEdit);
         }
@@ -2587,7 +2588,7 @@ $(document).ready(function(){       //listen for DOM events after HTML loads
         if (menu_type == 'create') {
 
             create_save_mes_example = $('#mes_example_textarea').val();
-            RA_CountCharTokens();
+            
         } else {
             timerSaveEdit = setTimeout(() => { $("#create_button").click(); }, durationSaveEdit);
         }
@@ -2599,8 +2600,10 @@ $(document).ready(function(){       //listen for DOM events after HTML loads
         is_get_status = false;
         is_get_status_novel = false;
         online_status = 'no_connection';
+        console.log('#main_api change checking connection');
         checkOnlineStatus();
         changeMainAPI();
+        comsole.log('main_api_button click >>>> saving');
         saveSettings();
     });
     $("#settings_perset").change(function () {
@@ -2640,6 +2643,7 @@ $(document).ready(function(){       //listen for DOM events after HTML loads
             $("#amount_gen_block").children().prop("disabled", true);
             $("#amount_gen_block").css('opacity', 0.45);
         }
+        console.log('savings presets ch anged >>>> saving');
         saveSettings();
     });
     $("#settings_perset_novel").change(function () {
@@ -2663,22 +2667,27 @@ $(document).ready(function(){       //listen for DOM events after HTML loads
 
         //$("#range_block").children().prop("disabled", false);
         //$("#range_block").css('opacity',1.0);
+        console.log('settings presets  novel changed >>>> saving');
         saveSettings();
     });
     $('#style_anchor').change(function () {
         style_anchor = !!$('#style_anchor').prop('checked');
+        console.log('style-anchor >>>> saving');
         saveSettings();
     });
     $('#character_anchor').change(function () {
         character_anchor = !!$('#character_anchor').prop('checked');
+        console.log('#charanchor.change >>>> saving');
         saveSettings();
     });
     $("#model_novel_select").change(function () {
         model_novel = $('#model_novel_select').find(":selected").val();
+        console.log('#model-novel-select >>>> saving');
         saveSettings();
     });
     $("#anchor_order").change(function () {
         anchor_order = parseInt($('#anchor_order').find(":selected").val());
+        console.log('anchor order.change >>>> saving');
         saveSettings();
     });
 
@@ -2699,6 +2708,7 @@ $(document).ready(function(){       //listen for DOM events after HTML loads
         var this_slider = $(this).attr('id');
         var this_slider_val = $(this).val();
         window[this_slider] = this_slider_val;
+        console.log('range sliders changed >>>> saving');
         saveSettings();
     });
 })

@@ -83,7 +83,10 @@ body {
     margin-top:0;
     margin-bottom: 10px;
 }
-.mes_text i, .mes_text em {color: var(--grey70);}
+.mes_text i, .mes_text em {
+    color: var(--grey70);
+    font-weight: 500;
+}
 .mes_text strong, .mes_text h2, .mes_text h1 {font-weight: bold;}
 
 code {
