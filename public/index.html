@@ -23,9 +23,9 @@
 		var name1 = default_user_name;
 		var name2 = "Chloe";
 		var chat = [{ name: 'Chloe', is_user: false, is_name: true, create_date: 0, mes: '\n*You went inside. The air smelled of fried meat, tobacco and a hint of wine. A dim light was cast by candles, and a fire crackled in the fireplace. It seems to be a very pleasant place. Behind the wooden bar is an elf waitress, she is smiling. Her ears are very pointy, and there is a twinkle in her eye. She wears glasses and a white apron. As soon as she noticed you, she immediately came right up close to you.* "Hello there! How is your evening going?"\n' }];
-
+		var safetychat = [{ name: 'Chloe', is_user: false, is_name: true, create_date: 0, mes: '\n*You deleted a charcter and arrived back here for safety reasons! Pick another character!*\n\n' }];
 		var chat_create_date = 0;
-
+		var is_advanced_char_open = false;
 		var default_ch_mes = "Hello";
 		var count_view_mes = 0;
 		var mesStr = '';
@@ -125,18 +125,11 @@
 		var colab_ini_step = 1;
 	//console.log('finished loading global variables');
 	</script>
-	<script> <!-- global variables from RossAscends-mods-->
-		var safetychat = [{ name: 'Chloe', is_user: false, is_name: true, create_date: 0, mes: '\n*You deleted a charcter and arrived back here for safety reasons! Pick another character!*\n\n' }];
-		var active_character;
-		var is_advanced_char_open = false;
-		var chid;// = active_character;
-		var this_chid;// = active_character;
-		var stickyNavPref = false;		//defaults panels to not be sticky
-		var NavOpenClosePref = false;	//defaults to panel being closed, will remember the open/close state between page loads if user has stickyNavPref enabled.
-		var RefreshByDelChar = false;
-		var NavToggle = document.getElementById("nav-toggle");
-		var PanelPin = document.getElementById("rm_button_panel_pin");
-		//console.log('finished loading global vars for RA-mods');
+
+	<script><!-- variables from RossAscends mods, loaded/saved in settings.json -->
+		var active_character;			//tracks which character is currently being viewed by user, used by RA_AutoLoadChat
+		var stickyNavPref = false;		//tracks the state of the Right Nav Lock Toggle, defaults to 'false' = not locked
+		var NavOpenClosePref = false;	//tracks whether the nav panel is open or not, defaults to panel being closed
 	</script>
 
 	<script type="module" src="TAI-main.js"></script> <!--moved main TAI functions outside HTML-->
