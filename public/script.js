@@ -4432,3 +4432,19 @@ $(document).ready(function(){
 });
 
 
+function auto_start(){
+    //console.log(main_api.value)
+
+    if (main_api.value == "openai"){
+        document.getElementById("api_button_openai").click()
+    }
+    else if (main_api.value == "novel"){
+        document.getElementById("api_button_novel").click()
+    }
+    else if (main_api.value == "kobold"){
+        document.getElementById("api_button").click()
+    }
+}
+$(document).ready(function() {
+    setTimeout(auto_start, 500)
+})
