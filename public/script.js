@@ -4431,6 +4431,16 @@ $(document).ready(function(){
 
 });
 
+document.getElementsByName("search_bar")[0].addEventListener('keyup', search_chars);
+function search_chars(){
+    const character_list = document.querySelector('#rm_print_charaters_block').querySelectorAll('div.character_select');
+    for (let i = 0; i < character_list.length; i++) {
+        character_list[i].style.display = "";
+        if (character_list[i].textContent.toLowerCase().indexOf(this.value)<0){
+            character_list[i].style.display = "none";
+        }
+    }
+}
 
 function auto_start(){
     //console.log(main_api.value)

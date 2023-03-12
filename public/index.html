@@ -453,6 +453,14 @@
             </form>
         </div>
         <div id="rm_charaters_block" class="right_menu">
+            <!-- TODO, style compliance-->
+            <input id="search_bar" name="search_bar" class="text_pole" size="35" value="" autocomplete="off" placeholder="search..." style="position: sticky;top: 0px;z-index: 100;background-color: gray;color: black;">
+                <style>
+                input::placeholder {
+                    color: rgb(17, 17, 17);
+                }
+                </style>            
+            <br>
             <div id="rm_button_create" class="right_menu_title_button"><h2>+New Character</h2></div>
             <div id="rm_button_import" class="right_menu_title_button"><h2>+Import</h2></div>
             <div id="rm_print_charaters_block"></div>
