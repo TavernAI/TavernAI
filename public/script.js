@@ -429,7 +429,7 @@ $(document).ready(function(){
         is_api_button_press = false;  
         checkOnlineStatus();
         $("#api_loading").css("display", 'none');
-        $("#api_button").removeAttr('display');
+        $("#api_button").css('display', 'inline-block');
     }
 
     function printCharaters(){
