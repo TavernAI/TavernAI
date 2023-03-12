@@ -476,7 +476,7 @@ $(document).ready(function(){
                     characters[i].add_date = characters[i].create_date;
                 }
             }
-            characters.sort((a, b) => (a.name > b.name) ? 1 : -1);
+            characters.sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : -1);
             characters.reverse();
             if(this_chid != undefined) $("#avatar_url_pole").val(characters[this_chid].avatar);
             printCharaters();
