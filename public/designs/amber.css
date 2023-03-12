@@ -1,0 +1,383 @@
+/* Designed by Luizsan */
+.nav-toggle {
+    font-size: 1.75em;
+
+}
+
+.nav {
+    background: rgba(26,24,25,0.8);/*#252424e0;/*#24252590;*/
+}
+
+[id='nav-toggle']:checked ~ .nav > .nav-toggle {
+    top: unset;
+}
+
+body {
+    /*font-family:  "Segoe UI", "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;*/
+    scrollbar-color: gray #101010;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar-track {
+    background-color: #101010;
+}
+
+#master_settings::-webkit-scrollbar-track {
+    background-color: #10101000 !important;
+}
+
+.popup_large {
+    scrollbar-color: gray #10101000;
+    
+}
+
+::-webkit-scrollbar-thumb {
+    background: gray;
+}
+
+#shell {
+    background:#24252590;
+}
+
+#chat {
+    scrollbar-width: thin;
+    /* width: 900px; */
+    /* height: 80%; */
+    overflow: hidden;
+    overflow-y: auto;
+    background: #191b3100;
+    /* white-space:nowrap; */
+    /* margin-left: 30%; Отступ слева */
+    /* width: 40%; Ширина слоя */
+    padding-top: 12px; /* Поля вокруг текста */
+    padding-left: 16px;
+    padding-right: 16px;
+}
+
+#chat_header {
+    background: #10101090;
+    height: calc(100% - 1px);
+    border-style: solid;
+    border-width: 0 0 0px;
+    border-image: unset;/*linear-gradient(to right, #ffffff05 0%, #ffffff15 1%, #ffffff15 99%, #ffffff05 100%) 1;*/
+    display: flex;
+    align-items: center;
+    box-shadow: 0 5px 5px -5px rgba(0, 0, 0, 0.07);
+}
+
+#chat_header_back_button svg {
+    height: 22px;
+    width: 22px;
+}
+
+#rm_button_import {
+    cursor: pointer;
+    display: inline-block;
+    margin-left: 15px;/* 274px; */
+    margin-top: 6px;/* 10px; */
+}
+
+#form_shell {
+    box-shadow: unset;
+    background: unset;
+}
+
+#send_form {
+    grid-template-columns: 48px auto 48px;
+    margin-left: unset;
+    margin-right: unset;
+    padding-left: 8px;
+    padding-right: 8px;
+    padding-top: 16px;
+}
+
+#send_textarea {
+    --autoresize: false;
+    background-color: #16161680;
+    font-size: 14px;
+    margin: 0px;
+    border-radius: 4px;
+}
+
+#send_button {
+    background-size: 20px auto;
+}
+
+#options_button {
+    height: 100%;
+}
+
+#options {
+    border-radius: 5px;
+    opacity: 0.0;
+    display: none;
+    bottom: 36px;
+    /* position: relative; */
+    position: absolute;
+    /* background-color: blue; */
+    z-index:1990;
+}
+
+.options-content {
+    border: 2px solid #3c4174ff;
+    overflow: hidden;
+    display: block;
+    position: absolute;
+    background-color: #191b31FF;
+    min-width: 205px;
+    z-index: 1;
+    border-radius: 8px;
+    padding: 8px;
+    box-shadow: 2px 2px 16px #00000080;
+    translate: 0px -100% 0px;
+}
+.options-content hr {
+    margin: 8px;
+    padding: 0px;
+    border-top: 1px solid #ffffff11;
+}
+
+.options-content a {
+    color: #ffffff80;
+    cursor: pointer;
+    padding: 8px 16px;
+    text-decoration: none;
+    display: block;
+    border-radius: 4px;
+}
+
+.options-content img {
+    opacity: 0.5;
+    margin-right: 12px;
+    margin-bottom: 2px;
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+}
+
+.options-content a:hover { 
+    background-color: #0080ff20;
+    color: #ffffff;
+}
+
+.mes {
+    display: grid;
+    grid-template-columns: fit-content(60px) 60px auto 0px 0px;
+    border: 1px solid #FFFFFF10;
+    box-shadow: unset;
+    border-radius: 5px;
+    /* box-shadow: 0 0 2px rgba(200,200,200,0.1); */
+    padding: 12px;
+    /* box-shadow: 0 0 2px rgba(200,200,200,0.5); */
+    /* display: inline-block; */
+    vertical-align: top;
+    width: 100%;
+    /* height:60px; */
+    /* background: red; */
+    /* font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif; */
+
+    color: rgb(229, 224, 216);
+    font-size: 0.95em;
+    /* background: blue; */
+    background: #10101090;
+    margin-top: 4px;
+}
+
+.last_mes .mes_text {
+    min-height: 65px;
+}
+
+.avatar {
+    padding: unset;
+    width: 64px;
+    height: 64px;
+    border-style: none;
+    padding: 6px;
+}
+
+.avatar img {
+    border-radius: 4px;
+    object-position: center top;
+}
+
+.mes_block {
+    padding-left: 18px;
+}
+
+.mes_block .ch_name {
+    font-size: 0.9em;
+}
+
+.mes_text {
+    color: rgb(197,223,226);
+    font-weight: 500;
+    margin-left: 0px;
+}
+
+.ch_name {
+    margin-left: 0px;
+}
+
+.mes_text i, .mes_text em {
+    color: rgb(106,135,149)
+}
+
+
+textarea,.text_pole {
+    font-size: 14px;
+    background-color: #13152c;
+    box-shadow: 0 0 2px rgba(200,200,200,0.5);
+    border:0px solid grey;
+    /*font-family: "Segoe UI", "Source Sans Pro", -apple-system, BlinkMacSystemFont,  "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;*/
+}
+
+textarea {
+    width:100%; 
+    height: 400px;
+    resize: none;
+    display: block;
+    outline: none !important;
+    padding: 10px;
+    color: #cacaca;
+    
+}
+
+.edit_textarea {
+    font-weight: 500;
+    font-size: 1.00em;
+}
+
+.right_menu_title_button {
+    display:inline-block;
+    /* box-shadow: 0 0 5px -1px rgba(0,0,0,0.2); */
+    cursor:pointer;
+    vertical-align:middle;
+    text-align: center;
+    padding: 8px;
+    background: #00000060;
+    border-radius:6px;
+    font-size: 20px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.right_menu_title_button h2{
+    font-size: 20px;
+    margin: 0px;
+}
+
+#rm_button_create {
+    margin-top: 6px;
+}
+
+#rm_button_create h2 {
+    font-size: 20px;
+    vertical-align: middle;
+}
+
+.character_select {
+    padding: 0px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: grid;
+    grid-template-columns: 48px auto;
+    padding: 1px;
+}
+
+.character_select .avatar {
+    width: 48px;
+    height: 48px;
+}
+
+#main_api {
+    background-color: #181717;
+}
+
+textarea, .text_pole {
+    background-color: #16161680;
+}
+
+input[type=submit], input[type=button] {
+    background-color: #16161680;
+}
+
+#character_advanced_button, #master_settings_button {
+    background-color: #16161680;
+}
+
+input::file-selector-button {
+    background-color: #16161680;
+}
+
+#avatar_div {
+    margin-top: 0px;
+}
+
+#avatar_div_container {
+    margin-top: 15px;
+}
+
+#add_avatar_button {
+    margin-top: 43px;
+}
+
+.ch_name_menu{
+    margin: auto 6px;
+}
+
+#online_status {
+    margin-left: 56px;
+    margin-bottom: 12px;
+}
+
+#online_status_indicator {
+    border-radius: 100%;
+    width: 12px;
+    height: 12px;
+}
+
+#online_status_text {
+    margin-left: 8px;
+}
+
+.del_checkbox {
+    margin: 8px;
+}
+
+.mes_edit {
+    opacity: 0.125;
+}
+
+.mes_edit:hover {
+    opacity: 1.0;
+}
+
+.mes_edit_done img {
+    width: 20px;
+    height: 20px;
+}
+
+.mes_edit_cancel img{
+    width: 20px;
+    height: 20px;
+}
+
+.popup_large {
+    background: rgba(26,24,25,0.98);
+}
+
+.menu_select {
+    background-color: #181717;
+}
+
+label.checkbox span {
+  background:#181717;
+
+  
+}
+
+label.checkbox :checked + span {
+  background:#181717;
+
+}

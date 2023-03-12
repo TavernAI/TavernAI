@@ -7,10 +7,12 @@ const open = require('open');
 var rimraf = require("rimraf");
 const multer  = require("multer");
 const https = require('https');
+const http = require('http');
 //const PNG = require('pngjs').PNG;
 const extract = require('png-chunks-extract');
 const encode = require('png-chunks-encode');
 const PNGtext = require('png-chunk-text');
+const ExifReader = require('exifreader');
 
 const sharp = require('sharp');
 sharp.cache(false);
@@ -19,28 +21,39 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const crypto = require('crypto');
 const ipaddr = require('ipaddr.js');
+const json5 = require('json5');
+var sanitize_filename = require("sanitize-filename");
+
 
 const config = require(path.join(process.cwd(), './config.conf'));
 const server_port = config.port;
 const whitelist = config.whitelist;
 const whitelistMode = config.whitelistMode;
 const autorun = config.autorun;
-
-
+const characterFormat = config.characterFormat;
+const charaCloudMode = config.charaCloudMode;
+const charaCloudServer = config.charaCloudServer;
 
 var Client = require('node-rest-client').Client;
 var client = new Client();
 
+
+
+
+
 var api_server = "";//"http://127.0.0.1:5000";
 //var server_port = 8000;
 
-var api_novelai = "https://api.novelai.net";
-
+const api_novelai = "https://api.novelai.net";
+const api_openai = "https://api.openai.com/v1";
 var response_get_story;
 var response_generate;
 var response_generate_novel;
+var response_generate_openai;
 var request_promt;
 var response_promt;
+var response_characloud_loadcard;
+var response_characloud_getallcharacters;
 var characters = {};
 var character_i = 0;
 var response_create;
@@ -48,8 +61,10 @@ var response_edit;
 var response_dw_bg;
 var response_getstatus;
 var response_getstatus_novel;
+var response_getstatus_openai;
 var response_getlastversion;
 var api_key_novel;
+var api_key_openai;
 
 var is_colab = false;
 var charactersPath = 'public/characters/';
@@ -150,11 +165,13 @@ app.use('/backgrounds', (req, res) => {
   });
 });
 app.use('/characters', (req, res) => {
-  const filePath = decodeURIComponent(path.join(process.cwd(), charactersPath, req.url.replace(/%20/g, ' ')));
-  fs.readFile(filePath, (err, data) => {
+    let filePath = decodeURIComponent(path.join(process.cwd(), charactersPath, req.url.replace(/%20/g, ' ')));
+    filePath = filePath.split('?v=');
+    filePath = filePath[0];
+    fs.readFile(filePath, (err, data) => {
     if (err) {
-      res.status(404).send('File not found');
-      return;
+        res.status(404).send('File not found');
+        return;
     }
     //res.contentType('image/jpeg');
     res.send(data);
@@ -202,7 +219,7 @@ app.post("/getlastversion", jsonParser, function(request, response_getlastversio
 app.post("/generate", jsonParser, function(request, response_generate = response){
     if(!request.body) return response_generate.sendStatus(400);
     //console.log(request.body.prompt);
-    //const dataJson = JSON.parse(request.body);
+    //const dataJson = json5.parse(request.body);
     request_promt = request.body.prompt;
     
     //console.log(request.body);
@@ -269,7 +286,7 @@ app.post("/savechat", jsonParser, function(request, response){
     //console.log(request);
     //console.log(request.body.chat);
     //var bg = "body {background-image: linear-gradient(rgba(19,21,44,0.75), rgba(19,21,44,0.75)), url(../backgrounds/"+request.body.bg+");}";
-    var dir_name = String(request.body.avatar_url).replace('.png','');
+    var dir_name = String(request.body.avatar_url).replace(`.${characterFormat}`,'');
     let chat_data = request.body.chat;
     let jsonlData = chat_data.map(JSON.stringify).join('\n');
     fs.writeFile(chatsPath+dir_name+"/"+request.body.file_name+'.jsonl', jsonlData, 'utf8', function(err) {
@@ -291,7 +308,7 @@ app.post("/getchat", jsonParser, function(request, response){
     //console.log(request);
     //console.log(request.body.chat);
     //var bg = "body {background-image: linear-gradient(rgba(19,21,44,0.75), rgba(19,21,44,0.75)), url(../backgrounds/"+request.body.bg+");}";
-    var dir_name = String(request.body.avatar_url).replace('.png','');
+    var dir_name = String(request.body.avatar_url).replace(`.${characterFormat}`,'');
 
     fs.stat(chatsPath+dir_name, function(err, stat) {
             
@@ -319,7 +336,7 @@ app.post("/getchat", jsonParser, function(request, response){
                                 const lines = data.split('\n');
 
                                 // Iterate through the array of strings and parse each line as JSON
-                                const jsonData = lines.map(JSON.parse);
+                                const jsonData = lines.map(json5.parse);
                                 response.send(jsonData);
 
 
@@ -393,14 +410,27 @@ function checkServer(){
 }
 
 //***************** Main functions
+function checkCharaProp(prop) {
+  return String(prop) || '';
+}
 function charaFormatData(data){
-    var char = {"name": data.ch_name, "description": data.description, "personality": data.personality, "first_mes": data.first_mes, "avatar": 'none', "chat": Date.now(), "mes_example": data.mes_example, "scenario": data.scenario, "create_date": Date.now()};
+    let name;
+    if(data.ch_name === undefined){
+        name = data.name;
+    }else{
+        name = data.ch_name;
+    }
+    name = checkCharaProp(name);
+    if(name.length === 0){
+        name = 'null';
+    }
+    var char = {"public_id": checkCharaProp(data.public_id), "name": name, "description": checkCharaProp(data.description), "personality": checkCharaProp(data.personality), "first_mes": checkCharaProp(data.first_mes), "avatar": 'none', "chat": Date.now(), "mes_example": checkCharaProp(data.mes_example), "scenario": checkCharaProp(data.scenario), "edit_date": Date.now(), "create_date": Date.now(), "add_date": Date.now()};
     return char;
 }
 app.post("/createcharacter", urlencodedParser, function(request, response){
     
     if(!request.body) return response.sendStatus(400);
-    if (!fs.existsSync(charactersPath+request.body.ch_name+'.png')){
+    if (!fs.existsSync(charactersPath+request.body.ch_name+`.${characterFormat}`)){
         if(!fs.existsSync(chatsPath+request.body.ch_name) )fs.mkdirSync(chatsPath+request.body.ch_name);
 
         let filedata = request.file;
@@ -413,7 +443,7 @@ app.post("/createcharacter", urlencodedParser, function(request, response){
         char = JSON.stringify(char);
         if(!filedata){
             
-            charaWrite('./public/img/fluffy.png', char, request.body.ch_name, response);
+            charaWrite('./public/img/fluffy.png', char, request.body.ch_name, characterFormat, response);
             
         }else{
             
@@ -423,7 +453,8 @@ app.post("/createcharacter", urlencodedParser, function(request, response){
             if (filedata.mimetype == "image/png") fileType = ".png";
             if (filedata.mimetype == "image/gif") fileType = ".gif";
             if (filedata.mimetype == "image/bmp") fileType = ".bmp";
-            charaWrite(img_path+img_file, char, request.body.ch_name, response);
+            if (filedata.mimetype == "image/webp") fileType = ".webp";
+            charaWrite(img_path+img_file, char, request.body.ch_name, characterFormat, response);
         }
         //console.log("The file was saved.");
 
@@ -448,18 +479,24 @@ app.post("/editcharacter", urlencodedParser, function(request, response){
     var char = charaFormatData(request.body);//{"name": request.body.ch_name, "description": request.body.description, "personality": request.body.personality, "first_mes": request.body.first_mes, "avatar": request.body.avatar_url, "chat": request.body.chat, "last_mes": request.body.last_mes, "mes_example": ''};
     char.chat = request.body.chat;
     char.create_date = request.body.create_date;
+    if(request.body.add_date != undefined){
+        char.add_date = request.body.add_date;
+    }else{
+        char.add_date = request.body.create_date;
+    }
+    char.edit_date = Date.now();
 
     char = JSON.stringify(char);
-    let target_img = (request.body.avatar_url).replace('.png', '');
+    let target_img = (request.body.avatar_url).replace(`.${characterFormat}`, '');
     if(!filedata){
 
-        charaWrite(img_path+request.body.avatar_url, char, target_img, response, 'Character saved');
+        charaWrite(img_path+request.body.avatar_url, char, target_img, characterFormat, response, 'Character saved');
     }else{
         //console.log(filedata.filename);
         img_path = "uploads/";
         img_file = filedata.filename;
 
-        charaWrite(img_path+img_file, char, target_img, response, 'Character saved');
+        charaWrite(img_path+img_file, char, target_img, characterFormat, response, 'Character saved');
         //response.send('Character saved');
     }
 });
@@ -472,7 +509,7 @@ app.post("/deletecharacter", urlencodedParser, function(request, response){
         }else{
             //response.redirect("/");
             let dir_name = request.body.avatar_url;
-            rimraf(chatsPath+dir_name.replace('.png',''), (err) => { 
+            rimraf(chatsPath+dir_name.replace(`.${characterFormat}`,''), (err) => { 
                 if(err) {
                     response.send(err);
                     return console.log(err);
@@ -485,34 +522,183 @@ app.post("/deletecharacter", urlencodedParser, function(request, response){
         }
     });
 });
-
-async function charaWrite(img_url, data, target_img, response = undefined, mes = 'ok'){
+/*
+async function charaWrite(source_img, data, target_img, format = 'webp', response = undefined, mes = 'ok'){
     try {
         // Load the image in any format
         sharp.cache(false);
-        var image = await sharp(img_url).resize(400, 600).toFormat('png').toBuffer();// old 170 234
-        // Convert the image to PNG format
-        //const pngImage = image.toFormat('png');
+        target_img = sanitize_filename(target_img);
+        switch(format){
+            case 'webp':
+                return new Promise((resolve, reject) => {
+                    var image = sharp(source_img);
+                    let webp_parameters = {'quality':80, lossless: true, near_lossless:false, smartSubsample: true, effort: 6};
+                    if(source_img.indexOf('.png') !== -1){
+                        webp_parameters = {};
+                    }
+                    image.webp(webp_parameters).withMetadata({
+                        exif: {
+                            IFD0: {
+                                UserComment: data
+                            }
+                        }
+                    }).toBuffer((err, buffer) => {
+                        if (err) { 
+                            console.log(err);
+                            reject(err);
+                        } else {
+                            fs.writeFile(charactersPath+target_img+'.webp', buffer, (err) => {
+                                if (err) {
+                                    console.log(err);
+                                    reject(err);
+                                } else {
+                                    if (response !== undefined) response.send(mes);
+                                    resolve({});
+                                }
+                            });
+                        }
+                    });
+                });
 
-        // Resize the image to 100x100
-        //const resizedImage = pngImage.resize(100, 100);
+                
+            case 'png':
+                
+                var image = await sharp(source_img).resize(400, 600).toFormat('png').toBuffer();// old 170 234
+                // Convert the image to PNG format
+                //const pngImage = image.toFormat('png');
 
-        // Get the chunks
-        var chunks = extract(image);
-         var tEXtChunks = chunks.filter(chunk => chunk.create_date === 'tEXt');
+                // Resize the image to 100x100
+                //const resizedImage = pngImage.resize(100, 100);
 
-        // Remove all existing tEXt chunks
-        for (var tEXtChunk of tEXtChunks) {
-            chunks.splice(chunks.indexOf(tEXtChunk), 1);
-        }
-        // Add new chunks before the IEND chunk
-        var base64EncodedData = Buffer.from(data, 'utf8').toString('base64');
-        chunks.splice(-1, 0, PNGtext.encode('chara', base64EncodedData));
-        //chunks.splice(-1, 0, text.encode('lorem', 'ipsum'));
+                // Get the chunks
+                var chunks = extract(image);
+                 var tEXtChunks = chunks.filter(chunk => chunk.create_date === 'tEXt');
 
-        fs.writeFileSync(charactersPath+target_img+'.png', new Buffer.from(encode(chunks)));
-        if(response !== undefined) response.send(mes);
-            
+                // Remove all existing tEXt chunks
+                for (var tEXtChunk of tEXtChunks) {
+                    chunks.splice(chunks.indexOf(tEXtChunk), 1);
+                }
+                // Add new chunks before the IEND chunk
+                var base64EncodedData = Buffer.from(data, 'utf8').toString('base64');
+                chunks.splice(-1, 0, PNGtext.encode('chara', base64EncodedData));
+                //chunks.splice(-1, 0, text.encode('lorem', 'ipsum'));
+
+                fs.writeFileSync(charactersPath+target_img+'.png', new Buffer.from(encode(chunks)));
+                if(response !== undefined) response.send(mes);
+                break;
+            default:
+                break;
+                
+        }   
+
+    } catch (err) {
+        console.log(err);
+        if(response !== undefined) response.send(err);
+    }
+}
+async function processImage(imagePath) {
+  for (let i = 0; i < 50; i++) {
+    const processedImagePath = imagePath;
+    try {
+      const imageBuffer = fs.readFileSync(imagePath);
+      let qwer = crypto.randomBytes(400).toString('hex');
+      console.log(qwer);
+      const processedImage = await sharp(imageBuffer).withMetadata({
+                        exif: {
+                            IFD0: {
+                                UserComment: qwer
+                            }
+                        }
+                    }).toBuffer();
+      fs.writeFileSync(processedImagePath, processedImage);
+      console.log(`Iteration ${i}: Success`);
+    } catch (err) {
+      console.log(`Iteration ${i}: Error: ${err}`);
+    }
+  }
+}
+
+const imagePath = 'image.webp';
+processImage(imagePath);
+      */
+     /*
+    async function processImage(imagePath, target_img, data, resolve, reject) {
+    const processedImagePath = imagePath;
+    try {
+      const imageBuffer = fs.readFileSync(imagePath);
+      const processedImage = await sharp(imageBuffer).withMetadata({
+                        exif: {
+                            IFD0: {
+                                UserComment: data
+                            }
+                        }
+                    }).toBuffer();
+      fs.writeFileSync(charactersPath+target_img+'.webp', processedImage);//processedImagePath, processedImage);
+      resolve({});
+    } catch (err) {
+      console.log(err);
+            reject(err);
+    }
+}
+*/
+async function charaWrite(source_img, data, target_img, format = 'webp', response = undefined, mes = 'ok'){
+    try {
+        // Load the image in any format
+        sharp.cache(false);
+        target_img = sanitize_filename(target_img);
+        switch(format){
+            case 'webp':
+                return new Promise(async (resolve, reject) => {
+
+                    //let webp_parameters = {'quality':80, lossless: true, near_lossless:false, smartSubsample: true, effort: 6};
+                    try {
+                      const imageBuffer = fs.readFileSync(source_img);
+                      const processedImage = await sharp(imageBuffer).resize(400, 600).webp({'quality':95}).withMetadata({
+                                        exif: {
+                                            IFD0: {
+                                                UserComment: data
+                                            }
+                                        }
+                                    }).toBuffer();
+                      fs.writeFileSync(charactersPath+target_img+'.webp', processedImage);
+                      resolve({});
+                      if (response !== undefined) response.send(mes);
+                    } catch (err) {
+                      console.log(err);
+                            reject(err);
+                    }
+                });
+
+                
+            case 'png':
+                
+                var image = await sharp(source_img).resize(400, 600).toFormat('png').toBuffer();// old 170 234
+                // Convert the image to PNG format
+                //const pngImage = image.toFormat('png');
+
+                // Resize the image to 100x100
+                //const resizedImage = pngImage.resize(100, 100);
+
+                // Get the chunks
+                var chunks = extract(image);
+                 var tEXtChunks = chunks.filter(chunk => chunk.create_date === 'tEXt');
+
+                // Remove all existing tEXt chunks
+                for (var tEXtChunk of tEXtChunks) {
+                    chunks.splice(chunks.indexOf(tEXtChunk), 1);
+                }
+                // Add new chunks before the IEND chunk
+                var base64EncodedData = Buffer.from(data, 'utf8').toString('base64');
+                chunks.splice(-1, 0, PNGtext.encode('chara', base64EncodedData));
+                //chunks.splice(-1, 0, text.encode('lorem', 'ipsum'));
+
+                fs.writeFileSync(charactersPath+target_img+'.png', new Buffer.from(encode(chunks)));
+                if(response !== undefined) response.send(mes);
+                break;
+            default:
+                break;
+                
+        }   
 
     } catch (err) {
         console.log(err);
@@ -520,66 +706,75 @@ async function charaWrite(img_url, data, target_img, response = undefined, mes =
     }
 }
 
-      
-            
 
-
-function charaRead(img_url){
+async function charaRead(img_url, input_format){
+    let format;
     sharp.cache(false);
-    const buffer = fs.readFileSync(img_url);
-    const chunks = extract(buffer);
-     
-    const textChunks = chunks.filter(function (chunk) {
-      return chunk.name === 'tEXt';
-    }).map(function (chunk) {
-        //console.log(text.decode(chunk.data));
-      return PNGtext.decode(chunk.data);
-    });
-    var base64DecodedData = Buffer.from(textChunks[0].text, 'base64').toString('utf8');
-    return base64DecodedData;//textChunks[0].text;
-    //console.log(textChunks[0].keyword); // 'hello'
-    //console.log(textChunks[0].text);    // 'world'
+    if(input_format === undefined){
+        if(img_url.indexOf('.webp') !== -1){
+            format = 'webp';
+        }else{
+            format = 'png';
+        }
+    }else{
+        format = input_format;
+    }
+    
+    switch(format){
+        case 'webp':
+            const exif_data = await ExifReader.load(fs.readFileSync(img_url));
+            const char_data = exif_data['UserComment']['description'];
+            return char_data;
+        case 'png':
+            const buffer = fs.readFileSync(img_url);
+            const chunks = extract(buffer);
+             
+            const textChunks = chunks.filter(function (chunk) {
+              return chunk.name === 'tEXt';
+            }).map(function (chunk) {
+                //console.log(text.decode(chunk.data));
+              return PNGtext.decode(chunk.data);
+            });
+            var base64DecodedData = Buffer.from(textChunks[0].text, 'base64').toString('utf8');
+            return base64DecodedData;//textChunks[0].text;
+            //console.log(textChunks[0].keyword); // 'hello'
+            //console.log(textChunks[0].text);    // 'world'
+        default:
+            break;
+    }                   
+
 }
 
-app.post("/getcharacters", jsonParser, function(request, response){
-    fs.readdir(charactersPath, (err, files) => {
-        if (err) {
-          console.error(err);
-          return;
+app.post("/getcharacters", jsonParser, async function(request, response) {
+  try {
+    const files = await fs.promises.readdir(charactersPath);
+    const imgFiles = files.filter(file => file.endsWith(`.${characterFormat}`));
+    const characters = {};
+    let i = 0;
+
+    for (const item of imgFiles) {
+      const imgData = await charaRead(charactersPath + item);
+      let jsonObject;
+
+      try {
+        jsonObject = json5.parse(imgData);
+        jsonObject.avatar = item;
+        characters[i] = jsonObject;
+        i++;
+      } catch (error) {
+        if (error instanceof SyntaxError) {
+          console.log(`String [${i}] is not valid JSON!`);
+        } else {
+          console.log(`An unexpected error occurred: ${error}`);
         }
+      }
+    }
 
-        const pngFiles = files.filter(file => file.endsWith('.png'));
-
-        //console.log(pngFiles);
-        characters = {};
-        var i = 0;
-        pngFiles.forEach(item => {
-            //console.log(item);
-            var img_data = charaRead(charactersPath+item);
-            try {
-                let jsonObject = JSON.parse(img_data);
-                jsonObject.avatar = item;
-                //console.log(jsonObject);
-                characters[i] = {};
-                characters[i] = jsonObject;
-                i++;
-            } catch (error) {
-                if (error instanceof SyntaxError) {
-                    console.log("String [" + (i) + "] is not valid JSON!");
-                } else {
-                    console.log("An unexpected error occurred: ", error);
-                }
-            }
-        });
-        //console.log(characters);
-        response.send(JSON.stringify(characters));
-    });
-    //var directories = getDirectories("public/characters");
-    //console.log(directories[0]);
-    //characters = {};
-    //character_i = 0;
-    //getCharaterFile(directories, response,0);
-    
+    response.send(JSON.stringify(characters));
+  } catch (error) {
+    console.error(error);
+    response.sendStatus(500);
+  }
 });
 app.post("/getbackgrounds", jsonParser, function(request, response){
     var images = getImages("public/backgrounds");
@@ -608,7 +803,12 @@ app.post("/setbackground", jsonParser, function(request, response){
      //const data = request.body;
     //console.log(request);
     //console.log(1);
-    var bg = "#bg1 {background-image: linear-gradient(rgba(19,21,44,0.75), rgba(19,21,44,0.75)), url(../backgrounds/"+request.body.bg+");}";
+    let bg;
+    if(request.body.bg == 'none'){
+        bg = "#bg1 {display: none;}";
+    }else{
+        bg = "#bg1 {background-image: "+request.body.bg+";}";
+    }
     fs.writeFile('public/css/bg_load.css', bg, 'utf8', function(err) {
         if(err) {
             response.send(err);
@@ -649,6 +849,7 @@ app.post("/downloadbackground", urlencodedParser, function(request, response){
     if (filedata.mimetype == "image/png") fileType = ".png";
     if (filedata.mimetype == "image/gif") fileType = ".gif";
     if (filedata.mimetype == "image/bmp") fileType = ".bmp";
+    if (filedata.mimetype == "image/webp") fileType = ".webp";
     fs.copyFile(img_path+img_file, 'public/backgrounds/'+img_file+fileType, (err) => {
         if(err) {
             
@@ -735,8 +936,17 @@ app.post('/getsettings', jsonParser, (request, response) => { //Wintermute's cod
         novelai_setting_names.push(item.replace(/\.[^/.]+$/, ''));
     });
     
+    //Styles
+    const designs = fs.readdirSync('public/designs')
+        .filter(file => file.endsWith('.css'))
+        .sort();
+    
     response.send({
+        charaCloudMode: charaCloudMode,
+        charaCloudServer: charaCloudServer,
+        characterFormat: characterFormat,
         settings,
+        designs,
         koboldai_settings,
         koboldai_setting_names,
         novelai_settings,
@@ -744,6 +954,25 @@ app.post('/getsettings', jsonParser, (request, response) => { //Wintermute's cod
     });
 });
 
+app.post("/savestyle", jsonParser, function(request, response){
+    const this_style = request.body.style;
+    let file_data = '@import "../designs/classic.css";';
+    if(this_style != 'classic.css'){
+        file_data = '@import "../designs/classic.css";@import "../designs/'+this_style+'";';
+    }
+
+    fs.writeFile('public/css/designs.css', file_data, 'utf8', function(err) {
+        if(err) {
+            response.send(err);
+            return console.log(err);
+            //response.send(err);
+        }else{
+            //response.redirect("/");
+            response.send({result: "ok"});
+        }
+    });
+    
+});
 
 function getCharaterFile(directories,response,i){ //old need del
     if(directories.length > i){
@@ -835,9 +1064,14 @@ app.post("/generate_novelai", jsonParser, function(request, response_generate_no
 		"temperature": request.body.temperature,
 		"max_length": request.body.max_length,
 		"min_length": request.body.min_length,
+                "top_a": request.body.top_a,
+                "top_k": request.body.top_k,
+                "top_p": request.body.top_p,
+                "typical_p": request.body.typical_p,
 		"tail_free_sampling": request.body.tail_free_sampling,
 		"repetition_penalty": request.body.repetition_penalty,
 		"repetition_penalty_range": request.body.repetition_penalty_range,
+                "repetition_penalty_slope": request.body.repetition_penalty_slope,
 		"repetition_penalty_frequency": request.body.repetition_penalty_frequency,
 		"repetition_penalty_presence": request.body.repetition_penalty_presence,
 		//"stop_sequences": {{187}},
@@ -880,14 +1114,100 @@ app.post("/generate_novelai", jsonParser, function(request, response_generate_no
     }).on('error', function (err) {
         //console.log('');
 	//console.log('something went wrong on the request', err.request.options);
-        response_getstatus.send({error: true});
+        response_generate_novel.send({error: true});
+    });
+});
+//***********Open.ai API 
+
+app.post("/getstatus_openai", jsonParser, function(request, response_getstatus_openai = response){
+    if(!request.body) return response_getstatus_openai.sendStatus(400);
+    api_key_openai = request.body.key;
+    var args = {
+        headers: { "Authorization": "Bearer "+api_key_openai}
+    };
+    client.get(api_openai+"/engines/text-davinci-003", args, function (data, response) {
+        if(response.statusCode == 200){
+            response_getstatus_openai.send(data);
+        }
+        if(response.statusCode == 401){
+            console.log('Invalid Authentication');
+            response_getstatus_openai.send({error: true});
+        }
+        if(response.statusCode == 429){
+            console.log('Rate limit reached for requests');
+            response_getstatus_openai.send({error: true});
+        }
+        if(response.statusCode == 500){
+            console.log('The server had an error while processing your request');
+            response_getstatus_openai.send({error: true});
+        }
+    }).on('error', function (err) {
+        //console.log('');
+	//console.log('something went wrong on the request', err.request.options);
+        response_getstatus_openai.send({error: true});
+    });
+});
+
+
+
+app.post("/generate_openai", jsonParser, function(request, response_generate_openai){
+    if(!request.body) return response_generate_openai.sendStatus(400);
+    console.log(request.body);
+    
+    var data = {
+        "model": request.body.model,
+        "max_tokens": request.body.max_tokens,
+        "temperature": request.body.temperature,
+        "top_p": request.body.top_p,
+        "presence_penalty": request.body.presence_penalty,
+        "frequency_penalty": request.body.frequency_penalty,
+        "stop": request.body.stop
+    };
+    let request_path = '';
+    if(request.body.model === 'gpt-3.5-turbo' || request.body.model === 'gpt-3.5-turbo-0301'){
+        request_path = '/chat/completions';
+        data.messages = request.body.messages;
+        
+    }else{
+        request_path = '/completions';
+        data.prompt = request.body.prompt;
+
+    }
+    var args = {
+        data: data,
+        
+        headers: { "Content-Type": "application/json",  "Authorization": "Bearer "+api_key_openai}
+    };
+    
+    client.post(api_openai+request_path,args, function (data, response) {
+        console.log(data);
+        console.log(response.statusCode);
+        if(response.statusCode <= 299){
+            response_generate_openai.send(data);
+        }
+        if(response.statusCode == 401){
+            console.log('Invalid Authentication');
+            response_generate_openai.send({error: true});
+        }
+        if(response.statusCode == 429){
+            console.log('Rate limit reached for requests');
+            response_generate_openai.send({error: true});
+        }
+        if(response.statusCode == 500){
+            console.log('The server had an error while processing your request');
+            response_generate_openai.send({error: true});
+        }
+    }).on('error', function (err) {
+        //console.log('');
+	//console.log('something went wrong on the request', err.request.options);
+        response_generate_openai.send({error: true});
     });
 });
 
 app.post("/getallchatsofchatacter", jsonParser, function(request, response){
     if(!request.body) return response.sendStatus(400);
 
-    var char_dir = (request.body.avatar_url).replace('.png','')
+    var char_dir = (request.body.avatar_url).replace(`.${characterFormat}`,'');
     fs.readdir(chatsPath+char_dir, (err, files) => {
         if (err) {
           console.error(err);
@@ -921,7 +1241,7 @@ app.post("/getallchatsofchatacter", jsonParser, function(request, response){
 
             rl.on('close', () => {
                 if(lastLine){
-                    let jsonData = JSON.parse(lastLine);
+                    let jsonData = json5.parse(lastLine);
                     if(jsonData.name !== undefined){
                         chatData[i] = {};
                         chatData[i]['file_name'] = file;
@@ -940,19 +1260,19 @@ app.post("/getallchatsofchatacter", jsonParser, function(request, response){
     });
     
 });
-function getPngName(file){
+function setCardName(file){
     let i = 1;
     let base_name = file;
-    while (fs.existsSync(charactersPath+file+'.png')) {
+    while (fs.existsSync(charactersPath+file+`.${characterFormat}`)) {
         file = base_name+i;
         i++;
     }
     return file;
 }
-app.post("/importcharacter", urlencodedParser, function(request, response){
+app.post("/importcharacter", urlencodedParser, async function(request, response){
     if(!request.body) return response.sendStatus(400);
 
-        let png_name = '';
+        let img_name = '';
         let filedata = request.file;
         //console.log(filedata.filename);
         var format = request.body.file_type;
@@ -964,18 +1284,20 @@ app.post("/importcharacter", urlencodedParser, function(request, response){
                         console.log(err);
                         response.send({error:true});
                     }
-                    const jsonData = JSON.parse(data);
+                    const jsonData = json5.parse(data);
                     
                     if(jsonData.name !== undefined){
-                        png_name = getPngName(jsonData.name);
-                        let char = {"name": jsonData.name, "description": jsonData.description ?? '', "personality": jsonData.personality ?? '', "first_mes": jsonData.first_mes ?? '', "avatar": 'none', "chat": Date.now(), "mes_example": jsonData.mes_example ?? '', "scenario": jsonData.scenario ?? '', "create_date": Date.now()};
+                        img_name = setCardName(jsonData.name);
+                        let pre_data = {"name": jsonData.name, "description": jsonData.description, "personality": jsonData.personality, "first_mes": jsonData.first_mes, "avatar": 'none', "chat": Date.now(), "mes_example": jsonData.mes_example, "scenario": jsonData.scenario};
+                        let char = charaFormatData(pre_data);
                         char = JSON.stringify(char);
-                        charaWrite('./public/img/fluffy.png', char, png_name, response, {file_name: png_name});
+                        charaWrite('./public/img/fluffy.png', char, img_name, characterFormat, response, {file_name: img_name});
                     }else if(jsonData.char_name !== undefined){//json Pygmalion notepad
-                        png_name = getPngName(jsonData.char_name);
-                        let char = {"name": jsonData.char_name, "description": jsonData.char_persona ?? '', "personality": '', "first_mes": jsonData.char_greeting ?? '', "avatar": 'none', "chat": Date.now(), "mes_example": jsonData.example_dialogue ?? '', "scenario": jsonData.world_scenario ?? '', "create_date": Date.now()};
+                        img_name = setCardName(jsonData.char_name);
+                        let pre_data = {"name": jsonData.char_name, "description": jsonData.char_persona, "personality": '', "first_mes": jsonData.char_greeting, "avatar": 'none', "chat": Date.now(), "mes_example": jsonData.example_dialogue, "scenario": jsonData.world_scenario};
+                        let char = charaFormatData(pre_data);
                         char = JSON.stringify(char);
-                        charaWrite('./public/img/fluffy.png', char, png_name, response, {file_name: png_name});
+                        charaWrite('./public/img/fluffy.png', char, img_name, characterFormat, response, {file_name: img_name});
                     }else{
                         console.log('Incorrect character format .json');
                         response.send({error:true});
@@ -983,41 +1305,23 @@ app.post("/importcharacter", urlencodedParser, function(request, response){
                 });
             }else{
                 try{
-                    
-                    var img_data = charaRead('./uploads/'+filedata.filename);
-                    let jsonData = JSON.parse(img_data);
-                    png_name = getPngName(jsonData.name);
-                    
-                    if(jsonData.name !== undefined){
-                        let char = {"name": jsonData.name, "description": jsonData.description ?? '', "personality": jsonData.personality ?? '', "first_mes": jsonData.first_mes ?? '', "avatar": 'none', "chat": Date.now(), "mes_example": jsonData.mes_example ?? '', "scenario": jsonData.scenario ?? '', "create_date": Date.now()};
+                    var img_data = await charaRead('./uploads/'+filedata.filename, format);
+                    let jsonData = json5.parse(img_data);
+                    img_name = setCardName(jsonData.name);
+                    if(checkCharaProp(img_name).length > 0){
+                        let char = charaFormatData(jsonData);
                         char = JSON.stringify(char);
-                        charaWrite('./uploads/'+filedata.filename, char, png_name, response, {file_name: png_name});
-                        /*
-                        fs.copyFile('./uploads/'+filedata.filename, charactersPath+png_name+'.png', (err) => {
-                            if(err) {
-                                response.send({error:true});
-                                return console.log(err);
-                            }else{
-                                //console.log(img_file+fileType);
-                                response.send({file_name: png_name});
-                            }
-                            //console.log('The image was copied from temp directory.');
-                        });*/
+                        charaWrite('./uploads/'+filedata.filename, char, img_name, characterFormat, response, {file_name: img_name});
+                    }else{
+                        console.log('Incorrect character card');
+                        response.send({error:true});
                     }
                 }catch(err){
                     console.log(err);
                     response.send({error:true});
                 }
             }
-            //charaWrite(img_path+img_file, char, request.body.ch_name, response);
         }
-        //console.log("The file was saved.");
-
-
-    //console.log(request.body);
-    //response.send(request.body.ch_name);
-
-    //response.redirect("https://metanit.com")
 });
 
 app.post("/importchat", urlencodedParser, function(request, response){
@@ -1025,7 +1329,7 @@ app.post("/importchat", urlencodedParser, function(request, response){
 
         var format = request.body.file_type;
         let filedata = request.file;
-        let avatar_url = (request.body.avatar_url).replace('.png', '');
+        let avatar_url = (request.body.avatar_url).replace(`.${characterFormat}`, '');
         let ch_name = request.body.character_name;
         //console.log(filedata.filename);
         //var format = request.body.file_type;
@@ -1041,7 +1345,7 @@ app.post("/importchat", urlencodedParser, function(request, response){
                         response.send({error:true});
                     }
 
-                    const jsonData = JSON.parse(data);
+                    const jsonData = json5.parse(data);
                     var new_chat = [];
                     if(jsonData.histories !== undefined){
                         let i = 0;
@@ -1090,7 +1394,7 @@ app.post("/importchat", urlencodedParser, function(request, response){
                 });
                 
                 rl.once('line', (line) => {
-                    let jsonData = JSON.parse(line);
+                    let jsonData = json5.parse(line);
                     
                     if(jsonData.user_name !== undefined){
                         fs.copyFile('./uploads/'+filedata.filename, chatsPath+avatar_url+'/'+Date.now()+'.jsonl', (err) => {
@@ -1116,9 +1420,99 @@ app.post("/importchat", urlencodedParser, function(request, response){
 
 
 
+//********CHARACLOUD API***********//
+app.post("/characloud_getallcharacters", jsonParser, function(request, response_characloud_getallcharacters = response){
+    try {
+        client.get(charaCloudServer + "/characters", function (data, response) {
+            if (response.statusCode === 200) {
+                response_characloud_getallcharacters.send(data);
+            } else {
+                response_characloud_getallcharacters.sendStatus(500);
+            }
+        }).on('error', function (err) {
+            console.log("No connection to charaCloud");//console.log(err);
+            response_characloud_getallcharacters.sendStatus(500);
+        });
+    } catch (err) {
+        console.log(err);
+        response_characloud_getallcharacters.sendStatus(500);
+    }
+});
 
+app.post("/characloud_loadcard", jsonParser, function(request, response_characloud_loadcard = response){
+    let public_id = request.body.public_id;
+    const url = charaCloudServer+'/cards/'+public_id+'.webp';
+    const filename = path.join('uploads', public_id+'.webp');
+    //let this_chara_data = charaRead(filename);
 
+    const file = fs.createWriteStream(filename);
+    const protocol = url.split(':')[0];
+    const web_module = protocol === 'https' ? https : http;
+    web_module.get(url, (response) => {
+        response.pipe(file);
 
+        file.on('finish', async function(){
+            file.close();
+      
+            try{
+                const char_json = await charaRead(filename);
+
+                let char = json5.parse(char_json);
+            
+                charaWrite(filename, JSON.stringify(charaFormatData(char)), setCardName(char.name), characterFormat, response_characloud_loadcard, {send: 'ok'});
+            } catch (error) {
+                if (error instanceof SyntaxError) {
+                  console.log(`String is not valid JSON!`);
+                } else {
+                  console.log(`An unexpected error occurred: ${error}`);
+                }
+            }
+        });
+    }).on('error', (err) => {
+        fs.unlink(filename, () => {
+            console.error(`Error downloading file: ${err.message}`);
+        });
+    });
+});
+
+app.post("/characloud_search_character", jsonParser, function(request, response_characloud_search){
+    let search_string = request.body.q;
+    try {
+        client.get(charaCloudServer + "/characters?q="+search_string, function (data, response) {
+            if (response.statusCode === 200) {
+                response_characloud_search.send(data);
+            } else {
+                response_characloud_search.sendStatus(500);
+            }
+        }).on('error', function (err) {
+            console.log(err);
+            console.log("No connection to charaCloud");//console.log(err);
+            response_characloud_search.sendStatus(500);
+        });
+    } catch (err) {
+        console.log(err);
+        response_characloud_search.sendStatus(500);
+    }
+});
+
+app.post("/characloud_serverstatus", jsonParser, function(request, response_characloud_server_status){
+    try {
+        client.get(charaCloudServer + "/server/status", function (data, response) {
+            if (response.statusCode === 200) {
+                response_characloud_server_status.send(data);
+            } else {
+                response_characloud_server_status.sendStatus(500);
+            }
+        }).on('error', function (err) {
+            console.log(err);
+            console.log("No connection to charaCloud");//console.log(err);
+            response_characloud_server_status.sendStatus(500);
+        });
+    } catch (err) {
+        console.log(err);
+        response_characloud_server_status.sendStatus(500);
+    }
+});
 
 app.listen(server_port, function() {
     if(process.env.colab !== undefined){
@@ -1127,195 +1521,117 @@ app.listen(server_port, function() {
         }
     }
     console.log('Launching...');
+    initialization();
     if(autorun) open('http:127.0.0.1:'+server_port);
     console.log('TavernAI started: http://127.0.0.1:'+server_port);
-    if (fs.existsSync('public/characters/update.txt') && !is_colab) {
-        convertStage1();
-    }
-
+    
 });
 
-//#####################CONVERTING IN NEW FORMAT########################
-
-var charactersB = {};//B - Backup
-var character_ib = 0;
-
-var directoriesB = {};
-
-
-function convertStage1(){
-    //if (!fs.existsSync('public/charactersBackup')) {
-        //fs.mkdirSync('public/charactersBackup');
-        //copyFolder('public/characters/', 'public/charactersBackup');
-    //}
-    
-    var directories = getDirectories2("public/characters");
-    //console.log(directories[0]);
-    charactersB = {};
-    character_ib = 0;
-    var folderForDel = {};
-    getCharaterFile2(directories, 0);
-}
-function convertStage2(){
-    //directoriesB = JSON.parse(directoriesB);
-    //console.log(directoriesB);
-    var mes = true;
-    for (const key in directoriesB) {
-        if(mes){
-            console.log('***');
-            console.log('The update of the character format has begun...');
-            console.log('***');
-            mes = false;
-        }
-        //console.log(`${key}: ${directoriesB[key]}`);
-        //console.log(JSON.parse(charactersB[key]));
-        //console.log(directoriesB[key]);
-        
-        var char = JSON.parse(charactersB[key]);
-        char.create_date = Date.now();
-        charactersB[key] = JSON.stringify(char);
-        var avatar = 'public/img/fluffy.png';
-        if(char.avatar !== 'none'){
-            avatar = 'public/characters/'+char.name+'/avatars/'+char.avatar;
-        }
-        
-        charaWrite(avatar, charactersB[key], directoriesB[key]);
-        
-        const files = fs.readdirSync('public/characters/'+directoriesB[key]+'/chats');
-        if (!fs.existsSync(chatsPath+char.name)) {
-            fs.mkdirSync(chatsPath+char.name);
-        }
-        files.forEach(function(file) {
-            // Read the contents of the file
-            
-            const fileContents = fs.readFileSync('public/characters/'+directoriesB[key]+'/chats/' + file, 'utf8');
-
-
-            // Iterate through the array of strings and parse each line as JSON
-            let chat_data = JSON.parse(fileContents);
-            let new_chat_data = [];
-            let this_chat_user_name = 'You';
-            let is_pass_0 = false;
-            if(chat_data[0].indexOf('<username-holder>') !== -1){
-                this_chat_user_name = chat_data[0].substr('<username-holder>'.length, chat_data[0].length);
-                is_pass_0 = true;
-            }
-            let i = 0;
-            let ii = 0;
-            new_chat_data[i] = {user_name:'You', character_name:char.name, create_date: Date.now()};
-            i++;
-            ii++;
-            chat_data.forEach(function(mes) {
-                if(!(i === 1 && is_pass_0)){
-                    if(mes.indexOf('<username-holder>') === -1 && mes.indexOf('<username-idkey>') === -1){
-                        new_chat_data[ii] = {};
-                        let is_name = false;
-                        if(mes.trim().indexOf(this_chat_user_name+':') !== 0){
-                            if(mes.trim().indexOf(char.name+':') === 0){
-                                mes = mes.replace(char.name+':','');
-                                is_name = true;
-                            }
-                            new_chat_data[ii]['name'] = char.name;
-                            new_chat_data[ii]['is_user'] = false;
-                            new_chat_data[ii]['is_name'] = is_name;
-                            new_chat_data[ii]['send_date'] = Date.now();
-
-                        }else{
-                            mes = mes.replace(this_chat_user_name+':','');
-                            new_chat_data[ii]['name'] = 'You';
-                            new_chat_data[ii]['is_user'] = true;
-                            new_chat_data[ii]['is_name'] = true;
-                            new_chat_data[ii]['send_date'] = Date.now();
-
-                        }
-                        new_chat_data[ii]['mes'] = mes.trim();
-                        ii++;
-                    }
-                }
-                i++;
-                
-            });
-            const jsonlData = new_chat_data.map(JSON.stringify).join('\n');
-            // Write the contents to the destination folder
-            fs.writeFileSync(chatsPath+char.name+'/' + file+'l', jsonlData);
-        });
-        //fs.rmSync('public/characters/'+directoriesB[key],{ recursive: true });
-        console.log(char.name+' update!');
-    }
-    //removeFolders('public/characters');
-    fs.unlinkSync('public/characters/update.txt');
-    if(mes == false){
-        console.log('***');
-        console.log('Сharacter format update completed successfully!');
-        console.log('***');
-        console.log('Now you can delete these folders, they are no longer used by TavernAI:');
-    }
-    for (const key in directoriesB) {
-        console.log('public/characters/'+directoriesB[key]);
-    }
-}
-function removeFolders(folder) {
-    const files = fs.readdirSync(folder);
-    files.forEach(function(file) {
-        const filePath = folder + '/' + file;
-        const stat = fs.statSync(filePath);
-        if (stat.isDirectory()) {
-            removeFolders(filePath);
-            fs.rmdirSync(filePath);
-        }
-    });
-}
-
-function copyFolder(src, dest) {
-    const files = fs.readdirSync(src);
-    files.forEach(function(file) {
-        const filePath = src + '/' + file;
-        const stat = fs.statSync(filePath);
-        if (stat.isFile()) {
-            fs.copyFileSync(filePath, dest + '/' + file);
-        } else if (stat.isDirectory()) {
-            fs.mkdirSync(dest + '/' + file);
-            copyFolder(filePath, dest + '/' + file);
-        }
-    });
-}
-
-
-function getDirectories2(path) {
-  return fs.readdirSync(path)
-    .filter(function (file) {
-        return fs.statSync(path + '/' + file).isDirectory();
-    })
-    .sort(function (a, b) {
-        return new Date(fs.statSync(path + '/' + a).mtime) - new Date(fs.statSync(path + '/' + b).mtime);
-    })
-    .reverse();
-}
-function getCharaterFile2(directories,i){
-    if(directories.length > i){
-            fs.stat('public/characters/'+directories[i]+'/'+directories[i]+".json", function(err, stat) {
-                if (err == null) {
-                    fs.readFile('public/characters/'+directories[i]+'/'+directories[i]+".json", 'utf8', (err, data) => {
-                        if (err) {
-                          console.error(err);
-                          return;
-                        }
-                        //console.log(data);
-                        if (!fs.existsSync('public/characters/'+directories[i]+'.png')) {
-                            charactersB[character_ib] = {};
-                            charactersB[character_ib] = data;
-                            directoriesB[character_ib] = directories[i];
-                            character_ib++;
-                        }
-                        i++;
-                        getCharaterFile2(directories,i);
-                    });
-                }else{
-                    i++;
-                    getCharaterFile2(directories,i);
-                }
-            });
+function initialization(){
+    const folderPath = charactersPath;
+    // get all files in folder
+    let this_format;
+    let old_format;
+    if(characterFormat === 'webp'){
+        this_format = 'webp';
+        old_format = 'png';
     }else{
-        convertStage2();
+        this_format = 'png';
+        old_format = 'webp';
     }
+    fs.readdir(folderPath, async (err, files) => {
+        if (err) {
+            console.error('Error reading folder:', err);
+            return;
+        }
+        
+        for (const file of files) {
+                const filePath = path.join(folderPath, file);
+            // check if file is png image
+            if (!file.endsWith(`.${old_format}`)) {
+                continue;
+            }
+            
+            // read metadata
+            const json_metadata = await charaRead(filePath);
+            const metadata = json5.parse(json_metadata);
+            // check if metadata contains chara.name
+            if (!metadata || !metadata.name) {
+                continue;
+            }
+
+            // choose target filename
+            let targetName = setCardName(file.replace(`.${old_format}`, ''));
+            let targetPath = path.join(folderPath, targetName+`.${this_format}`);
+
+            // write image
+            await charaWrite(filePath, JSON.stringify(metadata), targetName, this_format);
+
+            // delete original file
+            if (fs.existsSync(targetPath)) { //make to check (need to meake charaWrite is )
+            // delete original file
+            fs.unlink(filePath, err => {
+                if (err) {
+                  console.error('Error deleting file:', err);
+                } else {
+                    console.log(targetName+' has been converted to .'+this_format);
+                  //console.log('Deleted file:', filePath);
+                }
+            });
+          } else {
+                console.error('Error writing file:', targetPath);
+          }
+        }
+    });
+    clearUploads();
 }
+
+function clearUploads() {
+    let folderPath = './uploads';
+    fs.readdir(folderPath, (err, files) => {
+    if (err) {
+        console.error('Error reading folder:', err);
+        return;
+    }
+
+    for (const file of files) {
+        const filePath = path.join(folderPath, file);
+
+        fs.unlink(filePath, err => {
+            if (err) {
+                console.error('Error deleting file:', err);
+            } else {
+                //console.log('Deleted file:', filePath);
+            }
+        });
+    }
+  });
+}
+
+/*
+
+async function processImage(imagePath) {
+  for (let i = 0; i < 500; i++) {
+    const processedImagePath = imagePath;
+    try {
+      const imageBuffer = fs.readFileSync(imagePath);
+      let qwer = crypto.randomBytes(Math.floor(Math.random() * 2000)).toString('hex');
+      let aaa = `{"public_id":"undefined",${qwer}"}`;
+      const processedImage = await sharp(imageBuffer).resize(400, 600).webp({'quality':95}).withMetadata({
+                        exif: {
+                            IFD0: {
+                                UserComment: aaa
+                            }
+                        }
+                    }).toBuffer();
+      fs.writeFileSync(processedImagePath, processedImage);
+      console.log(`Iteration ${i}: Success`);
+    } catch (err) {
+      console.log(`Iteration ${i}: Error: ${err}`);
+    }
+  }
+}
+
+const imagePath = 'image.webp';
+processImage(imagePath);
+*/
