@@ -4,3 +4,5 @@ public/characters/*
 public/chats/*
 uploads/*
 public/settings.json
+.vscode/launch.json
+config.conf

@@ -468,6 +468,7 @@ $(document).ready(function(){
 
             for(var i = 0; i < load_ch_count.length;i++){
 
+
                 characters[i] = [];
                 characters[i] = getData[i];
                 
@@ -475,8 +476,8 @@ $(document).ready(function(){
                     characters[i].add_date = characters[i].create_date;
                 }
             }
-            characters.sort((a,b) =>  a.add_date - b.add_date );
-            //characters.reverse();
+            characters.sort((a, b) => (a.name > b.name) ? 1 : -1);
+            characters.reverse();
             if(this_chid != undefined) $("#avatar_url_pole").val(characters[this_chid].avatar);
             printCharaters();
         }
