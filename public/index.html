@@ -167,27 +167,36 @@
                         <input type="range" class="range_bar" id="amount_gen_novel" name="volume" min="16" max="512" step="1">
                     </div>
                 </div>
-                <div id="master_settings_openai_block" class="master_settings_range_block">
-                    <div>
-                    <h4 class="h4_menu_title">Frequency Penalty </h4><h5 id="freq_pen_counter_openai" class="range_counter">select</h5>
-                    <input type="range" class="range_bar" id="freq_pen_openai" name="volume" min="0.0" max="2.0" step="0.01">
+                <div id="master_settings_openai_block">
+                    <div class="master_settings_range_block">
+                        <div>
+                        <h4 class="h4_menu_title">Frequency Penalty </h4><h5 id="freq_pen_counter_openai" class="range_counter">select</h5>
+                        <input type="range" class="range_bar" id="freq_pen_openai" name="volume" min="0.0" max="2.0" step="0.01">
+                        </div>
+                        <div>
+                        <h4 class="h4_menu_title">Presence Penalty</h4><h5 id="pres_pen_counter_openai" class="range_counter">select</h5>
+                        <input type="range" class="range_bar" id="pres_pen_openai" name="volume" min="0.0" max="1.0" step="0.01">
+                        </div>
+                        <div>
+                            <h4 class="h4_menu_title">Top P Sample</h4><h5 id="top_p_counter_openai" class="range_counter">select</h5>
+                            <input type="range" class="range_bar" id="top_p_openai" name="volume" min="0.0" max="1.0" step="0.01">
+                        </div>
+                        <div>
+                            <h4 class="range_title">Amount of generation </h4><h5 id="amount_gen_counter_openai" class="range_counter">select</h5>
+                            <input type="range" class="range_bar" id="amount_gen_openai" name="volume" min="16" max="512" step="1">
+                        </div>
+                        <div>
+                            <h4 class="h4_menu_title">Context Size</h4><h5 id="max_context_counter_openai" class="range_counter">select</h5>
+                            <input type="range" class="range_bar" id="max_context_openai" name="volume" min="1024" max="4000" step="1">
+                        </div>
                     </div>
+
                     <div>
-                    <h4 class="h4_menu_title">Presence Penalty</h4><h5 id="pres_pen_counter_openai" class="range_counter">select</h5>
-                    <input type="range" class="range_bar" id="pres_pen_openai" name="volume" min="0.0" max="1.0" step="0.01">
+                        <h4 class="h4_menu_title">OpenAI System prompt</h4>
+                        <h5 class="h5_menu_help">Defines how the model will behave (<a href="/notes/20" target="_blank">?</a>)</h5>
                     </div>
-                    <div>
-                        <h4 class="h4_menu_title">Top P Sample</h4><h5 id="top_p_counter_openai" class="range_counter">select</h5>
-                        <input type="range" class="range_bar" id="top_p_openai" name="volume" min="0.0" max="1.0" step="0.01">
-                    </div>
-                    <div>
-                        <h4 class="range_title">Amount of generation </h4><h5 id="amount_gen_counter_openai" class="range_counter">select</h5>
-                        <input type="range" class="range_bar" id="amount_gen_openai" name="volume" min="16" max="512" step="1">
-                    </div>
-                    <div>
-                        <h4 class="h4_menu_title">Context Size</h4><h5 id="max_context_counter_openai" class="range_counter">select</h5>
-                        <input type="range" class="range_bar" id="max_context_openai" name="volume" min="1024" max="4000" step="1">
-                    </div>
+                    <textarea id="openai_system_prompt_textarea" name="mes_example" placeholder="" form="form_create"></textarea>
+
                 </div>
                 <div id="master_settings_toggle_block">
                     <div class="menu_toggle">

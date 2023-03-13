@@ -1571,12 +1571,21 @@ label.checkbox :checked + span:after {
     width: 92%;
     margin-left: 0px;
 }
-#mes_example_textarea {
+#mes_example_textarea{
     margin-left: 36px;
     width: 88%;
     height: 100%;
     margin-top: 4px;
 }
+
+#openai_system_prompt_textarea {
+    margin-left: 2px;
+    width: 94%;
+    height: 220px;
+    margin-top: 4px;
+    margin-bottom: 22px;
+}
+
 #character_popup_ok {
     cursor: pointer;
     display: none;/* grid; */
