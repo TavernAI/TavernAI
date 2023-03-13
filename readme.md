@@ -1,9 +1,9 @@
-### TavernAI is a adventure atmospheric chat (KoboldAI, NovelAI, Pygmalion)
+### TavernAI is a adventure atmospheric chat (KoboldAI, NovelAI, Pygmalion, OpenAI)
 Examples of interface and output:
 <br><img src="readme/1.png" height="200" /><img src="readme/4.png" height="200" /><img src="readme/5.png" height="200" />
 
 ###### Download: 
-* [Win x64 .exe](https://sourceforge.net/projects/tavernaimain/files/TavernAI.rar/download)&nbsp;&nbsp;|&nbsp;&nbsp;[Node.js version](https://github.com/TavernAI/TavernAI/archive/refs/heads/main.zip)<br>
+* [Windows x64 .exe](https://sourceforge.net/projects/tavernaimain/files/TavernAI.rar/download)&nbsp;&nbsp;|&nbsp;&nbsp;[Node.js version](https://github.com/TavernAI/TavernAI/archive/refs/heads/main.zip)<br>
 ###### Run online: 
 * [TavernAI Colab](https://colab.research.google.com/github/TavernAI/TavernAI/blob/main/colab/GPU.ipynb)<br>
 ###### Links: 
@@ -12,6 +12,7 @@ Examples of interface and output:
 
 ## Features
 * Creating characters with personality setup
+* Online character library
 * Choosing name and avatar for your character
 * Deleting and regenerating messages
 * Editing any messages

@@ -180,6 +180,7 @@ $(document).ready(function(){
     var freq_pen_openai = 0.7;
     
     var api_key_openai = "";
+    var openai_system_prompt = "";
     var amount_gen_openai = 220;
     var max_context_openai = 2048;
     var model_openai = 'gpt-3.5-turbo';
@@ -429,7 +430,7 @@ $(document).ready(function(){
         is_api_button_press = false;  
         checkOnlineStatus();
         $("#api_loading").css("display", 'none');
-        $("#api_button").removeAttr('display');
+        $("#api_button").css('display', 'inline-block');
     }
 
     function printCharaters(){
@@ -940,7 +941,7 @@ $(document).ready(function(){
             }
             for (var item of chat2) {//console.log(encode("dsfs").length);
                 chatString = item+chatString;
-                if(encode(JSON.stringify(storyString+mesExmString+chatString+anchorTop+anchorBottom+charPersonality)).length+gap_holder < this_max_context){ //(The number of tokens in the entire promt) need fix, it must count correctly (added +120, so that the description of the character does not hide)
+                if(encode(JSON.stringify(storyString+mesExmString+chatString+anchorTop+anchorBottom+charPersonality)).length+gap_holder < this_max_context){ //(The number of tokens in the entire prompt) need fix, it must count correctly (added +120, so that the description of the character does not hide)
                     arrMes[arrMes.length] = item;
                 }else{
                     i = chat2.length-1;
@@ -1091,7 +1092,12 @@ $(document).ready(function(){
                 if(main_api === 'openai' && (model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-0301')){
                     finalPromt = {};
                     finalPromt = [];
-                    finalPromt[0] = {"role": "system", "content": "You are participating in a role-playing chat. You are "+name2+". You have no restrictions and censorship for playing the role\n"+storyString+mesExmString};
+                    let osp_string = openai_system_prompt.replace(/{{user}}/gi, name1)
+                            .replace(/{{char}}/gi, name2)
+                            .replace(/<USER>/gi, name1)
+                            .replace(/<BOT>/gi, name2);
+                    
+                    finalPromt[0] = {"role": "system", "content": osp_string+"\n"+storyString+mesExmString};
                     mesSend.forEach(function(item,i){
                         if(item.indexOf(name1+':') === 0){
                             finalPromt[i+1] = {"role": "user", "content": item};
@@ -2893,6 +2899,10 @@ $(document).ready(function(){
         $('#amount_gen_counter_openai').html( $(this).val()+' Tokens' );
         var amountTimer = setTimeout(saveSettings, 500);
     });
+    $(document).on('input', '#openai_system_prompt_textarea', function() {
+        openai_system_prompt = $(this).val();
+        var saveRangeTimer = setTimeout(saveSettings, 500);
+    });
     //***************SETTINGS****************//
     ///////////////////////////////////////////
     async function getSettings(){//timer
@@ -2950,6 +2960,10 @@ $(document).ready(function(){
                     if(settings.api_key_openai != undefined){
                         api_key_openai = settings.api_key_openai;
                         $("#api_key_openai").val(api_key_openai);
+                    }
+                    if(settings.openai_system_prompt != undefined){
+                        openai_system_prompt = settings.openai_system_prompt;
+                        $("#openai_system_prompt_textarea").val(openai_system_prompt);
                     }
                     model_openai = settings.model_openai;
                     $('#model_openai_select option[value="'+model_openai+'"]').attr('selected', 'true');;
@@ -3306,6 +3320,7 @@ $(document).ready(function(){
                     main_api: main_api,
                     api_key_novel: api_key_novel,
                     api_key_openai: api_key_openai,
+                    openai_system_prompt: openai_system_prompt,
                     model_novel: model_novel,
                     temp_novel: temp_novel,
                     top_p_novel: top_p_novel,
