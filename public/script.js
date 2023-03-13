@@ -470,6 +470,7 @@ $(document).ready(function(){
 
             for(var i = 0; i < load_ch_count.length;i++){
 
+
                 characters[i] = [];
                 characters[i] = getData[i];
                 
@@ -477,8 +478,8 @@ $(document).ready(function(){
                     characters[i].add_date = characters[i].create_date;
                 }
             }
-            characters.sort((a,b) =>  a.add_date - b.add_date );
-            //characters.reverse();
+            characters.sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : -1);
+            characters.reverse();
             if(this_chid != undefined) $("#avatar_url_pole").val(characters[this_chid].avatar);
             printCharaters();
         }
@@ -594,7 +595,8 @@ $(document).ready(function(){
         $('#chat').html('');
     }
     function messageFormating(mes, ch_name){
-        if(this_chid != undefined) mes = mes.replaceAll("<", "&lt;").replaceAll(">", "&gt;");//for Chloe
+        //what does this even do? commenting it out doesnt seem to change anything related to chloe?
+        //if(this_chid != undefined) mes = mes.replaceAll("<", "&lt;").replaceAll(">", "&gt;");//for Chloe
         if(this_chid === undefined){
             mes = mes.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\*(.+?)\*/g, '<i>$1</i>').replace(/\n/g, '<br/>');
 
@@ -4463,4 +4465,30 @@ $(document).ready(function(){
 
 });
 
+document.getElementsByName("search_bar")[0].addEventListener('keyup', search_chars);
+function search_chars(){
+    const character_list = document.querySelector('#rm_print_charaters_block').querySelectorAll('div.character_select');
+    for (let i = 0; i < character_list.length; i++) {
+        character_list[i].style.display = "";
+        if (character_list[i].textContent.toLowerCase().indexOf(this.value)<0){
+            character_list[i].style.display = "none";
+        }
+    }
+}
 
+function auto_start(){
+    //console.log(main_api.value)
+
+    if (main_api.value == "openai"){
+        document.getElementById("api_button_openai").click()
+    }
+    else if (main_api.value == "novel"){
+        document.getElementById("api_button_novel").click()
+    }
+    else if (main_api.value == "kobold"){
+        document.getElementById("api_button").click()
+    }
+}
+$(document).ready(function() {
+    setTimeout(auto_start, 500)
+})
