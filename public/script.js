@@ -596,8 +596,7 @@ $(document).ready(function(){
         $('#chat').html('');
     }
     function messageFormating(mes, ch_name){
-        //what does this even do? commenting it out doesnt seem to change anything related to chloe?
-        //if(this_chid != undefined) mes = mes.replaceAll("<", "&lt;").replaceAll(">", "&gt;");//for Chloe
+        if(this_chid != undefined) mes = mes.replaceAll("<", "&lt;").replaceAll(">", "&gt;");//for Chloe
         if(this_chid === undefined){
             mes = mes.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\*(.+?)\*/g, '<i>$1</i>').replace(/\n/g, '<br/>');
 
@@ -4476,7 +4475,7 @@ function search_chars(){
         }
     }
 }
-
+/*
 function auto_start(){
     //console.log(main_api.value)
 
@@ -4493,3 +4492,4 @@ function auto_start(){
 $(document).ready(function() {
     setTimeout(auto_start, 500)
 })
+ * */

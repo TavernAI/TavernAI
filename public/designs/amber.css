@@ -382,9 +382,9 @@ label.checkbox :checked + span {
 
 }
 /*searchbox*/
-.textarea,input.text_pole  {
+#search_bar  {
     background-color: #181717;
 }
-.textarea,input.text_pole::placeholder  {
+#search_bar::placeholder  {
     color: white;
 }

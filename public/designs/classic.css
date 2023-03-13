@@ -2221,11 +2221,14 @@ label.checkbox :checked + span:after {
     cursor: pointer;
 }
 /*searchbox*/
-.textarea,input.text_pole  {
+#search_bar {
+    display: none;
+    width: 150px;
     position: sticky;
     top: 0px;
-    z-index: 100
+    z-index: 100;
+    margin-left: 8px;
 }
-.textarea,input.text_pole::placeholder  {
+#search_bar::placeholder  {
     color: white;
 }

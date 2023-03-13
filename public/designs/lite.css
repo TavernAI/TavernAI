@@ -953,9 +953,9 @@ a {
     
 }
 /*searchbox*/
-.textarea,input.text_pole  {
+#search_bar  {
     background-color: #191b31fF;
 }
-.textarea,input.text_pole::placeholder  {
+#search_bar::placeholder  {
     color: #ffffffaa;
 }
