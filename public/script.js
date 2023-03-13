@@ -850,7 +850,7 @@ $(document).ready(function(){
                     Scenario = Scenario.replace(/<BOT>/gi, name2);
                 }
             }
-
+            
 
             if(is_pygmalion){
                 if(charDescription.length > 0){
@@ -883,7 +883,16 @@ $(document).ready(function(){
 
 
             }
+            
 
+            if(main_api === 'openai' && (model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-0301')){
+                let osp_string = openai_system_prompt.replace(/{{user}}/gi, name1) //System prompt for OpenAI
+                                .replace(/{{char}}/gi, name2)
+                                .replace(/<USER>/gi, name1)
+                                .replace(/<BOT>/gi, name2);
+                storyString = osp_string+'\n'+storyString;
+            }
+            
             var count_exm_add = 0;
             var chat2 = [];
             var j = 0;
@@ -1015,7 +1024,7 @@ $(document).ready(function(){
                             //chatString+=postAnchor+"\n";//"[Writing style: very long messages]\n";
                             item =item+ anchorBottom+"\n";
                         }
-                        if(!free_char_name_mode){
+                        if(!free_char_name_mode && model_openai !== 'gpt-3.5-turbo' && model_openai !== 'gpt-3.5-turbo-0301' && main_api !== 'openai'){
                             if(i >= arrMes.length-1 && $.trim(item).substr(0, (name1+":").length) == name1+":"){//for add name2 when user sent
                                 item =item+name2+":";
                             }
@@ -1090,12 +1099,9 @@ $(document).ready(function(){
                 if(main_api === 'openai' && (model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-0301')){
                     finalPromt = {};
                     finalPromt = [];
-                    let osp_string = openai_system_prompt.replace(/{{user}}/gi, name1)
-                            .replace(/{{char}}/gi, name2)
-                            .replace(/<USER>/gi, name1)
-                            .replace(/<BOT>/gi, name2);
                     
-                    finalPromt[0] = {"role": "system", "content": osp_string+"\n"+storyString+mesExmString};
+                    
+                    finalPromt[0] = {"role": "system", "content": storyString+mesExmString};
                     mesSend.forEach(function(item,i){
                         if(item.indexOf(name1+':') === 0){
                             finalPromt[i+1] = {"role": "user", "content": item};

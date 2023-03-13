@@ -1180,7 +1180,14 @@ app.post("/generate_openai", jsonParser, function(request, response_generate_ope
     };
     
     client.post(api_openai+request_path,args, function (data, response) {
-        console.log(data);
+        if(request.body.model === 'gpt-3.5-turbo' || request.body.model === 'gpt-3.5-turbo-0301'){
+            console.log(data);
+            if(data.choices[0].message !== undefined){
+                console.log(data.choices[0].message);
+            }
+        }else{
+            console.log(data);
+        }
         console.log(response.statusCode);
         if(response.statusCode <= 299){
             response_generate_openai.send(data);
