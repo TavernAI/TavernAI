@@ -381,3 +381,10 @@ label.checkbox :checked + span {
   background:#181717;
 
 }
+/*searchbox*/
+.textarea,input.text_pole  {
+    background-color: #181717;
+}
+.textarea,input.text_pole::placeholder  {
+    color: white;
+}
