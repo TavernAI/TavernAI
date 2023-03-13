@@ -2222,7 +2222,6 @@ label.checkbox :checked + span:after {
 }
 /*searchbox*/
 .textarea,input.text_pole  {
-    min-width: 90%;
     position: sticky;
     top: 0px;
     z-index: 100
