@@ -144,6 +144,7 @@ $(document).ready(function(){
     
     var lock_context_size = false;
     var multigen = false;
+    var singleline = false;
     var swipes = false;
     var keep_dialog_examples = false;
     var free_char_name_mode = false;
@@ -1139,7 +1140,7 @@ $(document).ready(function(){
                     }
                 }
                 if(main_api == 'kobold'){
-                    var generate_data = {prompt: finalPromt, gui_settings: true, max_context_length: this_max_context};
+                    var generate_data = {prompt: finalPromt, gui_settings: true, max_context_length: this_max_context, singleline: singleline};
                     if(preset_settings != 'gui'){
 
                         var this_settings = koboldai_settings[koboldai_setting_names[preset_settings]];
@@ -1158,6 +1159,7 @@ $(document).ready(function(){
                                         top_k: parseInt(top_k),
                                         top_p: parseFloat(top_p),
                                         typical: parseFloat(typical),
+                                        singleline: singleline,
                                         s1:this_settings.sampler_order[0],
                                         s2:this_settings.sampler_order[1],
                                         s3:this_settings.sampler_order[2],
@@ -2600,6 +2602,7 @@ $(document).ready(function(){
             $('#master_settings_koboldai_block').css("display", "grid");
             $('#master_settings_novelai_block').css("display", "none");
             $('#master_settings_openai_block').css("display", "none");
+            $('#singleline_toggle').css("display", "grid");
 
             main_api = 'kobold';
         }
@@ -2610,6 +2613,7 @@ $(document).ready(function(){
             $('#master_settings_koboldai_block').css("display", "none");
             $('#master_settings_novelai_block').css("display", "grid");
             $('#master_settings_openai_block').css("display", "none");
+            $('#singleline_toggle').css("display", "none");
 
             main_api = 'novel';
         }
@@ -2620,6 +2624,7 @@ $(document).ready(function(){
             $('#master_settings_koboldai_block').css("display", "none");
             $('#master_settings_novelai_block').css("display", "none");
             $('#master_settings_openai_block').css("display", "grid");
+            $('#singleline_toggle').css("display", "none");
             main_api = 'openai';
         }
     }
@@ -2748,6 +2753,10 @@ $(document).ready(function(){
     });
     $('#multigen').change(function() {
         multigen = !!$('#multigen').prop('checked');
+        saveSettings();
+    });
+    $('#singleline').change(function() {
+        singleline = !!$('#singleline').prop('checked');
         saveSettings();
     });
     $('#swipes').change(function() {
@@ -3174,6 +3183,7 @@ $(document).ready(function(){
                     character_anchor = !!settings.character_anchor;//if(settings.character_anchor !== undefined) character_anchor = !!settings.character_anchor;
                     lock_context_size = !!settings.lock_context_size;
                     multigen = !!settings.multigen;
+                    singleline = !!settings.singleline;
                     swipes = !!settings.swipes;
                     keep_dialog_examples = !!settings.keep_dialog_examples;
                     free_char_name_mode = !!settings.free_char_name_mode;
@@ -3182,6 +3192,7 @@ $(document).ready(function(){
                     $('#character_anchor').prop('checked', character_anchor);
                     $('#lock_context_size').prop('checked', lock_context_size);
                     $('#multigen').prop('checked', multigen);
+                    $('#singleline').prop('checked', singleline);
                     $('#swipes').prop('checked', swipes);
                     $('#keep_dialog_examples').prop('checked', keep_dialog_examples);
                     $('#free_char_name_mode').prop('checked', free_char_name_mode);
@@ -3312,6 +3323,7 @@ $(document).ready(function(){
                     character_anchor: character_anchor,
                     lock_context_size: lock_context_size,
                     multigen: multigen,
+                    singleline: singleline,
                     swipes: swipes,
                     keep_dialog_examples: keep_dialog_examples,
                     free_char_name_mode: free_char_name_mode,
