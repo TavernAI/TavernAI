@@ -952,3 +952,10 @@ a {
     background-color: unset;
     
 }
+/*searchbox*/
+.textarea,input.text_pole  {
+    background-color: #191b31fF;
+}
+.textarea,input.text_pole::placeholder  {
+    color: #ffffffaa;
+}
