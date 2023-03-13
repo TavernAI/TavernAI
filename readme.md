@@ -7,7 +7,7 @@ Examples of interface and output:
 ###### Run online: 
 * [TavernAI Colab](https://colab.research.google.com/github/TavernAI/TavernAI/blob/main/colab/GPU.ipynb)<br>
 ###### Links: 
-* [TavetnAI Boosty](https://boosty.to/tavernai)
+* [TavernAI Boosty](https://boosty.to/tavernai)
 * [TavernAI Discord](https://discord.gg/zmK2gmr45t)
 
 ## Features
