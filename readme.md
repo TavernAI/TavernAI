@@ -1,17 +1,18 @@
-### TavernAI is a adventure atmospheric chat (KoboldAI, NovelAI, Pygmalion)
+### TavernAI is a adventure atmospheric chat (KoboldAI, NovelAI, Pygmalion, OpenAI)
 Examples of interface and output:
 <br><img src="readme/1.png" height="200" /><img src="readme/4.png" height="200" /><img src="readme/5.png" height="200" />
 
 ###### Download: 
-* [Win x64 .exe](https://sourceforge.net/projects/tavernaimain/files/TavernAI.rar/download)&nbsp;&nbsp;|&nbsp;&nbsp;[Node.js version](https://github.com/TavernAI/TavernAI/archive/refs/heads/main.zip)<br>
+* [Windows .exe](https://sourceforge.net/projects/tavernaimain/files/TavernAI.rar/download)&nbsp;&nbsp;|&nbsp;&nbsp;[Node.js version](https://github.com/TavernAI/TavernAI/archive/refs/heads/main.zip)<br>
 ###### Run online: 
 * [TavernAI Colab](https://colab.research.google.com/github/TavernAI/TavernAI/blob/main/colab/GPU.ipynb)<br>
 ###### Links: 
-* [TavetnAI Boosty](https://boosty.to/tavernai)
+* [TavernAI Boosty](https://boosty.to/tavernai)
 * [TavernAI Discord](https://discord.gg/zmK2gmr45t)
 
 ## Features
 * Creating characters with personality setup
+* Online character library
 * Choosing name and avatar for your character
 * Deleting and regenerating messages
 * Editing any messages
@@ -33,6 +34,7 @@ Examples of interface and output:
 * [KoboldAI](https://github.com/KoboldAI/KoboldAI-Client)
 * [NovelAI](https://novelai.net/)
 * [Pygmalion](https://rentry.org/pygmalion-ai)
+* [OpenAI GPTchat](https://openai.com)
 
 ## Tips
 Use this button to edit the message<br><br>
