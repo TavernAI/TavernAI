@@ -652,7 +652,28 @@ $(document).ready(function(){
         }
         messageText = messageFormating(messageText, characterName);
         if(type !== 'swipe'){
-            $("#chat").append( '<div class="mes" mesid='+count_view_mes+' ch_name="'+characterName+'" is_user="'+mes['is_user']+'"><div class="for_checkbox"></div><input type="checkbox" class="del_checkbox"><div class=avatar><img src="'+avatarImg+'"></div><div class=mes_block><div class=ch_name>'+characterName+'<div title=Edit class=mes_edit><img src=img/scroll.png></div><div class=mes_edit_cancel><img src=img/cancel.png></div><div class=mes_edit_done><img src=img/done.png></div></div><div class=mes_text>'+'</div></div><div class="swipe_left"><img src="img/swipe_left.png"></div><div class="swipe_right"><img src="img/swipe_right.png"></div></div>' );
+            let container = $('<div class="mes" mesid='+count_view_mes+' ch_name="'+characterName+'" is_user="'+mes['is_user']+'"></div>')
+                container.append('<div class="for_checkbox"></div><input type="checkbox" class="del_checkbox">');       // delete checkbox
+                container.append('<div class="avatar"><img src="'+avatarImg+'"></div>');                                // avatar
+
+            let messageBlock = $('<div class="mes_block"></div>');
+                messageBlock.append('<div class="ch_name">'+characterName+'</div>');                                    // character name block
+            container.append(messageBlock);
+
+            // message content
+            messageBlock.append('<div class="mes_text"></div>');
+
+            container.append('<div title="Edit" class="mes_edit"><img src="img/scroll.png"></div>');                // edit button
+            let editMenu = $('<div class="edit_block"></div>');                                                         // edit menu shown when edit button is pressed
+                editMenu.append('<div class="mes_edit_done"><img src="img/done.png"></div>');                           // confirm button
+                editMenu.append('<div class="mes_edit_cancel"><img src="img/cancel.png"></div>');                       // cancel (close menu)
+            container.append(editMenu);
+
+            /* Swipes */
+            container.append('<div class="swipe_left"><img src="img/swipe_left.png"></div>');
+            container.append('<div class="swipe_right"><img src="img/swipe_right.png"></div>');
+
+            $("#chat").append(container);
         }
         
         if(!if_typing_text){
@@ -3417,72 +3438,85 @@ $(document).ready(function(){
     }
     //********************
     //***Message Editor***
-    $(document).on('click', '.mes_edit', function(){
-        if(this_chid !== undefined){
-            let run_edit = true;
-            var edit_mes_id = $(this).parent().parent().parent().attr('mesid');
+    function messageRoot(anyChild) {
+        while(anyChild && anyChild.attr && (anyChild.attr("mesid") === undefined || anyChild.attr("mesid") === null) && anyChild.parent) {
+            anyChild = anyChild.parent();
+        }
+        if(anyChild && anyChild.attr && anyChild.attr("mesid") !== undefined && anyChild.attr("mesid") !== null) {
+            return anyChild;
+        }
+        return null;
+    }
+    function toggleEdit(messageRoot, toState = false) {
+        if(!messageRoot) { return; }
+        messageRoot.find('.mes_edit').css("display", toState ? "none": "block");
+        const editBlock = messageRoot.find('.edit_block');
+        editBlock.css("display", toState ? "block" : "none");
+        if(toState) {
+            editBlock.css("opacity", 0);
+            editBlock.transition({
+                opacity: 1.0,
+                duration: 600,
+                easing: "",
+                complete: function() {  }
+            });
+        }
+    }
 
-            if(edit_mes_id == count_view_mes-1){ //if the generating swipe (...)
-                if(chat[edit_mes_id]['swipe_id'] !== undefined){
-                    if(chat[edit_mes_id]['swipes'].length === chat[edit_mes_id]['swipe_id']){
-                        run_edit = false;
-                    }
-                }
-                if(run_edit){
-                    hideSwipeButtons();
+    $(document).on('click', '.mes_edit', function(){
+        if(this_chid == undefined){
+            return;
+        }
+        let run_edit = true;
+        const root = messageRoot($(this));
+        if(!root) { return; }
+        const edit_mes_id = root ? parseInt(root.attr("mesid")) : NaN;
+        if(isNaN(edit_mes_id)) { return; }
+
+        if(edit_mes_id == count_view_mes-1){ //if the generating swipe (...)
+            if(chat[edit_mes_id]['swipe_id'] !== undefined){
+                if(chat[edit_mes_id]['swipes'].length === chat[edit_mes_id]['swipe_id']){
+                    run_edit = false;
                 }
             }
             if(run_edit){
-                let chatScrollPosition = $("#chat").scrollTop();
-                if(this_edit_mes_id !== undefined){
-                    let mes_edited = $('#chat').children().filter('[mesid="'+this_edit_mes_id+'"]').children('.mes_block').children('.ch_name').children('.mes_edit_done');
-                    messageEditDone(mes_edited);
-                }
-                $(this).parent().parent().children('.mes_text').empty();
-                $(this).css('display','none');
-                $(this).parent().children('.mes_edit_done').css('display','inline-block');
-                $(this).parent().children('.mes_edit_done').css('opacity',0.0);
-                $(this).parent().children('.mes_edit_cancel').css('display','inline-block');
-                $(this).parent().children('.mes_edit_cancel').css('opacity',0.0);
-                $(this).parent().children('.mes_edit_done').transition({  
-                        opacity: 1.0,
-                        duration: 600,
-                        easing: "",
-                        complete: function() {  }
-                });
-                $(this).parent().children('.mes_edit_cancel').transition({  
-                        opacity: 1.0,
-                        duration: 600,
-                        easing: "",
-                        complete: function() {  }
-                });
+                hideSwipeButtons();
+            }
+        }
+        if(run_edit){
+            let chatScrollPosition = $("#chat").scrollTop();
+            if(this_edit_mes_id !== undefined){
+                let mes_edited = $('#chat').children().filter('[mesid="'+this_edit_mes_id+'"]').children('.mes_block').children('.ch_name').children('.mes_edit_done');
+                messageEditDone(mes_edited);
+            }
+            root.find('.mes_text').empty();
+            toggleEdit(root, true);
+            this_edit_mes_id = edit_mes_id;
 
-                this_edit_mes_id = edit_mes_id;
-
-                var text = chat[edit_mes_id]['mes'];
-                if(chat[edit_mes_id]['is_user']){
-                    this_edit_mes_chname = name1;
-                }else{
-                    this_edit_mes_chname = name2;
-                }
-                text = text.trim();
-                $(this).parent().parent().children('.mes_text').append('<textarea class=edit_textarea>'+text+'</textarea>');
-                let edit_textarea = $(this).parent().parent().children('.mes_text').children('.edit_textarea');
-                edit_textarea.css('opacity',0.0);
-                edit_textarea.transition({  
-                        opacity: 1.0,
-                        duration: 0,
-                        easing: "",
-                        complete: function() {  }
-                });
-                edit_textarea.height(0);
-                edit_textarea.height(edit_textarea[0].scrollHeight);
-                edit_textarea.focus();
-                edit_textarea[0].setSelectionRange(edit_textarea.val().length, edit_textarea.val().length);
-                if(this_edit_mes_id == count_view_mes-1 || true){
-                    console.log(1);
-                    $("#chat").scrollTop(chatScrollPosition);
-                }
+            var text = chat[edit_mes_id]['mes'];
+            if(chat[edit_mes_id]['is_user']){
+                this_edit_mes_chname = name1;
+            }else{
+                this_edit_mes_chname = name2;
+            }
+            text = text.trim();
+            const mesText = root.find('.mes_text');
+            let edit_textarea = $('<textarea class=edit_textarea>'+text+'</textarea>');
+            mesText.append(edit_textarea);
+            edit_textarea.css('opacity',0.0);
+            edit_textarea.transition({
+                    opacity: 1.0,
+                    duration: 0,
+                    easing: "",
+                    complete: function() {  }
+            });
+            edit_textarea.height(0);
+            edit_textarea.height(edit_textarea[0].scrollHeight);
+            edit_textarea.focus();
+            edit_textarea[0].setSelectionRange(edit_textarea.val().length, edit_textarea.val().length);
+            if(this_edit_mes_id == count_view_mes-1 || true){
+                //console.log(1);
+                $("#chat").scrollTop(chatScrollPosition);
             }
         }
     });
@@ -3491,11 +3525,11 @@ $(document).ready(function(){
         //var text = $(this).parent().parent().children('.mes_text').children('.edit_textarea').val();
         var text = chat[this_edit_mes_id]['mes'];
 
-        $(this).parent().parent().children('.mes_text').empty();
-        $(this).css('display','none');
-        $(this).parent().children('.mes_edit_done').css('display','none');
-        $(this).parent().children('.mes_edit').css('display','inline-block');
-        $(this).parent().parent().children('.mes_text').append(messageFormating(text,this_edit_mes_chname));
+        const root = messageRoot($(this));
+        if(!root) { return; }
+        toggleEdit(root, false);
+        root.find('.mes_text').empty();
+        root.find('.mes_text').append(messageFormating(text,this_edit_mes_chname));
         this_edit_mes_id = undefined;
     });
     $(document).on('click', '.mes_edit_done', function(){
@@ -3504,18 +3538,17 @@ $(document).ready(function(){
     });
     function messageEditDone(div){
         showSwipeButtons();
-        var text = div.parent().parent().children('.mes_text').children('.edit_textarea').val();
-        //var text = chat[this_edit_mes_id];
+        const root = messageRoot(div);
+        if(!root) { return; }
+        var text = root.find('.mes_text').children('.edit_textarea').val();
         text = text.trim();
         chat[this_edit_mes_id]['mes'] = text;
         if(chat[this_edit_mes_id]['swipe_id'] !== undefined){
             chat[this_edit_mes_id]['swipes'][chat[this_edit_mes_id]['swipe_id']] = text;
         }
-        div.parent().parent().children('.mes_text').empty();
-        div.css('display','none');
-        div.parent().children('.mes_edit_cancel').css('display','none');
-        div.parent().children('.mes_edit').css('display','inline-block');
-        div.parent().parent().children('.mes_text').append(messageFormating(text,this_edit_mes_chname));
+        root.find('.mes_text').empty();
+        toggleEdit(root, false);
+        root.find('.mes_text').append(messageFormating(text,this_edit_mes_chname));
         this_edit_mes_id = undefined;
         saveChat();
     }
