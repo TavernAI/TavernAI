@@ -2795,6 +2795,10 @@ $(document).ready(function(){
         settings.auto_connect = !!$('#autoconnect').prop('checked');
         saveSettings();
     });
+    $('#characloud').change(function() {
+        settings.characloud = !!$('#characloud').prop('checked');
+        saveSettings();
+    });
     $('#swipes').change(function() {
         swipes = !!$('#swipes').prop('checked');
         if(swipes){
@@ -3224,6 +3228,7 @@ $(document).ready(function(){
                     keep_dialog_examples = !!settings.keep_dialog_examples;
                     free_char_name_mode = !!settings.free_char_name_mode;
                     settings.auto_connect = settings.auto_connect === false ? false : true;
+                    settings.characloud = settings.characloud === false ? false : true;
                     
                     $('#style_anchor').prop('checked', style_anchor);
                     $('#character_anchor').prop('checked', character_anchor);
@@ -3231,6 +3236,7 @@ $(document).ready(function(){
                     $('#multigen').prop('checked', multigen);
                     $('#singleline').prop('checked', singleline);
                     $('#autoconnect').prop('checked', settings.auto_connect);
+                    $('#characloud').prop('checked', settings.characloud);
                     $('#swipes').prop('checked', swipes);
                     $('#keep_dialog_examples').prop('checked', keep_dialog_examples);
                     $('#free_char_name_mode').prop('checked', free_char_name_mode);
@@ -3323,8 +3329,10 @@ $(document).ready(function(){
                             $('#api_button').click();
                         }, 2000);
                     }
-                    
-                    charaCloudInit();
+
+                    if(settings.characloud) {
+                        charaCloudInit();
+                    }
                     
                 }
                 if(!is_checked_colab) isColab();
@@ -3369,6 +3377,7 @@ $(document).ready(function(){
                     multigen: multigen,
                     singleline: singleline,
                     auto_connect: settings.auto_connect || false,
+                    characloud: settings.characloud === false ? false : true,
                     swipes: swipes,
                     keep_dialog_examples: keep_dialog_examples,
                     free_char_name_mode: free_char_name_mode,
