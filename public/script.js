@@ -755,6 +755,7 @@ $(document).ready(function(){
     });
     async function Generate(type) {//encode("dsfs").length
         const gap_holder = 120;
+        var textareaText = '';
         tokens_already_generated = 0;
         if(!free_char_name_mode){
             message_already_generated = name2+': ';
@@ -763,7 +764,7 @@ $(document).ready(function(){
         }
         if(online_status != 'no_connection' && this_chid != undefined){
             if(type === 'regenerate'){
-                var textareaText = "";
+                textareaText = "";
                 if(chat[chat.length-1]['is_user']){//If last message from You
 
                 }else{
@@ -773,8 +774,10 @@ $(document).ready(function(){
                 }
                 
             }else{
-                var textareaText = $("#send_textarea").val();
-                $("#send_textarea").val('');
+                if(type !== 'swipe'){
+                    textareaText = $("#send_textarea").val();
+                    $("#send_textarea").val('');
+                }
             }
             //$("#send_textarea").attr("disabled","disabled");
 
@@ -3554,6 +3557,20 @@ $(document).ready(function(){
     }
     //********************
     //***Swipes***
+    $(document).keydown(function(e) {
+        if (e.keyCode == 37) {
+            // Left arrow key pressed
+            if(JSON.parse($('#chat').children('.mes').last().attr('is_user')) === false && $('#chat').children('.mes').last().children('.swipe_left').css('display') !== 'none'){
+                $('#chat').children('.mes').last().children('.swipe_left').click();
+            }
+        } else if (e.keyCode == 39) {
+            // Right arrow key pressed
+            if(JSON.parse($('#chat').children('.mes').last().attr('is_user')) === false && $('#chat').children('.mes').last().children('.swipe_right').css('display') !== 'none'){
+                $('#chat').children('.mes').last().children('.swipe_right').click();
+                
+            }
+        }
+    });
     $(document).on('click', '.swipe_right', function(){
         const swipe_duration = 120;
         const swipe_range = '700px';
