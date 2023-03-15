@@ -2791,6 +2791,10 @@ $(document).ready(function(){
         singleline = !!$('#singleline').prop('checked');
         saveSettings();
     });
+    $('#autoconnect').change(function() {
+        settings.auto_connect = !!$('#autoconnect').prop('checked');
+        saveSettings();
+    });
     $('#swipes').change(function() {
         swipes = !!$('#swipes').prop('checked');
         if(swipes){
@@ -3219,12 +3223,14 @@ $(document).ready(function(){
                     swipes = !!settings.swipes;
                     keep_dialog_examples = !!settings.keep_dialog_examples;
                     free_char_name_mode = !!settings.free_char_name_mode;
+                    settings.auto_connect = settings.auto_connect === false ? false : true;
                     
                     $('#style_anchor').prop('checked', style_anchor);
                     $('#character_anchor').prop('checked', character_anchor);
                     $('#lock_context_size').prop('checked', lock_context_size);
                     $('#multigen').prop('checked', multigen);
                     $('#singleline').prop('checked', singleline);
+                    $('#autoconnect').prop('checked', settings.auto_connect);
                     $('#swipes').prop('checked', swipes);
                     $('#keep_dialog_examples').prop('checked', keep_dialog_examples);
                     $('#free_char_name_mode').prop('checked', free_char_name_mode);
@@ -3311,6 +3317,12 @@ $(document).ready(function(){
 
                     api_server = settings.api_server;
                     $('#api_url_text').val(api_server);
+
+                    if(api_server && settings.auto_connect && !is_colab) {
+                        setTimeout(function() {
+                            $('#api_button').click();
+                        }, 2000);
+                    }
                     
                     charaCloudInit();
                     
@@ -3356,6 +3368,7 @@ $(document).ready(function(){
                     lock_context_size: lock_context_size,
                     multigen: multigen,
                     singleline: singleline,
+                    auto_connect: settings.auto_connect || false,
                     swipes: swipes,
                     keep_dialog_examples: keep_dialog_examples,
                     free_char_name_mode: free_char_name_mode,
