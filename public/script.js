@@ -612,31 +612,31 @@ $(document).ready(function(){
         }
         return mes;
     }
+    function getMessageAvatar(mes) {
+        var avatarImg = "User Avatars/"+user_avatar;
+        if(!mes.is_user){
+            if(this_chid === undefined) {
+                avatarImg = "img/chloe.png";
+            } else {
+                mes.chid = mes.chid || parseInt(this_chid);
+                avatarImg = characters[mes.chid].avatar == 'none' ? "img/fluffy.png" : "characters/"+characters[this_chid].avatar + "#t=" + Date.now();
+            }
+        } else {
+            delete mes.chid;
+        }
+        return avatarImg;
+    }
     function addOneMessage(mes, type='normal'){
         //var message = mes['mes'];
         //message = mes['mes'].replace(/^\s+/g, '');
         //console.log(message.indexOf(name1+":"));
         var messageText = mes['mes'];
         var characterName = name1;
-        var avatarImg = "User Avatars/"+user_avatar;
         generatedPromtCache = '';
         //thisText = thisText.split("\n").join("<br>");
-        var avatarImg = "User Avatars/"+user_avatar;
-        if(!mes['is_user']){
-            if(this_chid == undefined){
-                avatarImg = "img/chloe.png";
-            }else{
-                if(characters[this_chid].avatar != 'none'){
-                    avatarImg = "characters/"+characters[this_chid].avatar;
-                    if(is_mes_reload_avatar !== false){
-                        avatarImg+="#"+is_mes_reload_avatar;
-                        //console.log(avatarImg);
-                    }
-                }else{
-                    avatarImg = "img/fluffy.png";
-                }
-            }
-            characterName = name2;
+        var avatarImg = getMessageAvatar(mes);
+        if(!mes.is_user){
+            characterName = characters[mes.chid] ? characters[mes.chid].name : "Chloe";
         }
 
         //Formating
@@ -655,10 +655,11 @@ $(document).ready(function(){
         if(type !== 'swipe'){
             let container = $('<div class="mes" mesid='+count_view_mes+' ch_name="'+characterName+'" is_user="'+mes['is_user']+'"></div>')
                 container.append('<div class="for_checkbox"></div><input type="checkbox" class="del_checkbox">');       // delete checkbox
-                container.append('<div class="avatar"><img src="'+avatarImg+'"></div>');                                // avatar
+                container.append('<div class="avatar"><img class="avt_img" src="'+avatarImg+'"></div>');                                // avatar
 
             let messageBlock = $('<div class="mes_block"></div>');
                 messageBlock.append('<div class="ch_name">'+characterName+'</div>');                                    // character name block
+                messageBlock.append('<select class="name_select"></select>');                                    // character name selector for editing
             container.append(messageBlock);
 
             // message content
@@ -3528,6 +3529,17 @@ $(document).ready(function(){
             root.find('.mes_up').attr('class', this_edit_mes_id == 0 ? "mes_up disabled" : "mes_up");
             root.find('.mes_down').attr('class', this_edit_mes_id == chat.length - 1 ? "mes_down disabled" : "mes_down");
 
+            if(chat[this_edit_mes_id].chid === undefined && !chat[this_edit_mes_id].is_user) {
+                chat[this_edit_mes_id].chid = parseInt(this_chid);
+            }
+
+            let nameSelect = root.find(".name_select");
+                nameSelect.css("display", "block");
+                nameSelect.empty();
+                nameSelect.append('<option value="-1" class="player"'+ (chat[this_edit_mes_id].is_user ? " selected=\"selected\"" : "") +'>'+name1+'</option>');
+                nameSelect.append('<option value="'+this_chid+'" class="host"'+ (chat[this_edit_mes_id].chid == parseInt(this_chid) ? " selected=\"selected\"" : "") +'>'+name2+'</option>');
+            root.find(".ch_name").css("display", "none");
+
             var text = chat[edit_mes_id]['mes'];
             if(chat[edit_mes_id]['is_user']){
                 this_edit_mes_chname = name1;
@@ -3609,14 +3621,27 @@ $(document).ready(function(){
         $(this).parent().children('.mes_up').attr('class', this_edit_target_id == 0 ? "mes_up disabled" : "mes_up");
         $(this).parent().children('.mes_down').attr('class', this_edit_target_id == chat.length - 1 ? "mes_down disabled" : "mes_down");
     });
+    $(document).on('change', '.name_select', function(){
+        const root = messageRoot($(this));
+        if(!root) { return; }
+        let to_chid = parseInt($(this).val());
+        let toAvatar = to_chid < 0 ? "User Avatars/" + user_avatar : "characters/" + characters[to_chid].avatar;
+        root.find(".avt_img").attr("src", toAvatar + "#t=" + Date.now());
+    });
     $(document).on('click', '.mes_edit_cancel', function(){
         showSwipeButtons();
-        //var text = $(this).parent().parent().children('.mes_text').children('.edit_textarea').val();
-        var text = chat[this_edit_mes_id]['mes'];
+        const mes = chat[this_edit_mes_id];
+        const text = mes.mes;
 
         const root = messageRoot($(this));
         if(!root) { return; }
         toggleEdit(root, false);
+
+        root.find('.avt_img').attr("src", getMessageAvatar(mes));
+        let nameSelect = root.find('.name_select');
+            nameSelect.empty();
+            nameSelect.css("display", "none");
+        root.find('.ch_name').css("display", "block");
         root.find('.mes_text').empty();
         root.find('.mes_text').append(messageFormating(text,this_edit_mes_chname));
         if(this_edit_target_id !== undefined && this_edit_target_id !== null) {
@@ -3632,36 +3657,50 @@ $(document).ready(function(){
         messageEditDone($(this));
     });
     function messageEditDone(div){
-        showSwipeButtons();
         const root = messageRoot(div);
         if(!root) { return; }
+        hideSwipeButtons();
         var text = root.find('.mes_text').children('.edit_textarea').val();
+        const message = chat[this_edit_mes_id];
         text = text.trim();
-        chat[this_edit_mes_id]['mes'] = text;
-        if(chat[this_edit_mes_id]['swipe_id'] !== undefined){
-            chat[this_edit_mes_id]['swipes'][chat[this_edit_mes_id]['swipe_id']] = text;
+        message.mes = text;
+
+        let nameSelect = root.find('.name_select');
+        let authorId = parseInt(nameSelect.val());
+        message.is_user = authorId < 0;
+        message.chid = authorId < 0 ? undefined : authorId;
+        message.name = authorId < 0 ? name1 : characters[authorId].name;
+        nameSelect.empty();
+        nameSelect.css("display", "none");
+        let chName = root.find('.ch_name');
+            chName.html(message.name);
+            chName.css("display", "block");
+
+        if(message['swipe_id'] !== undefined){
+            message['swipes'][message['swipe_id']] = text;
         }
         root.find('.mes_text').empty();
         toggleEdit(root, false);
         root.find('.mes_text').append(messageFormating(text,this_edit_mes_chname));
-        if(!Number.isNaN(this_edit_target_id) && this_edit_target_id !== this_edit_mes_id) {
-            let date = chat[this_edit_mes_id].send_date;
+        if(this_edit_target_id !== undefined && this_edit_target_id !== this_edit_mes_id) {
+            let date = message.send_date;
             chat.splice(this_edit_target_id, 0, chat.splice(this_edit_mes_id, 1)[0]);
             if(this_edit_target_id < this_edit_mes_id) {
                 for(let i = this_edit_target_id; i < this_edit_mes_id; i++) {
                     chat[i].send_date = chat[i+1].send_date;
                 }
-                chat[this_edit_mes_id].send_date = date;
+                message.send_date = date;
             } else {
                 for(let i = this_edit_target_id; i > this_edit_mes_id; i--) {
                     chat[i].send_date = chat[i-1].send_date;
                 }
-                chat[this_edit_mes_id].send_date = date;
+                message.send_date = date;
             }
             for(let i = 0; i < div.parent().parent().parent().parent().children().length; i++) {
                 div.parent().parent().parent().parent().children().eq(i).attr("mesid", i);
             }
         }
+        showSwipeButtons();
         this_edit_target_id = undefined;
         this_edit_mes_id = undefined;
         saveChat();
