@@ -34,7 +34,7 @@ Examples of interface and output:
 * [KoboldAI](https://github.com/KoboldAI/KoboldAI-Client)
 * [NovelAI](https://novelai.net/)
 * [Pygmalion](https://rentry.org/pygmalion-ai)
-* [OpenAI GPTchat](https://openai.com)
+* [OpenAI chatGPT](https://openai.com)
 
 ## Tips
 Use this button to edit the message<br><br>

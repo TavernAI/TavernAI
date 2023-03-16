@@ -21,7 +21,7 @@ body {
     background-repeat: no-repeat;
     background-attachment: fixed;
     background-size: cover;
-    backdrop-filter: blur(2px);
+    /*backdrop-filter: blur(2px);*/
     scrollbar-width: thin;
     scrollbar-color: gray #191b31;
     color: rgb(229, 224, 216);
@@ -129,7 +129,7 @@ code {
     background-repeat: no-repeat;
     background-attachment: fixed;
     background-size: cover;
-    filter: blur(2px);
+    /*filter: blur(2px);*/
     position: absolute;
     width: 100%;
     height: 100%;
@@ -140,10 +140,10 @@ code {
     background-size: auto 100%;
     background-repeat: no-repeat;
     background-attachment: fixed;
-    filter: blur(2px);
+    /*filter: blur(2px);*/
     background-size: cover;
-    -webkit-backdrop-filter: blur(2px);
-    backdrop-filter: blur(2px);
+    /*-webkit-backdrop-filter: blur(2px);*/
+    /*backdrop-filter: blur(2px);*/
     opacity: 0.0;
     position: absolute;
     width: 100%;
@@ -1872,7 +1872,7 @@ label.checkbox :checked + span:after {
     background-repeat: no-repeat;
     background-attachment: fixed;
     background-size: cover;
-    filter: blur(2px);
+    /*filter: blur(2px);*/
     position: absolute;
     width: 100%;
     height: 100%;
@@ -2122,8 +2122,8 @@ label.checkbox :checked + span:after {
 #characloud_status_block_content_logo {
     margin-left: 15px;
     margin-top: 0px;
-    -moz-filter: blur(0.2px); /* Firefox */
-    -o-filter: blur(0.2px); /* Opera */
+    /*-moz-filter: blur(0.2px);*/ /* Firefox */
+    /*-o-filter: blur(0.2px);*/ /* Opera */
 
     /*filter: drop-shadow(0px 0px 2px #656565ff);*/
     display: grid;
@@ -2161,7 +2161,7 @@ label.checkbox :checked + span:after {
 
 
 #characloud_status_block_content_logo_line_container {
-    -webkit-filter: blur(0.3px); /* Safari, Chrome */
+    /*-webkit-filter: blur(0.3px);*/ /* Safari, Chrome */
     margin-left: 2px;
     position: relative;
     width: 45px;
@@ -2188,7 +2188,7 @@ label.checkbox :checked + span:after {
 }
 
 #characloud_status_block_content_logo_counter {
-    -webkit-filter: blur(0.3px); /* Safari, Chrome */
+    /*-webkit-filter: blur(0.3px);*/ /* Safari, Chrome */
     display: inline-block;
     color: rgba(255,180,180,0.4);
     font-weight: 900;
