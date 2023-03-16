@@ -3487,6 +3487,14 @@ $(document).ready(function(){
             });
         }
     }
+    function recalculateChatMesids() {
+        const childs = $('#chat')[0].childNodes;
+        for(let index = 0; index < childs.length; index++) {
+            const child = childs[index];
+            child.setAttribute("mesid", index);
+            child.setAttribute("class", index === childs.length - 1 ? "mes last_mes" : "mes");
+        }
+    }
 
     $(document).on('click', '.mes_edit', function(){
         if(this_chid == undefined){
@@ -3576,13 +3584,7 @@ $(document).ready(function(){
 
         chat.splice(this_edit_mes_id+1, 0, clone);
         root.after(addOneMessage(clone));
-
-        let childs = $('#chat')[0].childNodes;;
-        for(let index = 0; index < childs.length; index++) {
-            const child = childs[index];
-            child.setAttribute("mesid", index);
-            child.setAttribute("class", index === childs.length - 1 ? "mes last_mes" : "mes");
-        }
+        recalculateChatMesids();
         saveChat();
         $('#chat')[0].scrollTop = oldScroll;
     });
@@ -3594,12 +3596,7 @@ $(document).ready(function(){
         this_edit_target_id = undefined;
         this_edit_mes_id = undefined;
         root.remove();
-        let childs = $('#chat')[0].childNodes;;
-        for(let index = 0; index < childs.length; index++) {
-            const child = childs[index];
-            child.setAttribute("mesid", index);
-            child.setAttribute("class", index === childs.length - 1 ? "mes last_mes" : "mes");
-        }
+        recalculateChatMesids();
         saveChat();
     });
     $(document).on('click', '.mes_up', function(){
@@ -3642,7 +3639,7 @@ $(document).ready(function(){
         root.find(".avt_img").attr("src", toAvatar + "#t=" + Date.now());
     });
     $(document).on('click', '.mes_edit_cancel', function(){
-        showSwipeButtons();
+        hideSwipeButtons();
         const mes = chat[this_edit_mes_id];
         const text = mes.mes;
 
@@ -3657,13 +3654,13 @@ $(document).ready(function(){
         root.find('.ch_name').css("display", "block");
         root.find('.mes_text').empty();
         root.find('.mes_text').append(messageFormating(text,this_edit_mes_chname));
-        if(this_edit_target_id !== undefined && this_edit_target_id !== null) {
-            clearChat();
-            chat.length = 0;
-            getChat();
+        if(this_edit_target_id !== undefined && this_edit_target_id !== null && this_edit_target_id !== this_edit_mes_id) {
+            $('#chat')[0].insertBefore($('#chat')[0].childNodes[this_edit_target_id], $('#chat')[0].childNodes[this_edit_mes_id < this_edit_target_id ? this_edit_mes_id : this_edit_mes_id+1]);
+            recalculateChatMesids();
         }
         this_edit_target_id = undefined;
         this_edit_mes_id = undefined;
+        showSwipeButtons();
     });
     $(document).on('click', '.mes_edit_done', function(){
         showSwipeButtons();
