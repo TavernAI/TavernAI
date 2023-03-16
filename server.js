@@ -773,13 +773,15 @@ app.post("/getcharacters", jsonParser, async function(request, response) {
       let jsonObject;
 
       try {
+        
         jsonObject = json5.parse(imgData);
         jsonObject.avatar = item;
         characters[i] = jsonObject;
         i++;
       } catch (error) {
         if (error instanceof SyntaxError) {
-          console.log(`String [${i}] is not valid JSON!`);
+            
+          console.log(`String [${i}] is not valid JSON! ${error}`);
         } else {
           console.log(`An unexpected error occurred: ${error}`);
         }
@@ -1196,28 +1198,35 @@ app.post("/generate_openai", jsonParser, function(request, response_generate_ope
     };
     
     client.post(api_openai+request_path,args, function (data, response) {
-        if(request.body.model === 'gpt-3.5-turbo' || request.body.model === 'gpt-3.5-turbo-0301'){
-            console.log(data);
-            if(data.choices[0].message !== undefined){
-                console.log(data.choices[0].message);
+        try {
+            if(request.body.model === 'gpt-3.5-turbo' || request.body.model === 'gpt-3.5-turbo-0301'){
+                console.log(data);
+                if(data.choices[0].message !== undefined){
+                    console.log(data.choices[0].message);
+                }
+
+
+            }else{
+                console.log(data);
             }
-        }else{
-            console.log(data);
-        }
-        console.log(response.statusCode);
-        if(response.statusCode <= 299){
-            response_generate_openai.send(data);
-        }
-        if(response.statusCode == 401){
-            console.log('Invalid Authentication');
-            response_generate_openai.send({error: true});
-        }
-        if(response.statusCode == 429){
-            console.log('Rate limit reached for requests');
-            response_generate_openai.send({error: true});
-        }
-        if(response.statusCode == 500){
-            console.log('The server had an error while processing your request');
+            console.log(response.statusCode);
+            if(response.statusCode <= 299){
+                response_generate_openai.send(data);
+            }
+            if(response.statusCode == 401){
+                console.log('Invalid Authentication');
+                response_generate_openai.send({error: true});
+            }
+            if(response.statusCode == 429){
+                console.log('Rate limit reached for requests');
+                response_generate_openai.send({error: true});
+            }
+            if(response.statusCode == 500){
+                console.log('The server had an error while processing your request');
+                response_generate_openai.send({error: true});
+            }
+        }catch (error) {
+            console.log("An error occurred: " + error);
             response_generate_openai.send({error: true});
         }
     }).on('error', function (err) {
