@@ -1450,6 +1450,10 @@ input[type="range"]::-ms-thumb {
     width: 23px;
     height: 23px;
 }
+.edit_block div.disabled {
+    pointer-events: none;
+    opacity: 0.25;
+}
 .edit_textarea {
     word-wrap: break-word;
     font-weight: lighter;

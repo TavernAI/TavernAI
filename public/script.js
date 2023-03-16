@@ -111,6 +111,7 @@ $(document).ready(function(){
     var this_edit_mes_text = '';
     var this_edit_mes_chname = '';
     var this_edit_mes_id;
+    var this_edit_target_id = undefined;
 
     const delay = ms => new Promise(res => setTimeout(res, ms));
     //settings
@@ -666,6 +667,10 @@ $(document).ready(function(){
             container.append('<div title="Edit" class="mes_edit"><img src="img/scroll.png"></div>');                // edit button
             let editMenu = $('<div class="edit_block"></div>');                                                         // edit menu shown when edit button is pressed
                 editMenu.append('<div class="mes_edit_done"><img src="img/done.png"></div>');                           // confirm button
+                editMenu.append('<div class="mes_edit_clone" title="Create copy"><img src=img/clone.png></div>');
+                editMenu.append('<div class="mes_edit_delete" title="Delete"><img src=img/del_mes.png></div>');
+                editMenu.append('<div class="mes_up" title="Move up"><img src=img/arrow_up.png></div>');
+                editMenu.append('<div class="mes_down"><img src="img/arrow_down.png" title="Move down"></div>');
                 editMenu.append('<div class="mes_edit_cancel"><img src="img/cancel.png"></div>');                       // cancel (close menu)
             container.append(editMenu);
 
@@ -3520,6 +3525,8 @@ $(document).ready(function(){
             root.find('.mes_text').empty();
             toggleEdit(root, true);
             this_edit_mes_id = edit_mes_id;
+            root.find('.mes_up').attr('class', this_edit_mes_id == 0 ? "mes_up disabled" : "mes_up");
+            root.find('.mes_down').attr('class', this_edit_mes_id == chat.length - 1 ? "mes_down disabled" : "mes_down");
 
             var text = chat[edit_mes_id]['mes'];
             if(chat[edit_mes_id]['is_user']){
@@ -3548,6 +3555,60 @@ $(document).ready(function(){
             }
         }
     });
+    $(document).on('click', '.mes_edit_clone', function(){
+        if(!confirm("Make a copy of this message?")) { return; }
+        let clone = JSON.parse(JSON.stringify(chat[this_edit_mes_id]));
+        clone.send_date++;
+        chat.splice(this_edit_mes_id, 0, clone);
+        this_edit_target_id = undefined;
+        this_edit_mes_id = undefined;
+        saveChat();
+        clearChat();
+        chat.length = 0;
+        getChat();
+    });
+    $(document).on('click', '.mes_edit_delete', function(){
+        if(!confirm("Are you sure you want to delete this message?")) { return; }
+        chat.splice(this_edit_mes_id, 1);
+        this_edit_target_id = undefined;
+        this_edit_mes_id = undefined;
+        saveChat();
+        clearChat();
+        chat.length = 0;
+        getChat();
+    });
+    $(document).on('click', '.mes_up', function(){
+        if(this_edit_mes_id <= 0 && this_edit_target_id === undefined) { return; }
+        this_edit_mes_id = parseInt(this_edit_mes_id);
+        if(this_edit_target_id === undefined) {
+            this_edit_target_id = this_edit_mes_id - 1;
+        } else {
+            this_edit_target_id--;
+        }
+        const root = messageRoot($(this));
+        if(!root) { return; }
+        root.attr('mesid', this_edit_target_id);
+        root.prev().attr('mesid', this_edit_target_id+1);
+        root.insertBefore(root.prev());
+        $(this).parent().children('.mes_up').attr('class', this_edit_target_id == 0 ? "mes_up disabled" : "mes_up");
+        $(this).parent().children('.mes_down').attr('class', this_edit_target_id == chat.length - 1 ? "mes_down disabled" : "mes_down");
+    });
+    $(document).on('click', '.mes_down', function(){
+        if(this_edit_mes_id >= chat.length-1 && this_edit_target_id === undefined) { return; }
+        this_edit_mes_id = parseInt(this_edit_mes_id);
+        if(this_edit_target_id === undefined) {
+            this_edit_target_id = this_edit_mes_id + 1;
+        } else {
+            this_edit_target_id++;
+        }
+        const root = messageRoot($(this));
+        if(!root) { return; }
+        root.attr('mesid', this_edit_target_id);
+        root.next().attr('mesid', this_edit_target_id-1);
+        root.insertAfter(root.next());
+        $(this).parent().children('.mes_up').attr('class', this_edit_target_id == 0 ? "mes_up disabled" : "mes_up");
+        $(this).parent().children('.mes_down').attr('class', this_edit_target_id == chat.length - 1 ? "mes_down disabled" : "mes_down");
+    });
     $(document).on('click', '.mes_edit_cancel', function(){
         showSwipeButtons();
         //var text = $(this).parent().parent().children('.mes_text').children('.edit_textarea').val();
@@ -3558,6 +3619,12 @@ $(document).ready(function(){
         toggleEdit(root, false);
         root.find('.mes_text').empty();
         root.find('.mes_text').append(messageFormating(text,this_edit_mes_chname));
+        if(this_edit_target_id !== undefined && this_edit_target_id !== null) {
+            clearChat();
+            chat.length = 0;
+            getChat();
+        }
+        this_edit_target_id = undefined;
         this_edit_mes_id = undefined;
     });
     $(document).on('click', '.mes_edit_done', function(){
@@ -3577,6 +3644,25 @@ $(document).ready(function(){
         root.find('.mes_text').empty();
         toggleEdit(root, false);
         root.find('.mes_text').append(messageFormating(text,this_edit_mes_chname));
+        if(!Number.isNaN(this_edit_target_id) && this_edit_target_id !== this_edit_mes_id) {
+            let date = chat[this_edit_mes_id].send_date;
+            chat.splice(this_edit_target_id, 0, chat.splice(this_edit_mes_id, 1)[0]);
+            if(this_edit_target_id < this_edit_mes_id) {
+                for(let i = this_edit_target_id; i < this_edit_mes_id; i++) {
+                    chat[i].send_date = chat[i+1].send_date;
+                }
+                chat[this_edit_mes_id].send_date = date;
+            } else {
+                for(let i = this_edit_target_id; i > this_edit_mes_id; i--) {
+                    chat[i].send_date = chat[i-1].send_date;
+                }
+                chat[this_edit_mes_id].send_date = date;
+            }
+            for(let i = 0; i < div.parent().parent().parent().parent().children().length; i++) {
+                div.parent().parent().parent().parent().children().eq(i).attr("mesid", i);
+            }
+        }
+        this_edit_target_id = undefined;
         this_edit_mes_id = undefined;
         saveChat();
     }
