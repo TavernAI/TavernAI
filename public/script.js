@@ -34,9 +34,9 @@ $(document).ready(function(){
     var characloud_characters = [];
     var characloud_characters_rows;
     var characloud_found_characters = [];
-    var charaCloudServer = 'http://127.0.0.1:3000';
+    var charaCloudServer = 'http://127.0.0.1:80';
     ///////////
-    const VERSION = '1.3.0';
+    const VERSION = '1.3.1';
     var converter = new showdown.Converter();
     var bg_menu_toggle = false;
     var default_user_name = "You";
