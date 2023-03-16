@@ -408,6 +408,19 @@ hr {
     margin-top: 6px;
     font-weight:bolder;
 }
+.name_select {
+    display: none;
+    grid-area: 1 / 1 / 2 / 4;
+    margin: 0px;
+    margin-left: 35px;
+    padding: 0px;
+    max-width: 50%;
+    height: 1.25em;
+    font-size: 100%;
+    color: #ffffff9d;
+    box-shadow: 0 0 2px rgba(200,200,200,0.5);
+    background-color:#13152c;
+}
 .mes_text {
     /* background: olive; */
     position: relative; /* Add relative position */
@@ -1449,6 +1462,10 @@ input[type="range"]::-ms-thumb {
 .edit_block div img {
     width: 23px;
     height: 23px;
+}
+.edit_block div.disabled {
+    pointer-events: none;
+    opacity: 0.25;
 }
 .edit_textarea {
     word-wrap: break-word;
