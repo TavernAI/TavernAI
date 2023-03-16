@@ -494,6 +494,14 @@ app.post("/editcharacter", urlencodedParser, function(request, response){
     }
     char.edit_date = Date.now();
 
+    for(let key in char) {
+        if(typeof char[key] === "string") {
+            char[key] = char[key]
+                .replace(/[\u2018\u2019]/g, "'")
+                .replace(/[\u201C\u201D]/g, '"');
+        }
+    }
+
     char = JSON.stringify(char);
     let target_img = (request.body.avatar_url).replace(`.${characterFormat}`, '');
     if(!filedata){
