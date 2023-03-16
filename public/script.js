@@ -3588,13 +3588,19 @@ $(document).ready(function(){
     });
     $(document).on('click', '.mes_edit_delete', function(){
         if(!confirm("Are you sure you want to delete this message?")) { return; }
+        const root = messageRoot($(this));
+        if(!root) { return; }
         chat.splice(this_edit_mes_id, 1);
         this_edit_target_id = undefined;
         this_edit_mes_id = undefined;
+        root.remove();
+        let childs = $('#chat')[0].childNodes;;
+        for(let index = 0; index < childs.length; index++) {
+            const child = childs[index];
+            child.setAttribute("mesid", index);
+            child.setAttribute("class", index === childs.length - 1 ? "mes last_mes" : "mes");
+        }
         saveChat();
-        clearChat();
-        chat.length = 0;
-        getChat();
     });
     $(document).on('click', '.mes_up', function(){
         if(this_edit_mes_id <= 0 && this_edit_target_id === undefined) { return; }
