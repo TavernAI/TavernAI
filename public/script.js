@@ -626,25 +626,14 @@ $(document).ready(function(){
         }
         return avatarImg;
     }
-    function addOneMessage(mes, type='normal'){
-        //var message = mes['mes'];
-        //message = mes['mes'].replace(/^\s+/g, '');
-        //console.log(message.indexOf(name1+":"));
+    function addOneMessage(mes, type='normal') {
         var messageText = mes['mes'];
         var characterName = name1;
         generatedPromtCache = '';
-        //thisText = thisText.split("\n").join("<br>");
         var avatarImg = getMessageAvatar(mes);
         if(!mes.is_user){
             characterName = characters[mes.chid] ? characters[mes.chid].name : "Chloe";
         }
-
-        //Formating
-        //messageText = messageText.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\*(.+?)\*/g, '<i>$1</i>').replace(/\n/g, '<br/>');
-        //if(characterName != name1){
-            //messageText = messageText.replaceAll(name2+":", "");
-        //}
-        //console.log(messageText);
         if(count_view_mes == 0){
             messageText = messageText.replace(/{{user}}/gi, name1);
             messageText = messageText.replace(/{{char}}/gi, name2);
@@ -652,8 +641,9 @@ $(document).ready(function(){
             messageText = messageText.replace(/<BOT>/gi, name2);
         }
         messageText = messageFormating(messageText, characterName);
+        let container = null;
         if(type !== 'swipe'){
-            let container = $('<div class="mes" mesid='+count_view_mes+' ch_name="'+characterName+'" is_user="'+mes['is_user']+'"></div>')
+                container = $('<div class="mes" mesid='+count_view_mes+' ch_name="'+characterName+'" is_user="'+mes['is_user']+'"></div>')
                 container.append('<div class="for_checkbox"></div><input type="checkbox" class="del_checkbox">');       // delete checkbox
                 container.append('<div class="avatar"><img class="avt_img" src="'+avatarImg+'"></div>');                                // avatar
 
@@ -683,10 +673,7 @@ $(document).ready(function(){
         }
         
         if(!if_typing_text){
-            
-
             if(type === 'swipe'){
-                
                 $("#chat").children().filter('[mesid="'+(count_view_mes-1)+'"]').children('.mes_block').children('.mes_text').html('');
                 $("#chat").children().filter('[mesid="'+(count_view_mes-1)+'"]').children('.mes_block').children('.mes_text').append(messageText);
                 if(mes['swipe_id'] !== 0 && swipes){
@@ -694,7 +681,6 @@ $(document).ready(function(){
                     $("#chat").children().filter('[mesid="'+(count_view_mes-1)+'"]').children('.swipe_left').css('display', 'block');
                 }
             }else{
-                
                 $("#chat").children().filter('[mesid="'+count_view_mes+'"]').children('.mes_block').children('.mes_text').append(messageText);
                 
                 hideSwipeButtons();
@@ -736,6 +722,8 @@ $(document).ready(function(){
         $('#chat .mes').last().addClass('last_mes');
         $('#chat .mes').eq(-2).removeClass('last_mes');
         $textchat.scrollTop($textchat[0].scrollHeight);
+
+        return container;
     }
     function typeWriter(target, text, speed, i) {
         if (i < text.length) {
@@ -3573,15 +3561,30 @@ $(document).ready(function(){
     });
     $(document).on('click', '.mes_edit_clone', function(){
         if(!confirm("Make a copy of this message?")) { return; }
+        const root = messageRoot($(this));
+        if(!root) { return; }
+        let oldScroll = $('#chat')[0].scrollTop;
         let clone = JSON.parse(JSON.stringify(chat[this_edit_mes_id]));
         clone.send_date++;
-        chat.splice(this_edit_mes_id, 0, clone);
-        this_edit_target_id = undefined;
-        this_edit_mes_id = undefined;
+
+        let nameSelect = root.find('.name_select');
+        let authorId = parseInt(nameSelect.val());
+        clone.is_user = authorId < 0;
+        clone.chid = authorId < 0 ? undefined : authorId;
+        clone.name = authorId < 0 ? name1 : characters[authorId].name;
+        clone.mes = root.find('.mes_text').children('.edit_textarea').val().trim();
+
+        chat.splice(this_edit_mes_id+1, 0, clone);
+        root.after(addOneMessage(clone));
+
+        let childs = $('#chat')[0].childNodes;;
+        for(let index = 0; index < childs.length; index++) {
+            const child = childs[index];
+            child.setAttribute("mesid", index);
+            child.setAttribute("class", index === childs.length - 1 ? "mes last_mes" : "mes");
+        }
         saveChat();
-        clearChat();
-        chat.length = 0;
-        getChat();
+        $('#chat')[0].scrollTop = oldScroll;
     });
     $(document).on('click', '.mes_edit_delete', function(){
         if(!confirm("Are you sure you want to delete this message?")) { return; }
