@@ -35,7 +35,6 @@ $(document).ready(function(){
     var characloud_characters_rows;
     var characloud_found_characters = [];
     var charaCloudServer = 'http://127.0.0.1:3000';
-    var charaCloudMode = false;
     ///////////
     const VERSION = '1.3.0';
     var converter = new showdown.Converter();
@@ -2980,7 +2979,6 @@ $(document).ready(function(){
                     }
                     
                     charaCloudServer = data.charaCloudServer;
-                    charaCloudMode = data.charaCloudMode;
                     characterFormat = data.characterFormat;
                     
                     designs = data.designs;
@@ -4190,7 +4188,7 @@ $(document).ready(function(){
     //**************************************************************//
     //**************************CHARA CLOUD*************************//
     $('#chat_header_back_button').click(function(){
-        if(charaCloud.isOnline() && charaCloudMode){
+        if(charaCloud.isOnline() && settings.characloud){
             $('#shell').css('display', 'none');
             $('#chara_cloud').css('display', 'block');
             $('#chara_cloud').css('opacity', 0.0);
@@ -4228,7 +4226,7 @@ $(document).ready(function(){
 
     characloud_characters_rows = [];
     async function charaCloudInit(){
-        if(charaCloudMode){
+        if(settings.characloud){
             charaCloudServerStatus();
             
             let characloud_characters_board = await charaCloud.getAllCharacters();
