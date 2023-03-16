@@ -2391,6 +2391,10 @@ $(document).ready(function(){
         if(is_send_press == false && count_view_mes > 1){
             hideSwipeButtons();
             is_send_press = true;
+            if(this_edit_mes_id === chat.length-1) {
+                this_edit_target_id = undefined;
+                this_edit_mes_id = undefined;
+            }
             Generate('regenerate');
         }
     });
