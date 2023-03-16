@@ -3464,7 +3464,7 @@ $(document).ready(function(){
     //********************
     //***Message Editor***
     function messageRoot(anyChild) {
-        while(anyChild && anyChild.attr && (anyChild.attr("mesid") === undefined || anyChild.attr("mesid") === null) && anyChild.parent) {
+        while(anyChild && anyChild.length && anyChild.attr && (anyChild.attr("mesid") === undefined || anyChild.attr("mesid") === null) && anyChild.parent) {
             anyChild = anyChild.parent();
         }
         if(anyChild && anyChild.attr && anyChild.attr("mesid") !== undefined && anyChild.attr("mesid") !== null) {
@@ -3497,6 +3497,7 @@ $(document).ready(function(){
         if(!root) { return; }
         const edit_mes_id = root ? parseInt(root.attr("mesid")) : NaN;
         if(isNaN(edit_mes_id)) { return; }
+        if(this_edit_mes_id !== undefined) { return; }
 
         if(edit_mes_id == count_view_mes-1){ //if the generating swipe (...)
             if(chat[edit_mes_id]['swipe_id'] !== undefined){
