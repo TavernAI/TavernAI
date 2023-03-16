@@ -3583,7 +3583,7 @@ $(document).ready(function(){
     //********************
     //***Swipes***
     $(document).keydown(function(e) {
-        if (!$(document.activeElement).is('#send_textarea') || $('#send_textarea').val().length === 0) {
+        if (($(document.activeElement).is('#send_textarea') && $('#send_textarea').val().length === 0) || !$('textarea:focus, input[type="text"]:focus').length) {
             if (e.keyCode == 37) {
                 // Left arrow key pressed
                 if(JSON.parse($('#chat').children('.mes').last().attr('is_user')) === false && $('#chat').children('.mes').last().children('.swipe_left').css('display') !== 'none'){

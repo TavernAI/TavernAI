@@ -59,13 +59,13 @@
         <div id="personality_div">
             <h4 class="h4_menu_title">Personality summary</h4>
             <h5 class="h5_menu_help">A brief description of the personality (<a href="/notes/2" target="_blank">?</a>)</h5>
-            <input id="personality_textarea" name="personality" placeholder="" form="form_create" class="text_pole" autocomplete="off">
+            <input id="personality_textarea" name="personality" placeholder="" form="form_create" class="text_pole" type="text" autocomplete="off">
         </div>
 
         <div id="scenario_div">
             <h4 class="h4_menu_title">Scenario</h4>
             <h5 class="h5_menu_help">Circumstances and context of the dialogue (<a href="/notes/12" target="_blank">?</a>)</h5>
-            <input id="scenario_pole" name="scenario" class="text_pole" maxlength="9999" size="40" value="" autocomplete="off" form="form_create">
+            <input id="scenario_pole" name="scenario" class="text_pole" type="text" maxlength="9999" size="40" value="" autocomplete="off" form="form_create">
         </div>
 
         <div id="mes_example_div">
@@ -273,9 +273,9 @@
                 <div id="chat_import_button"><a>+import</a>&nbsp;</div><div id="chat_import_button_help">(<a href="/notes/10" target="_blank">?</a>)</div>
                 <form id="form_import_chat"  action="javascript:void(null);" method="post" enctype="multipart/form-data" style="display: none;">
                     <input type="file" id="chat_import_file" accept=".json, .jsonl" name="avatar">
-                    <input id="chat_import_file_type" name="file_type" class="text_pole" maxlength="999" size="2" value="" autocomplete="off">
-                    <input id="chat_import_avatar_url" name="avatar_url" class="text_pole" maxlength="999" size="2" value="" autocomplete="off">
-                    <input id="chat_import_character_name" name="character_name" class="text_pole" maxlength="999" size="2" value="" autocomplete="off">
+                    <input id="chat_import_file_type" name="file_type" class="text_pole" type="text" maxlength="999" size="2" value="" autocomplete="off">
+                    <input id="chat_import_avatar_url" name="avatar_url" class="text_pole" type="text" maxlength="999" size="2" value="" autocomplete="off">
+                    <input id="chat_import_character_name" name="character_name" class="text_pole" type="text" maxlength="999" size="2" value="" autocomplete="off">
                 </form>
             </div>
             
@@ -323,7 +323,7 @@
                 
                 <div id="name_div">
                     <h4 class="h4_menu_title">Name</h4><h5 class="h5_menu_help">Character name</h5>
-                <input id="character_name_pole" name="ch_name" class="text_pole" maxlength="120" size="35" value="" autocomplete="off">
+                <input id="character_name_pole" name="ch_name" class="text_pole" type="text" maxlength="120" size="35" value="" autocomplete="off">
                 </div>
                 <div id="avatar_div" class="avatar_div">
                     <div id="avatar_div_container" class="avatar"><img id="avatar_load_preview" src="img/fluffy.png" alt="avatar"></div><input type="file" id="add_avatar_button" name="avatar" accept="image/png, image/jpeg, image/jpg, image/gif, image/bmp, image/webp">
@@ -340,16 +340,16 @@
                 </div>
                 
                 <div id="avatar_url_div">
-                <input id="avatar_url_pole" name="avatar_url" class="text_pole" maxlength="999" size="2" value="" autocomplete="off">
+                <input id="avatar_url_pole" name="avatar_url" class="text_pole" type="text" maxlength="999" size="2" value="" autocomplete="off">
                 </div>
                 <div id="selected_chat_div">
-                <input id="selected_chat_pole" name="chat" class="text_pole" maxlength="999" size="2" value="" autocomplete="off">
+                <input id="selected_chat_pole" name="chat" class="text_pole" type="text" maxlength="999" size="2" value="" autocomplete="off">
                 </div>
                 <div id="create_date_div">
-                <input id="create_date_pole" name="create_date" class="text_pole" maxlength="999" size="2" value="" autocomplete="off">
+                <input id="create_date_pole" name="create_date" class="text_pole" type="text" maxlength="999" size="2" value="" autocomplete="off">
                 </div>
                 <div id="last_mes_div">
-                <input id="last_mes_pole" name="last_mes" class="text_pole" maxlength="999" size="2" value="" autocomplete="off">
+                <input id="last_mes_pole" name="last_mes" class="text_pole" type="text" maxlength="999" size="2" value="" autocomplete="off">
                 </div>
                 <input id="character_advanced_button" type="button" value="Advanced Edit">
                 <div id="export_character_div">
@@ -379,7 +379,7 @@
                 <form  action="javascript:void(null);" method="post" enctype="multipart/form-data">
 
                 <h4 class="h4_menu_title">API url</h4><h5 class="h5_menu_help">Example: http://127.0.0.1:5000/api </h5>
-                <input id="api_url_text" name="api_url" class="text_pole" maxlength="500" size="35" value="" autocomplete="off">
+                <input id="api_url_text" name="api_url" class="text_pole" type="text" maxlength="500" size="35" value="" autocomplete="off">
                 <input id="api_button" type="submit" value="Connect">
                 <img id="api_loading" src="img/load.svg" >
                 </form>
@@ -404,7 +404,7 @@
                 <form  action="javascript:void(null);" method="post" enctype="multipart/form-data">
 
                     <h4 class="h4_menu_title">API key</h4><h5 class="h5_menu_help">Where to get (<a href="/notes/6" target="_blank">?</a>)</h5>
-                    <input id="api_key_novel" name="api_key_novel" class="text_pole" maxlength="500" size="35" value="" autocomplete="off">
+                    <input id="api_key_novel" name="api_key_novel" class="text_pole" type="text" maxlength="500" size="35" value="" autocomplete="off">
                     <input id="api_button_novel" type="submit" value="Connect">
                     <img id="api_loading_novel" src="img/load.svg" >
                 </form>
@@ -433,7 +433,7 @@
                 <div id="openai_api_logo"><a href="https://openai.com" target="_blank"><img src="img/openai.png"></a></div>
                 <form  action="javascript:void(null);" method="post" enctype="multipart/form-data">
                     <h4 class="h4_menu_title">API key</h4><h5 class="h5_menu_help">Where to get (<a href="/notes/19" target="_blank">?</a>)</h5>
-                    <input id="api_key_openai" name="api_key_openai" class="text_pole" maxlength="500" size="35" value="" autocomplete="off">
+                    <input id="api_key_openai" name="api_key_openai" class="text_pole" type="text" maxlength="500" size="35" value="" autocomplete="off">
                     <input id="api_button_openai" type="submit" value="Connect">
                     <img id="api_loading_openai" src="img/load.svg" >
                 </form>
@@ -463,7 +463,7 @@
                 <div id="user_avatar_block"></div>
                 <form id='form_change_name' action="javascript:void(null);" method="post" enctype="multipart/form-data">
                     <h4 class="h4_menu_title">Name</h4>
-                    <input id="your_name" name="your_name" class="text_pole" maxlength="35" size="16" value="" autocomplete="off">
+                    <input id="your_name" name="your_name" class="text_pole" type="text" maxlength="35" size="16" value="" autocomplete="off">
                     <input id="your_name_button" type="submit" value="Change">
                 </form>
             </div>
@@ -472,14 +472,14 @@
         <div id="rm_charater_import" class="right_menu" style="display: none;">
             <form id="form_import"  action="javascript:void(null);" method="post" enctype="multipart/form-data">
             <input type="file" id="character_import_file" accept=".json, image/png, image/webp" name="avatar">
-            <input id="character_import_file_type" name="file_type" class="text_pole" maxlength="999" size="2" value="" autocomplete="off">
+            <input id="character_import_file_type" name="file_type" class="text_pole" type="text" maxlength="999" size="2" value="" autocomplete="off">
             </form>
         </div>
         <div id="rm_charaters_block" class="right_menu">
             
             <div id="rm_button_create" class="right_menu_title_button"><h2>+New Character</h2></div>
             <div id="rm_button_import" class="right_menu_title_button"><h2>+Import</h2></div>
-            <input id="search_bar" name="search_bar" class="text_pole" size="35" value="" autocomplete="off" placeholder="search...">
+            <input id="search_bar" name="search_bar" class="text_pole" type="text" size="35" value="" autocomplete="off" placeholder="search...">
             <div id="rm_print_charaters_block"></div>
         </div>
         <div id="rm_info_block" class="right_menu">
@@ -536,7 +536,7 @@
     <div id="chara_cloud">
         <form id="characloud_search_form">
             <button id="characloud_search_button" type="submit">Search</button>
-            <input id="characloud_search" name="q" autocomplete="off" type="text" class="text_pole" placeholder="Search characters...">
+            <input id="characloud_search" name="q" autocomplete="off" type="text" class="text_pole" type="text" placeholder="Search characters...">
             <div id="characloud_status_block">
                 <a href="https://boosty.to/tavernai" target="_blank">
                     <div id="characloud_status_block_content">
