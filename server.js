@@ -29,7 +29,10 @@ const config = require(path.join(process.cwd(), './config.conf'));
 const server_port = config.port;
 const whitelist = config.whitelist;
 const whitelistMode = config.whitelistMode;
-const listenIp = config.listenIp || '127.0.0.1';
+let listenIp = config.listenIp || '127.0.0.1';
+if(!whitelistMode){
+    listenIp = '0.0.0.0';
+}
 const autorun = config.autorun;
 const characterFormat = config.characterFormat;
 const charaCloudMode = config.charaCloudMode;
