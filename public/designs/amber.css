@@ -392,9 +392,9 @@ label.checkbox :checked + span {
 .name_select {
     background-color: rgba(36, 36, 37, 0.0);
     margin-left: 0px;
-    padding-left: 3px;
     width: min-content;
     border-color: #ffffff00;
     box-shadow: 0 0 2px rgba(200,200,200,0.0);
     border-bottom: 1px dashed rgba(255, 255, 255, 0.12);
+    background-color: #16161680;
 }
