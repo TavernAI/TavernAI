@@ -747,7 +747,8 @@ $(document).ready(function(){
         }
     });
     async function Generate(type) {//encode("dsfs").length
-        const gap_holder = 120;
+        let gap_holder = 120;
+        if(main_api === 'openai' && (model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-0301')) gap_holder+= parseInt(amount_gen_openai);
         var textareaText = '';
         tokens_already_generated = 0;
         if(!free_char_name_mode){
