@@ -3594,8 +3594,11 @@ $(document).ready(function(){
         this_edit_target_id = undefined;
         this_edit_mes_id = undefined;
         root.remove();
+        count_view_mes--;
         recalculateChatMesids();
         saveChat();
+        hideSwipeButtons();
+        showSwipeButtons();
     });
     $(document).on('click', '.mes_up', function(){
         if(this_edit_mes_id <= 0 && this_edit_target_id === undefined) { return; }
