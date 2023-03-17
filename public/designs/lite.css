@@ -959,3 +959,25 @@ a {
 #search_bar::placeholder  {
     color: #ffffffaa;
 }
+
+.name_select {
+    margin-left: 0px;
+    background-color: rgb(36, 36, 37);
+    border-color: #ffffff00;
+    box-shadow: 0 0 2px rgba(200,200,200,0.0);
+    width: min-content;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.12);
+}
+.edit_block .mes_edit_delete img{
+    width: 18px;
+    height: 18px;
+}
+.edit_block .mes_edit_clone img{
+    width: 17px;
+    height: 17px;
+}
+
+.edit_block div img {
+    width: 20px;
+    height: 20px;
+}

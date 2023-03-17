@@ -414,12 +414,13 @@ hr {
     margin: 0px;
     margin-left: 35px;
     padding: 0px;
-    max-width: 50%;
+    width: min-content;
     height: 1.25em;
     font-size: 100%;
     color: #ffffff9d;
-    box-shadow: 0 0 2px rgba(200,200,200,0.5);
-    background-color:#13152c;
+    box-shadow: 0 0 2px rgba(200,200,200,0.0);
+    background-color: #13152c00;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.12);
 }
 .mes_text {
     /* background: olive; */
