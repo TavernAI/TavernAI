@@ -422,7 +422,9 @@ function checkServer(){
 
 //***************** Main functions
 function checkCharaProp(prop) {
-  return String(prop) || '';
+  return (String(prop) || '')
+      .replace(/[\u2018\u2019‘’]/g, "'")
+      .replace(/[\u201C\u201D“”]/g, '"');
 }
 function charaFormatData(data){
     let name;
@@ -496,14 +498,6 @@ app.post("/editcharacter", urlencodedParser, function(request, response){
         char.add_date = request.body.create_date;
     }
     char.edit_date = Date.now();
-
-    for(let key in char) {
-        if(typeof char[key] === "string") {
-            char[key] = char[key]
-                .replace(/[\u2018\u2019]/g, "'")
-                .replace(/[\u201C\u201D]/g, '"');
-        }
-    }
 
     char = JSON.stringify(char);
     let target_img = (request.body.avatar_url).replace(`.${characterFormat}`, '');
@@ -783,11 +777,12 @@ app.post("/getcharacters", jsonParser, async function(request, response) {
         i++;
       } catch (error) {
         if (error instanceof SyntaxError) {
-            
-          console.log(`String [${i}] is not valid JSON! ${error}`);
+          console.error("Character info from index " +i+ " is not valid JSON!", error);
         } else {
-          console.log(`An unexpected error occurred: ${error}`);
+          console.error("An unexpected error loading character index " +i+ " occurred.", error);
         }
+        console.error("Pre-parsed character data:");
+        console.error(imgData);
       }
     }
 
