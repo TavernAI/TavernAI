@@ -30,7 +30,8 @@ const server_port = config.port;
 const whitelist = config.whitelist;
 const whitelistMode = config.whitelistMode;
 let listenIp = config.listenIp || '127.0.0.1';
-if(!whitelistMode){
+
+if(!whitelistMode || whitelist.length > 1){
     listenIp = '0.0.0.0';
 }
 const autorun = config.autorun;
