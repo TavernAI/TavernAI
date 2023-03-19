@@ -454,9 +454,9 @@ $(document).ready(function(){
         const response = await fetch("/getcharacters", {
             method: "POST",
             headers: {
-                                        "Content-Type": "application/json",
-                                        "X-CSRF-Token": token
-                                },
+                "Content-Type": "application/json",
+                "X-CSRF-Token": token
+                },
             body: JSON.stringify({
                         "": ""
                     })
@@ -473,7 +473,7 @@ $(document).ready(function(){
 
                 characters[i] = [];
                 characters[i] = getData[i];
-                
+                characters[i]['name'] = DOMPurify.sanitize(characters[i]['name']);
                 if(characters[i].add_date === undefined){
                     characters[i].add_date = characters[i].create_date;
                 }
