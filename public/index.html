@@ -233,6 +233,10 @@
                         <div class="toggle_label"><h4 class="h4_menu_title">Show CharaCloud</h4><h5 class="h5_menu_help">Show CharaCloud on startup</h5></div>
                         <input id="characloud" type="checkbox" class="toggle_checkbox">
                     </div>
+                    <div class="menu_toggle" id="notes_toggle">
+                        <div class="toggle_label"><h4 class="h4_menu_title">Use notes</h4><h5 class="h5_menu_help">Per-chat appendix to persona info</h5></div>
+                        <input id="notes_checkbox" type="checkbox" class="toggle_checkbox">
+                    </div>
 
                 </div>
                 <div>
@@ -288,6 +292,21 @@
             </div>
 
 
+        </div>
+    </div>
+
+    <div id="shadow_notes_popup" class="shadow_popup through">
+        <div class="container" id="notes_popup">
+            <img class="note_icon icon" src="img/pin.png">
+            <div class="notes_token_stat"><span id="notes_tokens">0</span> tokens</div>
+            <img class="cross" src="img/cross.png" title="Hide">
+            <textarea id="notes_textarea"></textarea>
+            <select class="notes_strategy">
+                <option value="char" title="Inject all notes as single line after character's description">Add to description</option>
+                <option disabled="true" value="wpp_ez" title='Injects each row into W++ "Description" attribute'>Add to W++ (simple)</option>
+                <option disabled="true" value="wpp" title='Expects notes to be of Attribute("value"), e.g. Features("white hair")'>Add to W++ (refined)</option>
+                <option value="none" title="Do not add notes to request">Don't add</option>
+            </select>
         </div>
     </div>
 
@@ -518,6 +537,7 @@
                         <div class="options-content">
                         <a id="option_start_new_chat"><img src="img/save_and_start_new_chat.png">Start new chat</a>
                         <a id="option_select_chat"><img id="option_select_chat_logo" src="img/book6.png">Select chats</a>
+                        <a id="option_toggle_notes" class="option_toggle_notes"><img src="img/pin.png">Toggle notes</a>
                         
                         <hr>
                         <a id="option_delete_mes"><img src="img/del_mes.png">Delete message</a>

@@ -1,4 +1,6 @@
 import {encode, decode} from "../scripts/gpt-2-3-tokenizer/mod.js";
+import {Notes} from "./class/Notes.mjs";
+
 $(document).ready(function(){
     /*
     const observer = new MutationObserver(function(mutations) {
@@ -152,6 +154,8 @@ $(document).ready(function(){
     var pygmalion_formating = 0;
     var style_anchor = true;
     var character_anchor = true;
+
+    var winNotes;
 
     var main_api = 'kobold';
     
@@ -824,8 +828,12 @@ $(document).ready(function(){
             var chatString = '';
             var arrMes = [];
             var mesSend = [];
-            var charDescription = $.trim(characters[this_chid].description);
+            var charDescription = characters[this_chid].description;
             var charPersonality = $.trim(characters[this_chid].personality);
+            if(settings.notes && winNotes.strategy === "char") {
+                charDescription += " " + winNotes.getText("singleline");
+            }
+            charDescription = $.trim(charDescription);
             var Scenario = $.trim(characters[this_chid].scenario);
             var mesExamples = $.trim(characters[this_chid].mes_example);
             var checkMesExample = $.trim(mesExamples.replace(/<START>/gi, ''));//for check length without tag
@@ -969,7 +977,7 @@ $(document).ready(function(){
             }
             for (var item of chat2) {//console.log(encode("dsfs").length);
                 chatString = item+chatString;
-                if(encode(JSON.stringify(storyString+mesExmString+chatString+anchorTop+anchorBottom+charPersonality)).length+gap_holder < this_max_context){ //(The number of tokens in the entire prompt) need fix, it must count correctly (added +120, so that the description of the character does not hide)
+                if(getTokenCount(storyString+mesExmString+chatString+anchorTop+anchorBottom+charPersonality)+gap_holder < this_max_context){ //(The number of tokens in the entire prompt) need fix, it must count correctly (added +120, so that the description of the character does not hide)
                     arrMes[arrMes.length] = item;
                 }else{
                     i = chat2.length-1;
@@ -985,7 +993,7 @@ $(document).ready(function(){
                         for(let iii = 0; iii < mesExamplesArray.length; iii++){//mesExamplesArray It need to make from end to start
 
                             mesExmString = mesExmString+mesExamplesArray[iii];
-                            if(encode(JSON.stringify(storyString+mesExmString+chatString+anchorTop+anchorBottom+charPersonality)).length+gap_holder < this_max_context){ //example of dialogs
+                            if(getTokenCount(storyString+mesExmString+chatString+anchorTop+anchorBottom+charPersonality)+gap_holder < this_max_context){ //example of dialogs
                                 if(!is_pygmalion){
                                     mesExamplesArray[iii] = mesExamplesArray[iii].replace(/<START>/i, 'This is how '+name2+' should talk');//An example of how '+name2+' responds
                                 }
@@ -1091,7 +1099,7 @@ $(document).ready(function(){
                 }
                 function checkPromtSize(){
                     setPromtString();
-                    let thisPromtContextSize = encode(JSON.stringify(storyString+mesExmString+mesSendString+anchorTop+anchorBottom+charPersonality+generatedPromtCache)).length+gap_holder;
+                    let thisPromtContextSize = getTokenCount(storyString+mesExmString+mesSendString+anchorTop+anchorBottom+charPersonality+generatedPromtCache)+gap_holder;
                     if(thisPromtContextSize > this_max_context){
                         if(count_exm_add > 0 && !keep_dialog_examples){
                             //mesExamplesArray.length = mesExamplesArray.length-1;
@@ -1400,7 +1408,7 @@ $(document).ready(function(){
                 }
             }
         });
-        var save_chat = [{user_name:default_user_name, character_name:name2,create_date: chat_create_date}, ...chat];
+        var save_chat = [{user_name:default_user_name, character_name:name2,create_date: chat_create_date,notes: winNotes.text}, ...chat];
 
         jQuery.ajax({    
             type: 'POST', 
@@ -1443,6 +1451,7 @@ $(document).ready(function(){
                     }
                     //chat =  data;
                     chat_create_date = chat[0]['create_date'];
+                    winNotes.text = chat[0].notes || "";
                     chat.shift();
 
                 }else{
@@ -1646,6 +1655,10 @@ $(document).ready(function(){
         $( "#rm_button_selected_ch" ).children("h2").addClass('deselected_button_style');
         
         
+    }
+
+    function getTokenCount(text = "") {
+        return encode(JSON.stringify(text)).length;
     }
 
     function select_selected_character(chid){ //character select
@@ -2239,7 +2252,7 @@ $(document).ready(function(){
                     $("#add_avatar_button").replaceWith($("#add_avatar_button").val('').clone(true));
                     $('#create_button').attr('value','Save');
 
-                    var count_tokens = encode(JSON.stringify(characters[this_chid].description+characters[this_chid].personality+characters[this_chid].scenario+characters[this_chid].mes_example)).length;
+                    var count_tokens = getTokenCount(characters[this_chid].description+characters[this_chid].personality+characters[this_chid].scenario+characters[this_chid].mes_example);
                     if(count_tokens < 1024){
                         $('#result_info').html(count_tokens+" Tokens");
                     }else{
@@ -2791,6 +2804,11 @@ $(document).ready(function(){
         singleline = !!$('#singleline').prop('checked');
         saveSettings();
     });
+    $('#notes_checkbox').change(function() {
+        settings.notes = !!$('#notes_checkbox').prop('checked');
+        $("#option_toggle_notes").css("display", settings.notes ? "block" : "none");
+        saveSettings();
+    });
     $('#autoconnect').change(function() {
         settings.auto_connect = !!$('#autoconnect').prop('checked');
         saveSettings();
@@ -3228,7 +3246,13 @@ $(document).ready(function(){
                     free_char_name_mode = !!settings.free_char_name_mode;
                     settings.auto_connect = settings.auto_connect === false ? false : true;
                     settings.characloud = settings.characloud === false ? false : true;
-                    
+                    settings.notes = settings.notes === false ? false : true;
+
+                    winNotes = new Notes({
+                        root: $("#shadow_notes_popup"),
+                        save: saveChat.bind(this)
+                    });
+
                     $('#style_anchor').prop('checked', style_anchor);
                     $('#character_anchor').prop('checked', character_anchor);
                     $('#lock_context_size').prop('checked', lock_context_size);
@@ -3236,9 +3260,12 @@ $(document).ready(function(){
                     $('#singleline').prop('checked', singleline);
                     $('#autoconnect').prop('checked', settings.auto_connect);
                     $('#characloud').prop('checked', settings.characloud);
+                    $('#notes_checkbox').prop('checked', settings.notes);
                     $('#swipes').prop('checked', swipes);
                     $('#keep_dialog_examples').prop('checked', keep_dialog_examples);
                     $('#free_char_name_mode').prop('checked', free_char_name_mode);
+
+                    $("#option_toggle_notes").css("display", settings.notes ? "block" : "none");
                     
                     $("#anchor_order option[value="+anchor_order+"]").attr('selected', 'true');
                     $("#pygmalion_formating option[value="+pygmalion_formating+"]").attr('selected', 'true');
@@ -3378,6 +3405,7 @@ $(document).ready(function(){
                     auto_connect: settings.auto_connect || false,
                     characloud: settings.characloud === false ? false : true,
                     swipes: swipes,
+                    notes: settings.notes || false,
                     keep_dialog_examples: keep_dialog_examples,
                     free_char_name_mode: free_char_name_mode,
                     main_api: main_api,
