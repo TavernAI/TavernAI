@@ -38,6 +38,7 @@ const autorun = config.autorun;
 const characterFormat = config.characterFormat;
 const charaCloudMode = config.charaCloudMode;
 const charaCloudServer = config.charaCloudServer;
+const connectionTimeoutMS = config.connectionTimeoutMS;
 
 
 var Client = require('node-rest-client').Client;
@@ -101,9 +102,15 @@ const { invalidCsrfTokenError, generateToken, doubleCsrfProtection } = doubleCsr
 });
 
 app.get("/csrf-token", (req, res) => {
-	res.json({
-		"token": generateToken(res)
-	});
+    res.json({
+        "token": generateToken(res)
+    });
+});
+
+app.get("/timeout", (req, res) => {
+    res.json({
+        "timeout": connectionTimeoutMS
+    });
 });
 
 app.use(cookieParser(COOKIES_SECRET));
@@ -270,7 +277,10 @@ app.post("/generate", jsonParser, function(request, response_generate = response
     console.log(this_settings);
     var args = {
         data: this_settings,
-        headers: { "Content-Type": "application/json" }
+        headers: { "Content-Type": "application/json" },
+        requestConfig: {
+            timeout: connectionTimeoutMS
+        }
     };
     client.post(api_server+"/v1/generate",args, function (data, response) {
         if(response.statusCode == 200){
@@ -1104,8 +1114,10 @@ app.post("/generate_novelai", jsonParser, function(request, response_generate_no
                         
     var args = {
         data: data,
-        
-        headers: { "Content-Type": "application/json",  "Authorization": "Bearer "+api_key_novel}
+        headers: { "Content-Type": "application/json",  "Authorization": "Bearer "+api_key_novel},
+        requestConfig: {
+            timeout: connectionTimeoutMS
+        }
     };
     client.post(api_novelai+"/ai/generate",args, function (data, response) {
         if(response.statusCode == 201){
@@ -1192,8 +1204,10 @@ app.post("/generate_openai", jsonParser, function(request, response_generate_ope
     }
     var args = {
         data: data,
-        
-        headers: { "Content-Type": "application/json",  "Authorization": "Bearer "+api_key_openai}
+        headers: { "Content-Type": "application/json",  "Authorization": "Bearer "+api_key_openai},
+        requestConfig: {
+            timeout: connectionTimeoutMS
+        }
     };
     
     client.post(api_openai+request_path,args, function (data, response) {
@@ -1368,7 +1382,53 @@ app.post("/importchat", urlencodedParser, function(request, response){
        //console.log(1);
         if(filedata){
 
-            if(format === 'json'){
+            /** Raw format; assumes:
+             * You: Hello! *Waves*
+             * Them: *Smiles* Hello!
+             */
+            if(format === 'txt'){
+                const fileStream = fs.createReadStream('./uploads/'+filedata.filename, "utf8");
+                const rl = readline.createInterface({
+                    input: fileStream,
+                    crlfDelay: Infinity
+                });
+                let created = Date.now();
+                var new_chat = [];
+                new_chat.push({
+                    user_name: "You",
+                    character_name: ch_name,
+                    create_date: created,
+                });
+                rl.on("line", line => {
+                    if(line && line.length) {
+                        let is_user = !!line.match(/^You:/);
+                        const text = line
+                            .replace(/^[^:]*: ?/, "")
+                            .trim()
+                        ;
+                        if(text) {
+                            new_chat.push({
+                                name: is_user ? "You" : ch_name,
+                                is_user: is_user,
+                                is_name: true,
+                                send_date: ++created,
+                                mes: text
+                            });
+                        }
+                    }
+                });
+                rl.on("close", () => {
+                    const chatJsonlData = new_chat.map(JSON.stringify).join('\n');
+                    fs.writeFile(chatsPath+avatar_url+'/'+Date.now()+'.jsonl', chatJsonlData, 'utf8', function(err) {
+                        if(err) {
+                            response.send(err);
+                            return console.log(err);
+                        }else{
+                            response.send({res:true});
+                        }
+                    });
+                });
+            } else if(format === 'json'){
                 fs.readFile('./uploads/'+filedata.filename, 'utf8', (err, data) => {
 
                     if (err){
@@ -1378,7 +1438,51 @@ app.post("/importchat", urlencodedParser, function(request, response){
 
                     const jsonData = json5.parse(data);
                     var new_chat = [];
-                    if(jsonData.histories !== undefined){
+                    /** Collab format: array of alternating exchanges, e.g.
+                     *  { chat: [
+                     *      "You: Hello there.",
+                     *      "Them: \"Oh my! Hello!\" *They wave.*"
+                     *  ] }
+                     */
+                    if(jsonData.chat && Array.isArray(jsonData.chat)){
+                        let created = Date.now();
+                        new_chat.push({
+                            user_name: "You",
+                            character_name: ch_name,
+                            create_date: created,
+                        });
+                        jsonData.chat.forEach(snippet => {
+                            let is_user = !!snippet.match(/^You:/);
+                            // replace all quotes around text, but not inside it
+                            const text = snippet
+                                .replace(/^[^:]*: ?/, "")
+                                .trim()
+                                .replace(/ +/g, ' ')
+                                .replace(/" *$/g, '')
+                                .replace(/" *\n/g, '\n')
+                                .replace(/\n"/g, '\n')
+                                .replace(/^"/g, '')
+                                .replace(/" ?\*/g, ' *')
+                                .replace(/\* ?"/g, '* ')
+                            ;
+                            new_chat.push({
+                                name: is_user ? "You" : ch_name,
+                                is_user: is_user,
+                                is_name: true,
+                                send_date: ++created,
+                                mes: text
+                            });
+                        });
+                        const chatJsonlData = new_chat.map(JSON.stringify).join('\n');
+                        fs.writeFile(chatsPath+avatar_url+'/'+Date.now()+'.jsonl', chatJsonlData, 'utf8', function(err) {
+                            if(err) {
+                                response.send(err);
+                                return console.log(err);
+                            }else{
+                                response.send({res:true});
+                            }
+                        });
+                    } else if(jsonData.histories !== undefined){
                         let i = 0;
                         new_chat[i] = {};
                         new_chat[0]['user_name'] = 'You';
@@ -1416,8 +1520,7 @@ app.post("/importchat", urlencodedParser, function(request, response){
                     }
 
                 });
-            }
-            if(format === 'jsonl'){
+            } else if(format === 'jsonl'){
                 const fileStream = fs.createReadStream('./uploads/'+filedata.filename);
                 const rl = readline.createInterface({
                   input: fileStream,
