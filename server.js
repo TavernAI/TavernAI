@@ -38,6 +38,7 @@ const autorun = config.autorun;
 const characterFormat = config.characterFormat;
 const charaCloudMode = config.charaCloudMode;
 const charaCloudServer = config.charaCloudServer;
+const connectionTimeoutMS = config.connectionTimeoutMS;
 
 
 var Client = require('node-rest-client').Client;
@@ -101,9 +102,15 @@ const { invalidCsrfTokenError, generateToken, doubleCsrfProtection } = doubleCsr
 });
 
 app.get("/csrf-token", (req, res) => {
-	res.json({
-		"token": generateToken(res)
-	});
+    res.json({
+        "token": generateToken(res)
+    });
+});
+
+app.get("/timeout", (req, res) => {
+    res.json({
+        "timeout": connectionTimeoutMS
+    });
 });
 
 app.use(cookieParser(COOKIES_SECRET));
@@ -270,7 +277,10 @@ app.post("/generate", jsonParser, function(request, response_generate = response
     console.log(this_settings);
     var args = {
         data: this_settings,
-        headers: { "Content-Type": "application/json" }
+        headers: { "Content-Type": "application/json" },
+        requestConfig: {
+            timeout: connectionTimeoutMS
+        }
     };
     client.post(api_server+"/v1/generate",args, function (data, response) {
         if(response.statusCode == 200){
@@ -1104,8 +1114,10 @@ app.post("/generate_novelai", jsonParser, function(request, response_generate_no
                         
     var args = {
         data: data,
-        
-        headers: { "Content-Type": "application/json",  "Authorization": "Bearer "+api_key_novel}
+        headers: { "Content-Type": "application/json",  "Authorization": "Bearer "+api_key_novel},
+        requestConfig: {
+            timeout: connectionTimeoutMS
+        }
     };
     client.post(api_novelai+"/ai/generate",args, function (data, response) {
         if(response.statusCode == 201){
@@ -1192,8 +1204,10 @@ app.post("/generate_openai", jsonParser, function(request, response_generate_ope
     }
     var args = {
         data: data,
-        
-        headers: { "Content-Type": "application/json",  "Authorization": "Bearer "+api_key_openai}
+        headers: { "Content-Type": "application/json",  "Authorization": "Bearer "+api_key_openai},
+        requestConfig: {
+            timeout: connectionTimeoutMS
+        }
     };
     
     client.post(api_openai+request_path,args, function (data, response) {
