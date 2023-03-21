@@ -1382,7 +1382,53 @@ app.post("/importchat", urlencodedParser, function(request, response){
        //console.log(1);
         if(filedata){
 
-            if(format === 'json'){
+            /** Raw format; assumes:
+             * You: Hello! *Waves*
+             * Them: *Smiles* Hello!
+             */
+            if(format === 'txt'){
+                const fileStream = fs.createReadStream('./uploads/'+filedata.filename, "utf8");
+                const rl = readline.createInterface({
+                    input: fileStream,
+                    crlfDelay: Infinity
+                });
+                let created = Date.now();
+                var new_chat = [];
+                new_chat.push({
+                    user_name: "You",
+                    character_name: ch_name,
+                    create_date: created,
+                });
+                rl.on("line", line => {
+                    if(line && line.length) {
+                        let is_user = !!line.match(/^You:/);
+                        const text = line
+                            .replace(/^[^:]*: ?/, "")
+                            .trim()
+                        ;
+                        if(text) {
+                            new_chat.push({
+                                name: is_user ? "You" : ch_name,
+                                is_user: is_user,
+                                is_name: true,
+                                send_date: ++created,
+                                mes: text
+                            });
+                        }
+                    }
+                });
+                rl.on("close", () => {
+                    const chatJsonlData = new_chat.map(JSON.stringify).join('\n');
+                    fs.writeFile(chatsPath+avatar_url+'/'+Date.now()+'.jsonl', chatJsonlData, 'utf8', function(err) {
+                        if(err) {
+                            response.send(err);
+                            return console.log(err);
+                        }else{
+                            response.send({res:true});
+                        }
+                    });
+                });
+            } else if(format === 'json'){
                 fs.readFile('./uploads/'+filedata.filename, 'utf8', (err, data) => {
 
                     if (err){
@@ -1394,7 +1440,7 @@ app.post("/importchat", urlencodedParser, function(request, response){
                     var new_chat = [];
                     /** Collab format: array of alternating exchanges, e.g.
                      *  { chat: [
-                     *      "You: Hello there."
+                     *      "You: Hello there.",
                      *      "Them: \"Oh my! Hello!\" *They wave.*"
                      *  ] }
                      */
@@ -1474,8 +1520,7 @@ app.post("/importchat", urlencodedParser, function(request, response){
                     }
 
                 });
-            }
-            if(format === 'jsonl'){
+            } else if(format === 'jsonl'){
                 const fileStream = fs.createReadStream('./uploads/'+filedata.filename);
                 const rl = readline.createInterface({
                   input: fileStream,

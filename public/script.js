@@ -4307,7 +4307,7 @@ $(document).ready(function(){
           return;
         }
         var ext = file.name.match(/\.(\w+)$/);
-        if(!ext || (ext[1].toLowerCase() != "json" && ext[1].toLowerCase() != "jsonl")){
+        if(!ext || (ext[1].toLowerCase() != "json" && ext[1].toLowerCase() != "jsonl"&& ext[1].toLowerCase() != "txt")){
             return;
         }
 

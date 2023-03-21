@@ -10,7 +10,29 @@
             <div id="content">
                 <h2>Chat import</h2>
                 <h3>Import chats into TavernAI</h3>
-                <p>For import Character.ai chats use tool: <a href="https://github.com/0x000011b/characterai-dumper">https://github.com/0x000011b/characterai-dumper</a></p>
+                <p>For exporting Character.ai chats use tool: <a href="https://github.com/0x000011b/characterai-dumper">https://github.com/0x000011b/characterai-dumper</a></p>
+                <h3>Supported formats and examples:</h3>
+                <h4>TavernAI format (.jsonl)</h4>
+                <p>Chats are kept on <code>public\chats\{Character}\{timestamp}.jsonl</code></p>
+                <code>{"user_name":"You","character_name":"Bob","create_date":1678935377585}<br>
+                    {"name":"Bob","is_user":false,"is_name":true,"send_date":1679308836640,"mes":"Hello"}</code>
+                <h4>CharacterAI dumper format (.json)</h4>
+                <p><p>For exporting Character.ai chats use tool: <a href="https://github.com/0x000011b/characterai-dumper">https://github.com/0x000011b/characterai-dumper</a></p></p>
+                <code>{ "histories": [<br>
+                    "msgs": [<br>
+                        { "src": { "ishuman": true, "text": "Hello there"<br>
+                        { "src": { "ishuman": false, "text": "Hi!" }<br>
+                    ]
+                ]}</code>
+                <h4>Raw collab format (.json)</h4>
+                <code>{ "chat": [<br>
+                    "You: Hello there.",<br>
+                    "Them: \"Oh my! Hello!\" *They wave.*"<br>
+                    ]}</code>
+                </code><h4>Raw text format (.txt)</h4>
+                <p>Single line per chat entry, each starting with <code>Character: </code>. Empty lines are dropped, lines without character name are assumed to be Character.</p>
+                <code>You: *Jumps down from the platform.* Hello there! *Grins and tries not to laugh.*<br>
+                    General Grievous: *Turns around* General Kenobi!</code>
             </div>
         </div>
     </body>
