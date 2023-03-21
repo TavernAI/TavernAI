@@ -1392,7 +1392,51 @@ app.post("/importchat", urlencodedParser, function(request, response){
 
                     const jsonData = json5.parse(data);
                     var new_chat = [];
-                    if(jsonData.histories !== undefined){
+                    /** Collab format: array of alternating exchanges, e.g.
+                     *  { chat: [
+                     *      "You: Hello there."
+                     *      "Them: \"Oh my! Hello!\" *They wave.*"
+                     *  ] }
+                     */
+                    if(jsonData.chat && Array.isArray(jsonData.chat)){
+                        let created = Date.now();
+                        new_chat.push({
+                            user_name: "You",
+                            character_name: ch_name,
+                            create_date: created,
+                        });
+                        jsonData.chat.forEach(snippet => {
+                            let is_user = !!snippet.match(/^You:/);
+                            // replace all quotes around text, but not inside it
+                            const text = snippet
+                                .replace(/^[^:]*: ?/, "")
+                                .trim()
+                                .replace(/ +/g, ' ')
+                                .replace(/" *$/g, '')
+                                .replace(/" *\n/g, '\n')
+                                .replace(/\n"/g, '\n')
+                                .replace(/^"/g, '')
+                                .replace(/" ?\*/g, ' *')
+                                .replace(/\* ?"/g, '* ')
+                            ;
+                            new_chat.push({
+                                name: is_user ? "You" : ch_name,
+                                is_user: is_user,
+                                is_name: true,
+                                send_date: ++created,
+                                mes: text
+                            });
+                        });
+                        const chatJsonlData = new_chat.map(JSON.stringify).join('\n');
+                        fs.writeFile(chatsPath+avatar_url+'/'+Date.now()+'.jsonl', chatJsonlData, 'utf8', function(err) {
+                            if(err) {
+                                response.send(err);
+                                return console.log(err);
+                            }else{
+                                response.send({res:true});
+                            }
+                        });
+                    } else if(jsonData.histories !== undefined){
                         let i = 0;
                         new_chat[i] = {};
                         new_chat[0]['user_name'] = 'You';
