@@ -226,17 +226,11 @@ code {
     width: 100%;
     margin-left: auto;
     margin-right: auto;
-    position: relative;
-    height: 65%;
 }
 #send_textarea{
     --autoresize: false;
     /* width:100%;  */
-    position: absolute;
-    height: 100%;
-    width: calc(100% - 90px);
-    top: 0px;
-    left: 40px;
+    height: 89px;
     resize: none;
     display:inline-block;
     background-color: #13152c;
@@ -245,7 +239,7 @@ code {
     box-shadow: 0 0 2px rgba(200,200,200,0.5);
     padding: 10px;
     color: #e6e6e6;
-    /*margin-left: 10px;*/
+    margin-left: 10px;
     margin-top: 10px;
 }
 #send_button_shell{
@@ -253,11 +247,7 @@ code {
     /* height: 100%; */
     /* margin-left: 17px; */
     /* background: blue; */
-    position: absolute;
-    right: 0px;
-    top: 0px;
-    height: 100%;
-    width: 60px;
+    
 }
 #send_button{
     /* visibility: visible; */
@@ -288,9 +278,7 @@ code {
     margin-top: 0px;
     cursor: pointer;
     /* opacity: 0.5; */
-    position: absolute;
-    top: 0px;
-    left: 0px;
+    position: block;
     width:40px;
     height: 40px;
     background-image: url('../img/options2.png');
