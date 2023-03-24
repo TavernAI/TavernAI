@@ -866,10 +866,23 @@ $(document).ready(function(){
             var chatString = '';
             var arrMes = [];
             var mesSend = [];
-            var charDescription = characters[this_chid].description;
+            var charDescription = characters[this_chid].description.replace(/\r/g, "");
             var charPersonality = $.trim(characters[this_chid].personality);
-            if(settings.notes && winNotes.strategy === "char") {
-                charDescription += " " + winNotes.getText("singleline");
+
+            let wDesc = WPP.parseExtended(charDescription);
+            charDescription = WPP.stringify(wDesc.wpp, "line") + (wDesc.appendix || "");
+
+            if(settings.notes) {
+                switch (winNotes.strategy) {
+                    case "char":
+                        charDescription += "\n" + winNotes.getText();
+                        break;
+                    case "wpp":
+                        let w1 = WPP.parseExtended(charDescription);
+                        w1.wpp = WPP.trim(WPP.getMerged(w1.wpp, winNotes.wpp));
+                        charDescription = (w1.wpp.length ? WPP.stringify(w1.wpp, "line") : "") + (w1.appendix && w1.appendix.length ? w1.appendix : "");
+                        break;
+                }
             }
             charDescription = $.trim(charDescription);
             var Scenario = $.trim(characters[this_chid].scenario);

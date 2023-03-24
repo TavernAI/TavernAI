@@ -6,7 +6,7 @@ import {WPPEditor} from "./WPPEditor.mjs";
  * "Notes" window
  */
 export class Notes extends Resizable {
-    wpp;
+    _wpp;
     textarea;
     tokens;
     select;
@@ -38,8 +38,8 @@ export class Notes extends Resizable {
             if(!this.select && child instanceof HTMLSelectElement) {
                 this.select = child;
             }
-            if(!this.wpp && child.classList.contains("wpp-editor")) {
-                this.wpp = new WPPEditor({
+            if(!this._wpp && child.classList.contains("wpp-editor")) {
+                this._wpp = new WPPEditor({
                     container: child
                 });
             }
@@ -50,9 +50,9 @@ export class Notes extends Resizable {
             }
         }
 
-        if(this.wpp) {
-            this.wpp.display = "none";
-            this.wpp.on("change", function() {
+        if(this._wpp) {
+            this._wpp.display = "none";
+            this._wpp.on("change", function() {
                 this.updateNotesTokenCount(true);
                 if(this.timerSave) {
                     clearTimeout(this.timerSave);
@@ -70,11 +70,11 @@ export class Notes extends Resizable {
                 if(this.select.value === "wpp") {
                     this.updateNotesTokenCount(true);
                     this.textarea.style.display = "none";
-                    this.wpp.display = null;
+                    this._wpp.display = null;
                 } else {
                     this.updateNotesTokenCount();
                     this.textarea.style.display = null;
-                    this.wpp.display = "none";
+                    this._wpp.display = "none";
                 }
             }.bind(this);
             for(let index = 0; index < this.select.children.length; index++) {
@@ -108,40 +108,44 @@ export class Notes extends Resizable {
     /** Sets w++ contents */
     set wpp(value) {
         if(!this.container) { return; }
-        if(!this.wpp) { return; }
-        this.wpp.wpp = value;
+        if(!this._wpp) { return; }
+        this._wpp.wpp = value;
         this.updateNotesTokenCount();
+    }
+
+    get wpp() {
+        return this._wpp.wpp;
     }
 
     /** Returns w++ contents */
     get wppText() {
-        if(!this.wpp) { return; }
-        return this.wpp.text;
+        if(!this._wpp) { return; }
+        return this._wpp.text;
     }
     get wppTextLine() {
-        if(!this.wpp) { return; }
-        return this.wpp.getText("line");
+        if(!this._wpp) { return; }
+        return this._wpp.getText("line");
     }
     /** Sets w++ contents */
     set wppText(value) {
         if(!this.container) { return; }
-        if(!this.wpp) { return; }
-        this.wpp.clear();
-        this.wpp.text = value;
+        if(!this._wpp) { return; }
+        this._wpp.clear();
+        this._wpp.text = value;
         this.updateNotesTokenCount();
     }
 
     /** Returns w++ contents */
     get wpp() {
-        if(!this.wpp) { return; }
-        return this.wpp.wpp;
+        if(!this._wpp) { return; }
+        return this._wpp.wpp;
     }
 
     /** Sets textarea contents */
     set text(value) {
         if(!this.container) { return; }
         if(!this.textarea) { return; }
-        this.textarea.value = value;
+        this.textarea.value = value.replace(/\r/g, "");
         this.updateNotesTokenCount();
     }
 
@@ -184,7 +188,7 @@ export class Notes extends Resizable {
             .replace(/\n/g, " ");
         let value;
         if(wpp) {
-            value = (this.wpp ? "Up to " + this.getTokenCount(this.wppText) : 0).toString();
+            value = (this._wpp ? "Up to " + this.getTokenCount(this.wppText) : 0).toString();
             this.tokens.setAttribute("title", "W++ will be merged with whatever W++ is in character definitions. If there is no new information in notes, there will be zero increase in token count.");
         } else {
             value = (text && text.length ? this.getTokenCount(text) : 0).toString();
