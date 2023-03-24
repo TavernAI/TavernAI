@@ -880,7 +880,7 @@ $(document).ready(function(){
                     case "wpp":
                         let w1 = WPP.parseExtended(charDescription);
                         w1.wpp = WPP.trim(WPP.getMerged(w1.wpp, winNotes.wpp));
-                        charDescription = (w1.wpp.length ? WPP.stringify(w1.wpp, "line") : "") + (w1.appendix && w1.appendix.length ? w1.appendix : "");
+                        charDescription = (w1.wpp.length ? WPP.stringify(w1.wpp, "line") : "") + (w1.appendix && w1.appendix.length ? (w1.wpp.length ? "\n" : "") + w1.appendix : "");
                         break;
                 }
             }
