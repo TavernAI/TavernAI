@@ -188,7 +188,7 @@
                         </div>
                         <div>
                             <h4 class="h4_menu_title">Context Size</h4><h5 id="max_context_counter_openai" class="range_counter">select</h5>
-                            <input type="range" class="range_bar" id="max_context_openai" name="volume" min="1024" max="4000" step="1">
+                            <input type="range" class="range_bar" id="max_context_openai" name="volume" min="1024" max="4096" step="1">
                         </div>
                     </div>
 
@@ -444,6 +444,8 @@
                 <div>
                 <h4 class="h4_menu_title">Model</h4><h5 class="h5_menu_help">OpenAI models (<a href="/notes/13" target="_blank">?</a>)</h5>
                     <select id="model_openai_select" class="menu_select">
+                        <option value="gpt-4">gpt-4</option>
+                        <option value="gpt-4-32k">gpt-4-32k</option>
                         <option value="gpt-3.5-turbo">gpt-3.5-turbo</option>
                         <option value="gpt-3.5-turbo-0301">gpt-3.5-turbo-0301</option>
                         <option value="text-davinci-003">text-davinci-003</option>
