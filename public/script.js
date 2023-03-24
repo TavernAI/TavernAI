@@ -192,6 +192,21 @@ $(document).ready(function(){
     var css_send_form_display = $('<div id=send_form></div>').css('display');
 
     var colab_ini_step = 1;
+
+    var requestTimeout = 60*1000;
+    jQuery.ajax({
+        type: "GET",
+        url: "/timeout",
+        cache: false,
+        contentType: "application/json",
+        success: function(data) {
+            requestTimeout = data.timeout;
+        },
+        error: function (jqXHR, exception) {
+            console.error(jqXHR);
+            console.error(exception);
+        }
+    });
     
     $('#send_textarea').on('input', function () {
         
@@ -327,6 +342,7 @@ $(document).ready(function(){
 
             },
             cache: false,
+            timeout: requestTimeout,
             dataType: "json",
             contentType: "application/json",
             //processData: false, 
@@ -393,6 +409,7 @@ $(document).ready(function(){
 
                 },
                 cache: false,
+                timeout: requestTimeout,
                 dataType: "json",
                 crossDomain: true,
                 contentType: "application/json",
@@ -552,6 +569,7 @@ $(document).ready(function(){
                 //$('#create_button').attr('value','Creating...'); // 
             },
             cache: false,
+            timeout: requestTimeout,
             dataType: "json",
             contentType: "application/json",
             //processData: false, 
@@ -617,7 +635,8 @@ $(document).ready(function(){
             if(this_chid === undefined) {
                 avatarImg = "img/chloe.png";
             } else {
-                mes.chid = mes.chid || parseInt(this_chid);
+                //mes.chid = mes.chid || parseInt(this_chid);
+                mes.chid = parseInt(this_chid);     // TODO: properly establish persistent ids
                 avatarImg = characters[mes.chid].avatar == 'none' ? "img/fluffy.png" : "characters/"+characters[this_chid].avatar + "#t=" + Date.now();
             }
         } else {
@@ -631,6 +650,7 @@ $(document).ready(function(){
         generatedPromtCache = '';
         var avatarImg = getMessageAvatar(mes);
         if(!mes.is_user){
+            mes.chid = this_chid;   // TODO: properly establish persistent ids
             characterName = characters[mes.chid] ? characters[mes.chid].name : "Chloe";
         }
         if(count_view_mes == 0){
@@ -1262,6 +1282,7 @@ $(document).ready(function(){
                         //$('#create_button').attr('value','Creating...'); 
                     },
                     cache: false,
+                    timeout: requestTimeout,
                     dataType: "json",
                     contentType: "application/json",
                     success: function(data){
@@ -1410,6 +1431,7 @@ $(document).ready(function(){
                 //$('#create_button').attr('value','Creating...'); 
             },
             cache: false,
+            timeout: requestTimeout,
             dataType: "json",
             contentType: "application/json",
             success: function(data){
@@ -1432,6 +1454,7 @@ $(document).ready(function(){
                 //$('#create_button').attr('value','Creating...'); 
             },
             cache: false,
+            timeout: requestTimeout,
             dataType: "json",
             contentType: "application/json",
             success: function(data){
@@ -1888,6 +1911,7 @@ $(document).ready(function(){
             method: 'POST', 
             url: '/savestyle',
             cache: false,
+            timeout: requestTimeout,
             dataType: "json",
             contentType: "application/json",
             data: JSON.stringify(request), 
@@ -1990,7 +2014,8 @@ $(document).ready(function(){
                     //$('#create_button').attr('value','Deleting...'); 
                 },
                 data: msg,
-                cache: false,  
+                cache: false,
+                timeout: requestTimeout,
                 success: function(html){
                     location.reload();
                     //getCharacters();
@@ -2059,6 +2084,7 @@ $(document).ready(function(){
                         //$('#create_button').attr('value','Creating...'); 
                     },
                     cache: false,
+                    timeout: requestTimeout,
                     contentType: false,
                     processData: false, 
                     success: function(html){
@@ -2150,6 +2176,7 @@ $(document).ready(function(){
                         $('#create_button').attr('value','Creating...'); 
                     },
                     cache: false,
+                    timeout: requestTimeout,
                     contentType: false,
                     processData: false, 
                     success: function(html){
@@ -2205,6 +2232,7 @@ $(document).ready(function(){
                     $('#create_button').attr('value','Save'); 
                 },
                 cache: false,
+                timeout: requestTimeout,
                 contentType: false,
                 processData: false, 
                 success: function(html){
@@ -2964,6 +2992,7 @@ $(document).ready(function(){
 
             },
             cache: false,
+            timeout: requestTimeout,
             dataType: "json",
             contentType: "application/json",
             //processData: false, 
@@ -3408,6 +3437,7 @@ $(document).ready(function(){
 
             },
             cache: false,
+            timeout: requestTimeout,
             dataType: "json",
             contentType: "application/json",
             //processData: false, 
@@ -3968,6 +3998,7 @@ $(document).ready(function(){
                 //$('#create_button').attr('value','Creating...'); 
             },
             cache: false,
+            timeout: requestTimeout,
             dataType: "json",
             contentType: "application/json",
             success: function(data){
@@ -4021,6 +4052,7 @@ $(document).ready(function(){
                     //$('#create_button').attr('value','Creating...'); 
                 },
                 cache: false,
+                timeout: requestTimeout,
                 dataType: "json",
                 contentType: "application/json",
                 success: function(data){
@@ -4117,6 +4149,7 @@ $(document).ready(function(){
 
                 },
                 cache: false,
+                timeout: requestTimeout,
                 dataType: "json",
                 crossDomain: true,
                 contentType: "application/json",
@@ -4231,6 +4264,7 @@ $(document).ready(function(){
                 //$('#create_button').attr('value','Creating...'); 
             },
             cache: false,
+            timeout: requestTimeout,
             contentType: false,
             processData: false, 
             success: function(data){
@@ -4273,7 +4307,7 @@ $(document).ready(function(){
           return;
         }
         var ext = file.name.match(/\.(\w+)$/);
-        if(!ext || (ext[1].toLowerCase() != "json" && ext[1].toLowerCase() != "jsonl")){
+        if(!ext || (ext[1].toLowerCase() != "json" && ext[1].toLowerCase() != "jsonl"&& ext[1].toLowerCase() != "txt")){
             return;
         }
 
@@ -4292,6 +4326,7 @@ $(document).ready(function(){
                 //$('#create_button').attr('value','Creating...'); 
             },
             cache: false,
+            timeout: requestTimeout,
             contentType: false,
             processData: false, 
             success: function(data){
