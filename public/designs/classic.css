@@ -1877,23 +1877,28 @@ label.checkbox :checked + span:after {
     transform: scale(125%);
 }
 
+.direction.tm:after { transform: translateY(-1em); }
+.direction.mr:after { transform: translateX(1em); }
+.direction.bm:after { transform: translateY(1em); }
+.direction.ml:after { transform: translateX(-1em); }
+
 .direction.p-0-0, .direction.tl { left: -1em; top: -1em; cursor: nw-resize; }
-.direction.p-1-0 { left: calc(50% - 1em); top: -1em; cursor: ns-resize; }
+.direction.p-1-0, .direction.tm { left: calc(50% - 1em); top: -1.5em; cursor: ns-resize; }
 .direction.p-2-0, .direction.tr { right: -1em; top: -1em; cursor: ne-resize; }
-.direction.p-2-1 { right: -1em; top: calc(50% - 1em); cursor: ew-resize; }
+.direction.p-2-1, .direction.mr { right: -1.5em; top: calc(50% - 1em); cursor: ew-resize; }
 .direction.p-2-2, .direction.br { right: -1em; bottom: -1em; cursor: nw-resize; }
-.direction.p-1-2 { left: calc(50% - 1em); bottom: -1em; cursor: ns-resize; }
+.direction.p-1-2, .direction.bm { left: calc(50% - 1em); bottom: -1.5em; cursor: ns-resize; }
 .direction.p-0-2, .direction.bl { left: -1em; bottom: -1em; cursor: ne-resize; }
-.direction.p-0-1 { left: -1em; top: calc(50% - 1em); cursor: ew-resize; }
+.direction.p-0-1, .direction.ml { left: -1.5em; top: calc(50% - 1em); cursor: ew-resize; }
 
 .direction.p-0-0:after, .direction.tl:after { border-color: white transparent transparent white; }
-.direction.p-1-0:after { border-color: transparent transparent white transparent; }
+.direction.p-1-0:after, .direction.tm:after { border-color: transparent transparent white transparent; }
 .direction.p-2-0:after, .direction.tr:after { border-color: white white transparent transparent; }
-.direction.p-2-1:after { border-color: transparent transparent transparent white; }
+.direction.p-2-1:after, .direction.mr:after { border-color: transparent transparent transparent white; }
 .direction.p-2-2:after, .direction.br:after { border-color: transparent white white transparent; }
-.direction.p-1-2:after { border-color: white transparent transparent transparent; }
+.direction.p-1-2:after, .direction.bm:after { border-color: white transparent transparent transparent; }
 .direction.p-0-2:after, .direction.bl:after { border-color: transparent transparent white white; }
-.direction.p-0-1:after { border-color: transparent white transparent transparent; }
+.direction.p-0-1:after, .direction.ml:after { border-color: transparent white transparent transparent; }
 
 .modular .move {
     position: absolute;

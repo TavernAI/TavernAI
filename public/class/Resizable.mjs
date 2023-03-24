@@ -48,8 +48,8 @@ export class Resizable {
         this.redraw();
         this.container.setAttribute("class", "container");
 
-        // create 4 edge handles
-        ["tl", "tr", "bl", "br"].forEach((direction, index) => {
+        // create 4 corner handles and 3 edge handles
+        ["tl", "tr", "bl", "br", "mr", "bm", "ml"].forEach((direction, index) => {
             let el = document.createElement("div");
             el.classList.add("direction");
             el.classList.add(direction);
@@ -57,7 +57,7 @@ export class Resizable {
                 let move = function(event) {
                     let x = event.clientX / window.innerWidth;
                     let y = event.clientY / window.innerHeight;
-                    this.moveCorner(direction, x, y);
+                    this.resize(direction, x, y);
                 }.bind(this);
                 window.addEventListener("mousemove", move);
                 document.addEventListener("mouseup", (e) => {
@@ -112,7 +112,7 @@ export class Resizable {
      * @param x relative position to move to (0-1)
      * @param y relative position to move to (0-1)
      */
-    moveCorner(corner, x, y) {
+    resize(corner, x, y) {
         x = x < 0 ? 0 : x > 1 ? 1 : x;
         y = y < 0 ? 0 : y > 1 ? 1 : y;
         switch(corner) {
@@ -120,6 +120,9 @@ export class Resizable {
             case "tr": this.right = x; this.top = y; break;
             case "bl": this.left = x; this.bottom = y; break;
             case "br": this.right = x; this.bottom = y; break;
+            case "ml": this.left = x; break;
+            case "mr": this.right = x; break;
+            case "bm": this.bottom = y; break;
             default: return;
         }
         this.redraw();
