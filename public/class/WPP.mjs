@@ -3,6 +3,7 @@ export class WPP {
     static ErrorNoType = "Group is missing a type";
     static ErrorTypeHasMultipleNames = "Type has multiple names";
     static ErrorBadAttribute = "Could not parse attribute";
+    static ErrorNotWPP = "Target is not W++";
 
     static Reg = new RegExp(/([)}] *[^\({ ]*)( +)([^\({]*[\({])/g);
 
@@ -59,12 +60,8 @@ export class WPP {
             appendix = appendix.replace(/^\s*[\r\n]/gm, "\n")
         }
         let matches = string.match(/[\[{][^\]}]*[\]}]\]?/g);
-        if(!matches) {
-            throw { error: WPP.ErrorNoGroups, value: string };
-        }
-        let wpp = WPP.parse(matches ? matches.join("\n") : null);
         return {
-            wpp: wpp,
+            wpp: !matches ? [] : WPP.parse(matches.join("\n")),
             appendix: appendix,
         };
     }
@@ -107,6 +104,7 @@ export class WPP {
             text = text.replace(WPP.Reg, "$1#$3");
         }
         return text
+            .replace(/\r/g, "")
             .replace(/\s+(?=((\\[\\"]|[^\\"])*"(\\[\\"]|[^\\"])*")*(\\[\\"]|[^\\"])*$)/g, "")
             .replace(/#/g, " ")
         ;
@@ -123,5 +121,56 @@ export class WPP {
             name: attr,
             value: vals
         };
+    }
+
+    /**
+     * Merges w1 into w2 and returns result. Does not change source.
+     * @param w1 WPP
+     * @param w2 WPP
+     */
+    static getMerged(w1, w2) {
+        if((!w1 || !w1.length) && (!w2 || !w2.length)) { return []; }
+        if(!w1 || !w1.length) { return JSON.parse(JSON.stringify(w2)); }
+        if(!w2 || !w2.length) { return JSON.parse(JSON.stringify(w1)); }
+        if(!Array.isArray(w1) || !Array.isArray(w1)) { throw WPP.ErrorNotWPP; }
+        w1 = JSON.parse(JSON.stringify(w1));
+        w2 = JSON.parse(JSON.stringify(w2));
+        w1.forEach(acceptor => {
+            if(acceptor.type && acceptor.type.length && acceptor.name && acceptor.name.length) {
+                for(let j = 0; j < w2.length; j++) {
+                    const donor = w2[j];
+                    if(donor.type === acceptor.type && donor.name === acceptor.name) {
+                        for(let key in donor.properties) {
+                            if(acceptor.properties[key]) {
+                                acceptor.properties[key] = acceptor.properties[key]
+                                    .concat(donor.properties[key])
+                                    .filter((v, i, a) => a.indexOf(v) === i)
+                            } else {
+                                acceptor.properties[key] = donor.properties[key];
+                            }
+                        }
+                        w2.splice(j, 1);
+                        break;
+                    }
+                }
+            }
+        });
+        return w1.concat(w2);
+    }
+
+    /**
+     * Removes all empty items from WPP
+     * @param wpp Source W++ to trim
+     */
+    static trim(wpp) {
+        if(!Array.isArray(wpp) || !Array.isArray(wpp)) { throw WPP.ErrorNotWPP; }
+        wpp = JSON.parse(JSON.stringify(wpp));
+        for(let i = 0; i < wpp.length; i++) {
+            if((!wpp[i].name || !wpp[i].name.length) && (!wpp[i].name || !wpp[i].name.length)) {
+                wpp.splice(i, 1);
+                i--;
+            }
+        }
+        return wpp;
     }
 }
