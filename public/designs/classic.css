@@ -511,6 +511,15 @@ textarea {
     height: 200px;
     margin-top: 0px;
 }
+#description_wppeditor{
+    height: 200px;
+    width: 92%;
+    margin-top: 0px;
+    border: 0px solid gray;
+    box-shadow: 0 0 2px rgba(200,200,200,0.5);
+    padding: 10px;
+    background: #13152c;
+}
 #character_name_pole{
     width: 92%;
 }
@@ -862,6 +871,19 @@ input[type=submit], input[type=button] {
     margin-top: 6px;
     
 }
+#description_div > input {
+    float: right;
+    margin-right: 2em;
+}
+#description_div > label {
+    float: right;
+    font-size: 75%;
+    line-height: 0.8em;
+    opacity: 0.75;
+    margin-top: 0.75ex;
+    text-align: center;
+}
+
 #first_message_div {
     margin-top: 20px;
 }
@@ -947,6 +969,143 @@ input[type=submit], input[type=button] {
     color: #ffffff33;
 }
 
+/* WPP Editor */
+.wpp-editor {
+    position: relative;
+    white-space: nowrap;
+    overflow: auto;
+}
+.wpp-editor .editor {
+    height: 100%;
+}
+
+.wpp-editor .help {
+    position: absolute;
+    top: 0;
+    right: 0;
+    border: 1px solid #ccc;
+    height: 1.25em;
+    width: 1.25em;
+    line-height: 1.05em;
+    background: #191b31F5;
+    vertical-align: middle;
+    text-align: center;
+    border-radius: 50%;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.wpp-editor input {
+    color: #ccc;
+    background-color: transparent;
+    width: 8em;
+    height: 1.4em;
+    margin-bottom: 2px;
+    border: 1px solid #ccc;
+}
+.wpp-editor input:first-child {
+    text-align: center;
+    border-bottom-left-radius: 1ex;
+    border-top-left-radius: 1ex;
+    color: #333;
+    background-color: #fff;
+}
+.wpp-editor .props input:first-child {
+    color: #333;
+    background-color: #ccc;
+}
+.wpp-editor input:last-child {
+    border-bottom-right-radius: 1ex;
+    border-top-right-radius: 1ex;
+}
+.wpp-editor input.empty {
+    opacity: 0.5;
+}
+.wpp-editor input:disabled {
+    opacity: 0.25;
+}
+
+.wpp-editor .props > div { /* row */
+    display: block;
+}
+.wpp-editor .alert {
+    position: absolute;
+    bottom: 0;
+    height: 2.5em;
+    width: 100%;
+    color: #222;
+    background-color: #791b31;
+    text-align: center;
+}
+
+.wpp-editor .alert .text {
+    position: absolute;
+    left: 1em;
+    bottom: 1ex;
+    right: 1em;
+    height: 1.5em;
+}
+
+.wpp-editor .alert .close {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    height: 1.25em;
+    width: 1.25em;
+    font-size: 2em;
+    line-height: 1.25em;
+    vertical-align: center;
+    cursor: pointer;
+}
+
+.wpp-editor .alert.hidden {
+    display: none;
+}
+
+.wpp-editor label {
+    display: inline-block;
+    color: #ddd;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    border: 1px solid #ccc;
+    height: 1.2em;
+    width: 1.2em;
+    line-height: 1.2em;
+    vertical-align: middle;
+    text-align: center;
+    transform: translateY(-0.1em);
+    border-radius: 0 1ex 1ex 0 ;
+}
+.wpp-editor .empty ~ label {
+    opacity: 0.5;
+    cursor: auto;
+    pointer-events: none;
+}
+.wpp-editor label:hover {
+    color: #fff;
+}
+.wpp-editor label input {
+    display: none;
+}
+.wpp-editor input:checked + label  {
+    transform: translateY(-0.1em) rotate(-90deg);
+    border-radius: 0 0 1ex 1ex;
+}
+.wpp-editor input[type=checkbox] {
+    display: none;
+}
+.wpp-editor input:checked + label + .props  {
+    display: none;
+}
+
+
+
 
 /*Popups*/
 .popup_large {
@@ -970,7 +1129,6 @@ input[type=submit], input[type=button] {
 }
 .popup_large_header {
     margin-left: 36px;
-    
 }
 
 .popup_cross {

@@ -1,5 +1,7 @@
 import {encode, decode} from "../scripts/gpt-2-3-tokenizer/mod.js";
 import {Notes} from "./class/Notes.mjs";
+import {WPP} from "./class/WPP.mjs";
+import {WPPEditor} from "./class/WPPEditor.mjs";
 
 $(document).ready(function(){
     /*
@@ -156,6 +158,7 @@ $(document).ready(function(){
     var character_anchor = true;
 
     var winNotes;
+    var editorDescriptionWPP;
 
     var main_api = 'kobold';
     
@@ -211,7 +214,22 @@ $(document).ready(function(){
             console.error(exception);
         }
     });
-    
+
+    editorDescriptionWPP = new WPPEditor({
+        container: $('#description_wppeditor')[0],
+    });
+    editorDescriptionWPP.on("change", function(event) {
+        $("#description_textarea").val(event.target.text);
+
+        if(menu_type == 'create'){
+            create_save_description = $('#description_textarea').val();
+        }else{
+            if(timerSaveEdit) { clearTimeout(timerSaveEdit) };
+            timerSaveEdit = setTimeout(() => {$("#create_button").click();},durationSaveEdit);
+        }
+    }.bind(this));
+
+
     $('#send_textarea').on('input', function () {
         
         if($('#send_textarea').css('--autoresize') === 'true'){
@@ -1612,7 +1630,13 @@ $(document).ready(function(){
         
         $( "#rm_button_selected_ch" ).children("h2").removeClass('seleced_button_style');
         $( "#rm_button_selected_ch" ).children("h2").addClass('deselected_button_style');
-        
+
+        // Reset W++ editor
+        document.getElementById("description_wpp_checkbox").checked = false;
+        document.getElementById("description_textarea").style.display = null;
+        document.getElementById("description_wppeditor").style.display = "none";
+        editorDescriptionWPP.clear();
+        editorDescriptionWPP.text = "";
 
         //create text poles
         $("#rm_button_back").css("display", "inline-block");
@@ -1723,6 +1747,10 @@ $(document).ready(function(){
         $("#avatar_url_pole").val(characters[chid].avatar);
         $("#chat_import_avatar_url").val(characters[chid].avatar);
         $("#chat_import_character_name").val(characters[chid].name);
+
+        editorDescriptionWPP.clear();
+        editorDescriptionWPP.text = characters[chid].description;
+
         //$("#avatar_div").css("display", "none");
         var this_avatar = default_avatar;
         if(characters[chid].avatar != 'none'){
@@ -2316,13 +2344,14 @@ $(document).ready(function(){
         }
 
     });
-    $('#description_textarea').on('keyup paste cut', function(){//change keyup paste cut
+    $('#description_textarea').on('keyup paste cut', function(){
         if(menu_type == 'create'){
             create_save_description = $('#description_textarea').val();
         }else{
+            editorDescriptionWPP.text = $('#description_textarea').val();
+            if(timerSaveEdit) { clearTimeout(timerSaveEdit) };
             timerSaveEdit = setTimeout(() => {$("#create_button").click();},durationSaveEdit);
         }
-
     });
     $('#personality_textarea').on('keyup paste cut', function(){
         if(menu_type == 'create'){
@@ -2862,7 +2891,18 @@ $(document).ready(function(){
         free_char_name_mode = !!$('#free_char_name_mode').prop('checked');
         saveSettings();
     });
-    
+
+    document.getElementById("description_wppeditor").style.display = "none";
+    document.getElementById("description_wpp_checkbox").checked = false;
+    $('#description_wpp_checkbox').change(function() {
+        if($('#description_wpp_checkbox').prop('checked')) {
+            document.getElementById("description_textarea").style.display = "none";
+            document.getElementById("description_wppeditor").style.display = null;
+        } else {
+            document.getElementById("description_textarea").style.display = null;
+            document.getElementById("description_wppeditor").style.display = "none";
+        }
+    });
 
     //Novel
     $(document).on('input', '#temp_novel', function() {
