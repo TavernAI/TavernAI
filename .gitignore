@@ -1,7 +1,0 @@
-node_modules/*
-public/characters/*
-public/chats/*
-uploads/*
-public/settings.json
-nbproject/*
-.gitignore
