@@ -1948,6 +1948,20 @@ label.checkbox :checked + span:after {
     white-space: pre;
 }
 
+#notes_popup div.wpp-editor {
+      height: calc(100% - 9ex);
+      width: calc(100% - 2ex);
+      display: inline-block;
+      background-color: #13152c;
+      outline: none;
+      border:0px solid grey;
+      box-shadow: 0 0 2px rgba(200,200,200,0.5);
+      padding: 10px;
+      color: #e6e6e6;
+      margin: 1em 1ex 0px 1ex;
+      white-space: pre;
+  }
+
 #chat_import_button {
     margin-top: 15px;
     margin-left: 13px;

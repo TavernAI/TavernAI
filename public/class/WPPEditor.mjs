@@ -388,6 +388,14 @@ export class WPPEditor extends EventEmitter {
         return this.getText();
     }
 
+    get display() {
+        return this.container.style.display;
+    }
+
+    set display(value) {
+        this.container.style.display = value;
+    }
+
     getText(format) {
         let str = WPP.stringify(this._wpp, format);
         if(format === "line") {

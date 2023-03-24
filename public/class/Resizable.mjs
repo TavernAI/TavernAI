@@ -22,9 +22,14 @@ export class Resizable {
      */
     constructor(options) {
         this.root = options.root;
-        this.root[0].classList.add("modular");
-        this.root[0].classList.add("resizable");
-        this.container = options.root.find(".container");
+        this.root.classList.add("modular");
+        this.root.classList.add("resizable");
+        for(let i = 0; i < this.root.children.length; i++) {
+            if(this.root.children[i].classList.contains("container")) {
+                this.container = this.root.children[i];
+                break;
+            }
+        }
         this.uid = options.uid || undefined;
         if(options.uid && !options.forceDefault) {
             let coords = window.localStorage.getItem(options.uid + "-coords");
@@ -41,7 +46,7 @@ export class Resizable {
         this.right = options.right;
         this.bottom = options.bottom;
         this.redraw();
-        this.container.attr("class", "container");
+        this.container.setAttribute("class", "container");
 
         // create 4 edge handles
         ["tl", "tr", "bl", "br"].forEach((direction, index) => {
@@ -65,7 +70,7 @@ export class Resizable {
                 }, true);
                 event.preventDefault();
             }.bind(this));
-            this.container[0].appendChild(el);
+            this.container.appendChild(el);
         });
 
         // create central grabber
@@ -86,12 +91,18 @@ export class Resizable {
             }, true);
             event.preventDefault();
         }.bind(this));
-        this.container[0].appendChild(el);
+        this.container.appendChild(el);
 
         // binds a .cross child to close window
-        let cross = this.container.find(".cross");
+        let cross;
+        for(let i = 0; i < this.container.children.length; i++) {
+            if(this.container.children[i].classList.contains("cross")) {
+                cross = this.container.children[i];
+                break;
+            }
+        }
         if(cross) {
-            cross.on('click', this.toggle.bind(this));
+            cross.onclick = this.toggle.bind(this);
         }
     }
 
@@ -142,10 +153,10 @@ export class Resizable {
 
     /** Sets position of all corners */
     redraw() {
-        this.container[0].style.left = (this.edge(this.left)*100) + "%";
-        this.container[0].style.right = ((1-this.edge(this.right))*100) + "%";
-        this.container[0].style.top = (this.edge(this.top)*100) + "%";
-        this.container[0].style.bottom = ((1-this.edge(this.bottom))*100) + "%";
+        this.container.style.left = (this.edge(this.left)*100) + "%";
+        this.container.style.right = ((1-this.edge(this.right))*100) + "%";
+        this.container.style.top = (this.edge(this.top)*100) + "%";
+        this.container.style.bottom = ((1-this.edge(this.bottom))*100) + "%";
     }
 
     /** If shown, hides, and vice versa */
@@ -162,7 +173,7 @@ export class Resizable {
         if(!this.container) { return; }
         if(this.shown) { return; }
         this.shown = true;
-        this.root[0].classList.add("shown");
+        this.root.classList.add("shown");
     }
 
     /** Shows window */
@@ -170,7 +181,7 @@ export class Resizable {
         if(!this.container) { return; }
         if(!this.shown) { return; }
         this.shown = false;
-        this.root[0].classList.remove("shown");
+        this.root.classList.remove("shown");
     }
 }
 
