@@ -14,8 +14,7 @@ export class Notes extends Resizable {
     select;
     timerSave;
     durationSave = 300;
-    save;
-    strategy = "chat";
+    saveFunction;
 
     /**
      * @param options
@@ -31,7 +30,7 @@ export class Notes extends Resizable {
             right: 0.7,
             bottom: 0.7
         });
-        this.save = options.save || null;
+        this.saveFunction = options.save || null;
 
         for(let i = 0; i < this.container.children.length; i++) {
             const child = this.container.children[i];
@@ -69,13 +68,15 @@ export class Notes extends Resizable {
         if(this.select) {
             this.select.onchange = function() {
                 if(this.select.value === "wpp") {
-                    this.updateNotesTokenCount(true);
                     this.textarea.style.display = "none";
                     this._wpp.display = null;
                 } else {
-                    this.updateNotesTokenCount();
                     this.textarea.style.display = null;
                     this._wpp.display = "none";
+                }
+                this.updateNotesTokenCount();
+                if(this.saveFunction) {
+                    this.saveFunction();
                 }
             }.bind(this);
             for(let index = 0; index < this.select.children.length; index++) {
@@ -91,15 +92,7 @@ export class Notes extends Resizable {
             this._wpp.display = "none";
             this._wpp.on("change", function() {
                 this.updateNotesTokenCount();
-                if(this.timerSave) {
-                    clearTimeout(this.timerSave);
-                }
-                this.timerSave = setTimeout(() => {
-                    this.timerSave = null;
-                    if(this.save) {
-                        this.save();
-                    }
-                }, this.durationSave);
+                this.save();
                 let text = this._wpp.getText();
                 this.textarea.value = text + (this.appendix ? this.appendix : "");
             }.bind(this));
@@ -107,15 +100,7 @@ export class Notes extends Resizable {
 
         this.textarea.onkeyup = function() {
             this.updateNotesTokenCount();
-            if(this.timerSave) {
-                clearTimeout(this.timerSave);
-            }
-            this.timerSave = setTimeout(() => {
-                this.timerSave = null;
-                if(this.save) {
-                    this.save();
-                }
-            }, this.durationSave);
+            this.save();
             let parsed = WPP.parseExtended(this.textarea.value);
             this.appendix = parsed.appendix || null;
             this._wpp.clear();
@@ -127,7 +112,7 @@ export class Notes extends Resizable {
         $(document).on('click', '.option_toggle_notes', this.toggle.bind(this));
     }
 
-    /** Sets w++ contents */
+    /** w++ contents */
     set wpp(value) {
         if(!this.container) { return; }
         if(!this._wpp) { return; }
@@ -139,6 +124,20 @@ export class Notes extends Resizable {
         if(!this.container) { return; }
         if(!this._wpp) { return; }
         return this._wpp.wpp;
+    }
+
+    /** W++Extended contents */
+    set wppx(wppx) {
+        if(!wppx.wpp) { return; }
+        this.appendix = wppx.appendix && wppx.appendix.length ? wppx.appendix : null;
+        this.wpp = wppx.wpp;
+    }
+
+    get wppx() {
+        return {
+            wpp: this.wpp,
+            appendix: this.appendix && this.appendix.length ? this.appendix : null
+        }
     }
 
     /** Sets textarea contents */
@@ -156,9 +155,37 @@ export class Notes extends Resizable {
     /** Returns textarea contents */
     get text() {
         if(!this.textarea) { return; }
-        let text = this._wpp.getText("line") || "";
-        text += (this.appendix ? this.appendix : "");
-        return text;
+        return this.textarea.value;
+    }
+
+    /** Startegy select */
+    set strategy(value) {
+        if(!this.select) { return; }
+        for(let i = 0; i < this.select.children.length; i++) {
+            const v = this.select.children[i];
+            if(v.value === value) {
+                v.setAttribute("selected", "selected");
+            } else {
+                v.removeAttribute("selected");
+            }
+        }
+    }
+    get strategy() {
+        if(!this.select) { return; }
+        return this.select.value;
+    }
+
+    save() {
+        if(!this.saveFunction) { return; }
+        if(this.timerSave) {
+            clearTimeout(this.timerSave);
+        }
+        this.timerSave = setTimeout(() => {
+            this.timerSave = null;
+            if(this.saveFunction) {
+                this.saveFunction();
+            }
+        }, this.durationSave);
     }
 
     /** Returns formatted text

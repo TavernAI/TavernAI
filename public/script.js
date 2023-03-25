@@ -870,9 +870,10 @@ $(document).ready(function(){
             var charPersonality = $.trim(characters[this_chid].personality);
 
             let wDesc = WPP.parseExtended(charDescription);
-            charDescription = WPP.stringify(wDesc.wpp, "line") + (wDesc.appendix || "");
-            if($('#notes_strategy').val() === 'discr' && $.trim(winNotes.text).length > 0 && settings.notes){
-                charDescription += '\n'+$.trim(winNotes.text);
+            if(settings.notes && winNotes.strategy === "discr") {
+                charDescription = WPP.stringifyExtended(WPP.getMergedExtended(wDesc, winNotes.wppx), "line");
+            } else {
+                charDescription = WPP.stringifyExtended(wDesc, "line");
             }
             charDescription = $.trim(charDescription);
             var Scenario = $.trim(characters[this_chid].scenario);
@@ -1450,7 +1451,7 @@ $(document).ready(function(){
                 }
             }
         });
-        var save_chat = [{user_name:default_user_name, character_name:name2,create_date: chat_create_date, notes: winNotes.text, notes_type: $('#notes_strategy').val()}, ...chat];
+        var save_chat = [{user_name:default_user_name, character_name:name2,create_date: chat_create_date, notes: winNotes.text, notes_type: winNotes.strategy}, ...chat];
 
         jQuery.ajax({    
             type: 'POST', 
@@ -1496,15 +1497,17 @@ $(document).ready(function(){
                     //chat =  data;
                     chat_create_date = chat[0]['create_date'];
                     winNotes.text = chat[0].notes || "";
-                    $('#notes_strategy').val(chat[0].notes_type || "discr");
-                    let defaultWpp = '[Character("'+characters[this_chid].name+'"){}]';
-                    try {
-                        let parsed = WPP.parse(characters[this_chid].description);
-                        if(parsed[0] && parsed[0].type && parsed[0].type.length && parsed[0].name && parsed[0].name.length) {
-                            defaultWpp = '[' + parsed[0].type + '("' + parsed[0].name + '"){}]';
-                        }
-                    } catch(e) { /* ignore error */ }
-                    winNotes.wppText = chat[0].notes_wpp && chat[0].notes_wpp.length ? chat[0].notes_wpp : defaultWpp;
+                    winNotes.strategy = chat[0].notes_type || "discr";
+                    if(!winNotes.text || !winNotes.text.length) {
+                        let defaultWpp = '[Character("'+characters[this_chid].name+'"){}]';
+                        try {
+                            let parsed = WPP.parse(characters[this_chid].description);
+                            if(parsed[0] && parsed[0].type && parsed[0].type.length && parsed[0].name && parsed[0].name.length) {
+                                defaultWpp = '[' + parsed[0].type + '("' + parsed[0].name + '"){}]';
+                            }
+                        } catch(e) { /* ignore error */ }
+                        winNotes.wppText = defaultWpp;
+                    }
                     chat.shift();
 
                 }else{
@@ -2556,9 +2559,6 @@ $(document).ready(function(){
         $("#chat").children().filter('[mesid="'+(count_view_mes-1)+'"]').children('.swipe_right').css('display', 'none');
         $("#chat").children().filter('[mesid="'+(count_view_mes-1)+'"]').children('.swipe_left').css('display', 'none');
     }
-    $("#notes_strategy").change(function() {
-        saveChat();
-    });
     $( "#settings_perset" ).change(function() {
 
         if($('#settings_perset').find(":selected").val() != 'gui'){

@@ -4,6 +4,7 @@ export class WPP {
     static ErrorTypeHasMultipleNames = "Type has multiple names";
     static ErrorBadAttribute = "Could not parse attribute";
     static ErrorNotWPP = "Target is not W++";
+    static ErrorNotWPPExtended = "Target is not W++ with appendix";
 
     static Reg = new RegExp(/([)}] *[^\({ ]*)( +)([^\({]*[\({])/g);
 
@@ -93,6 +94,13 @@ export class WPP {
         return all;
     }
 
+    static stringifyExtended(wppX, mode = "normal") {
+        if(!wppX || !wppX.wpp) { throw WPP.ErrorNotWPPExtended; }
+        const trimmed = WPP.trim(wppX.wpp);
+        const str = WPP.stringify(trimmed, mode);
+        return (trimmed.length && str && str.length ? str : "") + (wppX.appendix && wppX.appendix.length ? wppX.appendix : "");
+    }
+
     static validate(wpp) {
         return WPP.parse(WPP.stringify(wpp));
     }
@@ -156,6 +164,15 @@ export class WPP {
             }
         });
         return w1.concat(w2);
+    }
+
+    static getMergedExtended(w1X, w2X) {
+        if(!w1X || !w1X.wpp || !w2X || !w2X.wpp) { throw this.ErrorNotWPPExtended; }
+        let wX = WPP.getMerged(w1X.wpp, w2X.wpp);
+        let appendix = (w1X.appendix && w1X.appendix.length ? w1X.appendix : "") +
+            (w1X.appendix && w1X.appendix.length && w2X.appendix && w2X.appendix.length ? "\n" : "") +
+            (w2X.appendix && w2X.appendix.length ? w2X.appendix : "");
+        return { wpp: wX, appendix: appendix.length ? appendix : null };
     }
 
     /**
