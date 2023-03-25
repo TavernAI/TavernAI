@@ -981,3 +981,15 @@ a {
     width: 20px;
     height: 20px;
 }
+
+.modular .container {
+    background: rgba(36,37,37,1.00);
+}
+
+#notes_popup textarea {
+    background-color: #ffffff00;
+}
+
+#notes_popup div.wpp-editor {
+    background-color: #ffffff00;
+}
