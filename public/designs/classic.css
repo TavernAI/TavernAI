@@ -1931,7 +1931,13 @@ label.checkbox :checked + span:after {
 #notes_popup select {
     margin: 1ex;
     width: calc(100% - 2ex);
+    background-color: rgb (45,46,67);
+    
 }
+#notes_popup option {
+    background-color: #13152c;
+}
+
 #notes_popup textarea {
     --autoresize: false;
     height: calc(100% - 9ex);
@@ -2564,3 +2570,4 @@ label.checkbox :checked + span:after {
 #search_bar::placeholder  {
     color: white;
 }
+
