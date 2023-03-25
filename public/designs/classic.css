@@ -1956,7 +1956,8 @@ label.checkbox :checked + span:after {
     padding: 10px;
     color: #e6e6e6;
     margin: 1em 1ex 0px 1ex;
-    white-space: pre;
+    white-space: pre-wrap; 
+    overflow-wrap: break-word;
 }
 
 #notes_popup div.wpp-editor {
