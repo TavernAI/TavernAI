@@ -999,6 +999,7 @@ input[type=submit], input[type=button] {
 }
 
 .wpp-editor input {
+    font-size: 0.92em;
     color: #ccc;
     background-color: transparent;
     width: 8em;
@@ -1513,6 +1514,7 @@ input[type="range"]::-ms-thumb {
     display: none;
 }
 
+
 /*lock toggle*/
 .toggle_lock[type="checkbox"] {
     -webkit-appearance: none;
@@ -1840,7 +1842,6 @@ label.checkbox :checked + span:after {
     background: none;
 }
 .shadow:not(.shown) {
-    opacity: 0;
     display: none;
 }
 
@@ -1858,9 +1859,10 @@ label.checkbox :checked + span:after {
     height: 2em;
     cursor: pointer;
     opacity: 0;
-    transition: transform 0.5s;
+    transition: transform 0.45s;
 }
 .modular .direction:after {
+    opacity: 0.72;
     content: " ";
     position: absolute;
     border: 1em solid white;
@@ -1871,16 +1873,16 @@ label.checkbox :checked + span:after {
 }
 
 .direction.tl, .direction.tr, .direction.br, .direction.bl {
-    transform: scale(75%);
+    transform: scale(45%);
 }
 .direction.tl:hover, .direction.tr:hover, .direction.br:hover, .direction.bl:hover {
-    transform: scale(125%);
+    transform: scale(65%);
 }
 
-.direction.tm:after { transform: translateY(-1em); }
-.direction.mr:after { transform: translateX(1em); }
-.direction.bm:after { transform: translateY(1em); }
-.direction.ml:after { transform: translateX(-1em); }
+.direction.tm:after { transform: translateY(-1em); transform: scale(65%);}
+.direction.mr:after { transform: translateX(1em); transform: scale(65%);}
+.direction.bm:after { transform: translateY(1em); transform: scale(65%);}
+.direction.ml:after { transform: translateX(-1em); transform: scale(65%);}
 
 .direction.p-0-0, .direction.tl { left: -1em; top: -1em; cursor: nw-resize; }
 .direction.p-1-0, .direction.tm { left: calc(50% - 1em); top: -1.5em; cursor: ns-resize; }
@@ -1894,17 +1896,17 @@ label.checkbox :checked + span:after {
 .direction.p-0-0:after, .direction.tl:after { border-color: white transparent transparent white; }
 .direction.p-1-0:after, .direction.tm:after { border-color: transparent transparent white transparent; }
 .direction.p-2-0:after, .direction.tr:after { border-color: white white transparent transparent; }
-.direction.p-2-1:after, .direction.mr:after { border-color: transparent transparent transparent white; }
+.direction.p-2-1:after, .direction.mr:after { border-color: transparent transparent transparent white; right: -0.5em;}
 .direction.p-2-2:after, .direction.br:after { border-color: transparent white white transparent; }
-.direction.p-1-2:after, .direction.bm:after { border-color: white transparent transparent transparent; }
+.direction.p-1-2:after, .direction.bm:after { border-color: white transparent transparent transparent; bottom: -0.5em;}
 .direction.p-0-2:after, .direction.bl:after { border-color: transparent transparent white white; }
-.direction.p-0-1:after, .direction.ml:after { border-color: transparent white transparent transparent; }
+.direction.p-0-1:after, .direction.ml:after { border-color: transparent white transparent transparent; right: 0.5em;}
 
 .modular .move {
     position: absolute;
     top: 0.5ex;
-    left: calc(50% - 4em);
-    right: calc(50% - 4em);
+    left: calc(25% + 1em);
+    right: calc(25% + 1em);
     height: 2em;
     border-radius: 1ex;
     transition: opacity 0.5s;
@@ -1913,7 +1915,7 @@ label.checkbox :checked + span:after {
     cursor: grab;
 }
 .modular .move:hover {
-    opacity: 0.5;
+    opacity: 0.12;
 }
 .modular .cross {
     position: absolute;
@@ -1927,11 +1929,15 @@ label.checkbox :checked + span:after {
     pointer-events: none;
 }
 
+
 #notes_popup .notes_token_stat {
     position: absolute;
     top: 1em;
     left: 2.5em;
-    width: 90%;
+    width: 40%;
+}
+.notes_token_stat .h5_menu_help {
+    display: inline-block;
 }
 #notes_popup select {
     margin: 1ex;
@@ -1939,13 +1945,49 @@ label.checkbox :checked + span:after {
     background-color: rgb (45,46,67);
     
 }
+#notes_popup .move {
+    top: 0.75ex;
+}
+
+#notes_wpp_label,
+#notes_wpp_checkbox {
+    float: right;
+}
+
+#notes_wpp_checkbox {
+    margin-right: 2.5em;
+}
+
+#notes_popup {
+    padding-top: 0.75ex;
+
+}
+
+#notes_popup > label {
+    display: inline-block;
+    font-size: 75%;
+    line-height: 0.8em;
+    opacity: 0.75;
+    margin-top: 0.75ex;
+    text-align: center;
+}
+#notes_enable_label {
+    margin-top: 1em !important;
+}
 #notes_popup option {
     background-color: #13152c;
 }
+#notes_wpp_label,
+#notes_wpp_checkbox {
+    float: right;
+}
 
+#notes_wpp_checkbox {
+    margin-right: 2.5em;
+}
 #notes_popup textarea {
     --autoresize: false;
-    height: calc(100% - 9ex);
+    height: calc(100% - 14ex);
     width: calc(100% - 2ex);
     resize: none;
     display: inline-block;
@@ -1961,7 +2003,7 @@ label.checkbox :checked + span:after {
 }
 
 #notes_popup div.wpp-editor {
-      height: calc(100% - 9ex);
+      height: calc(100% - 13ex);
       width: calc(100% - 2ex);
       display: inline-block;
       background-color: #13152c;

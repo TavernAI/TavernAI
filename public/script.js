@@ -871,18 +871,8 @@ $(document).ready(function(){
 
             let wDesc = WPP.parseExtended(charDescription);
             charDescription = WPP.stringify(wDesc.wpp, "line") + (wDesc.appendix || "");
-
-            if(settings.notes) {
-                switch (winNotes.strategy) {
-                    case "char":
-                        charDescription += "\n" + winNotes.getText();
-                        break;
-                    case "wpp":
-                        let w1 = WPP.parseExtended(charDescription);
-                        w1.wpp = WPP.trim(WPP.getMerged(w1.wpp, winNotes.wpp));
-                        charDescription = (w1.wpp.length ? WPP.stringify(w1.wpp, "line") : "") + (w1.appendix && w1.appendix.length ? (w1.wpp.length ? "\n" : "") + w1.appendix : "");
-                        break;
-                }
+            if($('#notes_strategy').val() === 'discr' && $.trim(winNotes.text).length > 0 && settings.notes){
+                charDescription += '\n'+$.trim(winNotes.text);
             }
             charDescription = $.trim(charDescription);
             var Scenario = $.trim(characters[this_chid].scenario);
@@ -1460,7 +1450,7 @@ $(document).ready(function(){
                 }
             }
         });
-        var save_chat = [{user_name:default_user_name, character_name:name2,create_date: chat_create_date,notes: winNotes.text, notes_wpp: winNotes.wppTextLine}, ...chat];
+        var save_chat = [{user_name:default_user_name, character_name:name2,create_date: chat_create_date, notes: winNotes.text, notes_type: $('#notes_strategy').val()}, ...chat];
 
         jQuery.ajax({    
             type: 'POST', 
@@ -1506,6 +1496,7 @@ $(document).ready(function(){
                     //chat =  data;
                     chat_create_date = chat[0]['create_date'];
                     winNotes.text = chat[0].notes || "";
+                    $('#notes_strategy').val(chat[0].notes_type || "discr");
                     let defaultWpp = '[Character("'+characters[this_chid].name+'"){}]';
                     try {
                         let parsed = WPP.parse(characters[this_chid].description);
@@ -2057,7 +2048,22 @@ $(document).ready(function(){
             $('#master_settings_popup').css('display', 'none');
         }
     });
-
+    $('#option_toggle_notes').click(function() {
+        showHideNotes();
+    });
+    $('#notes_wpp_cross').click(function() {
+        showHideNotes();
+    });
+    function showHideNotes(){
+        if(winNotes.shown){
+            $('#shadow_notes_popup').transition({ opacity: 0.0 ,duration: animation_rm_duration, easing:animation_rm_easing, complete: function(){
+                winNotes.hide();
+            }});
+        }else{
+            $('#shadow_notes_popup').transition({ opacity: 0.0 ,duration: 1, easing:animation_rm_easing});
+            $('#shadow_notes_popup').transition({ opacity: 1.0 ,duration: animation_rm_duration, easing:animation_rm_easing});
+        }
+    }
     $("#dialogue_popup_ok").click(function(){
         $("#shadow_popup").css('display', 'none');
         $("#shadow_popup").css('opacity:', 0.0);
@@ -2366,13 +2372,16 @@ $(document).ready(function(){
 
     });
     $('#description_textarea').on('keyup paste cut', function(){
-        if(menu_type == 'create'){
+        if(menu_type === 'create'){
             create_save_description = $('#description_textarea').val();
         }else{
             editorDescriptionWPP.text = $('#description_textarea').val();
             if(timerSaveEdit) { clearTimeout(timerSaveEdit) };
             timerSaveEdit = setTimeout(() => {$("#create_button").click();},durationSaveEdit);
         }
+    });
+    $('#notes_textarea').on('keyup paste cut', function(){
+        
     });
     $('#personality_textarea').on('keyup paste cut', function(){
         if(menu_type == 'create'){
@@ -2547,7 +2556,9 @@ $(document).ready(function(){
         $("#chat").children().filter('[mesid="'+(count_view_mes-1)+'"]').children('.swipe_right').css('display', 'none');
         $("#chat").children().filter('[mesid="'+(count_view_mes-1)+'"]').children('.swipe_left').css('display', 'none');
     }
-    
+    $("#notes_strategy").change(function() {
+        saveChat();
+    });
     $( "#settings_perset" ).change(function() {
 
         if($('#settings_perset').find(":selected").val() != 'gui'){
@@ -2917,11 +2928,30 @@ $(document).ready(function(){
     document.getElementById("description_wpp_checkbox").checked = false;
     $('#description_wpp_checkbox').change(function() {
         if($('#description_wpp_checkbox').prop('checked')) {
-            document.getElementById("description_textarea").style.display = "none";
             document.getElementById("description_wppeditor").style.display = null;
+            document.getElementById("description_textarea").style.display = "none";
+            $('#description_wppeditor').css('opacity', 0.0);
+            $('#description_wppeditor').transition({ opacity: 1.0 ,duration: 410, easing:animation_rm_easing});
+            
         } else {
             document.getElementById("description_textarea").style.display = null;
             document.getElementById("description_wppeditor").style.display = "none";
+            $('#description_textarea').css('opacity', 0.0);
+            $('#description_textarea').transition({ opacity: 1.0 ,duration: 410, easing:animation_rm_easing});
+        }
+    });
+    $('#notes_wpp_checkbox').change(function() {
+        if($('#notes_wpp_checkbox').prop('checked')) {
+            document.getElementById("notes_wpp_editor").style.display = null;
+            document.getElementById("notes_textarea").style.display = "none";
+            $('#notes_wpp_editor').css('opacity', 0.0);
+            $('#notes_wpp_editor').transition({ opacity: 1.0 ,duration: 410, easing:animation_rm_easing});
+            
+        } else {
+            document.getElementById("notes_textarea").style.display = null;
+            document.getElementById("notes_wpp_editor").style.display = "none";
+            $('#notes_textarea').css('opacity', 0.0);
+            $('#notes_textarea').transition({ opacity: 1.0 ,duration: 410, easing:animation_rm_easing});
         }
     });
 

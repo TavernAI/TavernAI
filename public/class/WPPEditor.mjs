@@ -397,7 +397,7 @@ export class WPPEditor extends EventEmitter {
     }
 
     getText(format) {
-        let str = WPP.stringify(this._wpp, format);
+        let str = WPP.stringify(WPP.trim(this._wpp), format) || "";
         if(format === "line") {
             return str + (this.appendix ? " " + this.appendix.replace(/\n/g, "") : "");
         } else {
