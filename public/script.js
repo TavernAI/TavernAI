@@ -4646,6 +4646,16 @@ $(document).ready(function(){
         $('#characloud_search_block').css('display', 'none');
         $('#characloud_characters').css('display', 'block');
     });
+    if(document.getElementById("nav-toggle").checked) {
+        is_nav_toggle = true;
+        $('#chara_cloud').transition({
+            width: "calc(100vw - 610px)",
+            duration: 140,
+            delay: 20,
+            easing: "ease-in-out",
+            complete: function() {  }
+        });
+    }
     $('.nav-toggle').click(function(){
         if(!is_nav_toggle){
             is_nav_toggle = true;
