@@ -230,8 +230,12 @@
                         <input id="autoconnect" type="checkbox" class="toggle_checkbox">
                     </div>
                     <div class="menu_toggle" id="characloud_toggle">
-                        <div class="toggle_label"><h4 class="h4_menu_title">Show CharaCloud</h4><h5 class="h5_menu_help">Show CharaCloud on startup</h5></div>
+                        <div class="toggle_label"><h4 class="h4_menu_title">Show charaCloud</h4><h5 class="h5_menu_help">Show charaCloud on startup</h5></div>
                         <input id="characloud" type="checkbox" class="toggle_checkbox">
+                    </div>
+                    <div class="menu_toggle" id="notes_toggle">
+                        <div class="toggle_label"><h4 class="h4_menu_title" style="font-size: 0.95em;">Memory scroll</h4><h5 class="h5_menu_help">Information (<a href="/notes/21" target="_blank">?</a>)</h5></div>
+                        <input id="notes_checkbox" type="checkbox" class="toggle_checkbox">
                     </div>
 
                 </div>
@@ -291,6 +295,21 @@
         </div>
     </div>
 
+    <div id="shadow_notes_popup" class="shadow_popup through">
+        <div class="container" id="notes_popup">
+            <img class="note_icon icon" src="img/notes_scroll.png">
+            <div class="notes_token_stat"><span>0</span> tokens <h5 class="h5_menu_help"> (<a href="/notes/21" target="_blank">?</a>)</h5></div>
+                        <input id="notes_wpp_checkbox" type="checkbox" class="toggle_checkbox wpp-checkbox"><label for="notes_wpp_checkbox" id="notes_wpp_label" title="W++ is an attribute-based shorthand format used in KoboldAI">W++<br>Editor</label>
+            <img id="notes_wpp_cross" class="cross" src="img/cross.png" title="Hide">
+            <textarea id="notes_textarea"></textarea>
+            <div id="notes_wpp_editor" class="wpp-editor"></div>
+            <select id="notes_strategy" class="notes_strategy">
+                <option value="discr" title="Inject all notes as single line after character's description">Add to description</option>
+                <option value="none" title="Do not add notes to request">Don't add</option>
+            </select>
+        </div>
+    </div>
+
     <div id="bg_menu">
         
         <div id="logo_block"><div id="bg_menu_button"><img src="img/tri.png"></div><img src="img/logo.png" id="site_logo"></div>
@@ -332,8 +351,10 @@
                 </div>
                 
                 <div id="description_div">
-                    <h4 class="h4_menu_title">Description</h4><h5 class="h5_menu_help">Description of personality and other characteristics (<a href="/notes/1" target="_blank">?</a>)</h5>
-                <textarea id="description_textarea" name="description" placeholder=""></textarea>
+                    <input id="description_wpp_checkbox" type="checkbox" class="toggle_checkbox"><label for="description_wpp_checkbox" id="description_wpp_label" title="W++ is an attribute-based shorthand format used in KoboldAI">W++<br>Editor</label>
+                    <h4 class="h4_menu_title">Description</h4><h5 class="h5_menu_help">Personality and other characteristics (<a href="/notes/1" target="_blank">?</a>)</h5>
+                    <textarea id="description_textarea" name="description" placeholder=""></textarea>
+                    <div id="description_wppeditor"></div>
                 </div>
                 <div id="first_message_div">
                 <h4 class="h4_menu_title">First message</h4><h5 class="h5_menu_help">First message from the character (<a href="/notes/3" target="_blank">?</a>)</h5>
@@ -520,6 +541,7 @@
                         <div class="options-content">
                         <a id="option_start_new_chat"><img src="img/save_and_start_new_chat.png">Start new chat</a>
                         <a id="option_select_chat"><img id="option_select_chat_logo" src="img/book6.png">Select chats</a>
+                        <a id="option_toggle_notes" class="option_toggle_notes"><img src="img/notes_scroll.png">Memory scroll</a>
                         
                         <hr>
                         <a id="option_delete_mes"><img src="img/del_mes.png">Delete message</a>

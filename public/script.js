@@ -1,4 +1,8 @@
 import {encode, decode} from "../scripts/gpt-2-3-tokenizer/mod.js";
+import {Notes} from "./class/Notes.mjs";
+import {WPP} from "./class/WPP.mjs";
+import {WPPEditor} from "./class/WPPEditor.mjs";
+
 $(document).ready(function(){
     /*
     const observer = new MutationObserver(function(mutations) {
@@ -153,6 +157,9 @@ $(document).ready(function(){
     var style_anchor = true;
     var character_anchor = true;
 
+    var winNotes;
+    var editorDescriptionWPP;
+
     var main_api = 'kobold';
     
     //novel settings
@@ -207,7 +214,22 @@ $(document).ready(function(){
             console.error(exception);
         }
     });
-    
+
+    editorDescriptionWPP = new WPPEditor({
+        container: $('#description_wppeditor')[0],
+    });
+    editorDescriptionWPP.on("change", function(event) {
+        $("#description_textarea").val(event.target.text);
+
+        if(menu_type == 'create'){
+            create_save_description = $('#description_textarea').val();
+        }else{
+            if(timerSaveEdit) { clearTimeout(timerSaveEdit) };
+            timerSaveEdit = setTimeout(() => {$("#create_button").click();},durationSaveEdit);
+        }
+    }.bind(this));
+
+
     $('#send_textarea').on('input', function () {
         
         if($('#send_textarea').css('--autoresize') === 'true'){
@@ -844,8 +866,15 @@ $(document).ready(function(){
             var chatString = '';
             var arrMes = [];
             var mesSend = [];
-            var charDescription = $.trim(characters[this_chid].description);
+            var charDescription = characters[this_chid].description.replace(/\r/g, "");
             var charPersonality = $.trim(characters[this_chid].personality);
+
+            let wDesc = WPP.parseExtended(charDescription);
+            charDescription = WPP.stringify(wDesc.wpp, "line") + (wDesc.appendix || "");
+            if($('#notes_strategy').val() === 'discr' && $.trim(winNotes.text).length > 0 && settings.notes){
+                charDescription += '\n'+$.trim(winNotes.text);
+            }
+            charDescription = $.trim(charDescription);
             var Scenario = $.trim(characters[this_chid].scenario);
             var mesExamples = $.trim(characters[this_chid].mes_example);
             var checkMesExample = $.trim(mesExamples.replace(/<START>/gi, ''));//for check length without tag
@@ -989,7 +1018,7 @@ $(document).ready(function(){
             }
             for (var item of chat2) {//console.log(encode("dsfs").length);
                 chatString = item+chatString;
-                if(encode(JSON.stringify(storyString+mesExmString+chatString+anchorTop+anchorBottom+charPersonality)).length+gap_holder < this_max_context){ //(The number of tokens in the entire prompt) need fix, it must count correctly (added +120, so that the description of the character does not hide)
+                if(getTokenCount(storyString+mesExmString+chatString+anchorTop+anchorBottom+charPersonality)+gap_holder < this_max_context){ //(The number of tokens in the entire prompt) need fix, it must count correctly (added +120, so that the description of the character does not hide)
                     arrMes[arrMes.length] = item;
                 }else{
                     i = chat2.length-1;
@@ -1005,7 +1034,7 @@ $(document).ready(function(){
                         for(let iii = 0; iii < mesExamplesArray.length; iii++){//mesExamplesArray It need to make from end to start
 
                             mesExmString = mesExmString+mesExamplesArray[iii];
-                            if(encode(JSON.stringify(storyString+mesExmString+chatString+anchorTop+anchorBottom+charPersonality)).length+gap_holder < this_max_context){ //example of dialogs
+                            if(getTokenCount(storyString+mesExmString+chatString+anchorTop+anchorBottom+charPersonality)+gap_holder < this_max_context){ //example of dialogs
                                 if(!is_pygmalion){
                                     mesExamplesArray[iii] = mesExamplesArray[iii].replace(/<START>/i, 'This is how '+name2+' should talk');//An example of how '+name2+' responds
                                 }
@@ -1111,7 +1140,7 @@ $(document).ready(function(){
                 }
                 function checkPromtSize(){
                     setPromtString();
-                    let thisPromtContextSize = encode(JSON.stringify(storyString+mesExmString+mesSendString+anchorTop+anchorBottom+charPersonality+generatedPromtCache)).length+gap_holder;
+                    let thisPromtContextSize = getTokenCount(storyString+mesExmString+mesSendString+anchorTop+anchorBottom+charPersonality+generatedPromtCache)+gap_holder;
                     if(thisPromtContextSize > this_max_context){
                         if(count_exm_add > 0 && !keep_dialog_examples){
                             //mesExamplesArray.length = mesExamplesArray.length-1;
@@ -1421,7 +1450,7 @@ $(document).ready(function(){
                 }
             }
         });
-        var save_chat = [{user_name:default_user_name, character_name:name2,create_date: chat_create_date}, ...chat];
+        var save_chat = [{user_name:default_user_name, character_name:name2,create_date: chat_create_date, notes: winNotes.text, notes_type: $('#notes_strategy').val()}, ...chat];
 
         jQuery.ajax({    
             type: 'POST', 
@@ -1466,6 +1495,16 @@ $(document).ready(function(){
                     }
                     //chat =  data;
                     chat_create_date = chat[0]['create_date'];
+                    winNotes.text = chat[0].notes || "";
+                    $('#notes_strategy').val(chat[0].notes_type || "discr");
+                    let defaultWpp = '[Character("'+characters[this_chid].name+'"){}]';
+                    try {
+                        let parsed = WPP.parse(characters[this_chid].description);
+                        if(parsed[0] && parsed[0].type && parsed[0].type.length && parsed[0].name && parsed[0].name.length) {
+                            defaultWpp = '[' + parsed[0].type + '("' + parsed[0].name + '"){}]';
+                        }
+                    } catch(e) { /* ignore error */ }
+                    winNotes.wppText = chat[0].notes_wpp && chat[0].notes_wpp.length ? chat[0].notes_wpp : defaultWpp;
                     chat.shift();
 
                 }else{
@@ -1603,7 +1642,13 @@ $(document).ready(function(){
         
         $( "#rm_button_selected_ch" ).children("h2").removeClass('seleced_button_style');
         $( "#rm_button_selected_ch" ).children("h2").addClass('deselected_button_style');
-        
+
+        // Reset W++ editor
+        document.getElementById("description_wpp_checkbox").checked = false;
+        document.getElementById("description_textarea").style.display = null;
+        document.getElementById("description_wppeditor").style.display = "none";
+        editorDescriptionWPP.clear();
+        editorDescriptionWPP.text = "";
 
         //create text poles
         $("#rm_button_back").css("display", "inline-block");
@@ -1671,6 +1716,10 @@ $(document).ready(function(){
         
     }
 
+    function getTokenCount(text = "") {
+        return encode(JSON.stringify(text)).length;
+    }
+
     function select_selected_character(chid){ //character select
 
         select_rm_create();
@@ -1710,6 +1759,10 @@ $(document).ready(function(){
         $("#avatar_url_pole").val(characters[chid].avatar);
         $("#chat_import_avatar_url").val(characters[chid].avatar);
         $("#chat_import_character_name").val(characters[chid].name);
+
+        editorDescriptionWPP.clear();
+        editorDescriptionWPP.text = characters[chid].description;
+
         //$("#avatar_div").css("display", "none");
         var this_avatar = default_avatar;
         if(characters[chid].avatar != 'none'){
@@ -1995,7 +2048,22 @@ $(document).ready(function(){
             $('#master_settings_popup').css('display', 'none');
         }
     });
-
+    $('#option_toggle_notes').click(function() {
+        showHideNotes();
+    });
+    $('#notes_wpp_cross').click(function() {
+        showHideNotes();
+    });
+    function showHideNotes(){
+        if(winNotes.shown){
+            $('#shadow_notes_popup').transition({ opacity: 0.0 ,duration: animation_rm_duration, easing:animation_rm_easing, complete: function(){
+                winNotes.hide();
+            }});
+        }else{
+            $('#shadow_notes_popup').transition({ opacity: 0.0 ,duration: 1, easing:animation_rm_easing});
+            $('#shadow_notes_popup').transition({ opacity: 1.0 ,duration: animation_rm_duration, easing:animation_rm_easing});
+        }
+    }
     $("#dialogue_popup_ok").click(function(){
         $("#shadow_popup").css('display', 'none');
         $("#shadow_popup").css('opacity:', 0.0);
@@ -2267,7 +2335,7 @@ $(document).ready(function(){
                     $("#add_avatar_button").replaceWith($("#add_avatar_button").val('').clone(true));
                     $('#create_button').attr('value','Save');
 
-                    var count_tokens = encode(JSON.stringify(characters[this_chid].description+characters[this_chid].personality+characters[this_chid].scenario+characters[this_chid].mes_example)).length;
+                    var count_tokens = getTokenCount(characters[this_chid].description+characters[this_chid].personality+characters[this_chid].scenario+characters[this_chid].mes_example);
                     if(count_tokens < 1024){
                         $('#result_info').html(count_tokens+" Tokens");
                     }else{
@@ -2303,13 +2371,17 @@ $(document).ready(function(){
         }
 
     });
-    $('#description_textarea').on('keyup paste cut', function(){//change keyup paste cut
-        if(menu_type == 'create'){
+    $('#description_textarea').on('keyup paste cut', function(){
+        if(menu_type === 'create'){
             create_save_description = $('#description_textarea').val();
         }else{
+            editorDescriptionWPP.text = $('#description_textarea').val();
+            if(timerSaveEdit) { clearTimeout(timerSaveEdit) };
             timerSaveEdit = setTimeout(() => {$("#create_button").click();},durationSaveEdit);
         }
-
+    });
+    $('#notes_textarea').on('keyup paste cut', function(){
+        
     });
     $('#personality_textarea').on('keyup paste cut', function(){
         if(menu_type == 'create'){
@@ -2484,7 +2556,9 @@ $(document).ready(function(){
         $("#chat").children().filter('[mesid="'+(count_view_mes-1)+'"]').children('.swipe_right').css('display', 'none');
         $("#chat").children().filter('[mesid="'+(count_view_mes-1)+'"]').children('.swipe_left').css('display', 'none');
     }
-    
+    $("#notes_strategy").change(function() {
+        saveChat();
+    });
     $( "#settings_perset" ).change(function() {
 
         if($('#settings_perset').find(":selected").val() != 'gui'){
@@ -2819,6 +2893,11 @@ $(document).ready(function(){
         singleline = !!$('#singleline').prop('checked');
         saveSettings();
     });
+    $('#notes_checkbox').change(function() {
+        settings.notes = !!$('#notes_checkbox').prop('checked');
+        $("#option_toggle_notes").css("display", settings.notes ? "block" : "none");
+        saveSettings();
+    });
     $('#autoconnect').change(function() {
         settings.auto_connect = !!$('#autoconnect').prop('checked');
         saveSettings();
@@ -2844,7 +2923,37 @@ $(document).ready(function(){
         free_char_name_mode = !!$('#free_char_name_mode').prop('checked');
         saveSettings();
     });
-    
+
+    document.getElementById("description_wppeditor").style.display = "none";
+    document.getElementById("description_wpp_checkbox").checked = false;
+    $('#description_wpp_checkbox').change(function() {
+        if($('#description_wpp_checkbox').prop('checked')) {
+            document.getElementById("description_wppeditor").style.display = null;
+            document.getElementById("description_textarea").style.display = "none";
+            $('#description_wppeditor').css('opacity', 0.0);
+            $('#description_wppeditor').transition({ opacity: 1.0 ,duration: 410, easing:animation_rm_easing});
+            
+        } else {
+            document.getElementById("description_textarea").style.display = null;
+            document.getElementById("description_wppeditor").style.display = "none";
+            $('#description_textarea').css('opacity', 0.0);
+            $('#description_textarea').transition({ opacity: 1.0 ,duration: 410, easing:animation_rm_easing});
+        }
+    });
+    $('#notes_wpp_checkbox').change(function() {
+        if($('#notes_wpp_checkbox').prop('checked')) {
+            document.getElementById("notes_wpp_editor").style.display = null;
+            document.getElementById("notes_textarea").style.display = "none";
+            $('#notes_wpp_editor').css('opacity', 0.0);
+            $('#notes_wpp_editor').transition({ opacity: 1.0 ,duration: 410, easing:animation_rm_easing});
+            
+        } else {
+            document.getElementById("notes_textarea").style.display = null;
+            document.getElementById("notes_wpp_editor").style.display = "none";
+            $('#notes_textarea').css('opacity', 0.0);
+            $('#notes_textarea').transition({ opacity: 1.0 ,duration: 410, easing:animation_rm_easing});
+        }
+    });
 
     //Novel
     $(document).on('input', '#temp_novel', function() {
@@ -3259,7 +3368,13 @@ $(document).ready(function(){
                     free_char_name_mode = !!settings.free_char_name_mode;
                     settings.auto_connect = settings.auto_connect === false ? false : true;
                     settings.characloud = settings.characloud === false ? false : true;
-                    
+                    settings.notes = settings.notes === false ? false : true;
+
+                    winNotes = new Notes({
+                        root: document.getElementById("shadow_notes_popup"),
+                        save: saveChat.bind(this)
+                    });
+
                     $('#style_anchor').prop('checked', style_anchor);
                     $('#character_anchor').prop('checked', character_anchor);
                     $('#lock_context_size').prop('checked', lock_context_size);
@@ -3267,9 +3382,12 @@ $(document).ready(function(){
                     $('#singleline').prop('checked', singleline);
                     $('#autoconnect').prop('checked', settings.auto_connect);
                     $('#characloud').prop('checked', settings.characloud);
+                    $('#notes_checkbox').prop('checked', settings.notes);
                     $('#swipes').prop('checked', swipes);
                     $('#keep_dialog_examples').prop('checked', keep_dialog_examples);
                     $('#free_char_name_mode').prop('checked', free_char_name_mode);
+
+                    $("#option_toggle_notes").css("display", settings.notes ? "block" : "none");
                     
                     $("#anchor_order option[value="+anchor_order+"]").attr('selected', 'true');
                     $("#pygmalion_formating option[value="+pygmalion_formating+"]").attr('selected', 'true');
@@ -3409,6 +3527,7 @@ $(document).ready(function(){
                     auto_connect: settings.auto_connect || false,
                     characloud: settings.characloud === false ? false : true,
                     swipes: swipes,
+                    notes: settings.notes || false,
                     keep_dialog_examples: keep_dialog_examples,
                     free_char_name_mode: free_char_name_mode,
                     main_api: main_api,

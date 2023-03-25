@@ -398,3 +398,15 @@ label.checkbox :checked + span {
     border-bottom: 1px dashed rgba(255, 255, 255, 0.12);
     background-color: #16161680;
 }
+
+.modular .container {
+    background: rgba(26,24,25,0.95);
+}
+
+#notes_popup textarea {
+    background-color: #161616dd;
+}
+
+#notes_popup div.wpp-editor {
+    background-color: #161616dd;
+}
