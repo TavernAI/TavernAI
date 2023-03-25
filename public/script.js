@@ -4545,6 +4545,99 @@ $(document).ready(function(){
     });
 
     characloud_characters_rows = [];
+
+    let charaCloudSwipeLeft = function(){
+        const this_row_id = $(this).parent().attr('characloud_row_id');
+        const this_width = parseInt($(this).parent().children('.characloud_characters_row_scroll').css('width'))-parseInt($('#characloud_characters_row'+this_row_id).css('width'));
+        let move_x = 820;
+        $(this).parent().lazyLoadXT({edgeX:1000, edgeY:500});
+        if(characloud_characters_rows[this_row_id] != 0){
+            if($(this).parent().children('.characloud_swipe_rigth').css('display') == 'none'){
+                $(this).parent().children('.characloud_swipe_rigth').css('display', 'flex');
+                $(this).parent().children('.characloud_swipe_rigth').transition({
+                    opacity: 1.0,
+                    duration: 300,
+                    easing: animation_rm_easing,
+                    queue: false,
+                    complete: function() {
+                    }
+                });
+            }
+            if(Math.abs(characloud_characters_rows[this_row_id])-move_x <= 0){
+                $(this).transition({
+                    opacity: 0.0,
+                    duration: 700,
+                    easing: animation_rm_easing,
+                    queue: false,
+                    complete: function() {
+                        $(this).css('display', 'none');
+                    }
+                });
+                characloud_characters_rows[this_row_id] = 0;
+            }else{
+                characloud_characters_rows[this_row_id] += move_x;
+            }
+            $(this).parent().children('.characloud_characters_row_scroll').transition({
+                x: characloud_characters_rows[this_row_id],
+                duration: 300,
+                easing: animation_rm_easing,
+                queue: false,
+                complete: function() {
+
+                }
+            });
+        } else {
+            $(this).css("opacity", "0");
+        }
+    };
+    let charaCloudSwipeRight = function(){
+        const this_row_id = $(this).parent().attr('characloud_row_id');
+        const this_width = parseInt($(this).parent().children('.characloud_characters_row_scroll').css('width'))-parseInt($('#characloud_characters_row'+this_row_id).css('width'));
+
+        let move_x = 820;
+        $(this).parent().lazyLoadXT({edgeX:1000, edgeY:500});
+        if(characloud_characters_rows[this_row_id] != this_width*-1 && parseInt($(this).parent().css('width')) < parseInt($(this).parent().children('.characloud_characters_row_scroll').css('width'))){
+            if($(this).parent().children('.characloud_swipe_left').css('display') == 'none'){
+                $(this).parent().children('.characloud_swipe_left').css('display', 'flex');
+                $(this).parent().children('.characloud_swipe_left').transition({
+                    opacity: 1.0,
+                    duration: 300,
+                    easing: animation_rm_easing,
+                    queue: false,
+                    complete: function() {
+                    }
+                });
+            }
+            if(Math.abs(characloud_characters_rows[this_row_id])+move_x >= this_width){
+                characloud_characters_rows[this_row_id] = this_width*-1;
+                $(this).transition({
+                    opacity: 0.0,
+                    duration: 700,
+                    easing: animation_rm_easing,
+                    queue: false,
+                    complete: function() {
+                        $(this).css('display', 'none');
+                    }
+                });
+            }else{
+                characloud_characters_rows[this_row_id] -= move_x;
+
+            }
+
+            $(this).parent().children('.characloud_characters_row_scroll').transition({
+                x: characloud_characters_rows[this_row_id],
+                duration: 400,
+                easing: animation_rm_easing,
+                queue: false,
+                complete: function() {
+
+                }
+            });
+        } else {
+            $(this).css("opacity", "0");
+        }
+    };
+
     async function charaCloudInit(){
         if(settings.characloud){
             charaCloudServerStatus();
@@ -4575,6 +4668,22 @@ $(document).ready(function(){
                     characloud_characters_rows[row_i] = 0;
                     $('#characloud_characters').append('<div class="characloud_characters_category_title">'+category_title+'</div><div characloud_row_id="'+row_i+'" id="characloud_characters_row'+row_i+'" class="characloud_characters_row"><div class="characloud_swipe_rigth"><img src="img/swipe_right.png"></div><div class="characloud_swipe_left"><img src="img/swipe_left.png"></div></div>');
                     $('#characloud_characters_row'+row_i).append('<div class="characloud_characters_row_scroll"></div>');
+
+                    let row = $('#characloud_characters_row'+row_i);
+                    row[0].addEventListener("wheel", function(event) {
+                        if(!event.deltaX || row.sleeping) { return; }
+                        if(event.deltaX > 0) {
+                            row.sleeping = true;
+                            charaCloudSwipeRight.call(row.find(".characloud_swipe_rigth"));
+                        } else {
+                            row.sleeping = true;
+                            charaCloudSwipeLeft.call(row.find(".characloud_swipe_left"));
+                        }
+                        setTimeout(function() {
+                            row.sleeping = false;
+                        }, 150);
+                    });
+
                     characloud_characters_board[category].forEach(function(item, i){
 
                         $('#characloud_characters_row'+row_i).children('.characloud_characters_row_scroll').append('<div id="characloud_character_block'+char_i+'" chid="'+char_i+'" class="characloud_character_block"><div class="characloud_character_block_card"><div class="avatar"><img data-src="'+charaCloudServer+'/cards/'+item.public_id+'.webp" class="lazy"></div><div class="characloud_character_block_name">'+item.name+'</div><div class="characloud_character_block_description">'+'</div></div></div>');
@@ -4622,96 +4731,8 @@ $(document).ready(function(){
         $(this).lazyLoadXT({edgeX:500, edgeY:500});
         is_lazy_load = true;
     }
-    $(document).on('click', '.characloud_swipe_rigth', function(){
-        const this_row_id = $(this).parent().attr('characloud_row_id');
-        const this_width = parseInt($(this).parent().children('.characloud_characters_row_scroll').css('width'))-parseInt($('#characloud_characters_row'+this_row_id).css('width'));
-
-        
-        let move_x = 820;
-        $(this).parent().lazyLoadXT({edgeX:1000, edgeY:500});
-        if(characloud_characters_rows[this_row_id] != this_width*-1 && parseInt($(this).parent().css('width')) < parseInt($(this).parent().children('.characloud_characters_row_scroll').css('width'))){
-            if($(this).parent().children('.characloud_swipe_left').css('display') == 'none'){
-                $(this).parent().children('.characloud_swipe_left').css('display', 'flex');
-                $(this).parent().children('.characloud_swipe_left').transition({ 
-                    opacity: 1.0,
-                    duration: 300,
-                    easing: animation_rm_easing,
-                    queue: false,
-                    complete: function() {
-                    }
-                });
-            }
-            if(Math.abs(characloud_characters_rows[this_row_id])+move_x >= this_width){
-                characloud_characters_rows[this_row_id] = this_width*-1;
-                $(this).transition({ 
-                    opacity: 0.0,
-                    duration: 700,
-                    easing: animation_rm_easing,
-                    queue: false,
-                    complete: function() {
-                        $(this).css('display', 'none');
-                    }
-                });
-            }else{
-                characloud_characters_rows[this_row_id] -= move_x;
-                
-            }
-
-            $(this).parent().children('.characloud_characters_row_scroll').transition({ 
-                        x: characloud_characters_rows[this_row_id],
-                        duration: 400,
-                        easing: animation_rm_easing,
-                        queue: false,
-                        complete: function() {
-
-                        }
-            });
-        }
-    });
-    $(document).on('click', '.characloud_swipe_left', function(){
-        const this_row_id = $(this).parent().attr('characloud_row_id');
-        const this_width = parseInt($(this).parent().children('.characloud_characters_row_scroll').css('width'))-parseInt($('#characloud_characters_row'+this_row_id).css('width'));
-
-        
-        let move_x = 820;
-        $(this).parent().lazyLoadXT({edgeX:1000, edgeY:500});
-        if(characloud_characters_rows[this_row_id] != 0){
-            if($(this).parent().children('.characloud_swipe_rigth').css('display') == 'none'){
-                $(this).parent().children('.characloud_swipe_rigth').css('display', 'flex');
-                $(this).parent().children('.characloud_swipe_rigth').transition({ 
-                    opacity: 1.0,
-                    duration: 300,
-                    easing: animation_rm_easing,
-                    queue: false,
-                    complete: function() {
-                    }
-                });
-            }
-            if(Math.abs(characloud_characters_rows[this_row_id])-move_x <= 0){
-                $(this).transition({ 
-                    opacity: 0.0,
-                    duration: 700,
-                    easing: animation_rm_easing,
-                    queue: false,
-                    complete: function() {
-                        $(this).css('display', 'none');
-                    }
-                });
-                characloud_characters_rows[this_row_id] = 0;
-            }else{
-                characloud_characters_rows[this_row_id] += move_x;
-            }
-            $(this).parent().children('.characloud_characters_row_scroll').transition({ 
-                        x: characloud_characters_rows[this_row_id],
-                        duration: 300,
-                        easing: animation_rm_easing,
-                        queue: false,
-                        complete: function() {
-
-                        }
-            });
-        }
-    });
+    $(document).on('click', '.characloud_swipe_rigth', charaCloudSwipeRight);
+    $(document).on('click', '.characloud_swipe_left', charaCloudSwipeLeft);
     
     //select character
     $(document).on('click', '.characloud_character_block_card', function(){
@@ -4792,6 +4813,16 @@ $(document).ready(function(){
         $('#characloud_search_block').css('display', 'none');
         $('#characloud_characters').css('display', 'block');
     });
+    if(document.getElementById("nav-toggle").checked) {
+        is_nav_toggle = true;
+        $('#chara_cloud').transition({
+            width: "calc(100vw - 610px)",
+            duration: 140,
+            delay: 20,
+            easing: "ease-in-out",
+            complete: function() {  }
+        });
+    }
     $('.nav-toggle').click(function(){
         if(!is_nav_toggle){
             is_nav_toggle = true;
