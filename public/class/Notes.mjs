@@ -1,18 +1,20 @@
 import {encode} from "../scripts/gpt-2-3-tokenizer/mod.js";
 import {Resizable} from "./Resizable.mjs";
 import {WPPEditor} from "./WPPEditor.mjs";
+import {WPP} from "./WPP.mjs";
 
 /**
  * "Notes" window
  */
 export class Notes extends Resizable {
     _wpp;
+    appendix;
     textarea;
     tokens;
-    select;
     timerSave;
     durationSave = 300;
     save;
+    strategy = "chat";
 
     /**
      * @param options
@@ -35,9 +37,6 @@ export class Notes extends Resizable {
             if(!this.textarea && child instanceof HTMLTextAreaElement) {
                 this.textarea = child;
             }
-            if(!this.select && child instanceof HTMLSelectElement) {
-                this.select = child;
-            }
             if(!this._wpp && child.classList.contains("wpp-editor")) {
                 this._wpp = new WPPEditor({
                     container: child
@@ -48,12 +47,26 @@ export class Notes extends Resizable {
                     this.tokens = child.children[0];
                 }
             }
+            if(child.classList.contains("wpp-checkbox")) {
+                child.checked = false;
+                child.onchange = function(event) {
+                    if(event.target.checked) {
+                        this.textarea.style.display = "none";
+                        this._wpp.container.style.display = null;
+                    } else {
+                        this.textarea.style.display = null;
+                        this._wpp.container.style.display = "none";
+                    }
+                }.bind(this);
+            }
         }
+
+        //
 
         if(this._wpp) {
             this._wpp.display = "none";
             this._wpp.on("change", function() {
-                this.updateNotesTokenCount(true);
+                this.updateNotesTokenCount();
                 if(this.timerSave) {
                     clearTimeout(this.timerSave);
                 }
@@ -63,28 +76,9 @@ export class Notes extends Resizable {
                         this.save();
                     }
                 }, this.durationSave);
+                let text = this._wpp.getText();
+                this.textarea.value = text + (this.appendix ? this.appendix : "");
             }.bind(this));
-        }
-        if(this.select) {
-            this.select.onchange = function() {
-                if(this.select.value === "wpp") {
-                    this.updateNotesTokenCount(true);
-                    this.textarea.style.display = "none";
-                    this._wpp.display = null;
-                } else {
-                    this.updateNotesTokenCount();
-                    this.textarea.style.display = null;
-                    this._wpp.display = "none";
-                }
-            }.bind(this);
-            for(let index = 0; index < this.select.children.length; index++) {
-                const child = this.select.children[index];
-                if(index) {
-                    child.removeAttribute("selected");
-                } else {
-                    child.setAttribute("selected", "selected");
-                }
-            }
         }
 
         this.textarea.onkeyup = function() {
@@ -98,6 +92,10 @@ export class Notes extends Resizable {
                     this.save();
                 }
             }, this.durationSave);
+            let parsed = WPP.parseExtended(this.textarea.value);
+            this.appendix = parsed.appendix || null;
+            this._wpp.clear();
+            this.wpp = parsed.wpp;
         }.bind(this);
         this.textarea.oncut = this.textarea.onkeyup;
         this.textarea.onpaste = this.textarea.onkeyup;
@@ -114,29 +112,7 @@ export class Notes extends Resizable {
     }
 
     get wpp() {
-        return this._wpp.wpp;
-    }
-
-    /** Returns w++ contents */
-    get wppText() {
-        if(!this._wpp) { return; }
-        return this._wpp.text;
-    }
-    get wppTextLine() {
-        if(!this._wpp) { return; }
-        return this._wpp.getText("line");
-    }
-    /** Sets w++ contents */
-    set wppText(value) {
         if(!this.container) { return; }
-        if(!this._wpp) { return; }
-        this._wpp.clear();
-        this._wpp.text = value;
-        this.updateNotesTokenCount();
-    }
-
-    /** Returns w++ contents */
-    get wpp() {
         if(!this._wpp) { return; }
         return this._wpp.wpp;
     }
@@ -146,19 +122,19 @@ export class Notes extends Resizable {
         if(!this.container) { return; }
         if(!this.textarea) { return; }
         this.textarea.value = value.replace(/\r/g, "");
+        this._wpp.clear();
+        let parsed = WPP.parseExtended(this.textarea.value);
+        this._wpp.wpp = parsed.wpp;
+        this.appendix = parsed.appendix;
         this.updateNotesTokenCount();
     }
 
     /** Returns textarea contents */
     get text() {
         if(!this.textarea) { return; }
-        return this.getText("raw");
-    }
-
-    /** Gets value of injection strategy selector (char/wpp/none) */
-    get strategy() {
-        if(!this.select) { return; }
-        return this.select.value;
+        let text = this._wpp.getText("line") || "";
+        text += (this.appendix ? this.appendix : "");
+        return text;
     }
 
     /** Returns formatted text
@@ -180,20 +156,13 @@ export class Notes extends Resizable {
     }
 
     /** Updates notes count */
-    updateNotesTokenCount(wpp = false) {
+    updateNotesTokenCount() {
         if(!this.container) { return; }
         let text = this.textarea.value
             .trim()
             .replace(/\s\s+/g, " ")
             .replace(/\n/g, " ");
-        let value;
-        if(wpp) {
-            value = (this._wpp ? "Up to " + this.getTokenCount(this.wppText) : 0).toString();
-            this.tokens.setAttribute("title", "W++ will be merged with whatever W++ is in character definitions. If there is no new information in notes, there will be zero increase in token count.");
-        } else {
-            value = (text && text.length ? this.getTokenCount(text) : 0).toString();
-            this.tokens.removeAttribute("title");
-        }
-        this.tokens.innerHTML = value;
+
+        this.tokens.innerHTML = (text && text.length ? this.getTokenCount(text) : 0).toString();
     }
 }

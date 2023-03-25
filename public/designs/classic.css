@@ -1927,19 +1927,50 @@ label.checkbox :checked + span:after {
     pointer-events: none;
 }
 
+#notes_enable_checkbox,
+#notes_enable_label {
+    float: left;
+}
 #notes_popup .notes_token_stat {
     position: absolute;
-    top: 1em;
-    left: 2.5em;
-    width: 90%;
+    top: 1.5ex;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 2em;
 }
-#notes_popup select {
-    margin: 1ex;
-    width: calc(100% - 2ex);
+#notes_popup .move {
+    top: 0.75ex;
 }
+
+#notes_wpp_label,
+#notes_wpp_checkbox {
+    float: right;
+}
+
+#notes_wpp_checkbox {
+    margin-right: 2.5em;
+}
+
+#notes_popup {
+    padding-top: 0.75ex;
+}
+
+#notes_popup > label {
+    display: inline-block;
+    font-size: 75%;
+    line-height: 0.8em;
+    opacity: 0.75;
+    margin-top: 0.75ex;
+    text-align: center;
+}
+#notes_enable_label {
+    margin-top: 1em !important;
+}
+
+#notes_popup div.wpp-editor,
 #notes_popup textarea {
     --autoresize: false;
-    height: calc(100% - 9ex);
+    height: calc(100% - 7ex);
     width: calc(100% - 2ex);
     resize: none;
     display: inline-block;
@@ -1949,24 +1980,9 @@ label.checkbox :checked + span:after {
     box-shadow: 0 0 2px rgba(200,200,200,0.5);
     padding: 10px;
     color: #e6e6e6;
-    margin: 1em 1ex 0px 1ex;
+    margin: 1ex 1ex 0px 1ex;
     white-space: pre;
 }
-
-#notes_popup div.wpp-editor {
-      height: calc(100% - 9ex);
-      width: calc(100% - 2ex);
-      display: inline-block;
-      background-color: #13152c;
-      outline: none;
-      border:0px solid grey;
-      box-shadow: 0 0 2px rgba(200,200,200,0.5);
-      padding: 10px;
-      color: #e6e6e6;
-      margin: 1em 1ex 0px 1ex;
-      white-space: pre;
-  }
-
 #chat_import_button {
     margin-top: 15px;
     margin-left: 13px;

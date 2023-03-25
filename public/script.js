@@ -872,17 +872,11 @@ $(document).ready(function(){
             let wDesc = WPP.parseExtended(charDescription);
             charDescription = WPP.stringify(wDesc.wpp, "line") + (wDesc.appendix || "");
 
-            if(settings.notes) {
-                switch (winNotes.strategy) {
-                    case "char":
-                        charDescription += "\n" + winNotes.getText();
-                        break;
-                    case "wpp":
-                        let w1 = WPP.parseExtended(charDescription);
-                        w1.wpp = WPP.trim(WPP.getMerged(w1.wpp, winNotes.wpp));
-                        charDescription = (w1.wpp.length ? WPP.stringify(w1.wpp, "line") : "") + (w1.appendix && w1.appendix.length ? (w1.wpp.length ? "\n" : "") + w1.appendix : "");
-                        break;
-                }
+            if(settings.notes && document.getElementById("notes_enable_checkbox").checked) {
+                let w1 = WPP.parseExtended(charDescription);
+                w1.wpp = WPP.trim(WPP.getMerged(w1.wpp, winNotes.wpp));
+                w1.appendix = (w1.appendix && w1.appendix.length ? w1.appendix + "\n" : "") + (winNotes.appendix && winNotes.appendix.length ? winNotes.appendix : "");
+                charDescription = (w1.wpp.length ? WPP.stringify(w1.wpp, "line") : "") + (w1.appendix && w1.appendix.length ? w1.appendix : "");
             }
             charDescription = $.trim(charDescription);
             var Scenario = $.trim(characters[this_chid].scenario);
@@ -1460,7 +1454,7 @@ $(document).ready(function(){
                 }
             }
         });
-        var save_chat = [{user_name:default_user_name, character_name:name2,create_date: chat_create_date,notes: winNotes.text, notes_wpp: winNotes.wppTextLine}, ...chat];
+        var save_chat = [{user_name:default_user_name, character_name:name2,create_date: chat_create_date,notes: winNotes.text}, ...chat];
 
         jQuery.ajax({    
             type: 'POST', 
@@ -1506,14 +1500,6 @@ $(document).ready(function(){
                     //chat =  data;
                     chat_create_date = chat[0]['create_date'];
                     winNotes.text = chat[0].notes || "";
-                    let defaultWpp = '[Character("'+characters[this_chid].name+'"){}]';
-                    try {
-                        let parsed = WPP.parse(characters[this_chid].description);
-                        if(parsed[0] && parsed[0].type && parsed[0].type.length && parsed[0].name && parsed[0].name.length) {
-                            defaultWpp = '[' + parsed[0].type + '("' + parsed[0].name + '"){}]';
-                        }
-                    } catch(e) { /* ignore error */ }
-                    winNotes.wppText = chat[0].notes_wpp && chat[0].notes_wpp.length ? chat[0].notes_wpp : defaultWpp;
                     chat.shift();
 
                 }else{
