@@ -16,7 +16,7 @@ Examples of interface and output:
 * Choosing name and avatar for your character
 * Deleting and regenerating messages
 * Editing any messages
-* Works with various ai models
+* Works with various AI models
 * Importing chats from CAI
 * More longer messages from characters
 * Choosing atmospheric backgrounds
@@ -34,7 +34,8 @@ Examples of interface and output:
 * [KoboldAI](https://github.com/KoboldAI/KoboldAI-Client)
 * [NovelAI](https://novelai.net/)
 * [Pygmalion](https://rentry.org/pygmalion-ai)
-* [OpenAI chatGPT](https://openai.com)
+* [chatGPT](https://chat.openai.com/)
+* [GPT-4](https://openai.com/research/gpt-4)
 
 ## Tips
 Use this button to edit the message<br><br>

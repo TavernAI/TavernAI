@@ -768,7 +768,7 @@ $(document).ready(function(){
     });
     async function Generate(type) {//encode("dsfs").length
         let gap_holder = 120;
-        if(main_api === 'openai' && (model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-0301')) gap_holder = parseInt(amount_gen_openai);
+        if(main_api === 'openai' && (model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-0301' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k')) gap_holder = parseInt(amount_gen_openai);
         var textareaText = '';
         tokens_already_generated = 0;
         if(!free_char_name_mode){
@@ -926,7 +926,7 @@ $(document).ready(function(){
             }
             
 
-            if(main_api === 'openai' && (model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-0301')){
+            if(main_api === 'openai' && (model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-0301' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k')){
                 let osp_string = openai_system_prompt.replace(/{{user}}/gi, name1) //System prompt for OpenAI
                                 .replace(/{{char}}/gi, name2)
                                 .replace(/<USER>/gi, name1)
@@ -1067,7 +1067,7 @@ $(document).ready(function(){
                         }
                         
 
-                        if(!free_char_name_mode && !(main_api === 'openai' && (model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-0301'))){
+                        if(!free_char_name_mode && !(main_api === 'openai' && (model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-0301' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k'))){
                             if(i >= arrMes.length-1 && $.trim(item).substr(0, (name1+":").length) == name1+":"){//for add name2 when user sent
                                 item =item+name2+":";
                             }
@@ -1139,7 +1139,7 @@ $(document).ready(function(){
                 }else{
                     mesSendString = '<START>\n'+mesSendString;
                 }
-                if(main_api === 'openai' && (model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-0301')){
+                if(main_api === 'openai' && (model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-0301' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k')){
                     finalPromt = {};
                     finalPromt = [];
                     
@@ -1257,7 +1257,7 @@ $(document).ready(function(){
                         "max_tokens": this_amount_gen
                     };
                     
-                    if((model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-0301')){
+                    if((model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-0301' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k')){
                         generate_data.messages = finalPromt;
                     }else{
                         generate_data.prompt = finalPromt;
@@ -1300,7 +1300,7 @@ $(document).ready(function(){
                                 getMessage = data.output;
                             }
                             if(main_api == 'openai'){
-                                if(model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-0301'){
+                                if(model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-0301' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k'){
                                     getMessage = data.choices[0].message.content;
                                 }else{
                                     getMessage = data.choices[0].text;
@@ -3022,7 +3022,7 @@ $(document).ready(function(){
 
                         $('#style_menu').append('<div class="style_button" style_id="'+i+'" id="style_button'+i+'" alt="'+item+'"><img src="../designs/'+item.replace('.css', '.png')+'"></div>');
                     });
-                    //Novel
+                    
                     if(settings.main_api != undefined){
                         main_api = settings.main_api;
                         $("#main_api option[value="+main_api+"]").attr('selected', 'true');
@@ -3041,8 +3041,10 @@ $(document).ready(function(){
                         $("#openai_system_prompt_textarea").val(openai_system_prompt);
                     }
                     model_openai = settings.model_openai;
-                    $('#model_openai_select option[value="'+model_openai+'"]').attr('selected', 'true');;
+                    $('#model_openai_select option[value="'+model_openai+'"]').attr('selected', 'true');
+                    openAIChangeMaxContextForModels();
                     
+                    //Novel
                     model_novel = settings.model_novel;
                     $('#model_novel_select option[value="'+model_novel+'"]').attr('selected', 'true');
 
@@ -4118,8 +4120,33 @@ $(document).ready(function(){
     });
     $( "#model_openai_select" ).change(function() {
         model_openai = $('#model_openai_select').find(":selected").val();
+        openAIChangeMaxContextForModels();
         saveSettings();
     });
+    function openAIChangeMaxContextForModels(){
+        let this_openai_max_context;
+        switch(model_openai){
+            case 'gpt-4':
+                this_openai_max_context = 8192;
+                break;
+            case 'gpt-4-32k':
+                this_openai_max_context = 32768;
+                break;
+            case 'code-davinci-002':
+                this_openai_max_context = 8000;
+                break;
+            default:
+                this_openai_max_context = 4096;
+                break;
+        }
+        $('#max_context_openai').attr('max', this_openai_max_context);
+        if(max_context_openai > this_openai_max_context){
+            max_context_openai = this_openai_max_context;
+        }
+        $('#max_context_openai').val(max_context_openai);
+        $('#max_context_counter_openai').html(max_context_openai+' Tokens');
+        
+    }
     $( "#anchor_order" ).change(function() {
         anchor_order = parseInt($('#anchor_order').find(":selected").val());
         saveSettings();
