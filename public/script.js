@@ -790,7 +790,8 @@ $(document).ready(function(){
     });
     async function Generate(type) {//encode("dsfs").length
         let gap_holder = 120;
-        if(main_api === 'openai' && (model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-0301' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k')) gap_holder = parseInt(amount_gen_openai);
+        if(main_api === 'openai' && (model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-0301' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k')) 
+            gap_holder = parseInt(amount_gen_openai);
         var textareaText = '';
         tokens_already_generated = 0;
         if(!free_char_name_mode){
@@ -1202,16 +1203,20 @@ $(document).ready(function(){
                 }
                 var this_max_gen = this_amount_gen;
                 if(multigen && (main_api === 'kobold' || main_api === 'novel')){ //Multigen is not necessary for OpenAI (Uses stop tokens)
+                    
+                    let this_set_context_size;
+                    if(main_api === 'kobold') this_set_context_size = parseInt(amount_gen);
+                    if(main_api === 'novel') this_set_context_size = parseInt(amount_gen_novel);
                     if(tokens_already_generated === 0){
-                        if(parseInt(amount_gen) >= tokens_first_request_count){
+                        if(this_set_context_size >= tokens_first_request_count){
                             this_amount_gen = tokens_first_request_count;
                         }else{
-                            this_amount_gen = parseInt(amount_gen);
+                            this_amount_gen = this_set_context_size;
                         }
 
                     }else{
                         if(parseInt(amount_gen) - tokens_already_generated < tokens_cycle_count){
-                            this_amount_gen = parseInt(amount_gen) - tokens_already_generated;
+                            this_amount_gen = this_set_context_size - tokens_already_generated;
                         }else{
                             this_amount_gen = tokens_cycle_count;
                         }
