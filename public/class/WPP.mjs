@@ -29,6 +29,7 @@ export class WPP {
                 let tW = WPP.breakAttribute(type[0].replace(/^\[/, ""));
                 node.type = tW.name;
                 node.name = tW.value[0];
+                node.format = "W++";
                 if(tW.value.length > 1) { throw { error: WPP.ErrorTypeHasMultipleNames, value: type }; }
             } catch(e) {
                 throw(e);
