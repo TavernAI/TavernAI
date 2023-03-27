@@ -1,15 +1,3 @@
-/**
- * @typedef WPlusPlusObject
- * @type {{ type?: string; name?: string; properties: Record<string, string[]> }[]}
- */
-
-/**
- * @typedef WPlusPlusExtended
- * @type {object}
- * @property {WPlusPlusObject} wpp
- * @property {string | null | undefined} appendix
- */
-
 export class WPP {
     static ErrorNoGroups = "No groups in this W++";
     static ErrorNoType = "Group is missing a type";
@@ -23,7 +11,7 @@ export class WPP {
     /**
      * Attempts to parse string in W++ format into a JSON
      * @param {string} string
-     * @returns {WPlusPlusObject}
+     * @returns {import('../../types/WPlusPlusArray').default}
      */
     static parse(string) {
         let wpp = [];
@@ -82,7 +70,7 @@ export class WPP {
 
     /**
      * @param {string} string
-     * @returns {WPlusPlusExtended}
+     * @returns {import('../../types/WPlusPlusExtended').default}
      */
     static parseExtended(string) {
         let appendix = string.replace(/[\[{][^\]}]*[\]}]\]?/g, "") || null;
@@ -97,7 +85,7 @@ export class WPP {
     }
 
     /**
-     * @param {WPlusPlusObject} wpp
+     * @param {import('../../types/WPlusPlusArray').default} wpp
      * @param {"normal" | "line" | "compact" | undefined} mode
      * @returns {string}
      */
@@ -146,7 +134,7 @@ export class WPP {
     }
 
     /**
-     * @param {WPlusPlusExtended} wppX
+     * @param {import('../../types/WPlusPlusExtended').default} wppX
      * @param {"normal" | "line" | "compact" | undefined} mode
      * @returns {string}
      */
@@ -163,8 +151,8 @@ export class WPP {
     }
 
     /**
-     * @param {WPlusPlusObject} wpp
-     * @returns {WPlusPlusObject}
+     * @param {import('../../types/WPlusPlusArray').default} wpp
+     * @returns {import('../../types/WPlusPlusArray').default}
      */
     static validate(wpp) {
         return WPP.parse(WPP.stringify(wpp));
@@ -213,9 +201,9 @@ export class WPP {
 
     /**
      * Merges w1 into w2 and returns result. Does not change source.
-     * @param {WPlusPlusObject} w1
-     * @param {WPlusPlusObject} w2
-     * @returns {WPlusPlusObject}
+     * @param {import('../../types/WPlusPlusArray').default} w1
+     * @param {import('../../types/WPlusPlusArray').default} w2
+     * @returns {import('../../types/WPlusPlusArray').default}
      */
     static getMerged(w1, w2) {
         if ((!w1 || !w1.length) && (!w2 || !w2.length)) {
@@ -267,9 +255,9 @@ export class WPP {
     }
 
     /**
-     * @param {WPlusPlusExtended} w1X
-     * @param {WPlusPlusExtended} w1X
-     * @returns {WPlusPlusExtended}
+     * @param {import('../../types/WPlusPlusExtended').default} w1X
+     * @param {import('../../types/WPlusPlusExtended').default} w1X
+     * @returns {import('../../types/WPlusPlusExtended').default}
      */
     static getMergedExtended(w1X, w2X) {
         if (!w1X || !w1X.wpp || !w2X || !w2X.wpp) {
@@ -290,8 +278,8 @@ export class WPP {
 
     /**
      * Removes all empty items from WPP
-     * @param {WPlusPlusObject} wpp Source W++ to trim
-     * @returns {WPlusPlusObject}
+     * @param {import('../../types/WPlusPlusArray').default} wpp Source W++ to trim
+     * @returns {import('../../types/WPlusPlusArray').default}
      */
     static trim(wpp) {
         if (!Array.isArray(wpp) || !Array.isArray(wpp)) {
