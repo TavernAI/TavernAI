@@ -56,13 +56,22 @@ export class WPP {
     }
 
     static parseExtended(string) {
-        let appendix = string.replace(/[\[{][^\]}]*[\]}]\]?/g, "") || null;
-        if(appendix) {
-            appendix = appendix.replace(/^\s*[\r\n]/gm, "\n")
-        }
-        let matches = string.match(/[\[{][^\]}]*[\]}]\]?/g);
+        let appendix = string;
+        let candidates = string.match(/[\[{][^\]}]*[\]}]\]?/g) || [];
+        let result = [];
+        candidates.forEach(match => {
+            try {
+                let r = WPP.parse(match) || [];
+                if(r.length) {
+                    appendix = appendix.replace(match, "");
+                    result = result.concat(r);
+                }
+            } catch(e) {
+                // format error; do not change appendix
+            }
+        });
         return {
-            wpp: !matches ? [] : WPP.parse(matches.join("\n")),
+            wpp: result,
             appendix: appendix,
         };
     }
