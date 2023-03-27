@@ -2,9 +2,9 @@
  * Resizeable and draggable window with optional close button
  */
 export class Resizable {
-    uid;
-    root;
-    container;
+    /** @type {string=} */ uid;
+    /** @type {HTMLDivElement} */ root;
+    /** @type {HTMLElement} */ container;
 
     shown = false;
     left = 0;
@@ -14,11 +14,14 @@ export class Resizable {
 
     /**
      * Creates modular, resizable window in given container. Root is a "shadow" (taking up the whole screen), its sole div .container child is the window itself.
-     * @param options
-     *      root (JQuery root element of the message)
-     *      uid (unique id for saving coordinates into local storage)
-     *      top, left, right, bottom (default position)
-     *      forceDefault (do not use stored coordinates)
+     * @param {object} options
+     * @param {HTMLDivElement} options.root JQuery root element of the message
+     * @param {string} options.uid unique id for saving coordinates into local storage
+     * @param {number} options.top default position
+     * @param {number} options.left default position
+     * @param {number} options.right default position
+     * @param {number} options.bottom default position
+     * @param {boolean} options.forceDefault do not use stored coordinates
      */
     constructor(options) {
         this.root = options.root;
@@ -26,15 +29,19 @@ export class Resizable {
         this.root.classList.add("resizable");
         for (let i = 0; i < this.root.children.length; i++) {
             if (this.root.children[i].classList.contains("container")) {
-                this.container = this.root.children[i];
+                this.container = /** @type {HTMLElement} */ (
+                    this.root.children[i]
+                );
                 break;
             }
         }
         this.uid = options.uid || undefined;
         if (options.uid && !options.forceDefault) {
-            let coords = window.localStorage.getItem(options.uid + "-coords");
+            let coords = window.localStorage
+                .getItem(options.uid + "-coords")
+                ?.split(";")
+                ?.map((v) => parseFloat(v));
             if (coords) {
-                coords = coords.split(";").map((v) => parseFloat(v));
                 options.top = coords[0];
                 options.right = coords[1];
                 options.bottom = coords[2];
@@ -127,10 +134,10 @@ export class Resizable {
         this.container.appendChild(el);
 
         // binds a .cross child to close window
-        let cross;
+        /** @type {HTMLElement=} */ let cross;
         for (let i = 0; i < this.container.children.length; i++) {
             if (this.container.children[i].classList.contains("cross")) {
-                cross = this.container.children[i];
+                cross = /** @type {HTMLElement} */ (this.container.children[i]);
                 break;
             }
         }
