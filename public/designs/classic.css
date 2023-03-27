@@ -426,7 +426,7 @@ hr {
     /* background: olive; */
     position: relative; /* Add relative position */
     z-index: 2; /* Add a z-index */
-    font-weight:lighter;
+    /*font-weight:lighter;*/
     padding-top: 3px;
     margin-bottom: 10px;
     margin-left: 35px;
