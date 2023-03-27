@@ -114,6 +114,9 @@ export class WPPEditor extends EventEmitter {
         }
     }
 
+    /**
+     * @returns {void}
+     */
     refresh() {
         this.editor.innerHTML = "";
         this.alert.classList.add("hidden");
@@ -128,6 +131,11 @@ export class WPPEditor extends EventEmitter {
         this.editor.appendChild(this.createCategory(null, maxIndex + 1));
     }
 
+    /**
+     * @param {import("../../types/WPlusPlusArray.js").default[number] | null | undefined} w
+     * @param {number} index
+     * @returns {HTMLDivElement}
+     */
     createCategory(w, index) {
         if (w) {
             if (!w.type) {
@@ -144,7 +152,7 @@ export class WPPEditor extends EventEmitter {
         let cont = document.createElement("div");
         // type and name
         let iType = this.createInput(
-            w ? w.type : "",
+            w ? w.type ?? "" : "",
             this.updateType.bind(this)
         );
         iType.setAttribute("title", "Type");
@@ -152,7 +160,7 @@ export class WPPEditor extends EventEmitter {
         iType.setAttribute("list", this.datalistTypes.getAttribute("id") ?? "");
         cont.appendChild(iType);
         let iName = this.createInput(
-            w ? w.name : "",
+            w ? w.name ?? "" : "",
             this.updateName.bind(this)
         );
         iName.setAttribute("title", "Name");
@@ -277,6 +285,10 @@ export class WPPEditor extends EventEmitter {
         }
     }
 
+    /**
+     * @param {Event & { target: HTMLInputElement }} event
+     * @returns {void}
+     */
     updateType(event) {
         if (!this._wpp[event.target.propertyIndex]) {
             this._wpp[event.target.propertyIndex] = {
@@ -293,13 +305,13 @@ export class WPPEditor extends EventEmitter {
         }
         if ((!r.type || !r.type.length) && (!r.name || !r.name.length) && !c) {
             this._wpp.splice(event.target.propertyIndex, 1);
-            if (event.target.parentNode.nextSibling) {
-                event.target.parentNode.parentNode.removeChild(
+            if (event.target.parentNode?.nextSibling) {
+                event.target.parentNode.parentNode?.removeChild(
                     event.target.parentNode
                 );
                 this.recalculate();
             }
-        } else if (!event.target.parentNode.nextSibling) {
+        } else if (!event.target.parentNode?.nextSibling) {
             this.createCategory(null, event.target.propertyIndex + 1);
         }
         this.emitChange();
@@ -313,6 +325,10 @@ export class WPPEditor extends EventEmitter {
         this.emitChange();
     }
 
+    /**
+     * @param {Event & { target: HTMLInputElement }} event
+     * @returns {void}
+     */
     updatePropertyName(event) {
         if (!this._wpp[event.target.propertyIndex]) {
             return;
@@ -346,20 +362,28 @@ export class WPPEditor extends EventEmitter {
         ];
         if (event.target.value && event.target.value.length) {
             event.target.propertyName = event.target.value;
-            for (
-                let i = 1;
-                i < event.target.parentNode.childNodes.length;
-                i++
-            ) {
-                event.target.parentNode.childNodes[i].disabled = false;
+            if (event.target.parentNode) {
+                for (
+                    let i = 1;
+                    i < (event.target.parentNode?.childNodes.length ?? 0);
+                    i++
+                ) {
+                    /** @type {HTMLInputElement} */ (
+                        event.target.parentNode.childNodes[i]
+                    ).disabled = false;
+                }
             }
         } else {
-            for (
-                let i = 1;
-                i < event.target.parentNode.childNodes.length;
-                i++
-            ) {
-                event.target.parentNode.childNodes[i].disabled = true;
+            if (event.target.parentNode) {
+                for (
+                    let i = 1;
+                    i < (event.target.parentNode.childNodes.length ?? 0);
+                    i++
+                ) {
+                    /** @type {HTMLInputElement} */ (
+                        event.target.parentNode.childNodes[i]
+                    ).disabled = true;
+                }
             }
         }
         let next = event.target.nextSibling;
@@ -370,9 +394,9 @@ export class WPPEditor extends EventEmitter {
         if (
             event.target.value &&
             event.target.value.length &&
-            !event.target.parentNode.nextSibling
+            !event.target.parentNode?.nextSibling
         ) {
-            event.target.parentNode.parentNode.appendChild(
+            event.target.parentNode?.parentNode?.appendChild(
                 this.createRow(event.target.propertyIndex, null)
             );
         }
@@ -380,12 +404,16 @@ export class WPPEditor extends EventEmitter {
             let allEmpty = true;
             for (
                 let i = 0;
-                i < event.target.parentNode.childNodes.length;
+                i < (event.target.parentNode?.childNodes.length ?? 0);
                 i++
             ) {
                 if (
-                    event.target.parentNode.childNodes[i].value &&
-                    event.target.parentNode.childNodes[i].value.length
+                    /** @type {HTMLInputElement} */ (
+                        event.target.parentNode?.childNodes[i]
+                    ).value &&
+                    /** @type {HTMLInputElement} */ (
+                        event.target.parentNode?.childNodes[i]
+                    ).value.length
                 ) {
                     allEmpty = false;
                     break;
@@ -397,7 +425,7 @@ export class WPPEditor extends EventEmitter {
                         event.target.value
                     ];
                 }
-                event.target.parentNode.parentNode.removeChild(
+                event.target.parentNode?.parentNode?.removeChild(
                     event.target.parentNode
                 );
             }
@@ -405,6 +433,10 @@ export class WPPEditor extends EventEmitter {
         this.emitChange();
     }
 
+    /**
+     * @param {Event & { target: HTMLInputElement }} event
+     * @returns {void}
+     */
     updatePropertyValue(event) {
         if (!this._wpp[event.target.propertyIndex]) {
             return;
@@ -421,7 +453,7 @@ export class WPPEditor extends EventEmitter {
             pValue.propertyIndex = event.target.propertyIndex;
             pValue.valueIndex = event.target.valueIndex + 1;
             pValue.classList.add("empty");
-            event.target.parentNode.appendChild(pValue);
+            event.target.parentNode?.appendChild(pValue);
         }
         if (!event.target.value || !event.target.value.length) {
             event.target.classList.add("empty");
@@ -436,9 +468,11 @@ export class WPPEditor extends EventEmitter {
             this._wpp[event.target.propertyIndex].properties[
                 event.target.propertyName
             ].splice(event.target.valueIndex, 1);
-            parent.removeChild(event.target);
-            for (let i = 1; i < parent.childNodes.length; i++) {
-                parent.childNodes[i].valueIndex = i - 1;
+            if (parent) {
+                parent.removeChild(event.target);
+                for (let i = 1; i < parent.childNodes.length; i++) {
+                    parent.childNodes[i].valueIndex = i - 1;
+                }
             }
         }
         this.emitChange();
@@ -446,6 +480,7 @@ export class WPPEditor extends EventEmitter {
 
     /**
      * @param {string} error
+     * @returns {void}
      */
     processError(error) {
         this.alertText.innerHTML = "";
