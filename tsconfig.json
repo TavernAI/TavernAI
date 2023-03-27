@@ -1,0 +1,19 @@
+{
+	"extends": "@tsconfig/node18-strictest-esm/tsconfig.json",
+	"compilerOptions": {
+		"allowJs": true,
+		"ignoreDeprecations": "5.0",
+		"noEmit": true
+	},
+	"include": ["env.d.ts"],
+	"exclude": [
+		"node_modules",
+		"public/scripts/gpt-2-3-tokenizer",
+		"public/scripts/jquery-3.5.1.min.js",
+		"public/scripts/jquery-cookie-1.4.1.min.js",
+		"public/scripts/jquery.lazyloadxt.min.js",
+		"public/scripts/jquery.transit.min.js",
+		"public/scripts/purify.min.js",
+		"public/scripts/showdown.min.js"
+	]
+}
