@@ -1,6 +1,6 @@
 interface WPlusPlusEntry {
-    type?: string;
-    name?: string;
+    type?: string | null;
+    name?: string | null;
     properties: Record<string, string[]>;
 }
 

@@ -2,18 +2,18 @@ import { WPP } from "./WPP.mjs";
 import { EventEmitter } from "./EventEmitter.mjs";
 
 export class WPPEditor extends EventEmitter {
-    container;
-    editor;
-    datalistProperties;
-    datalistTypes;
+    /** @type {HTMLDivElement} */ container;
+    /** @type {HTMLDivElement} */ editor;
+    /** @type {HTMLDataListElement} */ datalistProperties;
+    /** @type {HTMLDataListElement} */ datalistTypes;
 
-    _wpp = [];
-    appendix;
+    /** @type {import("../../types/WPlusPlusArray.js").default} */ _wpp = [];
+    /** @type {(string | null | undefined)=} */ appendix;
 
     error = false;
 
-    alert;
-    alertText;
+    /** @type {HTMLDivElement} */ alert;
+    /** @type {HTMLDivElement} */ alertText;
 
     static suggestTypes = ["Character"];
     static suggestProperties = [
@@ -32,10 +32,9 @@ export class WPPEditor extends EventEmitter {
     ];
 
     /**
-     *
-     * @param options
-     *  container: HTMLDivElement
-     *  wpp?: WPPObject | string
+     * @param {object} options
+     * @param {HTMLDivElement} options.container
+     * @param {(import("../../types/WPlusPlusArray.js").default | string)=} options.wpp
      */
     constructor(options) {
         super();
@@ -59,8 +58,8 @@ export class WPPEditor extends EventEmitter {
             }
         };
         this.editor.onkeyup = this.editor.onchange;
-        this.editor.onpaste = this.editor.onchange;
-        this.editor.oncut = this.editor.onchange;
+        this.editor.onpaste = (ev) => this.editor.onchange?.(ev);
+        this.editor.oncut = (ev) => this.editor.onchange?.(ev);
         // datalists for suggestions
         this.datalistProperties = document.createElement("datalist");
         this.datalistProperties.setAttribute(
@@ -105,7 +104,7 @@ export class WPPEditor extends EventEmitter {
         );
 
         if (options.wpp) {
-            if (typeof value === "string") {
+            if (typeof options.wpp === "string") {
                 this.text = options.wpp;
             } else {
                 this.wpp = options.wpp;
@@ -119,7 +118,7 @@ export class WPPEditor extends EventEmitter {
         this.editor.innerHTML = "";
         this.alert.classList.add("hidden");
         if (!this._wpp.length) {
-            this._wpp.push({});
+            this._wpp.push({ properties: {} });
         }
         let maxIndex = 0;
         this._wpp.forEach((w, index) => {
@@ -150,7 +149,7 @@ export class WPPEditor extends EventEmitter {
         );
         iType.setAttribute("title", "Type");
         iType.propertyIndex = index;
-        iType.setAttribute("list", this.datalistTypes.getAttribute("id"));
+        iType.setAttribute("list", this.datalistTypes.getAttribute("id") ?? "");
         cont.appendChild(iType);
         let iName = this.createInput(
             w ? w.name : "",
@@ -187,7 +186,10 @@ export class WPPEditor extends EventEmitter {
     createRow(index, key) {
         let row = document.createElement("div");
         let pName = this.createInput(key, this.updatePropertyName.bind(this));
-        pName.setAttribute("list", this.datalistProperties.getAttribute("id"));
+        pName.setAttribute(
+            "list",
+            this.datalistProperties.getAttribute("id") ?? ""
+        );
         pName.setAttribute("title", "Property name");
         pName.propertyName = key;
         pName.propertyIndex = index;
@@ -219,6 +221,11 @@ export class WPPEditor extends EventEmitter {
         return row;
     }
 
+    /**
+     * @param {string} value
+     * @param {(ev: Event) => void} callback
+     * @returns {HTMLInputElement}
+     */
     createInput(value, callback) {
         let item = document.createElement("input");
         item.setAttribute("type", "text");
@@ -232,8 +239,12 @@ export class WPPEditor extends EventEmitter {
         return item;
     }
 
+    /**
+     * @returns {void}
+     */
     recalculate() {
         for (let index = 0; index < this.editor.childNodes.length; index++) {
+            // @ts-ignore
             for (let i = 0; i < this.editor.childNodes[index].length; i++) {
                 this.editor.childNodes[index][i].propertyIndex = index;
                 if (
@@ -308,7 +319,7 @@ export class WPPEditor extends EventEmitter {
         }
         if (event.target.propertyName) {
             // this doesn't maintain order
-            let newProps = {};
+            /** @type {Record<string, string[]>} */ let newProps = {};
             for (let key in this._wpp[event.target.propertyIndex].properties) {
                 if (key === event.target.propertyName) {
                     newProps[event.target.value] =
@@ -322,7 +333,6 @@ export class WPPEditor extends EventEmitter {
                         ].slice();
                 }
             }
-            delete this._wpp[event.target.propertyIndex].properties;
             this._wpp[event.target.propertyIndex].properties = newProps;
         } else {
             if (event.target.value && event.target.value.length) {
@@ -434,6 +444,9 @@ export class WPPEditor extends EventEmitter {
         this.emitChange();
     }
 
+    /**
+     * @param {string} error
+     */
     processError(error) {
         this.alertText.innerHTML = "";
         switch (error) {
@@ -442,12 +455,11 @@ export class WPPEditor extends EventEmitter {
             case WPP.ErrorNoType:
                 return; // nop
             case WPP.ErrorTypeHasMultipleNames:
-                this.alertText.innerHTML(
-                    "W++ type (character) has multiple names"
-                );
+                this.alertText.innerHTML =
+                    "W++ type (character) has multiple names";
                 break; // nop
             case WPP.ErrorBadAttribute:
-                this.alertText.innerHTML("Error parsing W++ attribute");
+                this.alertText.innerHTML = "Error parsing W++ attribute";
                 break; // nop; // nop
             default:
                 this.alertText.innerHTML = error;
@@ -458,6 +470,9 @@ export class WPPEditor extends EventEmitter {
         this.emit("error", { target: this, error: error });
     }
 
+    /**
+     * @returns {void}
+     */
     clear() {
         this._wpp = [];
         this.appendix = null;
@@ -465,6 +480,10 @@ export class WPPEditor extends EventEmitter {
         this.alert.classList.add("hidden");
     }
 
+    /**
+     * @param {import("../../types/WPlusPlusArray.js").default} value
+     * @returns {void}
+     */
     set wpp(value) {
         try {
             WPP.validate(value);
@@ -477,10 +496,17 @@ export class WPPEditor extends EventEmitter {
         }
     }
 
+    /**
+     * @returns {import("../../types/WPlusPlusArray.js").default}
+     */
     get wpp() {
         return WPP.validate(this._wpp);
     }
 
+    /**
+     * @param {string} value
+     * @returns {void}
+     */
     set text(value) {
         try {
             let parsed = WPP.parseExtended(value);
@@ -495,18 +521,32 @@ export class WPPEditor extends EventEmitter {
         }
     }
 
+    /**
+     * @returns {string}
+     */
     get text() {
         return this.getText();
     }
 
+    /**
+     * @returns {string}
+     */
     get display() {
         return this.container.style.display;
     }
 
+    /**
+     * @param {string} value
+     * @returns {void}
+     */
     set display(value) {
         this.container.style.display = value;
     }
 
+    /**
+     * @param {("line")=} format
+     * @returns {string}
+     */
     getText(format) {
         let str = WPP.stringify(WPP.trim(this._wpp), format) || "";
         if (format === "line") {
@@ -524,7 +564,10 @@ export class WPPEditor extends EventEmitter {
         }
     }
 
-    /* Event emitting */
+    /**
+     * Event emitting
+     * @returns {void}
+     */
     emitChange() {
         this.emit("change", {
             target: this,
