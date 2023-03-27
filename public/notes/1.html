@@ -1,29 +1,64 @@
 <html>
     <head>
         <title>Description character</title>
-        <link rel="stylesheet" href="/css/notes.css">
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="/css/notes.css" />
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     </head>
     <body>
         <div id="main">
             <div id="content">
                 <h2>Character description</h2>
-                <p>Used to add the character description and the rest that the AI should 
-                    know. For example, you can add information about the world in which the action takes place and describe 
-                    the characteristics for the character you are playing for. Usually it all takes 200-350 tokens.</p>
+                <p>
+                    Used to add the character description and the rest that the
+                    AI should know. For example, you can add information about
+                    the world in which the action takes place and describe the
+                    characteristics for the character you are playing for.
+                    Usually it all takes 200-350 tokens.
+                </p>
                 <h3>Methods and format</h3>
-                <p>For most Kobold's models the easiest way is to use a free form for description, and in each sentence it is desirable to specify the name of the character. 
-                    The entire description should be in one line without hyphenation. For examle:<br><br>
-                    <i>Chloe is a female elf. Chloe wears black-white maid dress with green collar and red glasses. Chloe has medium length black hair. 
-                        Chloe's personality is...</i> etc.</p>
+                <p>
+                    For most Kobold's models the easiest way is to use a free
+                    form for description, and in each sentence it is desirable
+                    to specify the name of the character. The entire description
+                    should be in one line without hyphenation. For examle:<br /><br />
+                    <i
+                        >Chloe is a female elf. Chloe wears black-white maid
+                        dress with green collar and red glasses. Chloe has
+                        medium length black hair. Chloe's personality is...</i
+                    >
+                    etc.
+                </p>
                 <h3>W++ format</h3>
-                <p>This is an economic format used for KoboldAI. Details here: <a target="_blank" href="https://github.com/KoboldAI/KoboldAI-Client/wiki/Pro-Tips">Pro-Tips</a></p>
-                <p>Experimental W++ editor can be turned on with the checkbox. Text which does not fit into W++ format will be appended after W++ section.</p>
-                <p>Each W++ item (e.g. a character) has <em>type</em> and <em>name</em> (the first two fields), as well as <em>properties</em> and their <em>values</em> (the following rows). Type is usually "Character". Once type and name are filled in, you can add properties. A property can have multiple values, e.g. Hobbies("Video games"+"Reading").</p>
-                <p>Suggestions for type and property names are given, but are not the only options.</p>
-                <hr><br>A list of tags that are replaced when sending to generate:<br><br>
-                {{user}} and &lt;USER&gt; are replaced by User Name<br>
+                <p>
+                    This is an economic format used for KoboldAI. Details here:
+                    <a
+                        target="_blank"
+                        href="https://github.com/KoboldAI/KoboldAI-Client/wiki/Pro-Tips"
+                        >Pro-Tips</a
+                    >
+                </p>
+                <p>
+                    Experimental W++ editor can be turned on with the checkbox.
+                    Text which does not fit into W++ format will be appended
+                    after W++ section.
+                </p>
+                <p>
+                    Each W++ item (e.g. a character) has <em>type</em> and
+                    <em>name</em> (the first two fields), as well as
+                    <em>properties</em> and their <em>values</em> (the following
+                    rows). Type is usually "Character". Once type and name are
+                    filled in, you can add properties. A property can have
+                    multiple values, e.g. Hobbies("Video games"+"Reading").
+                </p>
+                <p>
+                    Suggestions for type and property names are given, but are
+                    not the only options.
+                </p>
+                <hr />
+                <br />A list of tags that are replaced when sending to
+                generate:<br /><br />
+                {{user}} and &lt;USER&gt; are replaced by User Name<br />
                 {{char}} and &lt;BOT&gt; are replaced by Character Name
             </div>
         </div>

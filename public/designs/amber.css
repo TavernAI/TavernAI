@@ -1,14 +1,13 @@
 /* Designed by Luizsan */
 .nav-toggle {
     font-size: 1.75em;
-
 }
 
 .nav {
-    background: rgba(26,24,25,0.8);/*#252424e0;/*#24252590;*/
+    background: rgba(26, 24, 25, 0.8); /*#252424e0;/*#24252590;*/
 }
 
-[id='nav-toggle']:checked ~ .nav > .nav-toggle {
+[id="nav-toggle"]:checked ~ .nav > .nav-toggle {
     top: unset;
 }
 
@@ -29,7 +28,6 @@ body {
 
 .popup_large {
     scrollbar-color: gray #10101000;
-    
 }
 
 ::-webkit-scrollbar-thumb {
@@ -37,7 +35,7 @@ body {
 }
 
 #shell {
-    background:#24252590;
+    background: #24252590;
 }
 
 #chat {
@@ -60,7 +58,7 @@ body {
     height: calc(100% - 1px);
     border-style: solid;
     border-width: 0 0 0px;
-    border-image: unset;/*linear-gradient(to right, #ffffff05 0%, #ffffff15 1%, #ffffff15 99%, #ffffff05 100%) 1;*/
+    border-image: unset; /*linear-gradient(to right, #ffffff05 0%, #ffffff15 1%, #ffffff15 99%, #ffffff05 100%) 1;*/
     display: flex;
     align-items: center;
     box-shadow: 0 5px 5px -5px rgba(0, 0, 0, 0.07);
@@ -74,8 +72,8 @@ body {
 #rm_button_import {
     cursor: pointer;
     display: inline-block;
-    margin-left: 15px;/* 274px; */
-    margin-top: 6px;/* 10px; */
+    margin-left: 15px; /* 274px; */
+    margin-top: 6px; /* 10px; */
 }
 
 #form_shell {
@@ -110,13 +108,13 @@ body {
 
 #options {
     border-radius: 5px;
-    opacity: 0.0;
+    opacity: 0;
     display: none;
     bottom: 36px;
     /* position: relative; */
     position: absolute;
     /* background-color: blue; */
-    z-index:1990;
+    z-index: 1990;
 }
 
 .options-content {
@@ -124,7 +122,7 @@ body {
     overflow: hidden;
     display: block;
     position: absolute;
-    background-color: #191b31FF;
+    background-color: #191b31ff;
     min-width: 205px;
     z-index: 1;
     border-radius: 8px;
@@ -156,7 +154,7 @@ body {
     vertical-align: middle;
 }
 
-.options-content a:hover { 
+.options-content a:hover {
     background-color: #0080ff20;
     color: #ffffff;
 }
@@ -164,7 +162,7 @@ body {
 .mes {
     display: grid;
     grid-template-columns: fit-content(60px) 60px auto 0px 0px;
-    border: 1px solid #FFFFFF10;
+    border: 1px solid #ffffff10;
     box-shadow: unset;
     border-radius: 5px;
     /* box-shadow: 0 0 2px rgba(200,200,200,0.1); */
@@ -210,7 +208,7 @@ body {
 }
 
 .mes_text {
-    color: rgb(197,223,226);
+    color: rgb(197, 223, 226);
     font-weight: 500;
     margin-left: 0px;
 }
@@ -219,50 +217,50 @@ body {
     margin-left: 0px;
 }
 
-.mes_text i, .mes_text em {
-    color: rgb(106,135,149)
+.mes_text i,
+.mes_text em {
+    color: rgb(106, 135, 149);
 }
 
-
-textarea,.text_pole {
+textarea,
+.text_pole {
     font-size: 14px;
     background-color: #13152c;
-    box-shadow: 0 0 2px rgba(200,200,200,0.5);
-    border:0px solid grey;
+    box-shadow: 0 0 2px rgba(200, 200, 200, 0.5);
+    border: 0px solid grey;
     /*font-family: "Segoe UI", "Source Sans Pro", -apple-system, BlinkMacSystemFont,  "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;*/
 }
 
 textarea {
-    width:100%; 
+    width: 100%;
     height: 400px;
     resize: none;
     display: block;
     outline: none !important;
     padding: 10px;
     color: #cacaca;
-    
 }
 
 .edit_textarea {
     font-weight: 500;
-    font-size: 1.00em;
+    font-size: 1em;
 }
 
 .right_menu_title_button {
-    display:inline-block;
+    display: inline-block;
     /* box-shadow: 0 0 5px -1px rgba(0,0,0,0.2); */
-    cursor:pointer;
-    vertical-align:middle;
+    cursor: pointer;
+    vertical-align: middle;
     text-align: center;
     padding: 8px;
     background: #00000060;
-    border-radius:6px;
+    border-radius: 6px;
     font-size: 20px;
     margin-top: 20px;
     margin-bottom: 20px;
 }
 
-.right_menu_title_button h2{
+.right_menu_title_button h2 {
     font-size: 20px;
     margin: 0px;
 }
@@ -294,15 +292,18 @@ textarea {
     background-color: #181717;
 }
 
-textarea, .text_pole {
+textarea,
+.text_pole {
     background-color: #16161680;
 }
 
-input[type=submit], input[type=button] {
+input[type="submit"],
+input[type="button"] {
     background-color: #16161680;
 }
 
-#character_advanced_button, #master_settings_button {
+#character_advanced_button,
+#master_settings_button {
     background-color: #16161680;
 }
 
@@ -322,7 +323,7 @@ input::file-selector-button {
     margin-top: 43px;
 }
 
-.ch_name_menu{
+.ch_name_menu {
     margin: auto 6px;
 }
 
@@ -350,7 +351,7 @@ input::file-selector-button {
 }
 
 .mes_edit:hover {
-    opacity: 1.0;
+    opacity: 1;
 }
 
 .mes_edit_done img {
@@ -358,13 +359,13 @@ input::file-selector-button {
     height: 20px;
 }
 
-.mes_edit_cancel img{
+.mes_edit_cancel img {
     width: 20px;
     height: 20px;
 }
 
 .popup_large {
-    background: rgba(26,24,25,0.98);
+    background: rgba(26, 24, 25, 0.98);
 }
 
 .menu_select {
@@ -372,35 +373,32 @@ input::file-selector-button {
 }
 
 label.checkbox span {
-  background:#181717;
-
-  
+    background: #181717;
 }
 
 label.checkbox :checked + span {
-  background:#181717;
-
+    background: #181717;
 }
 /*searchbox*/
-#search_bar  {
+#search_bar {
     background-color: #181717;
 }
-#search_bar::placeholder  {
+#search_bar::placeholder {
     color: white;
 }
 
 .name_select {
-    background-color: rgba(36, 36, 37, 0.0);
+    background-color: rgba(36, 36, 37, 0);
     margin-left: 0px;
     width: min-content;
     border-color: #ffffff00;
-    box-shadow: 0 0 2px rgba(200,200,200,0.0);
+    box-shadow: 0 0 2px rgba(200, 200, 200, 0);
     border-bottom: 1px dashed rgba(255, 255, 255, 0.12);
     background-color: #16161680;
 }
 
 .modular .container {
-    background: rgba(26,24,25,0.95);
+    background: rgba(26, 24, 25, 0.95);
 }
 
 #notes_popup textarea {

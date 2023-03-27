@@ -1,7 +1,7 @@
-import {encode} from "../scripts/gpt-2-3-tokenizer/mod.js";
-import {Resizable} from "./Resizable.mjs";
-import {WPPEditor} from "./WPPEditor.mjs";
-import {WPP} from "./WPP.mjs";
+import { encode } from "../scripts/gpt-2-3-tokenizer/mod.js";
+import { Resizable } from "./Resizable.mjs";
+import { WPPEditor } from "./WPPEditor.mjs";
+import { WPP } from "./WPP.mjs";
 
 /**
  * "Notes" window
@@ -28,32 +28,32 @@ export class Notes extends Resizable {
             top: 0.3,
             left: 0.3,
             right: 0.7,
-            bottom: 0.7
+            bottom: 0.7,
         });
         this.saveFunction = options.save || null;
 
-        for(let i = 0; i < this.container.children.length; i++) {
+        for (let i = 0; i < this.container.children.length; i++) {
             const child = this.container.children[i];
-            if(!this.textarea && child instanceof HTMLTextAreaElement) {
+            if (!this.textarea && child instanceof HTMLTextAreaElement) {
                 this.textarea = child;
             }
-            if(!this.select && child instanceof HTMLSelectElement) {
+            if (!this.select && child instanceof HTMLSelectElement) {
                 this.select = child;
             }
-            if(!this._wpp && child.classList.contains("wpp-editor")) {
+            if (!this._wpp && child.classList.contains("wpp-editor")) {
                 this._wpp = new WPPEditor({
-                    container: child
+                    container: child,
                 });
             }
-            if(!this.tokens && child.classList.contains("notes_token_stat")) {
-                if(child.children.length) {
+            if (!this.tokens && child.classList.contains("notes_token_stat")) {
+                if (child.children.length) {
                     this.tokens = child.children[0];
                 }
             }
-            if(child.classList.contains("wpp-checkbox")) {
+            if (child.classList.contains("wpp-checkbox")) {
                 child.checked = false;
-                child.onchange = function(event) {
-                    if(event.target.checked) {
+                child.onchange = function (event) {
+                    if (event.target.checked) {
                         this.textarea.style.display = "none";
                         this._wpp.container.style.display = null;
                     } else {
@@ -65,9 +65,9 @@ export class Notes extends Resizable {
         }
 
         //
-        if(this.select) {
-            this.select.onchange = function() {
-                if(this.select.value === "wpp") {
+        if (this.select) {
+            this.select.onchange = function () {
+                if (this.select.value === "wpp") {
                     this.textarea.style.display = "none";
                     this._wpp.display = null;
                 } else {
@@ -75,30 +75,34 @@ export class Notes extends Resizable {
                     this._wpp.display = "none";
                 }
                 this.updateNotesTokenCount();
-                if(this.saveFunction) {
+                if (this.saveFunction) {
                     this.saveFunction();
                 }
             }.bind(this);
-            for(let index = 0; index < this.select.children.length; index++) {
+            for (let index = 0; index < this.select.children.length; index++) {
                 const child = this.select.children[index];
-                if(index) {
+                if (index) {
                     child.removeAttribute("selected");
                 } else {
                     child.setAttribute("selected", "selected");
                 }
             }
         }
-        if(this._wpp) {
+        if (this._wpp) {
             this._wpp.display = "none";
-            this._wpp.on("change", function() {
-                this.updateNotesTokenCount();
-                this.save();
-                let text = this._wpp.getText();
-                this.textarea.value = text + (this.appendix ? this.appendix : "");
-            }.bind(this));
+            this._wpp.on(
+                "change",
+                function () {
+                    this.updateNotesTokenCount();
+                    this.save();
+                    let text = this._wpp.getText();
+                    this.textarea.value =
+                        text + (this.appendix ? this.appendix : "");
+                }.bind(this)
+            );
         }
 
-        this.textarea.onkeyup = function() {
+        this.textarea.onkeyup = function () {
             this.updateNotesTokenCount();
             this.save();
             let parsed = WPP.parseExtended(this.textarea.value);
@@ -109,41 +113,57 @@ export class Notes extends Resizable {
         this.textarea.oncut = this.textarea.onkeyup;
         this.textarea.onpaste = this.textarea.onkeyup;
 
-        $(document).on('click', '.option_toggle_notes', this.toggle.bind(this));
+        $(document).on("click", ".option_toggle_notes", this.toggle.bind(this));
     }
 
     /** w++ contents */
     set wpp(value) {
-        if(!this.container) { return; }
-        if(!this._wpp) { return; }
+        if (!this.container) {
+            return;
+        }
+        if (!this._wpp) {
+            return;
+        }
         this._wpp.wpp = value;
         this.updateNotesTokenCount();
     }
-    
+
     get wpp() {
-        if(!this.container) { return; }
-        if(!this._wpp) { return; }
+        if (!this.container) {
+            return;
+        }
+        if (!this._wpp) {
+            return;
+        }
         return this._wpp.wpp;
     }
 
     /** W++Extended contents */
     set wppx(wppx) {
-        if(!wppx.wpp) { return; }
-        this.appendix = wppx.appendix && wppx.appendix.length ? wppx.appendix : null;
+        if (!wppx.wpp) {
+            return;
+        }
+        this.appendix =
+            wppx.appendix && wppx.appendix.length ? wppx.appendix : null;
         this.wpp = wppx.wpp;
     }
 
     get wppx() {
         return {
             wpp: this.wpp,
-            appendix: this.appendix && this.appendix.length ? this.appendix : null
-        }
+            appendix:
+                this.appendix && this.appendix.length ? this.appendix : null,
+        };
     }
 
     /** Sets textarea contents */
     set text(value) {
-        if(!this.container) { return; }
-        if(!this.textarea) { return; }
+        if (!this.container) {
+            return;
+        }
+        if (!this.textarea) {
+            return;
+        }
         this.textarea.value = value.replace(/\r/g, "");
         this._wpp.clear();
         let parsed = WPP.parseExtended(this.textarea.value);
@@ -154,16 +174,20 @@ export class Notes extends Resizable {
 
     /** Returns textarea contents */
     get text() {
-        if(!this.textarea) { return; }
+        if (!this.textarea) {
+            return;
+        }
         return this.textarea.value;
     }
 
     /** Startegy select */
     set strategy(value) {
-        if(!this.select) { return; }
-        for(let i = 0; i < this.select.children.length; i++) {
+        if (!this.select) {
+            return;
+        }
+        for (let i = 0; i < this.select.children.length; i++) {
             const v = this.select.children[i];
-            if(v.value === value) {
+            if (v.value === value) {
                 v.setAttribute("selected", "selected");
             } else {
                 v.removeAttribute("selected");
@@ -171,18 +195,22 @@ export class Notes extends Resizable {
         }
     }
     get strategy() {
-        if(!this.select) { return; }
+        if (!this.select) {
+            return;
+        }
         return this.select.value;
     }
 
     save() {
-        if(!this.saveFunction) { return; }
-        if(this.timerSave) {
+        if (!this.saveFunction) {
+            return;
+        }
+        if (this.timerSave) {
             clearTimeout(this.timerSave);
         }
         this.timerSave = setTimeout(() => {
             this.timerSave = null;
-            if(this.saveFunction) {
+            if (this.saveFunction) {
                 this.saveFunction();
             }
         }, this.durationSave);
@@ -193,10 +221,10 @@ export class Notes extends Resizable {
      * */
     getText(format) {
         let raw = (this.textarea.value || "").trim().replace(/\s\s+/g, " ");
-        switch(format) {
+        switch (format) {
             case "raw":
                 return raw;
-            default:    // singleline
+            default: // singleline
                 return raw.replace(/\n+/g, " ");
         }
     }
@@ -208,13 +236,16 @@ export class Notes extends Resizable {
 
     /** Updates notes count */
     updateNotesTokenCount() {
-        if(!this.container) { return; }
+        if (!this.container) {
+            return;
+        }
         let text = this.textarea.value
             .trim()
             .replace(/\s\s+/g, " ")
             .replace(/\n/g, " ");
 
-        this.tokens.innerHTML = (text && text.length ? this.getTokenCount(text) : 0).toString();
+        this.tokens.innerHTML = (
+            text && text.length ? this.getTokenCount(text) : 0
+        ).toString();
     }
-    
 }

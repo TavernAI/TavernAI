@@ -1,12 +1,12 @@
 version: "3"
 services:
-  tavernai:
-    build: ..
-    container_name: tavernai
-    hostname: tavernai
-    image: tavernai/tavernai:latest
-    ports:
-      - "8000:8000"
-    volumes:
-      - "./config:/home/node/app/config"
-    restart: unless-stopped
+    tavernai:
+        build: ..
+        container_name: tavernai
+        hostname: tavernai
+        image: tavernai/tavernai:latest
+        ports:
+            - "8000:8000"
+        volumes:
+            - "./config:/home/node/app/config"
+        restart: unless-stopped

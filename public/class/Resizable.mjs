@@ -24,17 +24,17 @@ export class Resizable {
         this.root = options.root;
         this.root.classList.add("modular");
         this.root.classList.add("resizable");
-        for(let i = 0; i < this.root.children.length; i++) {
-            if(this.root.children[i].classList.contains("container")) {
+        for (let i = 0; i < this.root.children.length; i++) {
+            if (this.root.children[i].classList.contains("container")) {
                 this.container = this.root.children[i];
                 break;
             }
         }
         this.uid = options.uid || undefined;
-        if(options.uid && !options.forceDefault) {
+        if (options.uid && !options.forceDefault) {
             let coords = window.localStorage.getItem(options.uid + "-coords");
-            if(coords) {
-                coords = coords.split(";").map(v => parseFloat(v));
+            if (coords) {
+                coords = coords.split(";").map((v) => parseFloat(v));
                 options.top = coords[0];
                 options.right = coords[1];
                 options.bottom = coords[2];
@@ -49,59 +49,92 @@ export class Resizable {
         this.container.setAttribute("class", "container");
 
         // create 4 corner handles and 3 edge handles
-        ["tl", "tr", "bl", "br", "mr", "bm", "ml"].forEach((direction, index) => {
-            let el = document.createElement("div");
-            el.classList.add("direction");
-            el.classList.add(direction);
-            el.addEventListener("mousedown", function(event) {
-                let move = function(event) {
-                    let x = event.clientX / window.innerWidth;
-                    let y = event.clientY / window.innerHeight;
-                    this.resize(direction, x, y);
-                }.bind(this);
-                window.addEventListener("mousemove", move);
-                document.addEventListener("mouseup", (e) => {
-                    window.removeEventListener("mousemove", move);
-                    if(this.uid) {
-                        window.localStorage.setItem(this.uid + "-coords",
-                            this.top + ";" + this.right + ";" + this.bottom + ";" + this.left
+        ["tl", "tr", "bl", "br", "mr", "bm", "ml"].forEach(
+            (direction, index) => {
+                let el = document.createElement("div");
+                el.classList.add("direction");
+                el.classList.add(direction);
+                el.addEventListener(
+                    "mousedown",
+                    function (event) {
+                        let move = function (event) {
+                            let x = event.clientX / window.innerWidth;
+                            let y = event.clientY / window.innerHeight;
+                            this.resize(direction, x, y);
+                        }.bind(this);
+                        window.addEventListener("mousemove", move);
+                        document.addEventListener(
+                            "mouseup",
+                            (e) => {
+                                window.removeEventListener("mousemove", move);
+                                if (this.uid) {
+                                    window.localStorage.setItem(
+                                        this.uid + "-coords",
+                                        this.top +
+                                            ";" +
+                                            this.right +
+                                            ";" +
+                                            this.bottom +
+                                            ";" +
+                                            this.left
+                                    );
+                                }
+                            },
+                            true
                         );
-                    }
-                }, true);
-                event.preventDefault();
-            }.bind(this));
-            this.container.appendChild(el);
-        });
+                        event.preventDefault();
+                    }.bind(this)
+                );
+                this.container.appendChild(el);
+            }
+        );
 
         // create central grabber
         let el = document.createElement("div");
         el.classList.add("move");
-        el.addEventListener("mousedown", function(event) {
-            let move = function(event) {
-                this.moveAll(event.movementX/window.innerWidth, event.movementY/window.innerHeight);
-            }.bind(this);
-            window.addEventListener("mousemove", move);
-            document.addEventListener("mouseup", (e) => {
-                window.removeEventListener("mousemove", move);
-                if(this.uid) {
-                    window.localStorage.setItem(this.uid + "-coords",
-                        this.top + ";" + this.right + ";" + this.bottom + ";" + this.left
+        el.addEventListener(
+            "mousedown",
+            function (event) {
+                let move = function (event) {
+                    this.moveAll(
+                        event.movementX / window.innerWidth,
+                        event.movementY / window.innerHeight
                     );
-                }
-            }, true);
-            event.preventDefault();
-        }.bind(this));
+                }.bind(this);
+                window.addEventListener("mousemove", move);
+                document.addEventListener(
+                    "mouseup",
+                    (e) => {
+                        window.removeEventListener("mousemove", move);
+                        if (this.uid) {
+                            window.localStorage.setItem(
+                                this.uid + "-coords",
+                                this.top +
+                                    ";" +
+                                    this.right +
+                                    ";" +
+                                    this.bottom +
+                                    ";" +
+                                    this.left
+                            );
+                        }
+                    },
+                    true
+                );
+                event.preventDefault();
+            }.bind(this)
+        );
         this.container.appendChild(el);
 
         // binds a .cross child to close window
         let cross;
-        for(let i = 0; i < this.container.children.length; i++) {
-            if(this.container.children[i].classList.contains("cross")) {
+        for (let i = 0; i < this.container.children.length; i++) {
+            if (this.container.children[i].classList.contains("cross")) {
                 cross = this.container.children[i];
                 break;
             }
         }
-        if(cross) {
+        if (cross) {
             cross.onclick = this.toggle.bind(this);
         }
     }
@@ -115,15 +148,34 @@ export class Resizable {
     resize(corner, x, y) {
         x = x < 0 ? 0 : x > 1 ? 1 : x;
         y = y < 0 ? 0 : y > 1 ? 1 : y;
-        switch(corner) {
-            case "tl": this.left = x; this.top = y; break;
-            case "tr": this.right = x; this.top = y; break;
-            case "bl": this.left = x; this.bottom = y; break;
-            case "br": this.right = x; this.bottom = y; break;
-            case "ml": this.left = x; break;
-            case "mr": this.right = x; break;
-            case "bm": this.bottom = y; break;
-            default: return;
+        switch (corner) {
+            case "tl":
+                this.left = x;
+                this.top = y;
+                break;
+            case "tr":
+                this.right = x;
+                this.top = y;
+                break;
+            case "bl":
+                this.left = x;
+                this.bottom = y;
+                break;
+            case "br":
+                this.right = x;
+                this.bottom = y;
+                break;
+            case "ml":
+                this.left = x;
+                break;
+            case "mr":
+                this.right = x;
+                break;
+            case "bm":
+                this.bottom = y;
+                break;
+            default:
+                return;
         }
         this.redraw();
     }
@@ -134,10 +186,18 @@ export class Resizable {
      * @param dY y distance in px
      */
     moveAll(dX, dY) {
-        if(this.right + dX > 1) { dX = this.right - 1; }
-        if(this.left + dX < 0) { dX = -1 * this.left; }
-        if(this.top + dY < 0) { dY = -1 * this.top; }
-        if(this.bottom + dY > 1) { dY = this.bottom - 1; }
+        if (this.right + dX > 1) {
+            dX = this.right - 1;
+        }
+        if (this.left + dX < 0) {
+            dX = -1 * this.left;
+        }
+        if (this.top + dY < 0) {
+            dY = -1 * this.top;
+        }
+        if (this.bottom + dY > 1) {
+            dY = this.bottom - 1;
+        }
         this.left += dX;
         this.right += dX;
         this.top += dY;
@@ -156,15 +216,15 @@ export class Resizable {
 
     /** Sets position of all corners */
     redraw() {
-        this.container.style.left = (this.edge(this.left)*100) + "%";
-        this.container.style.right = ((1-this.edge(this.right))*100) + "%";
-        this.container.style.top = (this.edge(this.top)*100) + "%";
-        this.container.style.bottom = ((1-this.edge(this.bottom))*100) + "%";
+        this.container.style.left = this.edge(this.left) * 100 + "%";
+        this.container.style.right = (1 - this.edge(this.right)) * 100 + "%";
+        this.container.style.top = this.edge(this.top) * 100 + "%";
+        this.container.style.bottom = (1 - this.edge(this.bottom)) * 100 + "%";
     }
 
     /** If shown, hides, and vice versa */
     toggle() {
-        if(this.shown) {
+        if (this.shown) {
             //this.hide();
         } else {
             this.show();
@@ -173,18 +233,25 @@ export class Resizable {
 
     /** Hides window */
     show() {
-        if(!this.container) { return; }
-        if(this.shown) { return; }
+        if (!this.container) {
+            return;
+        }
+        if (this.shown) {
+            return;
+        }
         this.shown = true;
         this.root.classList.add("shown");
     }
 
     /** Shows window */
     hide() {
-        if(!this.container) { return; }
-        if(!this.shown) { return; }
+        if (!this.container) {
+            return;
+        }
+        if (!this.shown) {
+            return;
+        }
         this.shown = false;
         this.root.classList.remove("shown");
     }
 }
-
