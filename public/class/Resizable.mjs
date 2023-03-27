@@ -148,9 +148,10 @@ export class Resizable {
 
     /**
      * Moves given corner
-     * @param corner tl|tr|bl|br for top-bottom right-left
-     * @param x relative position to move to (0-1)
-     * @param y relative position to move to (0-1)
+     * @param {'tl' | 'tr' | 'bl' | 'br' | 'ml' | 'mr' | 'bm'} corner tl|tr|bl|br for top-bottom right-left
+     * @param {number} x relative position to move to (0-1)
+     * @param {number} y relative position to move to (0-1)
+     * @returns {void}
      */
     resize(corner, x, y) {
         x = x < 0 ? 0 : x > 1 ? 1 : x;
@@ -189,8 +190,9 @@ export class Resizable {
 
     /**
      * Moves all corners by given deltae
-     * @param dX x distance in px
-     * @param dY y distance in px
+     * @param {number} dX x distance in px
+     * @param {number} dY y distance in px
+     * @returns {void}
      */
     moveAll(dX, dY) {
         if (this.right + dX > 1) {
@@ -214,14 +216,17 @@ export class Resizable {
 
     /**
      * Rounds values near 0 and 1
-     * @param coord 0-1
+     * @param {number} coord 0-1
      * @returns {number} 0-1
      */
     edge(coord) {
         return coord < 0.01 ? 0 : coord > 0.99 ? 1 : coord;
     }
 
-    /** Sets position of all corners */
+    /**
+     * Sets position of all corners
+     * @returns {void}
+     */
     redraw() {
         this.container.style.left = this.edge(this.left) * 100 + "%";
         this.container.style.right = (1 - this.edge(this.right)) * 100 + "%";
@@ -229,7 +234,10 @@ export class Resizable {
         this.container.style.bottom = (1 - this.edge(this.bottom)) * 100 + "%";
     }
 
-    /** If shown, hides, and vice versa */
+    /**
+     * If shown, hides, and vice versa
+     * @returns {void}
+     */
     toggle() {
         if (this.shown) {
             //this.hide();
@@ -238,7 +246,10 @@ export class Resizable {
         }
     }
 
-    /** Hides window */
+    /**
+     * Hides window
+     * @returns {void}
+     */
     show() {
         if (!this.container) {
             return;
@@ -250,7 +261,10 @@ export class Resizable {
         this.root.classList.add("shown");
     }
 
-    /** Shows window */
+    /**
+     * Shows window
+     * @returns {void}
+     */
     hide() {
         if (!this.container) {
             return;
