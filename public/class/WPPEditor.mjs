@@ -156,7 +156,7 @@ export class WPPEditor extends EventEmitter {
             this.updateType.bind(this)
         );
         iType.setAttribute("title", "Type");
-        iType.propertyIndex = index;
+        iType.dataset.propertyIndex = index.toString();
         iType.setAttribute("list", this.datalistTypes.getAttribute("id") ?? "");
         cont.appendChild(iType);
         let iName = this.createInput(
@@ -164,7 +164,7 @@ export class WPPEditor extends EventEmitter {
             this.updateName.bind(this)
         );
         iName.setAttribute("title", "Name");
-        iName.propertyIndex = index;
+        iName.dataset.propertyIndex = index.toString();
         cont.appendChild(iName);
         // minimize button
         let cb = document.createElement("input");
@@ -199,8 +199,8 @@ export class WPPEditor extends EventEmitter {
             this.datalistProperties.getAttribute("id") ?? ""
         );
         pName.setAttribute("title", "Property name");
-        pName.propertyName = key;
-        pName.propertyIndex = index;
+        pName.dataset.propertyName = key;
+        pName.dataset.propertyIndex = index;
         row.appendChild(pName);
         if (this._wpp[index] && this._wpp[index].properties[key]) {
             this._wpp[index].properties[key].forEach((p, j) => {
@@ -209,19 +209,19 @@ export class WPPEditor extends EventEmitter {
                     this.updatePropertyValue.bind(this)
                 );
                 pValue.setAttribute("title", "Property value");
-                pValue.propertyName = key;
-                pValue.propertyIndex = index;
-                pValue.valueIndex = j;
+                pValue.dataset.propertyName = key;
+                pValue.dataset.propertyIndex = index;
+                pValue.dataset.valueIndex = j.toString();
                 row.appendChild(pValue);
             });
         }
         let pValue = this.createInput("", this.updatePropertyValue.bind(this));
-        pValue.propertyName = key;
-        pValue.propertyIndex = index;
-        pValue.valueIndex =
+        pValue.dataset.propertyName = key;
+        pValue.dataset.propertyIndex = index;
+        pValue.dataset.valueIndex =
             this._wpp[index] && this._wpp[index].properties[key]
-                ? this._wpp[index].properties[key].length
-                : 0;
+                ? this._wpp[index].properties[key].length.toString()
+                : (0).toString();
         if (!key) {
             pValue.disabled = true;
         }
@@ -290,21 +290,25 @@ export class WPPEditor extends EventEmitter {
      * @returns {void}
      */
     updateType(event) {
-        if (!this._wpp[event.target.propertyIndex]) {
-            this._wpp[event.target.propertyIndex] = {
+        if (!this._wpp[event.target.dataset.propertyIndex ?? "0"]) {
+            this._wpp[event.target.dataset.propertyIndex ?? "0"] = {
                 type: null,
                 name: null,
                 properties: {},
             };
         }
-        this._wpp[event.target.propertyIndex].type = event.target.value;
-        const r = this._wpp[event.target.propertyIndex];
+        this._wpp[event.target.dataset.propertyIndex ?? "0"].type =
+            event.target.value;
+        const r = this._wpp[event.target.dataset.propertyIndex ?? "0"];
         let c = 0;
         for (let k in r.properties) {
             c++;
         }
         if ((!r.type || !r.type.length) && (!r.name || !r.name.length) && !c) {
-            this._wpp.splice(event.target.propertyIndex, 1);
+            this._wpp.splice(
+                Number.parseInt(event.target.dataset.propertyIndex ?? "0", 10),
+                1
+            );
             if (event.target.parentNode?.nextSibling) {
                 event.target.parentNode.parentNode?.removeChild(
                     event.target.parentNode
@@ -312,7 +316,11 @@ export class WPPEditor extends EventEmitter {
                 this.recalculate();
             }
         } else if (!event.target.parentNode?.nextSibling) {
-            this.createCategory(null, event.target.propertyIndex + 1);
+            this.createCategory(
+                null,
+                Number.parseInt(event.target.dataset.propertyIndex ?? "0", 10) +
+                    1
+            );
         }
         this.emitChange();
     }
@@ -330,38 +338,40 @@ export class WPPEditor extends EventEmitter {
      * @returns {void}
      */
     updatePropertyName(event) {
-        if (!this._wpp[event.target.propertyIndex]) {
+        if (!this._wpp[event.target.dataset.propertyIndex ?? "0"]) {
             return;
         }
-        if (event.target.propertyName) {
+        if (event.target.dataset.propertyName) {
             // this doesn't maintain order
             /** @type {Record<string, string[]>} */ let newProps = {};
-            for (let key in this._wpp[event.target.propertyIndex].properties) {
-                if (key === event.target.propertyName) {
+            for (let key in this._wpp[event.target.dataset.propertyIndex ?? "0"]
+                .properties) {
+                if (key === event.target.dataset.propertyName) {
                     newProps[event.target.value] =
-                        this._wpp[event.target.propertyIndex].properties[
-                            key
-                        ].slice();
+                        this._wpp[
+                            event.target.dataset.propertyIndex ?? "0"
+                        ].properties[key].slice();
                 } else {
                     newProps[key] =
-                        this._wpp[event.target.propertyIndex].properties[
-                            key
-                        ].slice();
+                        this._wpp[
+                            event.target.dataset.propertyIndex ?? "0"
+                        ].properties[key].slice();
                 }
             }
-            this._wpp[event.target.propertyIndex].properties = newProps;
+            this._wpp[event.target.dataset.propertyIndex ?? "0"].properties =
+                newProps;
         } else {
             if (event.target.value && event.target.value.length) {
-                this._wpp[event.target.propertyIndex].properties[
+                this._wpp[event.target.dataset.propertyIndex ?? "0"].properties[
                     event.target.value
                 ] = [];
             }
         }
-        delete this._wpp[event.target.propertyIndex].properties[
-            event.target.propertyName
+        delete this._wpp[event.target.dataset.propertyIndex ?? "0"].properties[
+            event.target.dataset.propertyName
         ];
         if (event.target.value && event.target.value.length) {
-            event.target.propertyName = event.target.value;
+            event.target.dataset.propertyName = event.target.value;
             if (event.target.parentNode) {
                 for (
                     let i = 1;
@@ -386,10 +396,10 @@ export class WPPEditor extends EventEmitter {
                 }
             }
         }
-        let next = event.target.nextSibling;
+        let next = /** @type {HTMLInputElement} */ (event.target.nextSibling);
         while (next) {
-            next.propertyName = event.target.value;
-            next = next.nextSibling;
+            next.dataset.propertyName = event.target.value;
+            next = /** @type {HTMLInputElement} */ (next.nextSibling);
         }
         if (
             event.target.value &&
@@ -397,7 +407,7 @@ export class WPPEditor extends EventEmitter {
             !event.target.parentNode?.nextSibling
         ) {
             event.target.parentNode?.parentNode?.appendChild(
-                this.createRow(event.target.propertyIndex, null)
+                this.createRow(event.target.dataset.propertyIndex, null)
             );
         }
         if (!event.target.value || !event.target.value.length) {
@@ -421,9 +431,8 @@ export class WPPEditor extends EventEmitter {
             }
             if (allEmpty) {
                 if (event.target.value) {
-                    delete this._wpp[event.target.propertyIndex].properties[
-                        event.target.value
-                    ];
+                    delete this._wpp[event.target.dataset.propertyIndex ?? "0"]
+                        .properties[event.target.value];
                 }
                 event.target.parentNode?.parentNode?.removeChild(
                     event.target.parentNode
@@ -438,20 +447,22 @@ export class WPPEditor extends EventEmitter {
      * @returns {void}
      */
     updatePropertyValue(event) {
-        if (!this._wpp[event.target.propertyIndex]) {
+        if (!this._wpp[event.target.dataset.propertyIndex ?? "0"]) {
             return;
         }
-        this._wpp[event.target.propertyIndex].properties[
-            event.target.propertyName
-        ][event.target.valueIndex] = event.target.value;
+        this._wpp[event.target.dataset.propertyIndex ?? "0"].properties[
+            event.target.dataset.propertyName
+        ][event.target.dataset.valueIndex] = event.target.value;
         if (!event.target.nextSibling) {
             let pValue = this.createInput(
                 "",
                 this.updatePropertyValue.bind(this)
             );
-            pValue.propertyName = event.target.propertyName;
-            pValue.propertyIndex = event.target.propertyIndex;
-            pValue.valueIndex = event.target.valueIndex + 1;
+            pValue.dataset.propertyName = event.target.dataset.propertyName;
+            pValue.dataset.propertyIndex = event.target.dataset.propertyIndex;
+            pValue.dataset.valueIndex = (
+                Number.parseInt(event.target.dataset.valueIndex ?? "0", 10) + 1
+            ).toString();
             pValue.classList.add("empty");
             event.target.parentNode?.appendChild(pValue);
         }
@@ -465,13 +476,15 @@ export class WPPEditor extends EventEmitter {
             event.target.nextSibling
         ) {
             let parent = event.target.parentNode;
-            this._wpp[event.target.propertyIndex].properties[
-                event.target.propertyName
-            ].splice(event.target.valueIndex, 1);
+            this._wpp[event.target.dataset.propertyIndex ?? "0"].properties[
+                event.target.dataset.propertyName
+            ].splice(event.target.dataset.valueIndex, 1);
             if (parent) {
                 parent.removeChild(event.target);
                 for (let i = 1; i < parent.childNodes.length; i++) {
-                    parent.childNodes[i].valueIndex = i - 1;
+                    /** @type {HTMLInputElement} */ (
+                        parent.childNodes[i]
+                    ).dataset.valueIndex = (i - 1).toString();
                 }
             }
         }
