@@ -7,19 +7,19 @@ import { WPP } from "./WPP.mjs";
  * "Notes" window
  */
 export class Notes extends Resizable {
-    _wpp;
-    appendix;
-    textarea;
-    tokens;
-    select;
+    /** @type {WPPEditor} */ _wpp;
+    /** @type {string | null | undefined} */ appendix;
+    /** @type {HTMLTextAreaElement} */ textarea;
+    /** @type {HTMLElement} */ tokens;
+    /** @type {HTMLSelectElement} */ select;
     timerSave;
     durationSave = 300;
-    saveFunction;
+    /** @type {() => void} */ saveFunction;
 
     /**
-     * @param options
-     *      root (JQuery root element of the message)
-     *      save (function to call to initiate data save)
+     * @param {object} options
+     * @param {HTMLDivElement} options.root
+     * @param {() => void} options.save
      */
     constructor(options) {
         super({
@@ -33,24 +33,35 @@ export class Notes extends Resizable {
         this.saveFunction = options.save || null;
 
         for (let i = 0; i < this.container.children.length; i++) {
-            const child = this.container.children[i];
+            const child = /** @type {HTMLElement} */ (
+                this.container.children[i]
+            );
             if (!this.textarea && child instanceof HTMLTextAreaElement) {
                 this.textarea = child;
             }
             if (!this.select && child instanceof HTMLSelectElement) {
                 this.select = child;
             }
-            if (!this._wpp && child.classList.contains("wpp-editor")) {
+            if (
+                !this._wpp &&
+                child instanceof HTMLDivElement &&
+                child.classList.contains("wpp-editor")
+            ) {
                 this._wpp = new WPPEditor({
                     container: child,
                 });
             }
             if (!this.tokens && child.classList.contains("notes_token_stat")) {
                 if (child.children.length) {
-                    this.tokens = child.children[0];
+                    this.tokens = /** @type {HTMLElement} */ (
+                        child.children[0]
+                    );
                 }
             }
-            if (child.classList.contains("wpp-checkbox")) {
+            if (
+                child instanceof HTMLInputElement &&
+                child.classList.contains("wpp-checkbox")
+            ) {
                 child.checked = false;
                 child.onchange = function (event) {
                     if (event.target.checked) {
@@ -102,21 +113,26 @@ export class Notes extends Resizable {
             );
         }
 
-        this.textarea.onkeyup = function () {
+        this.textarea.onkeyup = () => {
             this.updateNotesTokenCount();
             this.save();
             let parsed = WPP.parseExtended(this.textarea.value);
             this.appendix = parsed.appendix || null;
             this._wpp.clear();
             this.wpp = parsed.wpp;
-        }.bind(this);
-        this.textarea.oncut = this.textarea.onkeyup;
-        this.textarea.onpaste = this.textarea.onkeyup;
+        };
+        this.textarea.oncut = (ev) =>
+            this.textarea.onkeyup?.(/** @type {any} */ (ev));
+        this.textarea.onpaste = (ev) =>
+            this.textarea.onkeyup?.(/** @type {any} */ (ev));
 
         $(document).on("click", ".option_toggle_notes", this.toggle.bind(this));
     }
 
-    /** w++ contents */
+    /**
+     * w++ contents
+     * @param {import("../../types/WPlusPlusArray.js").default | undefined} value
+     */
     set wpp(value) {
         if (!this.container) {
             return;
@@ -124,10 +140,13 @@ export class Notes extends Resizable {
         if (!this._wpp) {
             return;
         }
-        this._wpp.wpp = value;
+        this._wpp.wpp = value ?? [];
         this.updateNotesTokenCount();
     }
 
+    /**
+     * @returns {import("../../types/WPlusPlusArray.js").default | undefined}
+     */
     get wpp() {
         if (!this.container) {
             return;
@@ -156,7 +175,11 @@ export class Notes extends Resizable {
         };
     }
 
-    /** Sets textarea contents */
+    /**
+     * Sets textarea contents
+     * @param {string} value
+     * @returns {void}
+     */
     set text(value) {
         if (!this.container) {
             return;
@@ -172,21 +195,30 @@ export class Notes extends Resizable {
         this.updateNotesTokenCount();
     }
 
-    /** Returns textarea contents */
+    /**
+     * Returns textarea contents
+     * @returns {string}
+     */
     get text() {
         if (!this.textarea) {
-            return;
+            return "";
         }
         return this.textarea.value;
     }
 
-    /** Startegy select */
+    /**
+     * Startegy select
+     * @param {string} value
+     * @returns {void}
+     */
     set strategy(value) {
         if (!this.select) {
             return;
         }
         for (let i = 0; i < this.select.children.length; i++) {
-            const v = this.select.children[i];
+            const v = /** @type {HTMLOptionElement} */ (
+                this.select.children[i]
+            );
             if (v.value === value) {
                 v.setAttribute("selected", "selected");
             } else {
@@ -194,13 +226,20 @@ export class Notes extends Resizable {
             }
         }
     }
+
+    /**
+     * @returns {string}
+     */
     get strategy() {
         if (!this.select) {
-            return;
+            return "";
         }
         return this.select.value;
     }
 
+    /**
+     * @returns {void}
+     */
     save() {
         if (!this.saveFunction) {
             return;
@@ -216,9 +255,11 @@ export class Notes extends Resizable {
         }, this.durationSave);
     }
 
-    /** Returns formatted text
-     * @param format raw|singleline (raw includes newlines)
-     * */
+    /**
+     * Returns formatted text
+     * @param {"raw" | "singleline"} format (raw includes newlines)
+     * @returns {string}
+     */
     getText(format) {
         let raw = (this.textarea.value || "").trim().replace(/\s\s+/g, " ");
         switch (format) {
@@ -229,12 +270,19 @@ export class Notes extends Resizable {
         }
     }
 
-    /** Gets token count for given text */
+    /**
+     * Gets token count for given text
+     * @param {string} text
+     * @returns {number}
+     */
     getTokenCount(text = "") {
         return encode(JSON.stringify(text)).length;
     }
 
-    /** Updates notes count */
+    /**
+     * Updates notes count
+     * @returns {void}
+     */
     updateNotesTokenCount() {
         if (!this.container) {
             return;

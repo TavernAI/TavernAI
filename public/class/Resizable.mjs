@@ -21,7 +21,7 @@ export class Resizable {
      * @param {number} options.left default position
      * @param {number} options.right default position
      * @param {number} options.bottom default position
-     * @param {boolean} options.forceDefault do not use stored coordinates
+     * @param {boolean=} options.forceDefault do not use stored coordinates
      */
     constructor(options) {
         this.root = options.root;
