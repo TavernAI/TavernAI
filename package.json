@@ -27,7 +27,9 @@
     "scripts": {
         "format": "prettier --ignore-unknown --write .",
         "type-check": "tsc -b .",
-        "postinstall": "node ./node_modules/husky-v4/lib/installer/bin install"
+        "postinstall": "run-p postinstall:*",
+        "postinstall:1": "node ./node_modules/husky-v4/lib/installer/bin install",
+        "postinstall:2": "patch-package"
     },
     "husky": {
         "hooks": {
@@ -70,6 +72,8 @@
         "@types/showdown": "^2.0.0",
         "husky-v4": "^4.3.8",
         "lint-staged": "^13.2.0",
+        "npm-run-all": "^4.1.5",
+        "patch-package": "^6.5.1",
         "prettier": "^2.8.6",
         "typescript": "^5.0.2"
     }

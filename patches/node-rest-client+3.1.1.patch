@@ -1,0 +1,14 @@
+diff --git a/node_modules/node-rest-client/lib/node-rest-client.js b/node_modules/node-rest-client/lib/node-rest-client.js
+index 35fccf3..120fdfb 100644
+--- a/node_modules/node-rest-client/lib/node-rest-client.js
++++ b/node_modules/node-rest-client/lib/node-rest-client.js
+@@ -68,6 +68,9 @@ exports.Client = function (options){
+ 
+     // Client Request to be passed to ConnectManager and returned
+     // for each REST method invocation
++	/**
++	 * @type {NodeJS.EventEmitter}
++	 */
+     var ClientRequest =function(){
+         events.EventEmitter.call(this);
+     };
