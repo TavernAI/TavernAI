@@ -1,3 +1,15 @@
+/**
+ * @typedef WPlusPlusObject
+ * @type {{ type?: string; name?: string; properties: Record<string, string[]> }[]}
+ */
+
+/**
+ * @typedef WPlusPlusExtended
+ * @type {object}
+ * @property {WPlusPlusObject} wpp
+ * @property {string | null | undefined} appendix
+ */
+
 export class WPP {
     static ErrorNoGroups = "No groups in this W++";
     static ErrorNoType = "Group is missing a type";
@@ -10,8 +22,8 @@ export class WPP {
 
     /**
      * Attempts to parse string in W++ format into a JSON
-     * @param string
-     * @returns {type: string, name: string, properties: { [key: string]: string[]}}}[]
+     * @param {string} string
+     * @returns {WPlusPlusObject}
      */
     static parse(string) {
         let wpp = [];
@@ -40,7 +52,7 @@ export class WPP {
                 throw e;
             }
             let vals = fragment.match(/\{.*\}/);
-            node.properties = {};
+            /** @type {Record<string, string[]>} */ node.properties = {};
             if (vals && vals.length) {
                 let subs = vals[0]
                     .replace(/^\{/, "")
@@ -68,6 +80,10 @@ export class WPP {
         return wpp;
     }
 
+    /**
+     * @param {string} string
+     * @returns {WPlusPlusExtended}
+     */
     static parseExtended(string) {
         let appendix = string.replace(/[\[{][^\]}]*[\]}]\]?/g, "") || null;
         if (appendix) {
@@ -80,11 +96,16 @@ export class WPP {
         };
     }
 
+    /**
+     * @param {WPlusPlusObject} wpp
+     * @param {"normal" | "line" | "compact" | undefined} mode
+     * @returns {string}
+     */
     static stringify(wpp, mode = "normal") {
         if (!Array.isArray(wpp)) {
             wpp = [wpp];
         }
-        let all = [];
+        /** @type {string[]} */ let all = [];
         wpp.forEach((obj) => {
             let str = "";
             str +=
@@ -114,16 +135,21 @@ export class WPP {
             str += "}]";
             all.push(str);
         });
-        all = all.join("\n");
         switch (mode) {
             case "line":
-                return all.replace(/\n/g, "");
+                return all.join("\n").replace(/\n/g, "");
             case "compact":
-                return WPP.removeExtraSpaces(all);
+                return WPP.removeExtraSpaces(all.join("\n"));
+            default:
+                return all.join("\n");
         }
-        return all;
     }
 
+    /**
+     * @param {WPlusPlusExtended} wppX
+     * @param {"normal" | "line" | "compact" | undefined} mode
+     * @returns {string}
+     */
     static stringifyExtended(wppX, mode = "normal") {
         if (!wppX || !wppX.wpp) {
             throw WPP.ErrorNotWPPExtended;
@@ -136,10 +162,18 @@ export class WPP {
         );
     }
 
+    /**
+     * @param {WPlusPlusObject} wpp
+     * @returns {WPlusPlusObject}
+     */
     static validate(wpp) {
         return WPP.parse(WPP.stringify(wpp));
     }
 
+    /**
+     * @param {string} text
+     * @returns {string}
+     */
     static removeExtraSpaces(text) {
         text = text.replace(/[\r\n]/g, "");
         let match;
@@ -155,6 +189,10 @@ export class WPP {
             .replace(/#/g, " ");
     }
 
+    /**
+     * @param {string} str
+     * @returns {{ name: string; value: string[] }}
+     */
     static breakAttribute(str) {
         str = str.trim();
         if (!str.match(/^[^\(]*\([^\)]*\)$/)) {
@@ -175,8 +213,9 @@ export class WPP {
 
     /**
      * Merges w1 into w2 and returns result. Does not change source.
-     * @param w1 WPP
-     * @param w2 WPP
+     * @param {WPlusPlusObject} w1
+     * @param {WPlusPlusObject} w2
+     * @returns {WPlusPlusObject}
      */
     static getMerged(w1, w2) {
         if ((!w1 || !w1.length) && (!w2 || !w2.length)) {
@@ -227,6 +266,11 @@ export class WPP {
         return w1.concat(w2);
     }
 
+    /**
+     * @param {WPlusPlusExtended} w1X
+     * @param {WPlusPlusExtended} w1X
+     * @returns {WPlusPlusExtended}
+     */
     static getMergedExtended(w1X, w2X) {
         if (!w1X || !w1X.wpp || !w2X || !w2X.wpp) {
             throw this.ErrorNotWPPExtended;
@@ -246,7 +290,8 @@ export class WPP {
 
     /**
      * Removes all empty items from WPP
-     * @param wpp Source W++ to trim
+     * @param {WPlusPlusObject} wpp Source W++ to trim
+     * @returns {WPlusPlusObject}
      */
     static trim(wpp) {
         if (!Array.isArray(wpp) || !Array.isArray(wpp)) {
@@ -255,8 +300,8 @@ export class WPP {
         wpp = JSON.parse(JSON.stringify(wpp));
         for (let i = 0; i < wpp.length; i++) {
             if (
-                (!wpp[i].name || !wpp[i].name.length) &&
-                (!wpp[i].name || !wpp[i].name.length)
+                (!wpp[i].name || !wpp[i].name?.length) &&
+                (!wpp[i].name || !wpp[i].name?.length)
             ) {
                 wpp.splice(i, 1);
                 i--;
