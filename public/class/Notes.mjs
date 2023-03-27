@@ -40,6 +40,9 @@ export class Notes extends Resizable {
             if(!this.select && child instanceof HTMLSelectElement) {
                 this.select = child;
             }
+            if(child.classList.contains("option_toggle_notes")) {
+                child.onclick = this.toggle.bind(this);
+            }
             if(!this._wpp && child.classList.contains("wpp-editor")) {
                 this._wpp = new WPPEditor({
                     container: child

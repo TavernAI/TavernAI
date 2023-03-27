@@ -30,6 +30,15 @@ export class Resizable {
                 break;
             }
         }
+        if(this.container) {
+            for(let i = 0; i < this.container.children.length; i++) {
+                if(this.container.children[i].classList.contains("cross")) {
+                    this.container.children[i].addEventListener("click", this.hide.bind(this));
+                    break;
+                }
+            }
+        }
+
         this.uid = options.uid || undefined;
         if(options.uid && !options.forceDefault) {
             let coords = window.localStorage.getItem(options.uid + "-coords");
@@ -102,8 +111,12 @@ export class Resizable {
             }
         }
         if(cross) {
-            cross.onclick = this.toggle.bind(this);
+            cross.onclick = function(event) {
+                this.toggle.bind(this);
+                event.preventDefault();
+            }.bind(this);
         }
+        this.hide();
     }
 
     /**
@@ -182,7 +195,6 @@ export class Resizable {
     /** Shows window */
     hide() {
         if(!this.container) { return; }
-        if(!this.shown) { return; }
         this.shown = false;
         this.root.classList.remove("shown");
     }
