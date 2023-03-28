@@ -60,7 +60,7 @@ $(document).ready(function () {
     };
 
     /**
-     * @type {{ name: string; is_user: boolean; is_name: boolean; create_date?: number; mes: string }[]}
+     * @type {import('../types/ChatMessage').default[]}
      */
     var chat = [chloeMes];
 
@@ -231,7 +231,9 @@ $(document).ready(function () {
             $("#description_textarea").val(event.target.text);
 
             if (menu_type == "create") {
-                create_save_description = $("#description_textarea").val();
+                create_save_description = /** @type {string} */ (
+                    $("#description_textarea").val()
+                );
             } else {
                 if (timerSaveEdit) {
                     clearTimeout(timerSaveEdit);
@@ -951,7 +953,9 @@ $(document).ready(function () {
                 }
             } else {
                 if (type !== "swipe") {
-                    textareaText = $("#send_textarea").val();
+                    textareaText = /** @type {string} */ (
+                        $("#send_textarea").val()
+                    );
                     $("#send_textarea").val("");
                 }
             }
@@ -1470,15 +1474,16 @@ $(document).ready(function () {
                 }
 
                 var generate_data;
+                var this_amount_gen;
                 switch (main_api) {
                     case "kobold":
-                        var this_amount_gen = parseInt(amount_gen);
+                        this_amount_gen = amount_gen;
                         break;
                     case "novel":
-                        var this_amount_gen = parseInt(amount_gen_novel);
+                        this_amount_gen = amount_gen_novel;
                         break;
                     case "openai":
-                        var this_amount_gen = parseInt(amount_gen_openai);
+                        this_amount_gen = amount_gen_openai;
                         break;
                 }
                 var this_max_gen = this_amount_gen;
@@ -1490,24 +1495,25 @@ $(document).ready(function () {
 
                     let this_set_context_size;
                     if (main_api === "kobold")
-                        this_set_context_size = parseInt(amount_gen);
+                        this_set_context_size = amount_gen;
                     if (main_api === "novel")
-                        this_set_context_size = parseInt(amount_gen_novel);
+                        this_set_context_size = amount_gen_novel;
                     if (tokens_already_generated === 0) {
                         if (
-                            this_set_context_size >= tokens_first_request_count
+                            (this_set_context_size ?? 0) >=
+                            tokens_first_request_count
                         ) {
                             this_amount_gen = tokens_first_request_count;
                         } else {
-                            this_amount_gen = this_set_context_size;
+                            this_amount_gen = this_set_context_size ?? 0;
                         }
                     } else {
                         if (
-                            parseInt(amount_gen) - tokens_already_generated <
+                            amount_gen - tokens_already_generated <
                             tokens_cycle_count
                         ) {
                             this_amount_gen =
-                                this_set_context_size -
+                                (this_set_context_size ?? 0) -
                                 tokens_already_generated;
                         } else {
                             this_amount_gen = tokens_cycle_count;
@@ -1596,18 +1602,21 @@ $(document).ready(function () {
                         top_p: parseFloat(top_p_openai),
                         stop: [name1 + ":", "<|endoftext|>"],
                         max_tokens: this_amount_gen,
+                        messages:
+                            model_openai === "gpt-3.5-turbo" ||
+                            model_openai === "gpt-3.5-turbo-0301" ||
+                            model_openai === "gpt-4" ||
+                            model_openai === "gpt-4-32k"
+                                ? finalPromt
+                                : undefined,
+                        prompt:
+                            model_openai !== "gpt-3.5-turbo" &&
+                            model_openai !== "gpt-3.5-turbo-0301" &&
+                            model_openai !== "gpt-4" &&
+                            model_openai !== "gpt-4-32k"
+                                ? finalPromt
+                                : undefined,
                     };
-
-                    if (
-                        model_openai === "gpt-3.5-turbo" ||
-                        model_openai === "gpt-3.5-turbo-0301" ||
-                        model_openai === "gpt-4" ||
-                        model_openai === "gpt-4-32k"
-                    ) {
-                        generate_data.messages = finalPromt;
-                    } else {
-                        generate_data.prompt = finalPromt;
-                    }
                 }
                 var generate_url = "";
                 if (main_api == "kobold") {
@@ -1682,7 +1691,7 @@ $(document).ready(function () {
                                         "<|endoftext|>"
                                     ) === -1 &&
                                     tokens_already_generated <
-                                        parseInt(this_max_gen) &&
+                                        (this_max_gen ?? 0) &&
                                     getMessage.length > 0
                                 ) {
                                     runGenerate(getMessage);
@@ -1880,7 +1889,9 @@ $(document).ready(function () {
                         chat.push(data[key]);
                     }
                     //chat =  data;
-                    chat_create_date = chat[0]["create_date"];
+                    chat_create_date = /** @type {number} */ (
+                        chat[0]["create_date"]
+                    );
                     winNotes.text = chat[0].notes || "";
                     winNotes.strategy = chat[0].notes_type || "discr";
                     if (!winNotes.text || !winNotes.text.length) {
@@ -2254,7 +2265,7 @@ $(document).ready(function () {
                     $("#chara_cloud").css("display", "none");
                     this_edit_mes_id = undefined;
                     selected_button = "character_edit";
-                    this_chid = $(this).attr("chid");
+                    this_chid = /** @type {string} */ ($(this).attr("chid"));
 
                     $("#chat_header_char_name").text(
                         characters[this_chid]["name"]
@@ -2282,7 +2293,7 @@ $(document).ready(function () {
     var scroll_holder = 0;
     var is_use_scroll_holder = false;
     $(document).on("input", ".edit_textarea", function () {
-        scroll_holder = $("#chat").scrollTop();
+        scroll_holder = $("#chat").scrollTop() ?? 0;
         $(this).height(0).height(this.scrollHeight);
         is_use_scroll_holder = true;
     });
@@ -2298,7 +2309,9 @@ $(document).ready(function () {
             $(this).parent().css("background", css_mes_bg);
         });
         $(this).parent().css("background", "#791b31");
-        var i = $(this).parent().attr("mesid");
+        var i = Number.parseFloat(
+            /** @type {string} */ ($(this).parent().attr("mesid"))
+        );
         this_del_mes = i;
         while (i < chat.length) {
             $(".mes[mesid='" + i + "']").css("background", "#791b31");
@@ -2310,7 +2323,7 @@ $(document).ready(function () {
         }
     });
     $(document).on("click", "#user_avatar_block .avatar", function () {
-        user_avatar = $(this).attr("imgfile");
+        user_avatar = /** @type {string} */ ($(this).attr("imgfile"));
         $(".mes").each(function () {
             if ($(this).attr("ch_name") == name1) {
                 $(this)
@@ -2432,12 +2445,12 @@ $(document).ready(function () {
         callPopup("<h3>Delete the background?</h3>");
     });
     $(document).on("click", ".style_button", function () {
-        const this_style_id = $(this).attr("style_id");
+        const this_style_id = /** @type {string} */ ($(this).attr("style_id"));
         const this_style_name = designs[this_style_id];
         //
         //console.log('old '+$('#chat')[0].scrollHeight); //$textchat.scrollTop($textchat[0].scrollHeight
-        let oldScrollTop = $("#chat").scrollTop();
-        let oldHeight = $("#chat")[0].scrollHeight - $("#chat").height();
+        let oldScrollTop = $("#chat").scrollTop() ?? 0;
+        let oldHeight = $("#chat")[0].scrollHeight - ($("#chat").height() ?? 0);
 
         let oldProportion = oldScrollTop / oldHeight;
         $("#base_theme").attr("href", "designs/classic.css");
@@ -2457,7 +2470,7 @@ $(document).ready(function () {
             cssLink.attr("href", "designs/" + this_style_name);
         }
 
-        let newHeight = $("#chat")[0].scrollHeight - $("#chat").height();
+        let newHeight = $("#chat")[0].scrollHeight - ($("#chat").height() ?? 0);
         $("#chat").scrollTop(oldProportion * newHeight);
 
         const request = { style: this_style_name };
@@ -2977,12 +2990,16 @@ $(document).ready(function () {
     //character text poles creating and editing save
     $("#character_name_pole").on("change keyup paste", function () {
         if (menu_type == "create") {
-            create_save_name = $("#character_name_pole").val();
+            create_save_name = /** @type {string} */ (
+                $("#character_name_pole").val()
+            );
         }
     });
     $("#description_textarea").on("keyup paste cut", function () {
         if (menu_type === "create") {
-            create_save_description = $("#description_textarea").val();
+            create_save_description = /** @type {string} */ (
+                $("#description_textarea").val()
+            );
         } else {
             editorDescriptionWPP.text = $("#description_textarea").val();
             if (timerSaveEdit) {
@@ -2996,7 +3013,9 @@ $(document).ready(function () {
     $("#notes_textarea").on("keyup paste cut", function () {});
     $("#personality_textarea").on("keyup paste cut", function () {
         if (menu_type == "create") {
-            create_save_personality = $("#personality_textarea").val();
+            create_save_personality = /** @type {string} */ (
+                $("#personality_textarea").val()
+            );
         } else {
             timerSaveEdit = setTimeout(() => {
                 $("#create_button").click();
@@ -3005,7 +3024,9 @@ $(document).ready(function () {
     });
     $("#scenario_pole").on("keyup paste cut", function () {
         if (menu_type == "create") {
-            create_save_scenario = $("#scenario_pole").val();
+            create_save_scenario = /** @type {string} */ (
+                $("#scenario_pole").val()
+            );
         } else {
             timerSaveEdit = setTimeout(() => {
                 $("#create_button").click();
@@ -3014,7 +3035,9 @@ $(document).ready(function () {
     });
     $("#mes_example_textarea").on("keyup paste cut", function () {
         if (menu_type == "create") {
-            create_save_mes_example = $("#mes_example_textarea").val();
+            create_save_mes_example = /** @type {string} */ (
+                $("#mes_example_textarea").val()
+            );
         } else {
             timerSaveEdit = setTimeout(() => {
                 $("#create_button").click();
@@ -3023,7 +3046,9 @@ $(document).ready(function () {
     });
     $("#firstmessage_textarea").on("keyup paste cut", function () {
         if (menu_type == "create") {
-            create_save_first_message = $("#firstmessage_textarea").val();
+            create_save_first_message = /** @type {string} */ (
+                $("#firstmessage_textarea").val()
+            );
         } else {
             timerSaveEdit = setTimeout(() => {
                 $("#create_button").click();
@@ -3034,7 +3059,7 @@ $(document).ready(function () {
         if ($("#api_url_text").val() != "") {
             $("#api_loading").css("display", "inline-block");
             $("#api_button").css("display", "none");
-            api_server = $("#api_url_text").val();
+            api_server = /** @type {string} */ ($("#api_url_text").val());
             api_server = $.trim(api_server);
             //console.log("1: "+api_server);
             if (api_server.substr(api_server.length - 1, 1) == "/") {
@@ -3118,7 +3143,11 @@ $(document).ready(function () {
             $("#dialogue_del_mes").css("display", "block");
             $("#send_form").css("display", "none");
             $(".del_checkbox").each(function () {
-                if ($(this).parent().attr("mesid") != 0) {
+                if (
+                    Number.parseInt(
+                        /** @type {string} */ ($(this).parent().attr("mesid"))
+                    ) != 0
+                ) {
                     $(this).css("display", "block");
                     $(this)
                         .parent()
@@ -4406,7 +4435,9 @@ $(document).ready(function () {
             }
         }
         if (run_edit) {
-            let chatScrollPosition = $("#chat").scrollTop();
+            let chatScrollPosition = /** @type {number} */ (
+                $("#chat").scrollTop()
+            );
             if (this_edit_mes_id !== undefined) {
                 let mes_edited = $("#chat")
                     .children()
@@ -4617,7 +4648,7 @@ $(document).ready(function () {
         if (!root) {
             return;
         }
-        let to_chid = parseInt($(this).val());
+        let to_chid = parseInt(/** @type {string} */ ($(this).val()));
         let toAvatar =
             to_chid < 0
                 ? "User Avatars/" + user_avatar
@@ -4741,15 +4772,20 @@ $(document).ready(function () {
     //***Swipes***
     $(document).keydown(function (e) {
         if (
-            ($(document.activeElement).is("#send_textarea") &&
-                $("#send_textarea").val().length === 0) ||
+            ($(/** @type {Element} */ (document.activeElement)).is(
+                "#send_textarea"
+            ) &&
+                /** @type {string} */ ($("#send_textarea").val()).length ===
+                    0) ||
             !$('textarea:focus, input[type="text"]:focus').length
         ) {
             if (e.keyCode == 37) {
                 // Left arrow key pressed
                 if (
                     JSON.parse(
-                        $("#chat").children(".mes").last().attr("is_user")
+                        /** @type {string} */ (
+                            $("#chat").children(".mes").last().attr("is_user")
+                        )
                     ) === false &&
                     $("#chat")
                         .children(".mes")
@@ -4767,7 +4803,9 @@ $(document).ready(function () {
                 // Right arrow key pressed
                 if (
                     JSON.parse(
-                        $("#chat").children(".mes").last().attr("is_user")
+                        /** @type {string} */ (
+                            $("#chat").children(".mes").last().attr("is_user")
+                        )
                     ) === false &&
                     $("#chat")
                         .children(".mes")
@@ -4837,12 +4875,13 @@ $(document).ready(function () {
                 x: "-" + swipe_range,
                 duration: swipe_duration,
                 easing: animation_rm_easing,
+                // @ts-ignore
                 queue: false,
                 complete: function () {
                     const is_animation_scroll =
-                        $("#chat").scrollTop() >=
-                        $("#chat").prop("scrollHeight") -
-                            $("#chat").outerHeight() -
+                        ($("#chat").scrollTop() ?? 0) >=
+                        ($("#chat").prop("scrollHeight") ?? 0) -
+                            ($("#chat").outerHeight() ?? 0) -
                             10;
                     if (
                         run_generate &&
@@ -4993,12 +5032,13 @@ $(document).ready(function () {
                     x: swipe_range,
                     duration: swipe_duration,
                     easing: animation_rm_easing,
+                    // @ts-ignore
                     queue: false,
                     complete: function () {
                         const is_animation_scroll =
-                            $("#chat").scrollTop() >=
-                            $("#chat").prop("scrollHeight") -
-                                $("#chat").outerHeight() -
+                            ($("#chat").scrollTop() ?? 0) >=
+                            ($("#chat").prop("scrollHeight") ?? 0) -
+                                ($("#chat").outerHeight() ?? 0) -
                                 10;
                         addOneMessage(chat[chat.length - 1], "swipe");
                         let new_height =
@@ -5524,7 +5564,9 @@ $(document).ready(function () {
         });
     });
     $(document).on("click", ".select_chat_block", function () {
-        let file_name = $(this).attr("file_name").replace(".jsonl", "");
+        let file_name = /** @type {string} */ (
+            $(this).attr("file_name")
+        ).replace(".jsonl", "");
         //console.log(characters[this_chid]['chat']);
         characters[this_chid]["chat"] = file_name;
         clearChat();
@@ -5579,7 +5621,9 @@ $(document).ready(function () {
     characloud_characters_rows = [];
 
     let charaCloudSwipeLeft = function () {
-        const this_row_id = $(this).parent().attr("characloud_row_id");
+        const this_row_id = /** @type {string} */ (
+            $(this).parent().attr("characloud_row_id")
+        );
         const this_width =
             parseInt(
                 $(this)
@@ -5591,7 +5635,10 @@ $(document).ready(function () {
                 $("#characloud_characters_row" + this_row_id).css("width")
             );
         let move_x = 820;
-        $(this).parent().lazyLoadXT({ edgeX: 1000, edgeY: 500 });
+        /** @type {any} */ ($(this).parent()).lazyLoadXT({
+            edgeX: 1000,
+            edgeY: 500,
+        });
         if (characloud_characters_rows[this_row_id] != 0) {
             if (
                 $(this)
@@ -5646,7 +5693,9 @@ $(document).ready(function () {
         }
     };
     let charaCloudSwipeRight = function () {
-        const this_row_id = $(this).parent().attr("characloud_row_id");
+        const this_row_id = /** @type {string} */ (
+            $(this).parent().attr("characloud_row_id")
+        );
         const this_width =
             parseInt(
                 $(this)
@@ -5659,7 +5708,10 @@ $(document).ready(function () {
             );
 
         let move_x = 820;
-        $(this).parent().lazyLoadXT({ edgeX: 1000, edgeY: 500 });
+        /** @type {any} */ ($(this).parent()).lazyLoadXT({
+            edgeX: 1000,
+            edgeY: 500,
+        });
         if (
             characloud_characters_rows[this_row_id] != this_width * -1 &&
             parseInt($(this).parent().css("width")) <
@@ -5687,6 +5739,7 @@ $(document).ready(function () {
                         opacity: 1.0,
                         duration: 300,
                         easing: animation_rm_easing,
+                        // @ts-ignore
                         queue: false,
                         complete: function () {},
                     });
@@ -5819,10 +5872,12 @@ $(document).ready(function () {
 
                         //$.lazyLoadXT.scrollContainer = '#chara_cloud';
                         const new_width =
-                            $("#characloud_characters_row" + row_i)
+                            ($("#characloud_characters_row" + row_i)
                                 .children(".characloud_characters_row_scroll")
-                                .width() +
-                            $("#characloud_character_block" + char_i).width();
+                                .width() ?? 0) +
+                            ($(
+                                "#characloud_character_block" + char_i
+                            ).width() ?? 0);
                         $("#characloud_characters_row" + row_i)
                             .children(".characloud_characters_row_scroll")
                             .css("width", new_width);
@@ -5895,7 +5950,9 @@ $(document).ready(function () {
     //select character
     $(document).on("click", ".characloud_character_block_card", function () {
         charaCloudGetCard(
-            characloud_characters[$(this).parent().attr("chid")].public_id
+            characloud_characters[
+                /** @type {string} */ ($(this).parent().attr("chid"))
+            ].public_id
         );
     });
     $(document).on(
@@ -5903,7 +5960,9 @@ $(document).ready(function () {
         "#characloud_search_result .character_select",
         function () {
             charaCloudGetCard(
-                characloud_found_characters[$(this).attr("chid")].public_id
+                characloud_found_characters[
+                    /** @type {string} */ ($(this).attr("chid"))
+                ].public_id
             );
         }
     );
@@ -5949,7 +6008,9 @@ $(document).ready(function () {
     $("#characloud_search_form").on("submit", async (event) => {
         event.preventDefault(); // prevent default form submission
         // get search query from input field
-        const searchQuery = $("#characloud_search").val().trim();
+        const searchQuery = /** @type {string} */ (
+            $("#characloud_search").val()
+        ).trim();
         characloud_found_characters = [];
         characloud_found_characters = await charaCloud.searchCharacter(
             searchQuery
