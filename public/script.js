@@ -99,7 +99,7 @@ $(document).ready(function () {
     var animation_rm_easing = "";
 
     var popup_type = "";
-    var bg_file_for_del = "";
+    /** @type {HTMLDivElement=} */ var bg_file_for_del = undefined;
     var online_status = "no_connection";
 
     var api_server = "";
@@ -299,6 +299,7 @@ $(document).ready(function () {
             opacity: 1.0,
             delay: 0,
             duration: 0,
+            // @ts-ignore
             queue: true,
             easing: "ease-in-out",
             complete: function () {},
@@ -307,6 +308,7 @@ $(document).ready(function () {
             opacity: 1.0,
             delay: 270,
             duration: 70,
+            // @ts-ignore
             queue: false,
             easing: "ease-in-out",
             complete: function () {},
@@ -830,7 +832,7 @@ $(document).ready(function () {
                 hideSwipeButtons();
 
                 if (
-                    parseInt(chat.length - 1) === parseInt(count_view_mes) &&
+                    chat.length - 1 === count_view_mes &&
                     !mes["is_user"] &&
                     swipes
                 ) {
@@ -933,7 +935,7 @@ $(document).ready(function () {
                 model_openai === "gpt-4" ||
                 model_openai === "gpt-4-32k")
         )
-            gap_holder = parseInt(amount_gen_openai);
+            gap_holder = amount_gen_openai;
         var textareaText = "";
         tokens_already_generated = 0;
         if (!free_char_name_mode) {
@@ -967,6 +969,8 @@ $(document).ready(function () {
 
             var storyString = "";
             var userSendString = "";
+
+            /** @type {string | { role: string; content: string }[]} */
             var finalPromt = "";
 
             var postAnchorChar = "talks a lot with descriptions"; //'Talk a lot with description what is going on around';// in asterisks
@@ -1448,13 +1452,13 @@ $(document).ready(function () {
                         model_openai === "gpt-4" ||
                         model_openai === "gpt-4-32k")
                 ) {
-                    finalPromt = {};
-                    finalPromt = [];
+                    finalPromt = [
+                        {
+                            role: "system",
+                            content: storyString + mesExmString,
+                        },
+                    ];
 
-                    finalPromt[0] = {
-                        role: "system",
-                        content: storyString + mesExmString,
-                    };
                     mesSend.forEach(function (item, i) {
                         if (item.indexOf(name1 + ":") === 0) {
                             finalPromt[i + 1] = { role: "user", content: item };
@@ -1536,17 +1540,17 @@ $(document).ready(function () {
                         generate_data = {
                             prompt: finalPromt,
                             gui_settings: false,
-                            max_context_length: parseInt(this_max_context), //this_settings.max_length,
-                            max_length: this_amount_gen, //parseInt(amount_gen),
-                            rep_pen: parseFloat(rep_pen),
-                            rep_pen_range: parseInt(rep_pen_size),
-                            rep_pen_slope: parseFloat(rep_pen_slope),
-                            temperature: parseFloat(temp),
-                            tfs: parseFloat(tfs),
-                            top_a: parseFloat(top_a),
-                            top_k: parseInt(top_k),
-                            top_p: parseFloat(top_p),
-                            typical: parseFloat(typical),
+                            max_context_length: this_max_context,
+                            max_length: this_amount_gen,
+                            rep_pen: rep_pen,
+                            rep_pen_range: rep_pen_size,
+                            rep_pen_slope: rep_pen_slope,
+                            temperature: temp,
+                            tfs: tfs,
+                            top_a: top_a,
+                            top_k: top_k,
+                            top_p: top_p,
+                            typical: typical,
                             singleline: singleline,
                             s1: this_settings.sampler_order[0],
                             s2: this_settings.sampler_order[1],
@@ -1567,18 +1571,17 @@ $(document).ready(function () {
                         input: finalPromt,
                         model: model_novel,
                         use_string: true,
-                        temperature: parseFloat(temp_novel),
+                        temperature: temp_novel,
                         max_length: this_amount_gen,
                         min_length: this_settings.min_length,
-                        tail_free_sampling: parseFloat(tfs_novel),
-                        top_a: parseFloat(top_a_novel),
-                        top_k: parseInt(top_k_novel),
-                        top_p: parseFloat(top_p_novel),
-                        typical_p: parseFloat(typical_novel),
-                        repetition_penalty: parseFloat(rep_pen_novel),
-                        repetition_penalty_range: parseInt(rep_pen_size_novel),
-                        repetition_penalty_slope:
-                            parseFloat(rep_pen_slope_novel),
+                        tail_free_sampling: tfs_novel,
+                        top_a: top_a_novel,
+                        top_k: top_k_novel,
+                        top_p: top_p_novel,
+                        typical_p: typical_novel,
+                        repetition_penalty: rep_pen_novel,
+                        repetition_penalty_range: rep_pen_size_novel,
+                        repetition_penalty_slope: rep_pen_slope_novel,
                         repetition_penalty_frequency:
                             this_settings.repetition_penalty_frequency,
                         repetition_penalty_presence:
@@ -1596,10 +1599,10 @@ $(document).ready(function () {
                 if (main_api == "openai") {
                     generate_data = {
                         model: model_openai,
-                        temperature: parseFloat(temp_openai),
-                        frequency_penalty: parseFloat(freq_pen_openai),
-                        presence_penalty: parseFloat(pres_pen_openai),
-                        top_p: parseFloat(top_p_openai),
+                        temperature: temp_openai,
+                        frequency_penalty: freq_pen_openai,
+                        presence_penalty: pres_pen_openai,
+                        top_p: top_p_openai,
                         stop: [name1 + ":", "<|endoftext|>"],
                         max_tokens: this_amount_gen,
                         messages:
@@ -2438,7 +2441,7 @@ $(document).ready(function () {
         }
     });
     $(document).on("click", ".bg_example_cross", function () {
-        bg_file_for_del = $(this);
+        bg_file_for_del = /** @type {HTMLDivElement} */ ($(this));
         //$(this).parent().remove();
         //delBackground(this_bgfile);
         popup_type = "del_bg";
@@ -3699,14 +3702,10 @@ $(document).ready(function () {
         var saveRangeTimer = setTimeout(saveSettings, 500);
     });
     $(document).on("input", "#typical_novel", function () {
-        typical_novel = /** @type {string} */ ($(this).val());
-        if (isInt(typical_novel)) {
-            $("#typical_counter_novel").html($(this).val() + ".00");
-        } else {
-            $("#typical_counter_novel").html(
-                /** @type {string} */ ($(this).val())
-            );
-        }
+        typical_novel = Number.parseFloat(
+            /** @type {string} */ ($(this).val())
+        );
+        $("#typical_counter_novel").html(typical_novel.toFixed(2));
         var saveRangeTimer = setTimeout(saveSettings, 500);
     });
     $(document).on("input", "#tfs_novel", function () {
@@ -4342,13 +4341,6 @@ $(document).ready(function () {
         $("#load_select_chat_div").css("display", "block");
     });
 
-    function isInt(value) {
-        return (
-            !isNaN(value) &&
-            parseInt(Number(value)) == value &&
-            !isNaN(parseInt(value, 10))
-        );
-    }
     //********************
     //***Message Editor***
     function messageRoot(anyChild) {
@@ -4929,12 +4921,14 @@ $(document).ready(function () {
                         x: swipe_range,
                         duration: 0,
                         easing: animation_rm_easing,
+                        // @ts-ignore
                         queue: false,
                         complete: function () {
                             this_mes_div.children(".mes_block").transition({
                                 x: "0px",
                                 duration: swipe_duration,
                                 easing: animation_rm_easing,
+                                // @ts-ignore
                                 queue: false,
                                 complete: function () {
                                     if (
@@ -4975,6 +4969,7 @@ $(document).ready(function () {
                     x: "-" + swipe_range,
                     duration: swipe_duration,
                     easing: animation_rm_easing,
+                    // @ts-ignore
                     queue: false,
                     complete: function () {
                         $(this)
@@ -4984,6 +4979,7 @@ $(document).ready(function () {
                                 x: swipe_range,
                                 duration: 0,
                                 easing: animation_rm_easing,
+                                // @ts-ignore
                                 queue: false,
                                 complete: function () {
                                     $(this)
@@ -4993,6 +4989,7 @@ $(document).ready(function () {
                                             x: "0px",
                                             duration: swipe_duration,
                                             easing: animation_rm_easing,
+                                            // @ts-ignore
                                             queue: false,
                                             complete: function () {},
                                         });
@@ -5076,6 +5073,7 @@ $(document).ready(function () {
                                 x: "-" + swipe_range,
                                 duration: 0,
                                 easing: animation_rm_easing,
+                                // @ts-ignore
                                 queue: false,
                                 complete: function () {
                                     $(this)
@@ -5085,6 +5083,7 @@ $(document).ready(function () {
                                             x: "0px",
                                             duration: swipe_duration,
                                             easing: animation_rm_easing,
+                                            // @ts-ignore
                                             queue: false,
                                             complete: function () {
                                                 saveChat();
@@ -5102,6 +5101,7 @@ $(document).ready(function () {
                     x: swipe_range,
                     duration: swipe_duration,
                     easing: animation_rm_easing,
+                    // @ts-ignore
                     queue: false,
                     complete: function () {
                         $(this)
@@ -5111,6 +5111,7 @@ $(document).ready(function () {
                                 x: "-" + swipe_range,
                                 duration: 0,
                                 easing: animation_rm_easing,
+                                // @ts-ignore
                                 queue: false,
                                 complete: function () {
                                     $(this)
@@ -5120,6 +5121,7 @@ $(document).ready(function () {
                                             x: "0px",
                                             duration: swipe_duration,
                                             easing: animation_rm_easing,
+                                            // @ts-ignore
                                             queue: false,
                                             complete: function () {},
                                         });
@@ -5589,6 +5591,7 @@ $(document).ready(function () {
             $("#chara_cloud").transition({
                 opacity: 1.0,
                 duration: 300,
+                // @ts-ignore
                 queue: false,
                 easing: "",
                 complete: function () {},
@@ -5598,6 +5601,7 @@ $(document).ready(function () {
             $("#bg_chara_cloud").transition({
                 opacity: 1.0,
                 duration: 1000,
+                // @ts-ignore
                 queue: false,
                 easing: "",
                 complete: function () {},
@@ -5657,6 +5661,7 @@ $(document).ready(function () {
                         opacity: 1.0,
                         duration: 300,
                         easing: animation_rm_easing,
+                        // @ts-ignore
                         queue: false,
                         complete: function () {},
                     });
@@ -5669,6 +5674,7 @@ $(document).ready(function () {
                     opacity: 0.0,
                     duration: 700,
                     easing: animation_rm_easing,
+                    // @ts-ignore
                     queue: false,
                     complete: function () {
                         $(this).css("display", "none");
@@ -5685,6 +5691,7 @@ $(document).ready(function () {
                     x: characloud_characters_rows[this_row_id],
                     duration: 300,
                     easing: animation_rm_easing,
+                    // @ts-ignore
                     queue: false,
                     complete: function () {},
                 });
@@ -5753,6 +5760,7 @@ $(document).ready(function () {
                     opacity: 0.0,
                     duration: 700,
                     easing: animation_rm_easing,
+                    // @ts-ignore
                     queue: false,
                     complete: function () {
                         $(this).css("display", "none");
@@ -5769,6 +5777,7 @@ $(document).ready(function () {
                     x: characloud_characters_rows[this_row_id],
                     duration: 400,
                     easing: animation_rm_easing,
+                    // @ts-ignore
                     queue: false,
                     complete: function () {},
                 });
