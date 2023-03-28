@@ -1193,7 +1193,7 @@ app.post("/generate_openai", jsonParser, function(request, response_generate_ope
         "stop": request.body.stop
     };
     let request_path = '';
-    if(request.body.model === 'gpt-3.5-turbo' || request.body.model === 'gpt-3.5-turbo-0301'){
+    if(request.body.model === 'gpt-3.5-turbo' || request.body.model === 'gpt-3.5-turbo-0301' || request.body.model === 'gpt-4' || request.body.model === 'gpt-4-32k'){
         request_path = '/chat/completions';
         data.messages = request.body.messages;
         
