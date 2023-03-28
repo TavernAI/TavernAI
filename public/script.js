@@ -19,7 +19,7 @@ $(document).ready(function () {
                 $(mutation.addedNodes).find('.avatar img').each(function() {
                     const img = this;
                     const aspectRatio = img.height / img.width;
-                    
+
                     if (aspectRatio > img.parentNode.offsetHeight / img.parentNode.offsetWidth) {
                         $(img).removeClass('landscape').addClass('portrait');
                     } else {
@@ -27,7 +27,7 @@ $(document).ready(function () {
                     }
                 });
             }
-        });    
+        });
     });
 
     const config = { childList: true, subtree: true, attributes: true, attributeFilter: ['src'] };
@@ -58,6 +58,10 @@ $(document).ready(function () {
             VERSION +
             '@@@</a><a href="https://boosty.to/tavernai" target="_blank"><div id="characloud_url"><img src="img/cloud_logo.png"><div id="characloud_title">Cloud</div></div></a><br><br><br><br>',
     };
+
+    /**
+     * @type {{ name: string; is_user: boolean; is_name: boolean; create_date?: number; mes: string }[]}
+     */
     var chat = [chloeMes];
 
     var number_bg = 1;
@@ -72,7 +76,6 @@ $(document).ready(function () {
     var default_avatar = "img/fluffy.png";
     var is_colab = false;
     var is_checked_colab = false;
-    var is_mes_reload_avatar = false;
     var is_nav_toggle = false;
     var characterFormat = "webp";
 
@@ -85,7 +88,7 @@ $(document).ready(function () {
     var create_save_description = "";
     var create_save_personality = "";
     var create_save_first_message = "";
-    var create_save_avatar = "";
+    /** @type {FileList=} */ var create_save_avatar = undefined;
     var create_save_scenario = "";
     var create_save_mes_example = "";
 
@@ -218,7 +221,9 @@ $(document).ready(function () {
     });
 
     editorDescriptionWPP = new WPPEditor({
-        container: $("#description_wppeditor")[0],
+        container: /** @type {HTMLDivElement} */ (
+            $("#description_wppeditor")[0]
+        ),
     });
     editorDescriptionWPP.on(
         "change",
@@ -2024,8 +2029,12 @@ $(document).ready(function () {
     function select_rm_create() {
         menu_type = "create";
         if (selected_button == "create") {
-            if (create_save_avatar != "") {
-                $("#add_avatar_button").get(0).files = create_save_avatar;
+            if (create_save_avatar) {
+                /** @type {FileList} */ (
+                    /** @type {HTMLInputElement} */ (
+                        $("#add_avatar_button").get(0)
+                    ).files
+                ) = create_save_avatar;
                 read_avatar_load($("#add_avatar_button").get(0));
             }
         }
@@ -2069,9 +2078,15 @@ $(document).ready(function () {
             .addClass("deselected_button_style");
 
         // Reset W++ editor
-        document.getElementById("description_wpp_checkbox").checked = false;
-        document.getElementById("description_textarea").style.display = null;
-        document.getElementById("description_wppeditor").style.display = "none";
+        /** @type {HTMLInputElement} */ (
+            document.getElementById("description_wpp_checkbox")
+        ).checked = false;
+        /** @type {HTMLTextAreaElement} */ (
+            document.getElementById("description_textarea")
+        ).style.display = "";
+        /** @type {HTMLDivElement} */ (
+            document.getElementById("description_wppeditor")
+        ).style.display = "none";
         editorDescriptionWPP.clear();
         editorDescriptionWPP.text = "";
 
@@ -2663,11 +2678,20 @@ $(document).ready(function () {
 
             reader.onload = function (e) {
                 $("#bg_load_preview")
-                    .attr("src", e.target.result)
+                    .attr(
+                        "src",
+                        /** @type {string} */ (
+                            /** @type {FileReader} */ (e.target).result
+                        )
+                    )
                     .width(103)
                     .height(83);
 
-                var formData = new FormData($("#form_bg_download").get(0));
+                var formData = new FormData(
+                    /** @type {HTMLFormElement} */ (
+                        $("#form_bg_download").get(0)
+                    )
+                );
 
                 //console.log(formData);
                 jQuery.ajax({
@@ -2757,7 +2781,12 @@ $(document).ready(function () {
                         $("#create_button").click();
                     }, durationSaveEdit);
                 }
-                $("#avatar_load_preview").attr("src", e.target.result);
+                $("#avatar_load_preview").attr(
+                    "src",
+                    /** @type {string} */ (
+                        /** @type {FileReader} */ (e.target).result
+                    )
+                );
                 //.width(103)
                 //.height(83);
                 //console.log(e.target.result.name);
@@ -2767,20 +2796,24 @@ $(document).ready(function () {
         }
     }
     $("#add_avatar_button").change(function () {
-        is_mes_reload_avatar = Date.now();
         read_avatar_load(this);
     });
     $("#form_create").submit(function (e) {
         $("#rm_info_avatar").html("");
-        var formData = new FormData($("#form_create").get(0));
+        var formData = new FormData(
+            /** @type {HTMLFormElement} */ ($("#form_create").get(0))
+        );
         if ($("#form_create").attr("actiontype") == "createcharacter") {
-            if ($("#character_name_pole").val().length > 0) {
+            if (
+                /** @type {string} */ ($("#character_name_pole").val()).length >
+                0
+            ) {
                 jQuery.ajax({
                     type: "POST",
                     url: "/createcharacter",
                     data: formData,
                     beforeSend: function () {
-                        $("#create_button").attr("disabled", true);
+                        $("#create_button").attr("disabled", "true");
                         $("#create_button").attr("value", "Creating...");
                     },
                     cache: false,
@@ -2805,7 +2838,7 @@ $(document).ready(function () {
                         $("#mes_example_textarea").val("");
                         create_save_mes_example = "";
 
-                        create_save_avatar = "";
+                        create_save_avatar = undefined;
 
                         $("#create_button").removeAttr("disabled");
                         $("#add_avatar_button").replaceWith(
@@ -2844,7 +2877,7 @@ $(document).ready(function () {
                 url: "/editcharacter",
                 data: formData,
                 beforeSend: function () {
-                    $("#create_button").attr("disabled", true);
+                    $("#create_button").attr("disabled", "true");
                     $("#create_button").attr("value", "Save");
                 },
                 cache: false,
@@ -2859,14 +2892,18 @@ $(document).ready(function () {
                                 .children("img")
                                 .attr(
                                     "src",
-                                    $("#avatar_load_preview").attr("src")
+                                    /** @type {string} */ (
+                                        $("#avatar_load_preview").attr("src")
+                                    )
                                 );
                         }
                     });
                     if (chat.length === 1) {
                         var this_ch_mes = default_ch_mes;
                         if ($("#firstmessage_textarea").val() != "") {
-                            this_ch_mes = $("#firstmessage_textarea").val();
+                            this_ch_mes = /** @type {string} */ (
+                                $("#firstmessage_textarea").val()
+                            );
                         }
                         if (
                             this_ch_mes !=
@@ -2880,11 +2917,12 @@ $(document).ready(function () {
                         ) {
                             clearChat();
                             chat.length = 0;
-                            chat[0] = {};
-                            chat[0]["name"] = name2;
-                            chat[0]["is_user"] = false;
-                            chat[0]["is_name"] = true;
-                            chat[0]["mes"] = this_ch_mes;
+                            chat[0] = {
+                                name: name2,
+                                is_user: false,
+                                is_name: true,
+                                mes: this_ch_mes,
+                            };
                             add_mes_without_animation = true;
                             addOneMessage(chat[0]);
                         }
@@ -3196,37 +3234,37 @@ $(document).ready(function () {
                         .max_length;
             }
             $("#temp").val(temp);
-            $("#temp_counter").html(temp);
+            $("#temp_counter").html(temp.toString());
 
             $("#amount_gen").val(amount_gen);
-            $("#amount_gen_counter").html(amount_gen);
+            $("#amount_gen_counter").html(amount_gen.toString());
 
             $("#max_context").val(max_context);
             $("#max_context_counter").html(max_context + " Tokens");
 
             $("#top_p").val(top_p);
-            $("#top_p_counter").html(top_p);
+            $("#top_p_counter").html(top_p.toString());
 
             $("#top_k").val(top_k);
-            $("#top_k_counter").html(top_k);
+            $("#top_k_counter").html(top_k.toString());
 
             $("#top_a").val(top_a);
-            $("#top_a_counter").html(top_a);
+            $("#top_a_counter").html(top_a.toString());
 
             $("#typical").val(typical);
-            $("#typical_counter").html(typical);
+            $("#typical_counter").html(typical.toString());
 
             $("#tfs").val(tfs);
-            $("#tfs_counter").html(tfs);
+            $("#tfs_counter").html(tfs.toString());
 
             $("#rep_pen").val(rep_pen);
-            $("#rep_pen_counter").html(rep_pen);
+            $("#rep_pen_counter").html(rep_pen.toString());
 
             $("#rep_pen_size").val(rep_pen_size);
             $("#rep_pen_size_counter").html(rep_pen_size + " Tokens");
 
             $("#rep_pen_slope").val(rep_pen_slope);
-            $("#rep_pen_slope_counter").html(rep_pen_slope);
+            $("#rep_pen_slope_counter").html(rep_pen_slope.toString());
 
             $("#range_block").children().prop("disabled", false);
             $("#range_block").css("opacity", 1.0);
@@ -3319,34 +3357,34 @@ $(document).ready(function () {
                 .repetition_penalty_slope;
 
         $("#temp_novel").val(temp_novel);
-        $("#temp_counter_novel").html(temp_novel);
+        $("#temp_counter_novel").html(temp_novel.toString());
 
         $("#amount_gen_novel").val(amount_gen_novel);
-        $("#amount_gen_counter_novel").html(amount_gen_novel);
+        $("#amount_gen_counter_novel").html(amount_gen_novel.toString());
 
         $("#top_p_novel").val(top_p_novel);
-        $("#top_p_counter_novel").html(top_p_novel);
+        $("#top_p_counter_novel").html(top_p_novel.toString());
 
         $("#top_k_novel").val(top_k_novel);
-        $("#top_k_counter_novel").html(top_k_novel);
+        $("#top_k_counter_novel").html(top_k_novel.toString());
 
         $("#top_a_novel").val(top_a_novel);
-        $("#top_a_counter_novel").html(top_a_novel);
+        $("#top_a_counter_novel").html(top_a_novel.toString());
 
         $("#typical_novel").val(typical_novel);
-        $("#typical_counter_novel").html(typical_novel);
+        $("#typical_counter_novel").html(typical_novel.toString());
 
         $("#tfs_novel").val(tfs_novel);
-        $("#tfs_counter_novel").html(tfs_novel);
+        $("#tfs_counter_novel").html(tfs_novel.toString());
 
         $("#rep_pen_novel").val(rep_pen_novel);
-        $("#rep_pen_counter_novel").html(rep_pen_novel);
+        $("#rep_pen_counter_novel").html(rep_pen_novel.toString());
 
         $("#rep_pen_size_novel").val(rep_pen_size_novel);
         $("#rep_pen_size_counter_novel").html(rep_pen_size_novel + " Tokens");
 
         $("#rep_pen_slope_novel").val(rep_pen_slope_novel);
-        $("#rep_pen_slope_counter_novel").html(rep_pen_slope_novel);
+        $("#rep_pen_slope_counter_novel").html(rep_pen_slope_novel.toString());
 
         //$("#range_block").children().prop("disabled", false);
         //$("#range_block").css('opacity',1.0);
@@ -3428,85 +3466,59 @@ $(document).ready(function () {
     }
 
     $(document).on("input", "#temp", function () {
-        temp = $(this).val();
-        if (isInt(temp)) {
-            $("#temp_counter").html($(this).val() + ".00");
-        } else {
-            $("#temp_counter").html($(this).val());
-        }
+        temp = Number.parseFloat(/** @type {string} */ ($(this).val()));
+        $("#temp_counter").html(temp.toFixed(2));
         var tempTimer = setTimeout(saveSettings, 500);
     });
     $(document).on("input", "#amount_gen", function () {
-        amount_gen = $(this).val();
-        $("#amount_gen_counter").html($(this).val() + " Tokens");
+        amount_gen = Number.parseInt(/** @type {string} */ ($(this).val()));
+        $("#amount_gen_counter").html(amount_gen + " Tokens");
         var amountTimer = setTimeout(saveSettings, 500);
     });
     $(document).on("input", "#top_p", function () {
-        top_p = $(this).val();
-        if (isInt(top_p)) {
-            $("#top_p_counter").html($(this).val() + ".00");
-        } else {
-            $("#top_p_counter").html($(this).val());
-        }
+        top_p = Number.parseFloat(/** @type {string} */ ($(this).val()));
+        $("#top_p_counter").html(top_p.toFixed(2));
         var saveRangeTimer = setTimeout(saveSettings, 500);
     });
     $(document).on("input", "#top_k", function () {
-        top_k = $(this).val();
-        $("#top_k_counter").html($(this).val());
+        top_k = Number.parseFloat(/** @type {string} */ ($(this).val()));
+        $("#top_k_counter").html(top_k.toFixed(2));
         var saveRangeTimer = setTimeout(saveSettings, 500);
     });
     $(document).on("input", "#top_a", function () {
-        top_a = $(this).val();
-        if (isInt(top_a)) {
-            $("#top_a_counter").html($(this).val() + ".00");
-        } else {
-            $("#top_a_counter").html($(this).val());
-        }
+        top_a = Number.parseFloat(/** @type {string} */ ($(this).val()));
+        $("#top_a_counter").html(top_a.toFixed(2));
         var saveRangeTimer = setTimeout(saveSettings, 500);
     });
     $(document).on("input", "#typical", function () {
-        typical = $(this).val();
-        if (isInt(typical)) {
-            $("#typical_counter").html($(this).val() + ".00");
-        } else {
-            $("#typical_counter").html($(this).val());
-        }
+        typical = Number.parseFloat(/** @type {string} */ ($(this).val()));
+        $("#typical_counter").html(typical.toFixed(2));
         var saveRangeTimer = setTimeout(saveSettings, 500);
     });
     $(document).on("input", "#tfs", function () {
-        tfs = $(this).val();
-        if (isInt(tfs)) {
-            $("#tfs_counter").html($(this).val() + ".00");
-        } else {
-            $("#tfs_counter").html($(this).val());
-        }
+        tfs = Number.parseFloat(/** @type {string} */ ($(this).val()));
+        $("#tfs_counter").html(tfs.toFixed(2));
         var saveRangeTimer = setTimeout(saveSettings, 500);
     });
     $(document).on("input", "#rep_pen", function () {
-        rep_pen = $(this).val();
-        if (isInt(rep_pen)) {
-            $("#rep_pen_counter").html($(this).val() + ".00");
-        } else {
-            $("#rep_pen_counter").html($(this).val());
-        }
+        rep_pen = Number.parseFloat(/** @type {string} */ ($(this).val()));
+        $("#rep_pen_counter").html(rep_pen.toFixed(2));
         var repPenTimer = setTimeout(saveSettings, 500);
     });
     $(document).on("input", "#rep_pen_size", function () {
-        rep_pen_size = $(this).val();
+        rep_pen_size = Number.parseFloat(/** @type {string} */ ($(this).val()));
         $("#rep_pen_size_counter").html($(this).val() + " Tokens");
         var repPenSizeTimer = setTimeout(saveSettings, 500);
     });
     $(document).on("input", "#rep_pen_slope", function () {
-        rep_pen_slope = $(this).val();
-        if (isInt(rep_pen_slope)) {
-            $("#rep_pen_slope_counter").html($(this).val() + ".00");
-        } else {
-            $("#rep_pen_slope_counter").html($(this).val());
-        }
+        rep_pen_slope = Number.parseFloat(
+            /** @type {string} */ ($(this).val())
+        );
+        $("#rep_pen_slope_counter").html(rep_pen_slope.toFixed(2));
         var saveRangeTimer = setTimeout(saveSettings, 500);
     });
     $(document).on("input", "#max_context", function () {
-        max_context = parseInt($(this).val());
+        max_context = Number.parseInt(/** @type {string} */ ($(this).val()));
         $("#max_context_counter").html($(this).val() + " Tokens");
         var max_contextTimer = setTimeout(saveSettings, 500);
     });
@@ -3564,14 +3576,20 @@ $(document).ready(function () {
         saveSettings();
     });
 
-    document.getElementById("description_wppeditor").style.display = "none";
-    document.getElementById("description_wpp_checkbox").checked = false;
+    /** @type {HTMLDivElement} */ (
+        document.getElementById("description_wppeditor")
+    ).style.display = "none";
+    /** @type {HTMLInputElement} */ (
+        document.getElementById("description_wpp_checkbox")
+    ).checked = false;
     $("#description_wpp_checkbox").change(function () {
         if ($("#description_wpp_checkbox").prop("checked")) {
-            document.getElementById("description_wppeditor").style.display =
-                null;
-            document.getElementById("description_textarea").style.display =
-                "none";
+            /** @type {HTMLDivElement} */ (
+                document.getElementById("description_wppeditor")
+            ).style.display = "";
+            /** @type {HTMLTextAreaElement} */ (
+                document.getElementById("description_textarea")
+            ).style.display = "none";
             $("#description_wppeditor").css("opacity", 0.0);
             $("#description_wppeditor").transition({
                 opacity: 1.0,
@@ -3579,10 +3597,12 @@ $(document).ready(function () {
                 easing: animation_rm_easing,
             });
         } else {
-            document.getElementById("description_textarea").style.display =
-                null;
-            document.getElementById("description_wppeditor").style.display =
-                "none";
+            /** @type {HTMLTextAreaElement} */ (
+                document.getElementById("description_textarea")
+            ).style.display = "block";
+            /** @type {HTMLDivElement} */ (
+                document.getElementById("description_wppeditor")
+            ).style.display = "none";
             $("#description_textarea").css("opacity", 0.0);
             $("#description_textarea").transition({
                 opacity: 1.0,
@@ -3593,8 +3613,12 @@ $(document).ready(function () {
     });
     $("#notes_wpp_checkbox").change(function () {
         if ($("#notes_wpp_checkbox").prop("checked")) {
-            document.getElementById("notes_wpp_editor").style.display = null;
-            document.getElementById("notes_textarea").style.display = "none";
+            /** @type {HTMLDivElement} */ (
+                document.getElementById("notes_wpp_editor")
+            ).style.display = "block";
+            /** @type {HTMLTextAreaElement} */ (
+                document.getElementById("notes_textarea")
+            ).style.display = "none";
             $("#notes_wpp_editor").css("opacity", 0.0);
             $("#notes_wpp_editor").transition({
                 opacity: 1.0,
@@ -3602,8 +3626,12 @@ $(document).ready(function () {
                 easing: animation_rm_easing,
             });
         } else {
-            document.getElementById("notes_textarea").style.display = null;
-            document.getElementById("notes_wpp_editor").style.display = "none";
+            /** @type {HTMLDivElement} */ (
+                document.getElementById("notes_textarea")
+            ).style.display = "block";
+            /** @type {HTMLTextAreaElement} */ (
+                document.getElementById("notes_wpp_editor")
+            ).style.display = "none";
             $("#notes_textarea").css("opacity", 0.0);
             $("#notes_textarea").transition({
                 opacity: 1.0,
@@ -3615,134 +3643,111 @@ $(document).ready(function () {
 
     //Novel
     $(document).on("input", "#temp_novel", function () {
-        temp_novel = $(this).val();
-        if (isInt(temp_novel)) {
-            $("#temp_counter_novel").html($(this).val() + ".00");
-        } else {
-            $("#temp_counter_novel").html($(this).val());
-        }
+        temp_novel = Number.parseFloat(/** @type {string} */ ($(this).val()));
+        $("#temp_counter_novel").html(temp_novel.toFixed(2));
         var tempTimer = setTimeout(saveSettings, 500);
     });
     $(document).on("input", "#amount_gen_novel", function () {
-        amount_gen_novel = $(this).val();
-        $("#amount_gen_counter_novel").html($(this).val() + " Tokens");
+        amount_gen_novel = Number.parseInt(
+            /** @type {string} */ ($(this).val())
+        );
+        $("#amount_gen_counter_novel").html(amount_gen_novel + " Tokens");
         var amountTimer = setTimeout(saveSettings, 500);
     });
     $(document).on("input", "#top_p_novel", function () {
-        top_p_novel = $(this).val();
-        if (isInt(top_p_novel)) {
-            $("#top_p_counter_novel").html($(this).val() + ".00");
-        } else {
-            $("#top_p_counter_novel").html($(this).val());
-        }
+        top_p_novel = Number.parseFloat(/** @type {string} */ ($(this).val()));
+        $("#top_p_counter_novel").html(top_p_novel.toFixed(2));
         var saveRangeTimer = setTimeout(saveSettings, 500);
     });
     $(document).on("input", "#top_k_novel", function () {
-        top_k_novel = $(this).val();
-        $("#top_k_counter_novel").html($(this).val());
+        top_k_novel = Number.parseInt(/** @type {string} */ ($(this).val()));
+        $("#top_k_counter_novel").html(top_k_novel.toString());
         var saveRangeTimer = setTimeout(saveSettings, 500);
     });
     $(document).on("input", "#top_a_novel", function () {
-        top_a_novel = $(this).val();
-        if (isInt(top_a_novel)) {
-            $("#top_a_counter_novel").html($(this).val() + ".00");
-        } else {
-            $("#top_a_counter_novel").html($(this).val());
-        }
+        top_a_novel = Number.parseFloat(/** @type {string} */ ($(this).val()));
+        $("#top_a_counter_novel").html(top_a_novel.toFixed(2));
         var saveRangeTimer = setTimeout(saveSettings, 500);
     });
     $(document).on("input", "#typical_novel", function () {
-        typical_novel = $(this).val();
+        typical_novel = /** @type {string} */ ($(this).val());
         if (isInt(typical_novel)) {
             $("#typical_counter_novel").html($(this).val() + ".00");
         } else {
-            $("#typical_counter_novel").html($(this).val());
+            $("#typical_counter_novel").html(
+                /** @type {string} */ ($(this).val())
+            );
         }
         var saveRangeTimer = setTimeout(saveSettings, 500);
     });
     $(document).on("input", "#tfs_novel", function () {
-        tfs_novel = $(this).val();
-        if (isInt(tfs_novel)) {
-            $("#tfs_counter_novel").html($(this).val() + ".00");
-        } else {
-            $("#tfs_counter_novel").html($(this).val());
-        }
+        tfs_novel = Number.parseFloat(/** @type {string} */ ($(this).val()));
+        $("#tfs_counter_novel").html(tfs_novel.toFixed(2));
         var saveRangeTimer = setTimeout(saveSettings, 500);
     });
     $(document).on("input", "#rep_pen_novel", function () {
-        rep_pen_novel = $(this).val();
-        if (isInt(rep_pen_novel)) {
-            $("#rep_pen_counter_novel").html($(this).val() + ".00");
-        } else {
-            $("#rep_pen_counter_novel").html($(this).val());
-        }
+        rep_pen_novel = Number.parseFloat(
+            /** @type {string} */ ($(this).val())
+        );
+        $("#rep_pen_counter_novel").html(rep_pen_novel.toFixed(2));
         var repPenTimer = setTimeout(saveSettings, 500);
     });
     $(document).on("input", "#rep_pen_size_novel", function () {
-        rep_pen_size_novel = $(this).val();
-        $("#rep_pen_size_counter_novel").html($(this).val() + " Tokens");
+        rep_pen_size_novel = Number.parseInt(
+            /** @type {string} */ ($(this).val())
+        );
+        $("#rep_pen_size_counter_novel").html(rep_pen_size_novel + " Tokens");
         var repPenSizeTimer = setTimeout(saveSettings, 500);
     });
     $(document).on("input", "#rep_pen_slope_novel", function () {
-        rep_pen_slope_novel = $(this).val();
-        if (isInt(rep_pen_slope_novel)) {
-            $("#rep_pen_slope_counter_novel").html($(this).val() + ".00");
-        } else {
-            $("#rep_pen_slope_counter_novel").html($(this).val());
-        }
+        rep_pen_slope_novel = Number.parseFloat(
+            /** @type {string} */ ($(this).val())
+        );
+        $("#rep_pen_slope_counter_novel").html(rep_pen_slope_novel.toFixed(2));
         var saveRangeTimer = setTimeout(saveSettings, 500);
     });
 
     //OpenAi
     $(document).on("input", "#temp_openai", function () {
-        temp_openai = $(this).val();
-
-        if (isInt(temp_openai)) {
-            $("#temp_counter_openai").html($(this).val() + ".00");
-        } else {
-            $("#temp_counter_openai").html($(this).val());
-        }
+        temp_openai = Number.parseFloat(/** @type {string} */ ($(this).val()));
+        $("#temp_counter_openai").html(temp_openai.toFixed(2));
         var tempTimer_openai = setTimeout(saveSettings, 500);
     });
     $(document).on("input", "#top_p_openai", function () {
-        top_p_openai = $(this).val();
-        if (isInt(top_p_openai)) {
-            $("#top_p_counter_openai").html($(this).val() + ".00");
-        } else {
-            $("#top_p_counter_openai").html($(this).val());
-        }
+        top_p_openai = Number.parseFloat(/** @type {string} */ ($(this).val()));
+        $("#top_p_counter_openai").html(top_p_openai.toFixed(2));
         var saveRangeTimer = setTimeout(saveSettings, 500);
     });
     $(document).on("input", "#freq_pen_openai", function () {
-        freq_pen_openai = $(this).val();
-        if (isInt(freq_pen_openai)) {
-            $("#freq_pen_counter_openai").html($(this).val() + ".00");
-        } else {
-            $("#freq_pen_counter_openai").html($(this).val());
-        }
+        freq_pen_openai = Number.parseFloat(
+            /** @type {string} */ ($(this).val())
+        );
+        $("#freq_pen_counter_openai").html(freq_pen_openai.toFixed(2));
         var freqPenTimer_openai = setTimeout(saveSettings, 500);
     });
     $(document).on("input", "#pres_pen_openai", function () {
-        pres_pen_openai = $(this).val();
-        if (isInt(pres_pen_openai)) {
-            $("#pres_pen_counter_openai").html($(this).val() + ".00");
-        } else {
-            $("#pres_pen_counter_openai").html($(this).val());
-        }
+        pres_pen_openai = Number.parseFloat(
+            /** @type {string} */ ($(this).val())
+        );
+        $("#pres_pen_counter_openai").html(pres_pen_openai.toFixed(2));
         var presPenTimer_openai = setTimeout(saveSettings, 500);
     });
     $(document).on("input", "#max_context_openai", function () {
-        max_context_openai = parseInt($(this).val());
-        $("#max_context_counter_openai").html($(this).val() + " Tokens");
+        max_context_openai = Number.parseInt(
+            /** @type {string} */ ($(this).val())
+        );
+        $("#max_context_counter_openai").html(max_context_openai + " Tokens");
         var max_contextTimer = setTimeout(saveSettings, 500);
     });
     $(document).on("input", "#amount_gen_openai", function () {
-        amount_gen_openai = $(this).val();
-        $("#amount_gen_counter_openai").html($(this).val() + " Tokens");
+        amount_gen_openai = Number.parseInt(
+            /** @type {string} */ ($(this).val())
+        );
+        $("#amount_gen_counter_openai").html(amount_gen_openai + " Tokens");
         var amountTimer = setTimeout(saveSettings, 500);
     });
     $(document).on("input", "#openai_system_prompt_textarea", function () {
-        openai_system_prompt = $(this).val();
+        openai_system_prompt = /** @type {string} */ ($(this).val());
         var saveRangeTimer = setTimeout(saveSettings, 500);
     });
     //***************SETTINGS****************//
@@ -3890,32 +3895,27 @@ $(document).ready(function () {
                     rep_pen_slope = settings.rep_pen_slope;
 
                     var addZeros = "";
-                    if (isInt(temp)) addZeros = ".00";
                     $("#temp").val(temp);
-                    $("#temp_counter").html(temp + addZeros);
+                    $("#temp_counter").html(temp.toFixed(2));
 
                     addZeros = "";
-                    if (isInt(top_p)) addZeros = ".00";
                     $("#top_p").val(top_p);
-                    $("#top_p_counter").html(top_p + addZeros);
+                    $("#top_p_counter").html(top_p.toFixed(2));
 
                     $("#top_k").val(top_k);
-                    $("#top_k_counter").html(top_k);
+                    $("#top_k_counter").html(top_k.toString());
 
                     addZeros = "";
-                    if (isInt(top_a)) addZeros = ".00";
                     $("#top_a").val(top_a);
-                    $("#top_a_counter").html(top_a + addZeros);
+                    $("#top_a_counter").html(top_a.toFixed(2));
 
                     addZeros = "";
-                    if (isInt(typical)) addZeros = ".00";
                     $("#typical").val(typical);
-                    $("#typical_counter").html(typical + addZeros);
+                    $("#typical_counter").html(typical.toFixed(2));
 
                     addZeros = "";
-                    if (isInt(tfs)) addZeros = ".00";
                     $("#tfs").val(tfs);
-                    $("#tfs_counter").html(tfs + addZeros);
+                    $("#tfs_counter").html(tfs.toFixed(2));
 
                     $("#max_context").val(max_context);
                     $("#max_context_counter").html(max_context + " Tokens");
@@ -3924,14 +3924,12 @@ $(document).ready(function () {
                     $("#amount_gen_counter").html(amount_gen + " Tokens");
 
                     addZeros = "";
-                    if (isInt(rep_pen)) addZeros = ".00";
                     $("#rep_pen").val(rep_pen);
-                    $("#rep_pen_counter").html(rep_pen + addZeros);
+                    $("#rep_pen_counter").html(rep_pen.toFixed(2));
 
                     addZeros = "";
-                    if (isInt(rep_pen_slope)) addZeros = ".00";
                     $("#rep_pen_slope").val(rep_pen_slope);
-                    $("#rep_pen_slope_counter").html(rep_pen_slope + addZeros);
+                    $("#rep_pen_slope_counter").html(rep_pen_slope.toFixed(2));
 
                     $("#rep_pen_size").val(rep_pen_size);
                     $("#rep_pen_size_counter").html(rep_pen_size + " Tokens");
@@ -3952,32 +3950,27 @@ $(document).ready(function () {
                     rep_pen_slope_novel = settings.rep_pen_slope_novel;
 
                     var addZeros = "";
-                    if (isInt(temp_novel)) addZeros = ".00";
                     $("#temp_novel").val(temp_novel);
-                    $("#temp_counter_novel").html(temp_novel + addZeros);
+                    $("#temp_counter_novel").html(temp_novel.toFixed(2));
 
                     addZeros = "";
-                    if (isInt(top_p_novel)) addZeros = ".00";
                     $("#top_p_novel").val(top_p_novel);
-                    $("#top_p_counter_novel").html(top_p_novel + addZeros);
+                    $("#top_p_counter_novel").html(top_p_novel.toFixed(2));
 
                     $("#top_k_novel").val(top_k_novel);
-                    $("#top_k_counter_novel").html(top_k_novel);
+                    $("#top_k_counter_novel").html(top_k_novel.toString());
 
                     addZeros = "";
-                    if (isInt(top_a_novel)) addZeros = ".00";
                     $("#top_a_novel").val(top_a_novel);
-                    $("#top_a_counter_novel").html(top_a_novel + addZeros);
+                    $("#top_a_counter_novel").html(top_a_novel.toFixed(2));
 
                     addZeros = "";
-                    if (isInt(typical_novel)) addZeros = ".00";
                     $("#typical_novel").val(typical_novel);
-                    $("#typical_counter_novel").html(typical_novel + addZeros);
+                    $("#typical_counter_novel").html(typical_novel.toFixed(2));
 
                     addZeros = "";
-                    if (isInt(tfs_novel)) addZeros = ".00";
                     $("#tfs_novel").val(tfs_novel);
-                    $("#tfs_counter_novel").html(tfs_novel + addZeros);
+                    $("#tfs_counter_novel").html(tfs_novel.toFixed(2));
 
                     $("#amount_gen_novel").val(amount_gen_novel);
                     $("#amount_gen_counter_novel").html(
@@ -3985,15 +3978,13 @@ $(document).ready(function () {
                     );
 
                     addZeros = "";
-                    if (isInt(rep_pen_novel)) addZeros = ".00";
                     $("#rep_pen_novel").val(rep_pen_novel);
-                    $("#rep_pen_counter_novel").html(rep_pen_novel + addZeros);
+                    $("#rep_pen_counter_novel").html(rep_pen_novel.toFixed(2));
 
                     addZeros = "";
-                    if (isInt(rep_pen_slope_novel)) addZeros = ".00";
                     $("#rep_pen_slope_novel").val(rep_pen_slope_novel);
                     $("#rep_pen_slope_counter_novel").html(
-                        rep_pen_slope_novel + addZeros
+                        rep_pen_slope_novel.toFixed(2)
                     );
 
                     $("#rep_pen_size_novel").val(rep_pen_size_novel);
@@ -4010,27 +4001,23 @@ $(document).ready(function () {
                     amount_gen_openai = settings.amount_gen_openai;
 
                     addZeros = "";
-                    if (isInt(temp_openai)) addZeros = ".00";
                     $("#temp_openai").val(temp_openai);
-                    $("#temp_counter_openai").html(temp_openai + addZeros);
+                    $("#temp_counter_openai").html(temp_openai.toFixed(2));
 
                     addZeros = "";
-                    if (isInt(top_p_openai)) addZeros = ".00";
                     $("#top_p_openai").val(top_p_openai);
-                    $("#top_p_counter_openai").html(top_p_openai + addZeros);
+                    $("#top_p_counter_openai").html(top_p_openai.toFixed(2));
 
                     addZeros = "";
-                    if (isInt(freq_pen_openai)) addZeros = ".00";
                     $("#freq_pen_openai").val(freq_pen_openai);
                     $("#freq_pen_counter_openai").html(
-                        freq_pen_openai + addZeros
+                        freq_pen_openai.toFixed(2)
                     );
 
                     addZeros = "";
-                    if (isInt(pres_pen_openai)) addZeros = ".00";
                     $("#pres_pen_openai").val(pres_pen_openai);
                     $("#pres_pen_counter_openai").html(
-                        pres_pen_openai + addZeros
+                        pres_pen_openai.toFixed(2)
                     );
 
                     $("#max_context_openai").val(max_context_openai);
@@ -4061,7 +4048,9 @@ $(document).ready(function () {
                     settings.notes = settings.notes === false ? false : true;
 
                     winNotes = new Notes({
-                        root: document.getElementById("shadow_notes_popup"),
+                        root: /** @type {HTMLDivElement} */ (
+                            document.getElementById("shadow_notes_popup")
+                        ),
                         save: saveChat.bind(this),
                     });
 
@@ -4495,9 +4484,9 @@ $(document).ready(function () {
             edit_textarea.height(0);
             edit_textarea.height(edit_textarea[0].scrollHeight);
             edit_textarea.focus();
-            edit_textarea[0].setSelectionRange(
-                edit_textarea.val().length,
-                edit_textarea.val().length
+            /** @type {any} */ (edit_textarea[0]).setSelectionRange(
+                /** @type {string} */ (edit_textarea.val()).length,
+                /** @type {string} */ (edit_textarea.val()).length
             );
             if (this_edit_mes_id == count_view_mes - 1 || true) {
                 //console.log(1);
@@ -5106,7 +5095,7 @@ $(document).ready(function () {
 
     $("#your_name_button").click(function () {
         if (!is_send_press) {
-            name1 = $("#your_name").val();
+            name1 = /** @type {string} */ ($("#your_name").val());
             if (name1 === undefined || name1 == "") name1 = default_user_name;
             console.log(name1);
             saveSettings("change_name");
@@ -5158,7 +5147,7 @@ $(document).ready(function () {
                         //children().last()
                         $("#select_chat_div")
                             .children(":nth-last-child(1)")
-                            .attr("highlight", true);
+                            .attr("highlight", "true");
                     }
                 }
                 //<div id="select_chat_div">
@@ -5237,7 +5226,7 @@ $(document).ready(function () {
         if ($("#api_key_novel").val() != "") {
             $("#api_loading_novel").css("display", "inline-block");
             $("#api_button_novel").css("display", "none");
-            api_key_novel = $("#api_key_novel").val();
+            api_key_novel = /** @type {string} */ ($("#api_key_novel").val());
             api_key_novel = $.trim(api_key_novel);
             //console.log("1: "+api_server);
             saveSettings();
@@ -5252,11 +5241,15 @@ $(document).ready(function () {
         $("#api_button_novel").css("display", "inline-block");
     }
     $("#model_novel_select").change(function () {
-        model_novel = $("#model_novel_select").find(":selected").val();
+        model_novel = /** @type {string} */ (
+            $("#model_novel_select").find(":selected").val()
+        );
         saveSettings();
     });
     $("#model_openai_select").change(function () {
-        model_openai = $("#model_openai_select").find(":selected").val();
+        model_openai = /** @type {string} */ (
+            $("#model_openai_select").find(":selected").val()
+        );
         openAIChangeMaxContextForModels();
         saveSettings();
     });
@@ -5284,12 +5277,16 @@ $(document).ready(function () {
         $("#max_context_counter_openai").html(max_context_openai + " Tokens");
     }
     $("#anchor_order").change(function () {
-        anchor_order = parseInt($("#anchor_order").find(":selected").val());
+        anchor_order = parseInt(
+            /** @type {string} */ ($("#anchor_order").find(":selected").val())
+        );
         saveSettings();
     });
     $("#pygmalion_formating").change(function () {
         pygmalion_formating = parseInt(
-            $("#pygmalion_formating").find(":selected").val()
+            /** @type {string} */ (
+                $("#pygmalion_formating").find(":selected").val()
+            )
         );
         setPygmalionFormating();
         checkOnlineStatus();
@@ -5357,7 +5354,7 @@ $(document).ready(function () {
         if ($("#api_key_openai").val() != "") {
             $("#api_loading_openai").css("display", "inline-block");
             $("#api_button_openai").css("display", "none");
-            api_key_openai = $("#api_key_openai").val();
+            api_key_openai = /** @type {string} */ ($("#api_key_openai").val());
             api_key_openai = $.trim(api_key_openai);
             //console.log("1: "+api_server);
             saveSettings();
@@ -5405,8 +5402,8 @@ $(document).ready(function () {
     });
     $("#character_import_file").on("change", function (e) {
         $("#rm_info_avatar").html("");
-        var file = e.target.files[0];
-        //console.log(1);
+        var file = /** @type {HTMLInputElement} */ (e.target).files?.[0];
+
         if (!file) {
             return;
         }
@@ -5423,7 +5420,9 @@ $(document).ready(function () {
         var format = ext[1].toLowerCase();
         $("#character_import_file_type").val(format);
         //console.log(format);
-        var formData = new FormData($("#form_import").get(0));
+        var formData = new FormData(
+            /** @type {HTMLFormElement} */ ($("#form_import").get(0))
+        );
 
         jQuery.ajax({
             type: "POST",
@@ -5478,8 +5477,8 @@ $(document).ready(function () {
         $("#chat_import_file").click();
     });
     $("#chat_import_file").on("change", function (e) {
-        var file = e.target.files[0];
-        //console.log(1);
+        var file = /** @type {HTMLInputElement} */ (e.target).files?.[0];
+
         if (!file) {
             return;
         }
@@ -5496,7 +5495,9 @@ $(document).ready(function () {
         var format = ext[1].toLowerCase();
         $("#chat_import_file_type").val(format);
         //console.log(format);
-        var formData = new FormData($("#form_import_chat").get(0));
+        var formData = new FormData(
+            /** @type {HTMLFormElement} */ ($("#form_import_chat").get(0))
+        );
 
         jQuery.ajax({
             type: "POST",
@@ -5772,22 +5773,25 @@ $(document).ready(function () {
 
                     let row = $("#characloud_characters_row" + row_i);
                     row[0].addEventListener("wheel", function (event) {
-                        if (!event.deltaX || row.sleeping) {
+                        if (
+                            !event.deltaX ||
+                            /** @type {any} */ (row).sleeping
+                        ) {
                             return;
                         }
                         if (event.deltaX > 0) {
-                            row.sleeping = true;
+                            /** @type {any} */ (row).sleeping = true;
                             charaCloudSwipeRight.call(
                                 row.find(".characloud_swipe_rigth")
                             );
                         } else {
-                            row.sleeping = true;
+                            /** @type {any} */ (row).sleeping = true;
                             charaCloudSwipeLeft.call(
                                 row.find(".characloud_swipe_left")
                             );
                         }
                         setTimeout(function () {
-                            row.sleeping = false;
+                            /** @type {any} */ (row).sleeping = false;
                         }, 150);
                     });
 
@@ -5865,7 +5869,10 @@ $(document).ready(function () {
                     });
                     row_i++;
                 }
-                $(".lazy").lazyLoadXT({ edgeX: 500, edgeY: 500 });
+                /** @type {any} */ ($(".lazy")).lazyLoadXT({
+                    edgeX: 500,
+                    edgeY: 500,
+                });
             }
         } else {
             setCharaCloudOffline();
@@ -5990,7 +5997,10 @@ $(document).ready(function () {
         $("#characloud_search_block").css("display", "none");
         $("#characloud_characters").css("display", "block");
     });
-    if (document.getElementById("nav-toggle").checked) {
+    if (
+        /** @type {HTMLInputElement} */ (document.getElementById("nav-toggle"))
+            .checked
+    ) {
         is_nav_toggle = true;
         $("#chara_cloud").transition({
             width: "calc(100vw - 610px)",
@@ -6094,13 +6104,17 @@ document
     .getElementsByName("search_bar")[0]
     .addEventListener("keyup", search_chars);
 function search_chars() {
-    const character_list = document
-        .querySelector("#rm_print_charaters_block")
-        .querySelectorAll("div.character_select");
+    const character_list = /** @type {NodeListOf<HTMLDivElement>} */ (
+        /** @type {HTMLDivElement} */ (
+            document.querySelector("#rm_print_charaters_block")
+        ).querySelectorAll("div.character_select")
+    );
     for (let i = 0; i < character_list.length; i++) {
         character_list[i].style.display = "";
         if (
-            character_list[i].textContent.toLowerCase().indexOf(this.value) < 0
+            (character_list[i].textContent
+                ?.toLowerCase()
+                ?.indexOf(this.value) ?? 0) < 0
         ) {
             character_list[i].style.display = "none";
         }
