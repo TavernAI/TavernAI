@@ -1,7 +1,15 @@
-import { encode, decode } from "../scripts/gpt-2-3-tokenizer/mod.js";
+import "./scripts/jquery-3.5.1.min.js";
+import "./scripts/jquery.transit.min.js";
+import "./scripts/jquery-cookie-1.4.1.min.js";
+import "./scripts/jquery.lazyloadxt.min.js";
+
+import { encode, decode } from "./scripts/gpt-2-3-tokenizer/mod.js";
 import { Notes } from "./class/Notes.mjs";
 import { WPP } from "./class/WPP.mjs";
 import { WPPEditor } from "./class/WPPEditor.mjs";
+import charaCloudClient from "./scripts/charaCloud.js";
+import DOMPurify from "./scripts/purify.min.js";
+import showdown from "./scripts/showdown.min.js";
 
 $(document).ready(function () {
     /*
@@ -99,7 +107,7 @@ $(document).ready(function () {
     var animation_rm_easing = "";
 
     var popup_type = "";
-    /** @type {HTMLDivElement=} */ var bg_file_for_del = undefined;
+    /** @type {JQuery<Document> | undefined} */ var bg_file_for_del = undefined;
     var online_status = "no_connection";
 
     var api_server = "";
@@ -999,12 +1007,13 @@ $(document).ready(function () {
             //PRE FORMATING STRING
             //*********************************
             if (textareaText != "") {
-                chat[chat.length] = {};
-                chat[chat.length - 1]["name"] = name1;
-                chat[chat.length - 1]["is_user"] = true;
-                chat[chat.length - 1]["is_name"] = true;
-                chat[chat.length - 1]["send_date"] = Date.now();
-                chat[chat.length - 1]["mes"] = textareaText;
+                chat.push({
+                    is_name: true,
+                    is_user: true,
+                    mes: textareaText,
+                    name: name1,
+                    send_date: Date.now(),
+                });
                 addOneMessage(chat[chat.length - 1]);
             }
             var chatString = "";
@@ -1457,18 +1466,15 @@ $(document).ready(function () {
                             role: "system",
                             content: storyString + mesExmString,
                         },
+                        ...mesSend.map((item) =>
+                            item.indexOf(name1 + ":") === 0
+                                ? { role: "user", content: item }
+                                : {
+                                      role: "assistant",
+                                      content: item,
+                                  }
+                        ),
                     ];
-
-                    mesSend.forEach(function (item, i) {
-                        if (item.indexOf(name1 + ":") === 0) {
-                            finalPromt[i + 1] = { role: "user", content: item };
-                        } else {
-                            finalPromt[i + 1] = {
-                                role: "assistant",
-                                content: item,
-                            };
-                        }
-                    });
                 } else {
                     finalPromt =
                         storyString +
@@ -1525,7 +1531,7 @@ $(document).ready(function () {
                     }
                 }
                 if (main_api == "kobold") {
-                    var generate_data = {
+                    generate_data = {
                         prompt: finalPromt,
                         gui_settings: true,
                         max_context_length: this_max_context,
@@ -1772,15 +1778,14 @@ $(document).ready(function () {
                                     }
                                     is_send_press = false;
                                 } else {
-                                    chat[chat.length] = {}; //adds one mes in array but then increases length by 1
-                                    chat[chat.length - 1]["name"] = name2;
-                                    chat[chat.length - 1]["is_user"] = false;
-                                    chat[chat.length - 1]["is_name"] =
-                                        this_mes_is_name;
-                                    chat[chat.length - 1]["send_date"] =
-                                        Date.now();
-                                    getMessage = $.trim(getMessage);
-                                    chat[chat.length - 1]["mes"] = getMessage;
+                                    chat.push({
+                                        name: name2,
+                                        is_user: false,
+                                        is_name: this_mes_is_name,
+                                        send_date: Date.now(),
+                                        mes: $.trim(getMessage),
+                                    }); //adds one mes in array but then increases length by 1
+
                                     addOneMessage(chat[chat.length - 1]);
                                     is_send_press = false;
                                 }
@@ -1955,17 +1960,16 @@ $(document).ready(function () {
                 }
             });
         } else {
-            //console.log(characters[this_chid].first_mes);
-            chat[0] = {};
-            chat[0]["name"] = name2;
-            chat[0]["is_user"] = false;
-            chat[0]["is_name"] = true;
-            chat[0]["send_date"] = Date.now();
-            if (characters[this_chid].first_mes != "") {
-                chat[0]["mes"] = characters[this_chid].first_mes;
-            } else {
-                chat[0]["mes"] = default_ch_mes;
-            }
+            chat[0] = {
+                is_name: true,
+                is_user: false,
+                mes:
+                    characters[this_chid].first_mes !== ""
+                        ? characters[this_chid].first_mes
+                        : default_ch_mes,
+                name: name2,
+                send_date: Date.now(),
+            };
         }
         printMessages();
         select_selected_character(this_chid);
@@ -2441,7 +2445,7 @@ $(document).ready(function () {
         }
     });
     $(document).on("click", ".bg_example_cross", function () {
-        bg_file_for_del = /** @type {HTMLDivElement} */ ($(this));
+        bg_file_for_del = /** @type {JQuery<Document>} */ ($(this));
         //$(this).parent().remove();
         //delBackground(this_bgfile);
         popup_type = "del_bg";
@@ -2618,8 +2622,10 @@ $(document).ready(function () {
         $("#shadow_popup").css("display", "none");
         $("#shadow_popup").css("opacity:", 0.0);
         if (popup_type == "del_bg") {
-            delBackground(bg_file_for_del.attr("bgfile"));
-            bg_file_for_del.parent().remove();
+            delBackground(
+                /** @type {JQuery<Document>} */ (bg_file_for_del).attr("bgfile")
+            );
+            /** @type {JQuery<Document>} */ (bg_file_for_del).parent().remove();
         }
         if (popup_type == "del_ch") {
             var msg = jQuery("#form_create").serialize(); // ID form
@@ -2757,7 +2763,10 @@ $(document).ready(function () {
                                 "background-image",
                                 this_bg_style.replace(
                                     /url\(['"]?([^'"]*)['"]?\)/i,
-                                    'url("' + e.target.result + '")'
+                                    'url("' +
+                                        /** @type {FileReader} */ (e.target)
+                                            .result +
+                                        '")'
                                 )
                             );
                         }
@@ -3085,7 +3094,7 @@ $(document).ready(function () {
     });
 
     $("body").click(function () {
-        if ($("#options").css("opacity") == 1.0) {
+        if (Number.parseFloat($("#options").css("opacity")) == 1) {
             $("#options").transition({
                 opacity: 0.0,
                 duration: 100, //animation_rm_duration,
@@ -3099,7 +3108,7 @@ $(document).ready(function () {
     $("#options_button").click(function () {
         if (
             $("#options").css("display") === "none" &&
-            $("#options").css("opacity") == 0.0
+            Number.parseFloat($("#options").css("opacity")) === 0
         ) {
             $("#options").css("display", "block");
             $("#options").transition({
@@ -4387,8 +4396,11 @@ $(document).ready(function () {
         const childs = $("#chat")[0].childNodes;
         for (let index = 0; index < childs.length; index++) {
             const child = childs[index];
-            child.setAttribute("mesid", index);
-            child.setAttribute(
+            /** @type {HTMLElement} */ (child).setAttribute(
+                "mesid",
+                index.toString()
+            );
+            /** @type {HTMLElement} */ (child).setAttribute(
                 "class",
                 index === childs.length - 1 ? "mes last_mes" : "mes"
             );
@@ -5358,18 +5370,13 @@ $(document).ready(function () {
                 contentType: "application/json",
                 //processData: false,
                 success: function (data) {
-                    online_status = data;
-                    if (
-                        online_status == undefined ||
-                        online_status.error == true
-                    ) {
+                    if (data == undefined || data.error == true) {
                         online_status = "no_connection";
                     } else {
                         online_status = "Connected";
                     }
                     setPygmalionFormating();
 
-                    //console.log(online_status);
                     resultCheckStatusOpen();
                     if (online_status !== "no_connection") {
                         var checkStatusNowOpenAI = setTimeout(
@@ -5950,7 +5957,7 @@ $(document).ready(function () {
         }
     });
     function lazy() {
-        $(this).lazyLoadXT({ edgeX: 500, edgeY: 500 });
+        /** @type {any} */ ($(this)).lazyLoadXT({ edgeX: 500, edgeY: 500 });
         is_lazy_load = true;
     }
     $(document).on("click", ".characloud_swipe_rigth", charaCloudSwipeRight);

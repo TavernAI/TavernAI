@@ -1,4 +1,4 @@
-class charaCloudClient {
+export default class charaCloudClient {
     constructor() {
         if (charaCloudClient.instance) {
             return charaCloudClient.instance;
