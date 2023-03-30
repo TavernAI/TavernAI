@@ -3,6 +3,14 @@ import {Notes} from "./class/Notes.mjs";
 import {WPP} from "./class/WPP.mjs";
 import {WPPEditor} from "./class/WPPEditor.mjs";
 
+var focused = true;
+window.addEventListener("blur", function() {
+    focused = false;
+});
+window.addEventListener("focus", function() {
+    focused = true;
+});
+
 $(document).ready(function(){
     /*
     const observer = new MutationObserver(function(mutations) {
@@ -1407,6 +1415,9 @@ $(document).ready(function(){
                                     chat[chat.length-1]['mes'] = getMessage;
                                     addOneMessage(chat[chat.length-1]);
                                     is_send_press = false;
+                                }
+                                if(!!settings.sound_alert && !focused) {
+                                    document.getElementById("sound_alert").play();
                                 }
                                 $( "#send_button" ).css("display", "block");
                                 $( "#loading_mes" ).css("display", "none");
@@ -2898,6 +2909,10 @@ $(document).ready(function(){
         singleline = !!$('#singleline').prop('checked');
         saveSettings();
     });
+    $('#checkbox_alert').change(function() {
+        settings.sound_alert = !!$('#checkbox_alert').prop('checked');
+        saveSettings();
+    });
     $('#notes_checkbox').change(function() {
         settings.notes = !!$('#notes_checkbox').prop('checked');
         $("#option_toggle_notes").css("display", settings.notes ? "block" : "none");
@@ -3527,6 +3542,7 @@ $(document).ready(function(){
                     style_anchor: style_anchor,
                     character_anchor: character_anchor,
                     lock_context_size: lock_context_size,
+                    sound_alert: !!settings.sound_alert,
                     multigen: multigen,
                     singleline: singleline,
                     auto_connect: settings.auto_connect || false,

@@ -237,6 +237,10 @@
                         <div class="toggle_label"><h4 class="h4_menu_title" style="font-size: 0.95em;">Memory scroll</h4><h5 class="h5_menu_help">Information (<a href="/notes/21" target="_blank">?</a>)</h5></div>
                         <input id="notes_checkbox" type="checkbox" class="toggle_checkbox">
                     </div>
+                    <div class="menu_toggle" id="alert_toggle">
+                        <div class="toggle_label"><h4 class="h4_menu_title">Message sound</h4><h5 class="h5_menu_help">Information (<a href="/notes/22" target="_blank">?</a>)<h5 class="h5_menu_help"></h5></div>
+                        <input id="checkbox_alert" type="checkbox" class="toggle_checkbox">
+                    </div>
 
                 </div>
                 <div>
@@ -591,8 +595,10 @@
         <div id="characloud_characters"></div>
     </div>
    
-    
-
+    <audio id="sound_alert">
+        <source src="sounds/harp.mp3" type="audio/mp3"/>
+        <source src="sounds/harp.ogg" type="audio/ogg"/>
+    </audio>
     
 </body>
 </html>
