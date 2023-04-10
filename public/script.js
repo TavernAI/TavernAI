@@ -1414,7 +1414,15 @@ $(document).ready(function(){
                                 
                             }else{
                                 //console.log('run force_name2 protocol');
-                                Generate('force_name2');
+                                if(type !== 'force_name2')
+                                {
+                                    Generate('force_name2');
+                                }
+                                else
+                                {
+                                    popup_type = '';
+                                    callPopup('<h3>The model returned empty message multiple times.</h3>');
+                                }
                             }
                         }else{
                             is_send_press = false;
