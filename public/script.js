@@ -1420,7 +1420,9 @@ $(document).ready(function(){
                                 }
                                 else
                                 {
-                                    popup_type = '';
+                                    $( "#send_button" ).css("display", "block");
+                                    $( "#loading_mes" ).css("display", "none");
+                                    popup_type = 'char_not_selected';
                                     callPopup('<h3>The model returned empty message multiple times.</h3>');
                                 }
                             }
