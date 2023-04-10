@@ -1414,7 +1414,7 @@ $(document).ready(function(){
                                 
                             }else{
                                 //console.log('run force_name2 protocol');
-                                if(type !== 'force_name2')
+                                if(free_char_name_mode && main_api !== 'openai')
                                 {
                                     Generate('force_name2');
                                 }
@@ -1422,8 +1422,9 @@ $(document).ready(function(){
                                 {
                                     $( "#send_button" ).css("display", "block");
                                     $( "#loading_mes" ).css("display", "none");
+                                    is_send_press = false;
                                     popup_type = 'char_not_selected';
-                                    callPopup('<h3>The model returned empty message multiple times.</h3>');
+                                    callPopup('<h3>The model returned empty message.</h3>');
                                 }
                             }
                         }else{
