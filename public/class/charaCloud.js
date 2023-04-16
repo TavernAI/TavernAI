@@ -83,14 +83,15 @@ class charaCloudClient {
         });
 
     }
-    loadCard(public_id){
+    loadCard(user_name, public_id_short){
         const self = this;
         return new Promise((resolve, reject) => {
             jQuery.ajax({    
                 type: 'POST', // 
-                url: 'api/characloud/characters/get', // 
+                url: 'api/characloud/characters/load', // 
                 data: JSON.stringify({
-                            'public_id': public_id
+                            public_id_short: public_id_short,
+                            user_name: user_name
                         }),
                 beforeSend: function(){
 
@@ -105,9 +106,7 @@ class charaCloudClient {
                     resolve(data);
                 },
                 error: function (jqXHR, exception) {
-                    self.is_online = false;
-                    console.log(exception);
-                    console.log(jqXHR);
+                    return reject(self.handleError(jqXHR));
 
                 }
             });
@@ -136,8 +135,7 @@ class charaCloudClient {
                 },
                 error: function (jqXHR, exception) {
                     self.is_online = false;
-                    console.log(exception);
-                    console.log(jqXHR);
+                    return reject(self.handleError(jqXHR));
 
                 }
             });

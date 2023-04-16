@@ -311,7 +311,7 @@ app.post("/savechat", jsonParser, function(request, response){
     //console.log(request);
     //console.log(request.body.chat);
     //var bg = "body {background-image: linear-gradient(rgba(19,21,44,0.75), rgba(19,21,44,0.75)), url(../backgrounds/"+request.body.bg+");}";
-    var dir_name = String(request.body.avatar_url).replace(`.${characterFormat}`,'');
+    var dir_name = String(request.body.card_filename).replace(`.${characterFormat}`,'');
     let chat_data = request.body.chat;
     let jsonlData = chat_data.map(JSON.stringify).join('\n');
     fs.writeFile(chatsPath+dir_name+"/"+request.body.file_name+'.jsonl', jsonlData, 'utf8', function(err) {
@@ -333,7 +333,7 @@ app.post("/getchat", jsonParser, function(request, response){
     //console.log(request);
     //console.log(request.body.chat);
     //var bg = "body {background-image: linear-gradient(rgba(19,21,44,0.75), rgba(19,21,44,0.75)), url(../backgrounds/"+request.body.bg+");}";
-    var dir_name = String(request.body.avatar_url).replace(`.${characterFormat}`,'');
+    var dir_name = String(request.body.card_filename).replace(`.${characterFormat}`,'');
 
     fs.stat(chatsPath+dir_name, function(err, stat) {
             
@@ -452,7 +452,7 @@ function charaFormatData(data){
     if(name.length === 0){
         name = 'null';
     }
-    let char = {"public_id": checkCharaProp(data.public_id), "public_id_short": checkCharaProp(data.public_id_short), "user_name": checkCharaProp(data.user_name), "user_name_view": checkCharaProp(data.user_name_view), "name": name, "description": checkCharaProp(data.description), "short_description": checkCharaProp(data.short_description), "personality": checkCharaProp(data.personality), "first_mes": checkCharaProp(data.first_mes), "avatar": 'none', "chat": Date.now(), "mes_example": checkCharaProp(data.mes_example), "scenario": checkCharaProp(data.scenario), "edit_date": Date.now(), "create_date": Date.now(), "add_date": Date.now()};
+    let char = {"public_id": checkCharaProp(data.public_id), "public_id_short": checkCharaProp(data.public_id_short), "user_name": checkCharaProp(data.user_name), "user_name_view": checkCharaProp(data.user_name_view), "name": name, "description": checkCharaProp(data.description), "short_description": checkCharaProp(data.short_description), "personality": checkCharaProp(data.personality), "first_mes": checkCharaProp(data.first_mes), "chat": Date.now(), "mes_example": checkCharaProp(data.mes_example), "scenario": checkCharaProp(data.scenario), "edit_date": Date.now(), "create_date": Date.now(), "add_date": Date.now(), "last_action_date": Date.now()};
     return char;
 }
 app.post("/createcharacter", urlencodedParser, async function(request, response){
@@ -500,60 +500,66 @@ app.post("/createcharacter", urlencodedParser, async function(request, response)
 
 
 app.post("/editcharacter", urlencodedParser, async function(request, response){
-    if(!request.body) return response.sendStatus(400);
-    let filedata = request.file;
-    //console.log(filedata.mimetype);
-    var fileType = ".png";
-    var img_file = "ai";
-    var img_path = charactersPath;
-    
-    var char = charaFormatData(request.body);//{"name": request.body.ch_name, "description": request.body.description, "personality": request.body.personality, "first_mes": request.body.first_mes, "avatar": request.body.avatar_url, "chat": request.body.chat, "last_mes": request.body.last_mes, "mes_example": ''};
-    char.chat = request.body.chat;
-    char.create_date = request.body.create_date;
-    if(request.body.add_date != undefined){
-        char.add_date = request.body.add_date;
-    }else{
-        char.add_date = request.body.create_date;
-    }
-    char.edit_date = Date.now();
-
-    char = JSON.stringify(char);
-    let target_img = (request.body.avatar_url).replace(`.${characterFormat}`, '');
-    if(!filedata){
-
-        await charaWrite(img_path+request.body.avatar_url, char, charactersPath + target_img, characterFormat);
-        response.status(200).send('Character saved');
-    }else{
-        //console.log(filedata.filename);
-        img_path = "uploads/";
-        img_file = filedata.filename;
-
-        await charaWrite(img_path+img_file, char, charactersPath + target_img, characterFormat);
-        //response.send('Character saved');
-    }
-    response.status(200).send('Character saved');
-});
-app.post("/deletecharacter", urlencodedParser, function(request, response){
-    if(!request.body) return response.sendStatus(400);
-    rimraf(charactersPath+request.body.avatar_url, (err) => { 
-        if(err) {
-            response.send(err);
-            return console.log(err);
-        }else{
-            //response.redirect("/");
-            let dir_name = request.body.avatar_url;
-            rimraf(chatsPath+dir_name.replace(`.${characterFormat}`,''), (err) => { 
-                if(err) {
-                    response.send(err);
-                    return console.log(err);
-                }else{
-                    //response.redirect("/");
-
-                    response.send('ok');
-                }
-            });
+    try {
+        if (!request.body)
+            return response.sendStatus(400);
+        
+        let card_filename = request.body.filename;
+        
+        let filedata = request.file;
+            //console.log(filedata.mimetype);
+        var fileType = ".png";
+        var img_file = "ai";
+        var img_path = charactersPath;
+        
+        let old_char_data_json = await charaRead(charactersPath + card_filename);
+        let old_char_data = JSON.parse(old_char_data_json);
+        let new_char_data = request.body;
+        
+        let merged_char_data = Object.assign({}, old_char_data, new_char_data);
+        
+        var char = charaFormatData(merged_char_data);//{"name": request.body.ch_name, "description": request.body.description, "personality": request.body.personality, "first_mes": request.body.first_mes, "avatar": request.body.avatar_url, "chat": request.body.chat, "last_mes": request.body.last_mes, "mes_example": ''};
+        
+        char.chat = request.body.chat;
+        char.create_date = request.body.create_date;
+        if (old_char_data.add_date != undefined) {
+            char.add_date = old_char_data.add_date;
+        } else {
+            char.add_date = old_char_data.create_date;
         }
-    });
+        char.edit_date = Date.now();
+
+        char = JSON.stringify(char);
+        let target_img = (card_filename).replace(`.${characterFormat}`, '');
+        if (!filedata) {
+            await charaWrite(img_path + card_filename, char, charactersPath + target_img, characterFormat);
+        } else {
+            //console.log(filedata.filename);
+            img_path = "uploads/";
+            img_file = filedata.filename;
+
+            await charaWrite(img_path + img_file, char, charactersPath + target_img, characterFormat);
+            //response.send('Character saved');
+        }
+        return response.status(200).send('Character saved');
+    } catch (err) {
+        console.log(err);
+        return response.status(400).json({error: err.toString()});
+    }
+});
+app.post("/deletecharacter", jsonParser, function(request, response){
+    try {
+        if (!request.body)
+            return response.sendStatus(400).json({error: 'Validation body error'});
+        let filename = request.body.filename;
+        rimraf.sync(charactersPath + filename);
+        let dir_name = filename;
+        rimraf.sync(chatsPath + dir_name.replace(`.${characterFormat}`, ''));
+        return response.status(200).json({});
+    } catch (err) {
+        console.log(err);
+        return response.status(400).json({error: err.toString()});
+    }
 });
 
 async function charaWrite(source_img, data, target_img, format = 'webp') {
@@ -676,7 +682,7 @@ app.post("/getcharacters", jsonParser, async function(request, response) {
       try {
         
         jsonObject = json5.parse(imgData);
-        jsonObject.avatar = item;
+        jsonObject.filename = item;
         characters[i] = jsonObject;
         i++;
       } catch (error) {
@@ -1165,7 +1171,7 @@ app.post("/generate_openai", jsonParser, function(request, response_generate_ope
 app.post("/getallchatsofchatacter", jsonParser, function(request, response){
     if(!request.body) return response.sendStatus(400);
 
-    var char_dir = (request.body.avatar_url).replace(`.${characterFormat}`,'');
+    var char_dir = (request.body.filename).replace(`.${characterFormat}`,'');
     fs.readdir(chatsPath+char_dir, (err, files) => {
         if (err) {
           console.error(err);
@@ -1317,7 +1323,7 @@ app.post("/importchat", urlencodedParser, function(request, response){
                 new_chat.push({
                     user_name: "You",
                     character_name: ch_name,
-                    create_date: created,
+                    create_date: created
                 });
                 rl.on("line", line => {
                     if(line && line.length) {

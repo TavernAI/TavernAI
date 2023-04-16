@@ -1,52 +1,102 @@
-class CharactersClass {
+import { token, default_avatar } from '../script.js';
+
+
+export class CharactersClass {
+
     constructor() {
-        if (CharactersClass.instance) {
-            return CharactersClass.instance;
-        }
-        CharactersClass.instance = this;
-        this.is_online = false;
+        this.selectedID;
+        this.characters = [];
+        this.charactersFilename = [];
+        this.id = this.characters;
 
-        
-        
+    }
 
-        
-    }
-    isOnline(){
-        return this.is_online;
-    }
-    getAllCharacters(){
-        const self = this;
+    loadAll() {
+        self = this;
         return new Promise((resolve, reject) => {
-            jQuery.ajax({    
-                type: 'GET', // 
-                url: '/api/characloud/characters',
-                beforeSend: function(){
+            jQuery.ajax({
+                type: 'POST', // 
+                url: '/getcharacters',
+                beforeSend: function () {
 
 
                 },
                 cache: false,
                 dataType: "json",
                 contentType: "application/json",
+                headers: {
+                    "X-CSRF-Token": token
+                },
                 //processData: false, 
-                success: function(data){
-                    self.is_online = true;
-                    resolve(data);
+                success: function (getData) {
+                    //console.log(getData);
+                    //var aa = JSON.parse(getData[0]);
+                    const load_ch_count = Object.getOwnPropertyNames(getData);
+                    for (var i = 0; i < load_ch_count.length; i++) {
+                        self.characters[i] = [];
+                        self.characters[i] = getData[i];
+                        self.characters[i]['name'] = window.DOMPurify.sanitize(self.characters[i]['name']);
+                        if (self.characters[i].add_date === undefined) {
+                            self.characters[i].add_date = self.characters[i].create_date;
+                        }
+                        self.charactersFilename[self.characters[i]['filename']] = i;
+
+                    }
+                    self.sortByAddDate();
+                    self.printAll();
+                    resolve();
+
                 },
                 error: function (jqXHR, exception) {
-                    self.is_online = false;
-                    //console.log(exception);
-                    //console.log(jqXHR);
-                    console.log('No connection to charaCloud');
-
+                    return reject(self.handleError(jqXHR));
                 }
             });
         });
 
+
     }
-    validateUsername(user_name) {
-        const regex = /^[A-Za-z0-9_\s]{2,32}$/;
-        return regex.test(user_name);
+
+    printAll(){
+        self = this;
+        $("#rm_print_charaters_block").empty();
+        this.characters.forEach(function(item, i, arr) {
+            self.print(item);
+
+        });
     }
+    
+    print(item){
+        let this_avatar = "characters/"+item.filename+"?v="+Date.now();
+        const id = this.getIDbyFilename(item.filename);
+        $("#rm_print_charaters_block").prepend('<div class=character_select chid='+id+'><div class=avatar><img src="'+this_avatar+'"></div><div class=ch_name_menu>'+item.name+'</div></div>');
+    }
+    
+    selectByArrayId(){
+        
+    }
+    
+    selectByFilename(){
+        
+    }
+    
+    deleteByFilename(){
+        
+    }
+    
+    sortByAddDate(){
+        self = this;
+        self.characters.sort((a, b) => a.add_date - b.add_date);
+        self.charactersFilename = [];
+        self.characters.forEach(function(item, i){
+            self.charactersFilename[item.filename] = i;
+        });
+        //characters.reverse();
+    }
+    
+    getIDbyFilename(filename){
+        return this.characters.findIndex(char => char.filename === filename);
+    }
+
     handleError(jqXHR) { // Need to make one handleError and in script.js and in charaCloud.js
         let msg;
         let status;
@@ -74,7 +124,5 @@ class CharactersClass {
         console.log(msg);
         return {'status': status, 'msg':msg};
     }
-    static getInstance() {
-        return new CharactersClass();
-    }
 }
+

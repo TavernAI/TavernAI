@@ -7,7 +7,7 @@ var MAIN_KEY;
 var MASTER_TOKEN;
 router = express.Router();
 
-router.get("/characters", function(request, response_characloud_getallcharacters = response){
+router.get("/characters", function(request, response_characloud_getallcharacters){
     try {
         client.get(charaCloudServer + "/api/characters", function (data, response) {
             if (response.statusCode === 200) {
@@ -25,40 +25,52 @@ router.get("/characters", function(request, response_characloud_getallcharacters
     }
 });
 
-router.post("/characters/get", jsonParser, function(request, response_characloud_loadcard){
-    let public_id = request.body.public_id;
-    const url = charaCloudServer+'/cards/'+public_id+'.webp';
-    const filename = path.join('uploads', public_id+'.webp');
-    //let this_chara_data = charaRead(filename);
+router.post("/characters/load", jsonParser, function(request, response_characloud_loadcard){
+    try {
+        let public_id_short = request.body.public_id_short;
+        let user_name = request.body.user_name;
+        const url = `${charaCloudServer}/${user_name}/${public_id_short}.webp`;
+        const filename = path.join('uploads', uuid.v4().replace(/-/g, '') + '.webp');
+        //let this_chara_data = charaRead(filename);
 
-    const file = fs.createWriteStream(filename);
-    const protocol = url.split(':')[0];
-    const web_module = protocol === 'https' ? https : http;
-    web_module.get(url, (response) => {
-        response.pipe(file);
+        const file = fs.createWriteStream(filename);
+        const protocol = url.split(':')[0];
+        const web_module = protocol === 'https' ? https : http;
+        web_module.get(url, (response) => {
+            response.pipe(file);
 
-        file.on('finish', async function(){
-            file.close();
-      
-            try{
-                const char_json = await charaRead(filename);
+            file.on('finish', async function () {
+                file.close();
 
-                let char = json5.parse(char_json);
-            
-                charaWrite(filename, JSON.stringify(charaFormatData(char)), setCardName(char.name), characterFormat, response_characloud_loadcard, {send: 'ok'});
-            } catch (error) {
-                if (error instanceof SyntaxError) {
-                  console.log(`String is not valid JSON!`);
-                } else {
-                  console.log(`An unexpected error occurred: ${error}`);
+                try {
+                    const char_json = await charaRead(filename);
+
+                    let char = json5.parse(char_json);
+                    let card_name = setCardName(char.name);
+                    let character_data = charaFormatData(char);
+                    await charaWrite(filename, JSON.stringify(character_data), path.join('public', 'characters', card_name), characterFormat);
+                    character_data.filename = `${card_name}.${characterFormat}`;
+                    return response_characloud_loadcard.status(200).json(character_data);
+                } catch (error) {
+                    if (error instanceof SyntaxError) {
+                        console.log(`String is not valid JSON!`);
+                    } else {
+                        console.log(`An unexpected error occurred: ${error}`);
+                        
+                    }
+                    return response_characloud_loadcard.status(400).json({error: error.toString()});
                 }
-            }
+            });
+        }).on('error', (err) => {
+            fs.unlink(filename, () => {
+                console.error(`Error downloading file: ${err.message}`);
+                return response_characloud_loadcard.status(400).json({error: err.toString()});
+            });
         });
-    }).on('error', (err) => {
-        fs.unlink(filename, () => {
-            console.error(`Error downloading file: ${err.message}`);
-        });
-    });
+    } catch (err) {
+        console.log(err);
+        return response_characloud_loadcard.status(400).json({error: err.toString()});
+    }
 });
 
 router.post("/characters/search", jsonParser, function(request, response_characloud_search){

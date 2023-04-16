@@ -2,7 +2,12 @@ import {encode, decode} from "../scripts/gpt-2-3-tokenizer/mod.js";
 import {Notes} from "./class/Notes.mjs";
 import {WPP} from "./class/WPP.mjs";
 import {WPPEditor} from "./class/WPPEditor.mjs";
+import { CharactersClass } from './class/Characters.js';
 
+
+var token;
+var default_avatar = 'img/fluffy.png';
+export {token, default_avatar};
 $(document).ready(function(){
     /*
     const observer = new MutationObserver(function(mutations) {
@@ -34,11 +39,10 @@ $(document).ready(function(){
     observer.observe(document.body, config);
     */
    
-    //Load scripts
+    var Characters = new CharactersClass();
 
     //CharaCloud
     var charaCloud = charaCloudClient.getInstance();
-    var Characters = CharactersClass.getInstance();
     var characloud_characters = [];
     var characloud_characters_rows;
     var characloud_found_characters = [];
@@ -67,10 +71,7 @@ $(document).ready(function(){
     var count_view_mes = 0;
     var mesStr = '';
     var generatedPromtCache = '';
-    var characters = [];
-    var this_chid;
     var backgrounds = [];
-    var default_avatar = 'img/fluffy.png';
     var is_colab = false;
     var is_checked_colab = false;
     var is_mes_reload_avatar = false;
@@ -271,7 +272,7 @@ $(document).ready(function(){
     }, 500);
     /////////////
 
-    var token;
+
      $.ajaxPrefilter((options, originalOptions, xhr) => {
             xhr.setRequestHeader("X-CSRF-Token", token);
     });
@@ -281,8 +282,7 @@ $(document).ready(function(){
                     token = data.token;
                     getSettings();
                     getLastVersion();
-                    getCharacters();
-
+                    Characters.loadAll();
                     printMessages();
                     getBackgrounds();
                     getUserAvatars();
@@ -488,58 +488,7 @@ $(document).ready(function(){
         $("#api_loading").css("display", 'none');
         $("#api_button").css('display', 'inline-block');
     }
-
-    function printCharaters(){
-        //console.log(1);
-        $("#rm_print_charaters_block").empty();
-        characters.forEach(function(item, i, arr) {
-            var this_avatar = default_avatar;
-            if(item.avatar != 'none'){
-                this_avatar = "characters/"+item.avatar+"?v="+Date.now();
-
-            }
-            $("#rm_print_charaters_block").prepend('<div class=character_select chid='+i+'><div class=avatar><img src="'+this_avatar+'"></div><div class=ch_name_menu>'+item.name+'</div></div>');
-            //console.log(item.name);
-        });
-
-
-    }
-    async function getCharacters() {
-
-        const response = await fetch("/getcharacters", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRF-Token": token
-                },
-            body: JSON.stringify({
-                        "": ""
-                    })
-
-        });
-        if (response.ok === true) {
-            const getData = await response.json();
-            //console.log(getData);
-            //var aa = JSON.parse(getData[0]);
-            const load_ch_count = Object.getOwnPropertyNames(getData);
-
-            for(var i = 0; i < load_ch_count.length;i++){
-
-
-                characters[i] = [];
-                characters[i] = getData[i];
-                characters[i]['name'] = DOMPurify.sanitize(characters[i]['name']);
-                if(characters[i].add_date === undefined){
-                    characters[i].add_date = characters[i].create_date;
-                }
-            }
-            characters.sort((a,b) =>  a.add_date - b.add_date );
-            //characters.sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : -1);
-            //characters.reverse();
-            if(this_chid != undefined) $("#avatar_url_pole").val(characters[this_chid].avatar);
-            printCharaters();
-        }
-    }
+    
     async function getBackgrounds() {
 
         const response = await fetch("/getbackgrounds", {
@@ -652,8 +601,8 @@ $(document).ready(function(){
         $('#chat').html('');
     }
     function messageFormating(mes, ch_name){
-        if(this_chid != undefined) mes = mes.replaceAll("<", "&lt;").replaceAll(">", "&gt;");//for Chloe
-        if(this_chid === undefined){
+        if(Characters.selectedID != undefined) mes = mes.replaceAll("<", "&lt;").replaceAll(">", "&gt;");//for Chloe
+        if(Characters.selectedID === undefined){
             mes = mes.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\*(.+?)\*/g, '<i>$1</i>').replace(/\n/g, '<br/>');
 
         }else{
@@ -670,12 +619,12 @@ $(document).ready(function(){
     function getMessageAvatar(mes) {
         var avatarImg = "User Avatars/"+user_avatar;
         if(!mes.is_user){
-            if(this_chid === undefined) {
+            if(Characters.selectedID === undefined) {
                 avatarImg = "img/chloe.png";
             } else {
-                //mes.chid = mes.chid || parseInt(this_chid);
-                mes.chid = parseInt(this_chid);     // TODO: properly establish persistent ids
-                avatarImg = characters[mes.chid].avatar == 'none' ? "img/fluffy.png" : "characters/"+characters[this_chid].avatar + "#t=" + Date.now();
+                //mes.chid = mes.chid || parseInt(Characters.selectedID);
+                mes.chid = parseInt(Characters.selectedID);     // TODO: properly establish persistent ids
+                avatarImg = Characters.id[mes.chid].filename == 'none' ? "img/fluffy.png" : "characters/"+Characters.id[Characters.selectedID].filename + "#t=" + Date.now();
             }
         } else {
             delete mes.chid;
@@ -688,8 +637,8 @@ $(document).ready(function(){
         generatedPromtCache = '';
         var avatarImg = getMessageAvatar(mes);
         if(!mes.is_user){
-            mes.chid = this_chid;   // TODO: properly establish persistent ids
-            characterName = characters[mes.chid] ? characters[mes.chid].name : "Chloe";
+            mes.chid = Characters.selectedID;   // TODO: properly establish persistent ids
+            characterName = Characters.id[mes.chid] ? Characters.id[mes.chid].name : "Chloe";
         }
         if(count_view_mes == 0){
             messageText = messageText.replace(/{{user}}/gi, name1);
@@ -815,7 +764,7 @@ $(document).ready(function(){
         }else{
             message_already_generated = '';
         }
-        if(online_status != 'no_connection' && this_chid != undefined){
+        if(online_status != 'no_connection' && Characters.selectedID != undefined){
             if(type === 'regenerate'){
                 textareaText = "";
                 if(chat[chat.length-1]['is_user']){//If last message from You
@@ -883,8 +832,8 @@ $(document).ready(function(){
             var chatString = '';
             var arrMes = [];
             var mesSend = [];
-            var charDescription = characters[this_chid].description.replace(/\r/g, "");
-            var charPersonality = $.trim(characters[this_chid].personality);
+            var charDescription = Characters.id[Characters.selectedID].description.replace(/\r/g, "");
+            var charPersonality = $.trim(Characters.id[Characters.selectedID].personality);
 
             let wDesc = WPP.parseExtended(charDescription);
             if(settings.notes && winNotes.strategy === "discr") {
@@ -893,8 +842,8 @@ $(document).ready(function(){
                 charDescription = WPP.stringifyExtended(wDesc, "line");
             }
             charDescription = $.trim(charDescription);
-            var Scenario = $.trim(characters[this_chid].scenario);
-            var mesExamples = $.trim(characters[this_chid].mes_example);
+            var Scenario = $.trim(Characters.id[Characters.selectedID].scenario);
+            var mesExamples = $.trim(Characters.id[Characters.selectedID].mes_example);
             var checkMesExample = $.trim(mesExamples.replace(/<START>/gi, ''));//for check length without tag
             if(checkMesExample.length == 0) mesExamples = '';
             var mesExamplesArray = [];
@@ -1136,8 +1085,8 @@ $(document).ready(function(){
                 //finalPromt +=chatString;
                 //console.log(storyString);
 
-                //console.log(encode(characters[this_chid].description+chatString).length);
-                //console.log(encode(JSON.stringify(characters[this_chid].description+chatString)).length);
+                //console.log(encode(characters[Characters.selectedID].description+chatString).length);
+                //console.log(encode(JSON.stringify(characters[Characters.selectedID].description+chatString)).length);
                 
                 //console.log(JSON.stringify(storyString));
                 //Send story string
@@ -1460,7 +1409,7 @@ $(document).ready(function(){
                 });
             }
         }else{
-            if(this_chid == undefined){
+            if(Characters.selectedID == undefined){
                 //send ch sel
                 callPopup('Сharacter is not selected', 'alert');
             }
@@ -1486,7 +1435,7 @@ $(document).ready(function(){
         jQuery.ajax({    
             type: 'POST', 
             url: '/savechat', 
-            data: JSON.stringify({ch_name: characters[this_chid].name, file_name: characters[this_chid].chat, chat: save_chat, avatar_url: characters[this_chid].avatar}),
+            data: JSON.stringify({ch_name: Characters.id[Characters.selectedID].name, file_name: Characters.id[Characters.selectedID].chat, chat: save_chat, card_filename: Characters.id[Characters.selectedID].filename}),
             beforeSend: function(){
                 //$('#create_button').attr('value','Creating...'); 
             },
@@ -1505,11 +1454,11 @@ $(document).ready(function(){
         });
     }
     async function getChat() {
-        //console.log(characters[this_chid].chat);
+        //console.log(characters[Characters.selectedID].chat);
         jQuery.ajax({    
             type: 'POST', 
             url: '/getchat', 
-            data: JSON.stringify({ch_name: characters[this_chid].name, file_name: characters[this_chid].chat, avatar_url: characters[this_chid].avatar}),
+            data: JSON.stringify({ch_name: Characters.id[Characters.selectedID].name, file_name: Characters.id[Characters.selectedID].chat, card_filename: Characters.id[Characters.selectedID].filename}),
             beforeSend: function(){
                 //$('#create_button').attr('value','Creating...'); 
             },
@@ -1529,9 +1478,9 @@ $(document).ready(function(){
                     winNotes.text = chat[0].notes || "";
                     winNotes.strategy = chat[0].notes_type || "discr";
                     if(!winNotes.text || !winNotes.text.length) {
-                        let defaultWpp = '[Character("'+characters[this_chid].name+'"){}]';
+                        let defaultWpp = '[Character("'+Characters.id[Characters.selectedID].name+'"){}]';
                         try {
-                            let parsed = WPP.parse(characters[this_chid].description);
+                            let parsed = WPP.parse(Characters.id[Characters.selectedID].description);
                             if(parsed[0] && parsed[0].type && parsed[0].type.length && parsed[0].name && parsed[0].name.length) {
                                 defaultWpp = '[' + parsed[0].type + '("' + parsed[0].name + '"){}]';
                             }
@@ -1556,7 +1505,7 @@ $(document).ready(function(){
     }
 
     function getChatResult(){
-        name2 = characters[this_chid].name;
+        name2 = Characters.id[Characters.selectedID].name;
         if(chat.length > 1){
 
             chat.forEach(function(item, i) {
@@ -1569,20 +1518,20 @@ $(document).ready(function(){
 
 
         }else{
-            //console.log(characters[this_chid].first_mes);
+            //console.log(characters[Characters.selectedID].first_mes);
             chat[0] = {};
             chat[0]['name'] = name2;
             chat[0]['is_user'] = false;
             chat[0]['is_name'] = true;
             chat[0]['send_date'] = Date.now();
-            if(characters[this_chid].first_mes != ""){
-                chat[0]['mes'] = characters[this_chid].first_mes;
+            if(Characters.id[Characters.selectedID].first_mes != ""){
+                chat[0]['mes'] = Characters.id[Characters.selectedID].first_mes;
             }else{
                 chat[0]['mes'] = default_ch_mes;
             }
         }
         printMessages();
-        select_selected_character(this_chid);
+        select_selected_character(Characters.selectedID);
     }
     $("#send_textarea").keypress(function (e) {
         if(e.which === 13 && !e.shiftKey && is_send_press == false) {
@@ -1638,7 +1587,7 @@ $(document).ready(function(){
     });
     $( "#rm_button_selected_ch" ).click(function() {
         selected_button = 'character_edit';
-        select_selected_character(this_chid);
+        select_selected_character(Characters.selectedID);
     });
     function select_rm_create(){
         menu_type = 'create';
@@ -1760,7 +1709,7 @@ $(document).ready(function(){
         $( "#delete_button_div" ).css("display", "block");
         $( "#rm_button_selected_ch" ).children("h2").removeClass('deselected_button_style');
         $( "#rm_button_selected_ch" ).children("h2").addClass('seleced_button_style');
-        var display_name = characters[chid].name;
+        var display_name = Characters.id[chid].name;
         $( "#rm_button_selected_ch" ).css('display', 'inline-block');
         $( "#rm_button_selected_ch" ).children("h2").text(display_name);
 
@@ -1780,26 +1729,25 @@ $(document).ready(function(){
 
         $("#add_avatar_button").val('');
 
-        $('#character_popup_text_h3').text(characters[chid].name);
-        $("#character_name_pole").val(characters[chid].name);
-        $("#description_textarea").val(characters[chid].description);
-        $("#personality_textarea").val(characters[chid].personality);
-        $("#firstmessage_textarea").val(characters[chid].first_mes);
-        $("#scenario_pole").val(characters[chid].scenario);
-        $("#mes_example_textarea").val(characters[chid].mes_example);
-        $("#selected_chat_pole").val(characters[chid].chat);
-        $("#create_date_pole").val(characters[chid].create_date);
-        $("#avatar_url_pole").val(characters[chid].avatar);
-        $("#chat_import_avatar_url").val(characters[chid].avatar);
-        $("#chat_import_character_name").val(characters[chid].name);
+        $('#character_popup_text_h3').text(Characters.id[chid].name);
+        $("#character_name_pole").val(Characters.id[chid].name);
+        $("#description_textarea").val(Characters.id[chid].description);
+        $("#personality_textarea").val(Characters.id[chid].personality);
+        $("#firstmessage_textarea").val(Characters.id[chid].first_mes);
+        $("#scenario_pole").val(Characters.id[chid].scenario);
+        $("#mes_example_textarea").val(Characters.id[chid].mes_example);
+        $("#selected_chat_pole").val(Characters.id[chid].chat);
+        $("#create_date_pole").val(Characters.id[chid].create_date);
+        $("#chat_import_avatar_url").val(Characters.id[chid].filename);
+        $("#chat_import_character_name").val(Characters.id[chid].name);
 
         editorDescriptionWPP.clear();
-        editorDescriptionWPP.text = characters[chid].description;
+        editorDescriptionWPP.text = Characters.id[chid].description;
 
         //$("#avatar_div").css("display", "none");
         var this_avatar = default_avatar;
-        if(characters[chid].avatar != 'none'){
-                this_avatar = "characters/"+characters[chid].avatar;
+        if(Characters.id[chid].filename != 'none'){
+                this_avatar = "characters/"+Characters.id[chid].filename;
         }
         $("#avatar_load_preview").attr('src',this_avatar+"?v="+Date.now());
         $("#name_div").css("display", "none");
@@ -1807,16 +1755,16 @@ $(document).ready(function(){
         $("#form_create").attr("actiontype", "editcharacter");
     }
     $(document).on('click', '#rm_print_charaters_block .character_select', function(){
-        if(this_chid !== $(this).attr("chid")){
+        if(Characters.selectedID !== $(this).attr("chid")){
             if(!is_send_press){
                 
                 $('#shell').css('display', 'grid');
                 $('#chara_cloud').css('display', 'none');
                 this_edit_mes_id = undefined;
                 selected_button = 'character_edit';
-                this_chid = $(this).attr("chid");
+                Characters.selectedID = $(this).attr("chid");
     
-                $('#chat_header_char_name').text(characters[this_chid]['name']);
+                $('#chat_header_char_name').text(Characters.id[Characters.selectedID]['name']);
                 $('#chat_header_char_info').text('designed by booruUser');
                 $('#chat_header_back_button').css('display', 'block');
                 clearChat();
@@ -1828,7 +1776,7 @@ $(document).ready(function(){
             $('#shell').css('display', 'grid');
             $('#chara_cloud').css('display', 'none');
             selected_button = 'character_edit';
-            select_selected_character(this_chid);
+            select_selected_character(Characters.selectedID);
         }
         $('#bg_chara_cloud').transition({  
             opacity: 0.0,
@@ -2104,7 +2052,7 @@ $(document).ready(function(){
             bg_file_for_del.parent().remove();
         }
         if(popup_type == 'del_ch'){
-            var msg   = jQuery('#form_create').serialize(); // ID form
+            let filename = Characters.id[Characters.selectedID].filename;
             jQuery.ajax({    
                 method: 'POST', 
                 url: '/deletecharacter',
@@ -2113,21 +2061,33 @@ $(document).ready(function(){
 
                     //$('#create_button').attr('value','Deleting...'); 
                 },
-                data: msg,
+                data: JSON.stringify({
+                            filename: filename
+                        }),
                 cache: false,
+                dataType: "json",
+                contentType: "application/json",
+                processData: false, 
                 timeout: requestTimeout,
                 success: function(html){
-                    location.reload();
+                    Characters.id[Characters.selectedID] = {};
+                    $(`#rm_print_charaters_block .character_select[chid="${Characters.selectedID}"]`).remove();
+                    Characters.selectedID = undefined;
+                    $('#rm_button_selected_ch').css('display', 'none');
+                    $('#rm_button_characters').click();
+                    clearChat();
+                    chat.length = 0;
+                    printMessages();
                     //getCharacters();
                     //$('#create_button_div').html(html);  
                 }  
             });  
         }
-        if(popup_type == 'new_chat' && this_chid != undefined && menu_type != "create"){//Fix it; New chat doesn't create while open create character menu
+        if(popup_type == 'new_chat' && Characters.selectedID != undefined && menu_type != "create"){//Fix it; New chat doesn't create while open create character menu
             clearChat();
             chat.length = 0;
-            characters[this_chid].chat = Date.now();
-            $("#selected_chat_pole").val(characters[this_chid].chat);
+            Characters.id[Characters.selectedID].chat = Date.now();
+            $("#selected_chat_pole").val(Characters.id[Characters.selectedID].chat);
             timerSaveEdit = setTimeout(() => {$("#create_button").click();},durationSaveEdit);
             getChat();
 
@@ -2351,6 +2311,7 @@ $(document).ready(function(){
             }
         }else{
             //console.log($("#add_avatar_button").val());
+            formData.append("filename", Characters.id[Characters.selectedID].filename);
             jQuery.ajax({    
                 type: 'POST', 
                 url: '/editcharacter', 
@@ -2389,13 +2350,13 @@ $(document).ready(function(){
                         }
                     }
                     $('#create_button').removeAttr("disabled");
-                    getCharacters();
+                    Characters.loadAll();
 
 
                     $("#add_avatar_button").replaceWith($("#add_avatar_button").val('').clone(true));
                     $('#create_button').attr('value','Save');
 
-                    var count_tokens = getTokenCount(characters[this_chid].description+characters[this_chid].personality+characters[this_chid].scenario+characters[this_chid].mes_example);
+                    var count_tokens = getTokenCount(Characters.id[Characters.selectedID].description+Characters.id[Characters.selectedID].personality+Characters.id[Characters.selectedID].scenario+Characters.id[Characters.selectedID].mes_example);
                     if(count_tokens < 1024){
                         $('#result_info').html(count_tokens+" Tokens");
                     }else{
@@ -2409,7 +2370,8 @@ $(document).ready(function(){
                 },
                 error: function (jqXHR, exception) {
                     $('#create_button').removeAttr("disabled");
-                    $('#result_info').html("<font color=red>Error: no connection</font>");
+                    //$('#result_info').html("<font color=red>Error: no connection</font>");
+                    callPopup(exception, 'alert_error');
                 }
             }); 
         }
@@ -2522,7 +2484,7 @@ $(document).ready(function(){
         }
     });
     $( "#option_select_chat" ).click(function() {
-        if(this_chid != undefined && !is_send_press){
+        if(Characters.selectedID != undefined && !is_send_press){
             getAllCharaChats();
             $('#shadow_select_chat_popup').css('display', 'block');
             $('#shadow_select_chat_popup').css('opacity', 0.0);
@@ -2530,7 +2492,7 @@ $(document).ready(function(){
         }
     });
     $( "#option_start_new_chat" ).click(function() {
-        if(this_chid != undefined && !is_send_press){
+        if(Characters.selectedID != undefined && !is_send_press){
             callPopup('<h3>Start new chat?</h3>', 'new_chat');
         }
     });
@@ -2548,7 +2510,7 @@ $(document).ready(function(){
     
     $( "#option_delete_mes" ).click(function() {
         
-        if(this_chid != undefined){
+        if(Characters.selectedID != undefined){
             hideSwipeButtons();
             $('#dialogue_del_mes').css('display','block');
             $('#send_form').css('display','none');
@@ -3703,7 +3665,7 @@ $(document).ready(function(){
     }
 
     $(document).on('click', '.mes_edit', function(){
-        if(this_chid == undefined){
+        if(Characters.selectedID == undefined){
             return;
         }
         let run_edit = true;
@@ -3736,14 +3698,14 @@ $(document).ready(function(){
             root.find('.mes_down').attr('class', this_edit_mes_id == chat.length - 1 ? "mes_down disabled" : "mes_down");
 
             if(chat[this_edit_mes_id].chid === undefined && !chat[this_edit_mes_id].is_user) {
-                chat[this_edit_mes_id].chid = parseInt(this_chid);
+                chat[this_edit_mes_id].chid = parseInt(Characters.selectedID);
             }
 
             let nameSelect = root.find(".name_select");
                 nameSelect.css("display", "block");
                 nameSelect.empty();
                 nameSelect.append('<option value="-1" class="player"'+ (chat[this_edit_mes_id].is_user ? " selected=\"selected\"" : "") +'>'+name1+'</option>');
-                nameSelect.append('<option value="'+this_chid+'" class="host"'+ (chat[this_edit_mes_id].chid == parseInt(this_chid) ? " selected=\"selected\"" : "") +'>'+name2+'</option>');
+                nameSelect.append('<option value="'+Characters.selectedID+'" class="host"'+ (chat[this_edit_mes_id].chid == parseInt(Characters.selectedID) ? " selected=\"selected\"" : "") +'>'+name2+'</option>');
             root.find(".ch_name").css("display", "none");
 
             var text = chat[edit_mes_id]['mes'];
@@ -3785,7 +3747,7 @@ $(document).ready(function(){
         let authorId = parseInt(nameSelect.val());
         clone.is_user = authorId < 0;
         clone.chid = authorId < 0 ? undefined : authorId;
-        clone.name = authorId < 0 ? name1 : characters[authorId].name;
+        clone.name = authorId < 0 ? name1 : Characters.id[authorId].name;
         clone.mes = root.find('.mes_text').children('.edit_textarea').val().trim();
 
         chat.splice(this_edit_mes_id+1, 0, clone);
@@ -3844,7 +3806,7 @@ $(document).ready(function(){
         const root = messageRoot($(this));
         if(!root) { return; }
         let to_chid = parseInt($(this).val());
-        let toAvatar = to_chid < 0 ? "User Avatars/" + user_avatar : "characters/" + characters[to_chid].avatar;
+        let toAvatar = to_chid < 0 ? "User Avatars/" + user_avatar : "characters/" + Characters.id[to_chid].filename;
         root.find(".avt_img").attr("src", toAvatar + "#t=" + Date.now());
     });
     $(document).on('click', '.mes_edit_cancel', function(){
@@ -3888,7 +3850,7 @@ $(document).ready(function(){
         let authorId = parseInt(nameSelect.val());
         message.is_user = authorId < 0;
         message.chid = authorId < 0 ? undefined : authorId;
-        message.name = authorId < 0 ? name1 : characters[authorId].name;
+        message.name = authorId < 0 ? name1 : Characters.id[authorId].name;
         nameSelect.empty();
         nameSelect.css("display", "none");
         let chName = root.find('.ch_name');
@@ -4166,11 +4128,11 @@ $(document).ready(function(){
     //Select chat
     async function getAllCharaChats() {
         $('#select_chat_div').html('');
-        //console.log(characters[this_chid].chat);
+        //console.log(Characters.id[Characters.selectedID].chat);
         jQuery.ajax({    
             type: 'POST', 
             url: '/getallchatsofchatacter', 
-            data: JSON.stringify({avatar_url: characters[this_chid].avatar}),
+            data: JSON.stringify({filename: Characters.id[Characters.selectedID].filename}),
             beforeSend: function(){
                 //$('#create_button').attr('value','Creating...'); 
             },
@@ -4189,8 +4151,8 @@ $(document).ready(function(){
                     if(mes.length > strlen){
                         mes = '...'+mes.substring(mes.length - strlen);
                     }
-                    $('#select_chat_div').append('<div class="select_chat_block" file_name="'+data[key]['file_name']+'"><div class=avatar><img src="characters/'+characters[this_chid]['avatar']+'"></div><div class="select_chat_block_filename">'+data[key]['file_name']+'</div><div class="select_chat_block_mes">'+mes+'</div></div>');
-                    if(characters[this_chid]['chat'] == data[key]['file_name'].replace('.jsonl', '')){
+                    $('#select_chat_div').append('<div class="select_chat_block" file_name="'+data[key]['file_name']+'"><div class=avatar><img src="characters/'+Characters.id[Characters.selectedID]['avatar']+'"></div><div class="select_chat_block_filename">'+data[key]['file_name']+'</div><div class="select_chat_block_mes">'+mes+'</div></div>');
+                    if(Characters.id[Characters.selectedID]['chat'] == data[key]['file_name'].replace('.jsonl', '')){
                         //children().last()
                         $('#select_chat_div').children(':nth-last-child(1)').attr('highlight', true);
                     }
@@ -4483,8 +4445,8 @@ $(document).ready(function(){
     });
     $('#export_button').click(function(){
         var link = document.createElement('a');
-        link.href = 'characters/'+characters[this_chid].avatar;  
-        link.download = characters[this_chid].avatar;
+        link.href = 'characters/'+Characters.id[Characters.selectedID].filename;  
+        link.download = Characters.id[Characters.selectedID].filename;
         document.body.appendChild(link);
         link.click();
    });
@@ -4497,7 +4459,7 @@ $(document).ready(function(){
         select_rm_info("Character created");
 
         $('#rm_info_block').transition({opacity: 1.0, duration: 2000});
-        getCharacters();
+        Characters.loadAll();
     }
 
 
@@ -4549,8 +4511,8 @@ $(document).ready(function(){
     });
     $(document).on('click', '.select_chat_block', function(){
         let file_name = $(this).attr("file_name").replace('.jsonl', '');
-        //console.log(characters[this_chid]['chat']);
-        characters[this_chid]['chat'] = file_name;
+        //console.log(Characters.id[Characters.selectedID]['chat']);
+        Characters.id[Characters.selectedID]['chat'] = file_name;
         clearChat();
         chat.length = 0;
         getChat();
@@ -4588,7 +4550,7 @@ $(document).ready(function(){
                 complete: function() {  }
             });
         }else{
-            this_chid = undefined;
+            Characters.selectedID = undefined;
             clearChat();
             chat.length = 0;
             chat = [chloeMes];
@@ -4749,9 +4711,9 @@ $(document).ready(function(){
                         }, 150);
                     });
 
-                    characloud_characters_board[category].forEach(function(item, i){
+                    characloud_characters_board.characters.forEach(function(item, i){
 
-                        $('#characloud_characters_row'+row_i).children('.characloud_characters_row_scroll').append('<div id="characloud_character_block'+char_i+'" chid="'+char_i+'" class="characloud_character_block"><div class="characloud_character_block_card"><div class="avatar"><img data-src="'+charaCloudServer+'/cards/'+item.public_id+'.webp" class="lazy"></div><div class="characloud_character_block_name">'+item.name+'</div><div class="characloud_character_block_description">'+'</div></div></div>');
+                        $('#characloud_characters_row'+row_i).children('.characloud_characters_row_scroll').append('<div id="characloud_character_block'+char_i+'" chid="'+char_i+'" class="characloud_character_block"><div class="characloud_character_block_card"><div class="avatar"><img data-src="'+charaCloudServer+'/'+item.user_name+'/'+item.public_id_short+'.webp" class="lazy"></div><div user_name="'+item.user_name+'" public_id_short="'+item.public_id_short+'" class="characloud_character_block_page_link">link</div><div user_name="'+item.user_name+'" class="characloud_character_block_user_name">'+item.user_name+'</div><div class="characloud_character_block_name">'+item.name+'</div><div class="characloud_character_block_description">'+'</div></div></div>');
                         //$('#characloud_character_block'+char_i).children('.characloud_character_block_card').children('.avatar').children('img').lazyLoadXT({edgeX:500, edgeY:500});
 
                         //$.lazyLoadXT.scrollContainer = '#chara_cloud';
@@ -4772,11 +4734,14 @@ $(document).ready(function(){
                             j++;
                         }
                         characloud_characters[char_i] = item;
+                        
                         char_i++;
                     });
                     row_i++;
                 }
                 $('.lazy').lazyLoadXT({edgeX:500, edgeY:500});
+
+                
 
 
             }
@@ -4796,22 +4761,37 @@ $(document).ready(function(){
         $(this).lazyLoadXT({edgeX:500, edgeY:500});
         is_lazy_load = true;
     }
-    $(document).on('click', '.characloud_swipe_rigth', charaCloudSwipeRight);
-    $(document).on('click', '.characloud_swipe_left', charaCloudSwipeLeft);
+    $('#chara_cloud').on('click', '.characloud_swipe_rigth', charaCloudSwipeRight);
+    $('#chara_cloud').on('click', '.characloud_swipe_left', charaCloudSwipeLeft);
     
     //select character
-    $(document).on('click', '.characloud_character_block_card', function(){
-        charaCloudGetCard(characloud_characters[$(this).parent().attr('chid')].public_id);
+    $('#chara_cloud').on('click', '.characloud_character_block_card', function(){
+        charaCloudLoadCard($(this).parent().attr('chid'));
     });
-    $(document).on('click', '#characloud_search_result .character_select', function(){
-        charaCloudGetCard(characloud_found_characters[$(this).attr('chid')].public_id);
+    $('#chara_cloud').on('click', '.characloud_character_block_page_link', function(event){
+        event.stopPropagation();
+        const publicIdShort = $(this).attr('public_id_short');
+        const userName = $(this).attr('user_name');
+        selectCharacterCardOnline(userName, publicIdShort);
+        //charaCloudLoadCard(characloud_characters[$(this).parent().attr('chid')].public_id);
     });
-    async function charaCloudGetCard(this_public_id){
+    $('#chara_cloud').on('click', '.characloud_character_block_user_name', function(event){
+        event.stopPropagation();
+        showUserProfile($(this).attr('user_name'));
+        //charaCloudLoadCard(characloud_characters[$(this).parent().attr('chid')].public_id);
+    });
+    $('#chara_cloud').on('click', '#characloud_search_result .character_select', function(){
+        charaCloudLoadCard(characloud_found_characters[$(this).attr('chid')].public_id);
+    });
+    async function charaCloudLoadCard(id){
+        let public_id = characloud_characters[id].public_id;
+        let public_id_short = characloud_characters[id].public_id_short;
+        let user_name = characloud_characters[id].user_name;
         let need_to_load = true;
         let selected_char_id;
-        characters.forEach(function(item, i){
+        Characters.id.forEach(function(item, i){
             if(item.public_id != undefined){
-                if(item.public_id == this_public_id){
+                if(item.public_id == public_id){
                     need_to_load = false;
                     selected_char_id = i;
                     return;
@@ -4819,9 +4799,28 @@ $(document).ready(function(){
             }
         });
         if(need_to_load){
-            await charaCloud.loadCard(this_public_id);
-            await getCharacters();
-            $(`#rm_print_charaters_block .character_select[chid="${characters.length-1}"]`).click();
+            await charaCloud.loadCard(user_name, public_id_short)
+                    .then(async function (data) {
+                        Characters.loadAll().then(async function () {
+                            let filename = data.filename;
+                            let id = Characters.getIDbyFilename(filename);
+                            $(`#rm_print_charaters_block .character_select[chid="${id}"]`).click();
+                        }).catch(function (error) {
+                            switch (error.status) {
+                                default:
+                                    callPopup(`${error.msg}`, 'alert_error');
+                                    return;
+                            }
+                        });
+                    })
+                    .catch(function (error) {
+                        switch (error.status) {
+                            default:
+                                callPopup(`${error.msg}`, 'alert_error');
+                                return;
+                        }
+                    });
+            
             
             $('#shell').css('display', 'grid');
             $('#chara_cloud').css('display', 'none');
@@ -5294,16 +5293,16 @@ $(document).ready(function(){
         $('#characloud_search_block').css('display', 'none');
         $('#characloud_characters').css('display', 'block');
     }
-    function showUserProfile() {
+    function showUserProfile(user_name = login) {
         hideAll();
         $('#characloud_header_navigator_p2').css('display', 'inline-block');
-        $('#characloud_header_navigator_p2').text(login_view);
         $('#characloud_header_navigator_c1').css('display', 'inline-block');
         $('.characloud_content').css('display', 'block');
         $('#characloud_user_profile_block').css('display', 'block');
         $('.character-gallery-content').html('');
-        charaCloud.getUserCharacters(login, charaCloud.user_profile_page)
+        charaCloud.getUserCharacters(user_name, charaCloud.user_profile_page)
             .then(function (data) {
+                $('#characloud_header_navigator_p2').text(data.name_view);
                 $('#user_profile_info').children('.username').children('.username_text').text(data.name_view);
                 $('#characloud_header_navigator_p2').text(data.name_view);
                 data.characters.forEach(function(item, i){
@@ -5433,6 +5432,10 @@ $(document).ready(function(){
     $('.character-gallery-content').on('click', '.user_profile_character', function () {
         const publicIdShort = $(this).attr('public_id_short');
         const userName = $(this).attr('user_name');
+        selectCharacterCardOnline(userName, publicIdShort);
+        // Rest of your code to handle the click event goes here
+    });
+    function selectCharacterCardOnline(userName, publicIdShort){
         charaCloud.getCharacter(userName, publicIdShort)
             .then(function (data) {
                 showCharacterCard(data, 'select_online');
@@ -5446,8 +5449,7 @@ $(document).ready(function(){
                         return;
                 }
             });
-        // Rest of your code to handle the click event goes here
-    });
+    }
     $("#characloud_upload_character_page_avatar").on("change", function (e) {
         charaCloud.changeCharacterAvatar(e)
             .then(function (data) {
@@ -5489,7 +5491,7 @@ function handleError(jqXHR) { // Need to make one handleError and in script.js a
     console.log(msg);
     return {'status': status, 'msg': msg};
 }
-document.getElementsByName("search_bar")[0].addEventListener('keyup', search_chars);
+document.getElementsByName("rm_search_bar")[0].addEventListener('keyup', search_chars);
 function search_chars(){
     const character_list = document.querySelector('#rm_print_charaters_block').querySelectorAll('div.character_select');
     for (let i = 0; i < character_list.length; i++) {

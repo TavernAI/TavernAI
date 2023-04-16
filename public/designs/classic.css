@@ -915,6 +915,10 @@ input[type=submit], input[type=button] {
 }
 
 /*Pop-ups in the right drop-down menu when a character is created or imported*/
+#rm_search_bar {
+    width: 130px;
+    margin-left: 10px;
+}
 #rm_info_block {
     display: none;
     width: 100%;

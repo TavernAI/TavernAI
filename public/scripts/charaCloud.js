@@ -73,14 +73,15 @@ class charaCloudClient {
         });
 
     }
-    loadCard(public_id){
+    loadCard(user_name, public_id_short){
         const self = this;
         return new Promise((resolve, reject) => {
             jQuery.ajax({    
                 type: 'POST', // 
                 url: '/characloud_loadcard', // 
                 data: JSON.stringify({
-                            'public_id': public_id
+                            'public_id': public_id_short,
+                            'user_name': user_name
                         }),
                 beforeSend: function(){
 
