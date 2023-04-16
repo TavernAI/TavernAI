@@ -18,7 +18,6 @@ COPY . ./
 # Cleanup unnecessary files
 RUN \
   echo "*** Cleanup ***" && \
-  rm -rf "./docker" && \
   rm -rf "./.git"
 
 EXPOSE 8000

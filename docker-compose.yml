@@ -6,7 +6,7 @@ services:
     hostname: tavernai
     image: tavernai/tavernai:latest
     ports:
-      - "8001:8000"
+      - "8000:8000"
     volumes:
       - "./public:/home/node/app/public"
       - "./config.conf:/home/node/app/config.conf"
