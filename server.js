@@ -3,7 +3,7 @@ var app = express();
 var fs = require('fs');
 const readline = require('readline');
 const open = require('open');
-
+const uuid = require('uuid');
 var rimraf = require("rimraf");
 const multer  = require("multer");
 const https = require('https');
@@ -23,7 +23,8 @@ const crypto = require('crypto');
 const ipaddr = require('ipaddr.js');
 const json5 = require('json5');
 var sanitize_filename = require("sanitize-filename");
-
+const utf8Encode = new TextEncoder();
+const utf8Decode = new TextDecoder('utf-8', { ignoreBOM: true });
 
 const config = require(path.join(process.cwd(), './config.conf'));
 const server_port = config.port;
@@ -39,7 +40,9 @@ const characterFormat = config.characterFormat;
 const charaCloudMode = config.charaCloudMode;
 const charaCloudServer = config.charaCloudServer;
 const connectionTimeoutMS = config.connectionTimeoutMS;
+const csrf_token = config.csrf_token;
 
+global.BETA_KEY;
 
 var Client = require('node-rest-client').Client;
 var client = new Client();
@@ -112,19 +115,19 @@ app.get("/timeout", (req, res) => {
         "timeout": connectionTimeoutMS
     });
 });
-
-app.use(cookieParser(COOKIES_SECRET));
-app.use(doubleCsrfProtection);
-
+if (csrf_token) {
+    app.use(cookieParser(COOKIES_SECRET));
+    app.use(doubleCsrfProtection);
+}
 // CORS Settings //
 const cors = require('cors');
 const CORS = cors({
-	origin: 'null',
-	methods: ['OPTIONS']
+    origin: 'null',
+    methods: ['OPTIONS']
 });
-
-app.use(CORS);
-
+if (csrf_token) {
+    app.use(CORS);
+}
 app.use(function (req, res, next) { //Security
     let clientIp = req.connection.remoteAddress;
     let ip = ipaddr.parse(clientIp);
@@ -438,6 +441,7 @@ function checkCharaProp(prop) {
       .replace(/[\u201C\u201D“”]/g, '"');
 }
 function charaFormatData(data){
+    
     let name;
     if(data.ch_name === undefined){
         name = data.name;
@@ -448,14 +452,15 @@ function charaFormatData(data){
     if(name.length === 0){
         name = 'null';
     }
-    var char = {"public_id": checkCharaProp(data.public_id), "name": name, "description": checkCharaProp(data.description), "personality": checkCharaProp(data.personality), "first_mes": checkCharaProp(data.first_mes), "avatar": 'none', "chat": Date.now(), "mes_example": checkCharaProp(data.mes_example), "scenario": checkCharaProp(data.scenario), "edit_date": Date.now(), "create_date": Date.now(), "add_date": Date.now()};
+    let char = {"public_id": checkCharaProp(data.public_id), "public_id_short": checkCharaProp(data.public_id_short), "user_name": checkCharaProp(data.user_name), "user_name_view": checkCharaProp(data.user_name_view), "name": name, "description": checkCharaProp(data.description), "short_description": checkCharaProp(data.short_description), "personality": checkCharaProp(data.personality), "first_mes": checkCharaProp(data.first_mes), "avatar": 'none', "chat": Date.now(), "mes_example": checkCharaProp(data.mes_example), "scenario": checkCharaProp(data.scenario), "edit_date": Date.now(), "create_date": Date.now(), "add_date": Date.now()};
     return char;
 }
-app.post("/createcharacter", urlencodedParser, function(request, response){
+app.post("/createcharacter", urlencodedParser, async function(request, response){
+    let target_img = setCardName(request.body.ch_name);
     
     if(!request.body) return response.sendStatus(400);
-    if (!fs.existsSync(charactersPath+request.body.ch_name+`.${characterFormat}`)){
-        if(!fs.existsSync(chatsPath+request.body.ch_name) )fs.mkdirSync(chatsPath+request.body.ch_name);
+    if (!fs.existsSync(charactersPath+target_img+`.${characterFormat}`)){
+        if(!fs.existsSync(chatsPath+target_img) )fs.mkdirSync(chatsPath+target_img);
 
         let filedata = request.file;
         //console.log(filedata.mimetype);
@@ -463,11 +468,11 @@ app.post("/createcharacter", urlencodedParser, function(request, response){
         var img_file = "ai";
         var img_path = "public/img/";
         
-        var char = charaFormatData(request.body);//{"name": request.body.ch_name, "description": request.body.description, "personality": request.body.personality, "first_mes": request.body.first_mes, "avatar": 'none', "chat": Date.now(), "last_mes": '', "mes_example": ''};
+        var char = charaFormatData(request.body);//{"name": target_img, "description": request.body.description, "personality": request.body.personality, "first_mes": request.body.first_mes, "avatar": 'none', "chat": Date.now(), "last_mes": '', "mes_example": ''};
         char = JSON.stringify(char);
         if(!filedata){
             
-            charaWrite('./public/img/fluffy.png', char, request.body.ch_name, characterFormat, response);
+            await charaWrite('./public/img/fluffy.png', char, charactersPath + target_img, characterFormat, response);
             
         }else{
             
@@ -478,21 +483,23 @@ app.post("/createcharacter", urlencodedParser, function(request, response){
             if (filedata.mimetype == "image/gif") fileType = ".gif";
             if (filedata.mimetype == "image/bmp") fileType = ".bmp";
             if (filedata.mimetype == "image/webp") fileType = ".webp";
-            charaWrite(img_path+img_file, char, request.body.ch_name, characterFormat, response);
+            await charaWrite(img_path+img_file, char, charactersPath + target_img, characterFormat);
+            
         }
+        response.status(200).send({file_name: target_img});
         //console.log("The file was saved.");
 
     }else{
         response.send("Error: A character with that name already exists.");
     }
     //console.log(request.body);
-    //response.send(request.body.ch_name);
+    //response.send(target_img);
 
     //response.redirect("https://metanit.com")
 });
 
 
-app.post("/editcharacter", urlencodedParser, function(request, response){
+app.post("/editcharacter", urlencodedParser, async function(request, response){
     if(!request.body) return response.sendStatus(400);
     let filedata = request.file;
     //console.log(filedata.mimetype);
@@ -514,15 +521,17 @@ app.post("/editcharacter", urlencodedParser, function(request, response){
     let target_img = (request.body.avatar_url).replace(`.${characterFormat}`, '');
     if(!filedata){
 
-        charaWrite(img_path+request.body.avatar_url, char, target_img, characterFormat, response, 'Character saved');
+        await charaWrite(img_path+request.body.avatar_url, char, charactersPath + target_img, characterFormat);
+        response.status(200).send('Character saved');
     }else{
         //console.log(filedata.filename);
         img_path = "uploads/";
         img_file = filedata.filename;
 
-        charaWrite(img_path+img_file, char, target_img, characterFormat, response, 'Character saved');
+        await charaWrite(img_path+img_file, char, charactersPath + target_img, characterFormat);
         //response.send('Character saved');
     }
+    response.status(200).send('Character saved');
 });
 app.post("/deletecharacter", urlencodedParser, function(request, response){
     if(!request.body) return response.sendStatus(400);
@@ -546,69 +555,41 @@ app.post("/deletecharacter", urlencodedParser, function(request, response){
         }
     });
 });
-/*
-async function charaWrite(source_img, data, target_img, format = 'webp', response = undefined, mes = 'ok'){
+
+async function charaWrite(source_img, data, target_img, format = 'webp') {
     try {
         // Load the image in any format
         sharp.cache(false);
-        target_img = sanitize_filename(target_img);
-        switch(format){
+        switch (format) {
             case 'webp':
-                return new Promise((resolve, reject) => {
-                    var image = sharp(source_img);
-                    let webp_parameters = {'quality':80, lossless: true, near_lossless:false, smartSubsample: true, effort: 6};
-                    if(source_img.indexOf('.png') !== -1){
-                        webp_parameters = {};
+                const imageBuffer = fs.readFileSync(source_img);
+                let stringByteArray = utf8Encode.encode(data).toString();
+                const processedImage = await sharp(imageBuffer).resize(400, 600).webp({'quality': 95}).withMetadata({
+                    exif: {
+                        IFD0: {
+                            UserComment: stringByteArray
+                        }
                     }
-                    image.webp(webp_parameters).withMetadata({
-                        exif: {
-                            IFD0: {
-                                UserComment: data
-                            }
-                        }
-                    }).toBuffer((err, buffer) => {
-                        if (err) { 
-                            console.log(err);
-                            reject(err);
-                        } else {
-                            fs.writeFile(charactersPath+target_img+'.webp', buffer, (err) => {
-                                if (err) {
-                                    console.log(err);
-                                    reject(err);
-                                } else {
-                                    if (response !== undefined) response.send(mes);
-                                    resolve({});
-                                }
-                            });
-                        }
-                    });
-                });
+                }).toBuffer();
+                fs.writeFileSync(target_img + '.webp', processedImage);
 
-                
+                break;
             case 'png':
-                
-                var image = await sharp(source_img).resize(400, 600).toFormat('png').toBuffer();// old 170 234
-                // Convert the image to PNG format
-                //const pngImage = image.toFormat('png');
-
-                // Resize the image to 100x100
-                //const resizedImage = pngImage.resize(100, 100);
+                var image = sharp(source_img).resize(400, 600).toFormat('png').toBufferSync();// old 170 234
 
                 // Get the chunks
-                var chunks = extract(image);
-                 var tEXtChunks = chunks.filter(chunk => chunk.create_date === 'tEXt');
+                var chunks = extract(image);
+                 var tEXtChunks = chunks.filter(chunk => chunk.create_date === 'tEXt');
 
                 // Remove all existing tEXt chunks
                 for (var tEXtChunk of tEXtChunks) {
                     chunks.splice(chunks.indexOf(tEXtChunk), 1);
                 }
-                // Add new chunks before the IEND chunk
+                // Add new chunks before the IEND chunk
                 var base64EncodedData = Buffer.from(data, 'utf8').toString('base64');
                 chunks.splice(-1, 0, PNGtext.encode('chara', base64EncodedData));
-                //chunks.splice(-1, 0, text.encode('lorem', 'ipsum'));
 
-                fs.writeFileSync(charactersPath+target_img+'.png', new Buffer.from(encode(chunks)));
-                if(response !== undefined) response.send(mes);
+                fs.writeFileSync(target_img+'.png', new Buffer.from(encode(chunks)));
                 break;
             default:
                 break;
@@ -616,117 +597,7 @@ async function charaWrite(source_img, data, target_img, format = 'webp', respons
         }   
 
     } catch (err) {
-        console.log(err);
-        if(response !== undefined) response.send(err);
-    }
-}
-async function processImage(imagePath) {
-  for (let i = 0; i < 50; i++) {
-    const processedImagePath = imagePath;
-    try {
-      const imageBuffer = fs.readFileSync(imagePath);
-      let qwer = crypto.randomBytes(400).toString('hex');
-      console.log(qwer);
-      const processedImage = await sharp(imageBuffer).withMetadata({
-                        exif: {
-                            IFD0: {
-                                UserComment: qwer
-                            }
-                        }
-                    }).toBuffer();
-      fs.writeFileSync(processedImagePath, processedImage);
-      console.log(`Iteration ${i}: Success`);
-    } catch (err) {
-      console.log(`Iteration ${i}: Error: ${err}`);
-    }
-  }
-}
-
-const imagePath = 'image.webp';
-processImage(imagePath);
-      */
-     /*
-    async function processImage(imagePath, target_img, data, resolve, reject) {
-    const processedImagePath = imagePath;
-    try {
-      const imageBuffer = fs.readFileSync(imagePath);
-      const processedImage = await sharp(imageBuffer).withMetadata({
-                        exif: {
-                            IFD0: {
-                                UserComment: data
-                            }
-                        }
-                    }).toBuffer();
-      fs.writeFileSync(charactersPath+target_img+'.webp', processedImage);//processedImagePath, processedImage);
-      resolve({});
-    } catch (err) {
-      console.log(err);
-            reject(err);
-    }
-}
-*/
-async function charaWrite(source_img, data, target_img, format = 'webp', response = undefined, mes = 'ok'){
-    try {
-        // Load the image in any format
-        sharp.cache(false);
-        target_img = sanitize_filename(target_img);
-        switch(format){
-            case 'webp':
-                return new Promise(async (resolve, reject) => {
-
-                    //let webp_parameters = {'quality':80, lossless: true, near_lossless:false, smartSubsample: true, effort: 6};
-                    try {
-                      const imageBuffer = fs.readFileSync(source_img);
-                      const processedImage = await sharp(imageBuffer).resize(400, 600).webp({'quality':95}).withMetadata({
-                                        exif: {
-                                            IFD0: {
-                                                UserComment: data
-                                            }
-                                        }
-                                    }).toBuffer();
-                      fs.writeFileSync(charactersPath+target_img+'.webp', processedImage);
-                      resolve({});
-                      if (response !== undefined) response.send(mes);
-                    } catch (err) {
-                      console.log(err);
-                            reject(err);
-                    }
-                });
-
-                
-            case 'png':
-                
-                var image = await sharp(source_img).resize(400, 600).toFormat('png').toBuffer();// old 170 234
-                // Convert the image to PNG format
-                //const pngImage = image.toFormat('png');
-
-                // Resize the image to 100x100
-                //const resizedImage = pngImage.resize(100, 100);
-
-                // Get the chunks
-                var chunks = extract(image);
-                 var tEXtChunks = chunks.filter(chunk => chunk.create_date === 'tEXt');
-
-                // Remove all existing tEXt chunks
-                for (var tEXtChunk of tEXtChunks) {
-                    chunks.splice(chunks.indexOf(tEXtChunk), 1);
-                }
-                // Add new chunks before the IEND chunk
-                var base64EncodedData = Buffer.from(data, 'utf8').toString('base64');
-                chunks.splice(-1, 0, PNGtext.encode('chara', base64EncodedData));
-                //chunks.splice(-1, 0, text.encode('lorem', 'ipsum'));
-
-                fs.writeFileSync(charactersPath+target_img+'.png', new Buffer.from(encode(chunks)));
-                if(response !== undefined) response.send(mes);
-                break;
-            default:
-                break;
-                
-        }   
-
-    } catch (err) {
-        console.log(err);
-        if(response !== undefined) response.send(err);
+        throw err;
     }
 }
 
@@ -746,12 +617,31 @@ async function charaRead(img_url, input_format){
     
     switch(format){
         case 'webp':
+        try {
+            sharp.cache(false);
+            let char_data;
             const exif_data = await ExifReader.load(fs.readFileSync(img_url));
-            const char_data = exif_data['UserComment']['description'];
-            if (char_data === 'Undefined' && exif_data['UserComment'].value && exif_data['UserComment'].value.length === 1) {
-                return exif_data['UserComment'].value[0];
+
+            if (exif_data['UserComment']['description']) {
+                let description = exif_data['UserComment']['description'];
+                try {
+                    JSON.parse(description);
+                    char_data = description;
+                } catch {
+                    const byteArr = description.split(",").map(Number);
+                    const uint8Array = new Uint8Array(byteArr);
+                    const char_data_string = utf8Decode.decode(uint8Array);
+                    char_data = char_data_string;
+                }
+            } else {
+                console.log('No description found in EXIF data.');
+                return false;
             }
             return char_data;
+        } catch (err) {
+            console.log(err);
+            return false;
+        }
         case 'png':
             const buffer = fs.readFileSync(img_url);
             const chunks = extract(buffer);
@@ -895,8 +785,9 @@ app.post("/downloadbackground", urlencodedParser, function(request, response){
 });
 
 app.post("/savesettings", jsonParser, function(request, response){
-
-
+    if(BETA_KEY !== undefined){
+        request.body.BETA_KEY = BETA_KEY;
+    }
     fs.writeFile('public/settings.json', JSON.stringify(request.body), 'utf8', function(err) {
         if(err) {
             response.send(err);
@@ -909,16 +800,35 @@ app.post("/savesettings", jsonParser, function(request, response){
     });
     
 });
+function updateSettings(newSettings) {
+    // Read the settings file
+    const settingsData = fs.readFileSync('public/settings.json', 'utf8');
+    const settings = JSON.parse(settingsData);
+
+    // Update the settings object with new data
+    Object.assign(settings, newSettings);
+
+    // Write the updated settings object back to the file
+    fs.writeFileSync('public/settings.json', JSON.stringify(settings, null, 2));
+}
+
 app.post('/getsettings', jsonParser, (request, response) => { //Wintermute's code
     const koboldai_settings = [];
     const koboldai_setting_names = [];
     const novelai_settings = [];
     const novelai_setting_names = [];
-    const settings = fs.readFileSync('public/settings.json', 'utf8',  (err, data) => {
+    let settings = fs.readFileSync('public/settings.json', 'utf8',  (err, data) => {
     if (err) return response.sendStatus(500);
 
         return data;
     });
+    let settings_data = JSON.parse(settings);
+    if(settings_data.BETA_KEY !== undefined){
+        BETA_KEY = settings_data.BETA_KEY;
+        delete settings_data.BETA_KEY;
+    }
+    
+    settings = JSON.stringify(settings_data);
   //Kobold
     const files = fs
     .readdirSync('public/KoboldAI Settings')
@@ -1308,14 +1218,18 @@ app.post("/getallchatsofchatacter", jsonParser, function(request, response){
     });
     
 });
-function setCardName(file){
+function setCardName(character_name){
+    let target_img = sanitize_filename(character_name);
+    if(target_img.length === 0){
+        return target_img = uuid.v4().replace(/-/g, '');
+    }
     let i = 1;
-    let base_name = file;
-    while (fs.existsSync(charactersPath+file+`.${characterFormat}`)) {
-        file = base_name+i;
+    let base_name = target_img;
+    while (fs.existsSync(charactersPath+target_img+`.${characterFormat}`)) {
+        target_img = base_name+i;
         i++;
     }
-    return file;
+    return target_img;
 }
 app.post("/importcharacter", urlencodedParser, async function(request, response){
     if(!request.body) return response.sendStatus(400);
@@ -1327,7 +1241,7 @@ app.post("/importcharacter", urlencodedParser, async function(request, response)
         //console.log(format);
         if(filedata){
             if(format == 'json'){
-                fs.readFile('./uploads/'+filedata.filename, 'utf8', (err, data) => {
+                fs.readFile('./uploads/'+filedata.filename, 'utf8', async (err, data) => {
                     if (err){
                         console.log(err);
                         response.send({error:true});
@@ -1339,13 +1253,15 @@ app.post("/importcharacter", urlencodedParser, async function(request, response)
                         let pre_data = {"name": jsonData.name, "description": jsonData.description, "personality": jsonData.personality, "first_mes": jsonData.first_mes, "avatar": 'none', "chat": Date.now(), "mes_example": jsonData.mes_example, "scenario": jsonData.scenario};
                         let char = charaFormatData(pre_data);
                         char = JSON.stringify(char);
-                        charaWrite('./public/img/fluffy.png', char, img_name, characterFormat, response, {file_name: img_name});
+                        await charaWrite('./public/img/fluffy.png', char, charactersPath + img_name, characterFormat);
+                        response.status(200).send({file_name: img_name});
                     }else if(jsonData.char_name !== undefined){//json Pygmalion notepad
                         img_name = setCardName(jsonData.char_name);
                         let pre_data = {"name": jsonData.char_name, "description": jsonData.char_persona, "personality": '', "first_mes": jsonData.char_greeting, "avatar": 'none', "chat": Date.now(), "mes_example": jsonData.example_dialogue, "scenario": jsonData.world_scenario};
                         let char = charaFormatData(pre_data);
                         char = JSON.stringify(char);
-                        charaWrite('./public/img/fluffy.png', char, img_name, characterFormat, response, {file_name: img_name});
+                        await charaWrite('./public/img/fluffy.png', char, charactersPath + img_name, characterFormat);
+                        response.status(200).send({file_name: img_name});
                     }else{
                         console.log('Incorrect character format .json');
                         response.send({error:true});
@@ -1359,7 +1275,8 @@ app.post("/importcharacter", urlencodedParser, async function(request, response)
                     if(checkCharaProp(img_name).length > 0){
                         let char = charaFormatData(jsonData);
                         char = JSON.stringify(char);
-                        charaWrite('./uploads/'+filedata.filename, char, img_name, characterFormat, response, {file_name: img_name});
+                        await charaWrite('./uploads/'+filedata.filename, char, charactersPath + img_name, characterFormat, response, {file_name: img_name});
+                        response.status(200).send({file_name: img_name});
                     }else{
                         console.log('Incorrect character card');
                         response.send({error:true});
@@ -1452,7 +1369,7 @@ app.post("/importchat", urlencodedParser, function(request, response){
                         new_chat.push({
                             user_name: "You",
                             character_name: ch_name,
-                            create_date: created,
+                            create_date: created
                         });
                         jsonData.chat.forEach(snippet => {
                             let is_user = !!snippet.match(/^You:/);
@@ -1557,99 +1474,39 @@ app.post("/importchat", urlencodedParser, function(request, response){
 
 
 
-//********CHARACLOUD API***********//
-app.post("/characloud_getallcharacters", jsonParser, function(request, response_characloud_getallcharacters = response){
-    try {
-        client.get(charaCloudServer + "/characters", function (data, response) {
-            if (response.statusCode === 200) {
-                response_characloud_getallcharacters.send(data);
-            } else {
-                response_characloud_getallcharacters.sendStatus(500);
-            }
-        }).on('error', function (err) {
-            console.log("No connection to charaCloud");//console.log(err);
-            response_characloud_getallcharacters.sendStatus(500);
-        });
-    } catch (err) {
-        console.log(err);
-        response_characloud_getallcharacters.sendStatus(500);
-    }
-});
 
-app.post("/characloud_loadcard", jsonParser, function(request, response_characloud_loadcard = response){
-    let public_id = request.body.public_id;
-    const url = charaCloudServer+'/cards/'+public_id+'.webp';
-    const filename = path.join('uploads', public_id+'.webp');
-    //let this_chara_data = charaRead(filename);
 
-    const file = fs.createWriteStream(filename);
-    const protocol = url.split(':')[0];
-    const web_module = protocol === 'https' ? https : http;
-    web_module.get(url, (response) => {
-        response.pipe(file);
+//Server start
+module.exports.express = express;
+module.exports.path = path;
+module.exports.fs = fs;
+module.exports.jsonParser = jsonParser;
+module.exports.charaCloudServer = charaCloudServer;
+module.exports.client = client;
+module.exports.json5 = json5;
+module.exports.http = http;
+module.exports.https = https;
+module.exports.crypto = crypto;
+module.exports.updateSettings = updateSettings;
+module.exports.urlencodedParser = urlencodedParser;
+module.exports.sharp = sharp;
+module.exports.charaRead = charaRead;
+module.exports.charaWrite = charaWrite;
+module.exports.uuid = uuid;
+module.exports.characterFormat = characterFormat;
+module.exports.charaFormatData = charaFormatData;
+module.exports.setCardName = setCardName;
+module.exports.utf8Encode = utf8Encode;
+module.exports.utf8Decode = utf8Decode;
+module.exports.extract = extract;
+module.exports.encode = encode;
+module.exports.PNGtext = PNGtext;
+module.exports.ExifReader = ExifReader;
 
-        file.on('finish', async function(){
-            file.close();
-      
-            try{
-                const char_json = await charaRead(filename);
 
-                let char = json5.parse(char_json);
-            
-                charaWrite(filename, JSON.stringify(charaFormatData(char)), setCardName(char.name), characterFormat, response_characloud_loadcard, {send: 'ok'});
-            } catch (error) {
-                if (error instanceof SyntaxError) {
-                  console.log(`String is not valid JSON!`);
-                } else {
-                  console.log(`An unexpected error occurred: ${error}`);
-                }
-            }
-        });
-    }).on('error', (err) => {
-        fs.unlink(filename, () => {
-            console.error(`Error downloading file: ${err.message}`);
-        });
-    });
-});
+const charaCloudRoute = require('./routes/characloud');
 
-app.post("/characloud_search_character", jsonParser, function(request, response_characloud_search){
-    let search_string = request.body.q;
-    try {
-        client.get(charaCloudServer + "/characters?q="+search_string, function (data, response) {
-            if (response.statusCode === 200) {
-                response_characloud_search.send(data);
-            } else {
-                response_characloud_search.sendStatus(500);
-            }
-        }).on('error', function (err) {
-            console.log(err);
-            console.log("No connection to charaCloud");//console.log(err);
-            response_characloud_search.sendStatus(500);
-        });
-    } catch (err) {
-        console.log(err);
-        response_characloud_search.sendStatus(500);
-    }
-});
-
-app.post("/characloud_serverstatus", jsonParser, function(request, response_characloud_server_status){
-    try {
-        client.get(charaCloudServer + "/server/status", function (data, response) {
-            if (response.statusCode === 200) {
-                response_characloud_server_status.send(data);
-            } else {
-                response_characloud_server_status.sendStatus(500);
-            }
-        }).on('error', function (err) {
-            console.log(err);
-            console.log("No connection to charaCloud");//console.log(err);
-            response_characloud_server_status.sendStatus(500);
-        });
-    } catch (err) {
-        console.log(err);
-        response_characloud_server_status.sendStatus(500);
-    }
-});
+app.use('/api/characloud', charaCloudRoute);
 
 app.listen(server_port, listenIp, function() {
     if(process.env.colab !== undefined){
@@ -1702,7 +1559,7 @@ function initialization(){
             let targetPath = path.join(folderPath, targetName+`.${this_format}`);
 
             // write image
-            await charaWrite(filePath, JSON.stringify(metadata), targetName, this_format);
+            await charaWrite(filePath, JSON.stringify(metadata), charactersPath + targetName, this_format);
 
             // delete original file
             if (fs.existsSync(targetPath)) { //make to check (need to meake charaWrite is )
@@ -1721,6 +1578,7 @@ function initialization(){
         }
     });
     clearUploads();
+    initCardeditor();
 }
 
 function clearUploads() {
@@ -1744,6 +1602,26 @@ function clearUploads() {
     }
   });
 }
+function initCardeditor() {
+  const folderPath = path.join(__dirname, 'public', 'cardeditor');
+
+  if (fs.existsSync(folderPath)) {
+    // Folder exists, delete files created more than 1 hour ago
+    fs.readdirSync(folderPath).forEach((file) => {
+      const filePath = path.join(folderPath, file);
+      const stats = fs.statSync(filePath);
+      const creationTime = stats.birthtime.getTime();
+      const hourAgo = Date.now() - (1 * 60 * 60 * 1000);
+      if (creationTime < hourAgo) {
+        fs.unlinkSync(filePath);
+      }
+    });
+  } else {
+    // Folder does not exist, create it
+    fs.mkdirSync(folderPath);
+  }
+}
+
 
 /*
 

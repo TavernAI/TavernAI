@@ -7,6 +7,8 @@
     <script src="scripts/showdown.min.js"></script>
     <script src="scripts/jquery.lazyloadxt.min.js"></script>
     <script src="scripts/purify.min.js"></script>
+    <script src="scripts/sha256.min.js"></script>
+    <script src="scripts/cookie.js"></script>
 
     <link id="base_theme" rel="stylesheet" type="text/css" href="css/designs.css">
     <link rel="stylesheet" href="css/bg_load.css">
@@ -23,8 +25,11 @@
         //let text = "hello world";
         //console.log(encode("dsfs").length); // [258, 18798, 995]
     </script>
-    <script src="scripts/charaCloud.js"></script>
+
+    <script src="class/charaCloud.js"></script>
+    <script src="class/Characters.js"></script>
     <script type=module src="script.js"></script>
+    
         
 <title>Tavern.AI</title>
 </head>
@@ -33,8 +38,59 @@
     <div id="bg1"></div>
     <div id="bg2"></div>
     <div id="bg_chara_cloud"></div>
-    
-    
+    <div id="reg_login_popup_shadow">
+        <div id="reg_login_popup">
+            <div class="form-container">
+
+                <!-- Registration form -->
+                <span id="reg_login_cross"><img src="img/cross.png" class="popup_cross"></span>
+
+                <form id="registration_form" method="post">
+                    <h2>User Registration</h2>
+                    <label for="username">Username:</label><div class="form_error" id="username_error"></div>
+                    <input type="text" id="reg_username" name="username" required>
+                    
+                    <label for="email" class="email" >Email:</label> <label class="optional">(optional)</label>
+                    <input type="email" id="reg_email" name="email">
+                    <div class="form_error" id="email_error"></div>
+                    <label for="password">Password:</label><div class="form_error" id="reg_password_error"></div>
+                    <input type="password" id="reg_password" name="password" minlength="8" maxlength="32" required>
+                    <label for="confirm-password">Confirm Password:</label><div class="form_error" id="reg_confirm_password_error"></div>
+                    <input type="password" id="reg_confirm_password" name="confirm_password" minlength="8" maxlength="32" required>
+                    
+                    <input type="submit" class="submit_button" value="Register"><img class="load_icon" src="img/load.svg">
+                    <div class="switch_log_reg">Switch to Login</div>
+                </form>
+
+                <!-- Login form -->
+                <form id="login_form" method="post">
+                    <h2>User Login</h2>
+                    <label for="login_username">Username:</label><div class="form_error" id="login_username_error"></div>
+                    <input type="text" id="login_username" name="login-username" required>
+                    <label for="login_password">Password:</label>
+                    <input type="password" id="login_password" name="login-password" minlength="8" maxlength="32" required>
+                    <input type="submit" class="submit_button" value="Login"><img class="load_icon" src="img/load.svg">
+                    <div class="switch_log_reg">Switch to Registration</div>
+                </form>
+                <div id="successful_registration">
+                    <h2>Account created</h2>
+                    <img src="./img/success.png">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="character_published_shadow" class="shadow_popup">
+        <div id="character_published_popup" class="popup_large">
+            
+            <div class="form-container">
+                
+                <img id="character_published_popup_avatar" src="./img/fluffy.png">
+                <!--<label>Alex</label>-->
+                <h2>Character Published</h2>
+                <input type="submit" id="character_published_popup_button" class="submit_button" value="Go to Profile">
+            </div>
+        </div>
+    </div>
     <div id="shadow_popup" class="shadow_popup">
         <div id="dialogue_popup">
             <div id="dialogue_popup_text"><h3>text</h3></div>
@@ -382,6 +438,9 @@
                 <input id="create_button" type="submit" value="Create">
                 </div>
             </form>
+            <div id="rm_characloud_character_block">
+            <!--<input id="characloud_load_character_button" type="submit" value="Upload">-->
+            </div>
             <div id="delete_button_div">
                 <input id="delete_button" type="submit" value="Delete">
                 <input id="export_button" type="submit" value="Export">
@@ -561,36 +620,151 @@
     <div id="chara_cloud">
         <form id="characloud_search_form">
             <button id="characloud_search_button" type="submit">Search</button>
-            <input id="characloud_search" name="q" autocomplete="off" type="text" class="text_pole" type="text" placeholder="Search characters...">
-            <div id="characloud_status_block">
+            <input id="characloud_search" name="q" autocomplete="off" type="text" class="text_pole" placeholder="Search characters...">
+            <div id="characloud_status_button">
                 <a href="https://boosty.to/tavernai" target="_blank">
-                    <div id="characloud_status_block_content">
-                        <div id="characloud_status_block_content_logo">
+                    <div id="characloud_status_button_content">
+                        <div id="characloud_status_button_content_logo">
                             <img src="img/cloud_logo.png">
-                            <div id="characloud_status_block_content_logo_counter"></div>
-                            <div id="characloud_status_block_content_logo_line_container">
-                                <div id="characloud_status_block_content_logo_line_fill"></div>
-                                    
+                            <div id="characloud_status_button_content_logo_counter"></div>
+                            <div id="characloud_status_button_content_logo_line_container">
+                                <div id="characloud_status_button_content_logo_line_fill"></div>
+
                             </div>
-                            
+
                         </div>
-                        <div id="characloud_status_block_content_title">Cloud</div>
-                            
+                        <div id="characloud_status_button_content_title">Cloud</div>
+
                     </div>
                 </a>
-                        
             </div>
-            <div id="characloud_version_block">
-                New Update 1.3.1
+            <div id="characloud_version_button"></div> 
+            <div id="characloud_profile_button">
+                <div id="profile_button_is_not_login">Login / Regestaration</div>
+                <div id="profile_button_is_login"><img src="/img/user_card.png" class="icon"><div class="user_name">Humi</div></div>
             </div>
+            <div id="characloud_upload_character_button">
+                Upload Character
+            </div>
+            <div id="characloud_close_button">
+                <img src="img/cross.png">
+            </div>
+
+        </form>
+        <form id="form_characloud_upload_character"  action="javascript:void(null);" method="post" enctype="multipart/form-data" style="display: none;">
+            <input type="file" id="characloud_upload_character_file" accept="image/png, image/webp" name="avatar">
         </form>
         <div id="characloud_search_block">
             <button id="characloud_search_back_button" type="button"></button>
             <div id="characloud_search_result"></div>       
         </div>
         <div id="characloud_characters"></div>
+
+        <div class="characloud_content">
+            <div class="characloud_header">
+                <div id="characloud_header_navigator"><h2 id="characloud_header_navigator_p1">TavernAI</h2><h2 id="characloud_header_navigator_c1">&nbsp;&gt;&nbsp;</h2><h2 id="characloud_header_navigator_p2"></h2><h2 id="characloud_header_navigator_c2">&nbsp;&gt;&nbsp;</h2><h2 id="characloud_header_navigator_p3"></h2> <!--&gt; Publishing Character--></div>
+            </div>
+            <div id="characloud_character_page">
+                <div class="characloud_character_page_avatar">
+                    <img src="../img/fluffy.png" width="400" height="600">
+                    <div class="avatar-info">
+                        <p id="avatar-info-name"></p>
+                        <p id="avatar-info-author"></p>
+                        <p id="avatar-info-filesize"></p>
+                        <p id="avatar-info-creation-date"></p>
+                        
+                    </div>
+                    <form id="form_characloud_upload_character_page"  action="javascript:void(null);" method="post" enctype="multipart/form-data">
+                        <input type="file" id="characloud_upload_character_page_avatar" accept="image/png, image/webp" name="avatar">
+                    </form>
+                </div>
+                
+                <div id="characloud_character_page_info">
+                    <div class="characloud_character_page_buttons">
+                        <button class="publish_button">Publish</button><img class="load_icon" src="img/load.svg">
+                        <button class="update_button">Update</button>
+                        <button class="to_chat_button">To Chat</button>
+                        <button class="save_locally_button">Save Locally</button>
+                        <!--<button>Upload</button>-->
+                    </div>
+                    <div class="character-info">
+                        <div class="info-section">
+                            <label for="name-input">Name</label>
+                            <input type="text" id="name-input" placeholder="The character's name" />
+                        </div>
+                        <div class="info-section">
+                            <label for="short-description-input">Short Description</label>
+                            <input type="text" id="short-description-input" placeholder="Displayed under the character's avatar" />
+                        </div>
+                        <div class="info-section">
+                            <label for="personality-summary-input">Personality Summary</label>
+                            <input type="text" id="personality-summary-input" placeholder="A brief description of the character's personality traits" />
+                        </div>
+                        <div class="info-section">
+                            <label for="scenario-textarea">Scenario</label>
+                            <textarea id="scenario-textarea" class="characloud_character" placeholder="Enter a situation in which the character is involved"></textarea>
+                        </div>
+                        <div class="info-section">
+                            <label for="description-textarea">Description</label>
+                            <textarea id="description-textarea" class="characloud_character" placeholder="A detailed description of the character"></textarea>
+                        </div>
+                        <div class="info-section">
+                            <label for="first-message-textarea">First Message</label>
+                            <textarea id="first-message-textarea" class="characloud_character" placeholder="First message from character"></textarea>
+                        </div>
+                        <div class="info-section">
+                            <label for="dialogues-example-textarea">Dialogues Example</label>
+                            <textarea id="dialogues-example-textarea" class="characloud_character" placeholder="An example of the character's dialogue"></textarea>
+                        </div>
+                    </div>
+                    <div class="characloud_character_page_buttons">
+                        <button class="publish_button">Publish</button><img class="load_icon" src="img/load.svg">
+                        <button class="update_button">Update</button>
+                        <button class="to_chat_button">To Chat</button>
+                        <button class="save_locally_button">Save Locally</button>
+                        <!--<button>Upload</button>-->
+                    </div>
+                </div>
+            </div>
+
+
+            <div id="characloud_user_profile_block">
+
+                <div class="characloud_user_profile">
+                    <div class="characloud_user_profile_avatar">
+                        <img src="../img/ava_del.png" alt="User Avatar">
+                    </div>
+                    <div id="user_profile_info">
+                        <h2 class="username"><span class="username_text"></span><span class="star-icon"></span><span class="logout_container"><span class="logout">(Logout)</span></span></h2>
+                        <p class="registration-date">Registered on: April 8th, 2023</p>
+                        <div>
+                            <button class="upload-character-button">Avatar</button>
+                            <button style="margin-left: 1px" class="upload-character-button">Settings</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="character-gallery">
+                    <h3 class="character-gallery-title">Characters</h3>
+                    <div class="character-gallery-content">
+
+                    </div>
+                    <div id="user_profile_navigation_page">
+                        <button id="user_profile_prev_button">Prev</button>
+                        <button id="user_profile_next_button">Next</button>
+                    </div>
+                </div>
+                <div class="moderation-gallery">
+                    <h3 class="gallery-title">Characters in Moderation</h3>
+                    <div class="characters-in-moderation">
+                        <img src="../characters/Megumin.webp" alt="Character 1">
+                        <img src="../characters/Megumin.webp" alt="Character 2">
+                        <img src="../characters/Megumin.webp" alt="Character 3">
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-   
+
     
 
     

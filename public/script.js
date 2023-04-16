@@ -33,8 +33,12 @@ $(document).ready(function(){
     const config = { childList: true, subtree: true, attributes: true, attributeFilter: ['src'] };
     observer.observe(document.body, config);
     */
+   
+    //Load scripts
+
     //CharaCloud
     var charaCloud = charaCloudClient.getInstance();
+    var Characters = CharactersClass.getInstance();
     var characloud_characters = [];
     var characloud_characters_rows;
     var characloud_found_characters = [];
@@ -53,7 +57,7 @@ $(document).ready(function(){
         create_date: 0,
         mes: '*You went inside. The air smelled of fried meat, tobacco and a hint of wine. A dim light was cast by candles, and a fire crackled in the fireplace. It seems to be a very pleasant place. Behind the wooden bar is an elf waitress, she is smiling. Her ears are very pointy, and there is a twinkle in her eye. She wears glasses and a white apron. As soon as she noticed you, she immediately came right up close to you.*\n\n' +
             ' Hello there! How is your evening going?' +
-            '<img src="img/star_dust_city.png" id="chloe_star_dust_city">\n<a id="verson" href="https://github.com/TavernAI/TavernAI" target="_blank">@@@TavernAI v'+VERSION+'@@@</a><a href="https://boosty.to/tavernai" target="_blank"><div id="characloud_url"><img src="img/cloud_logo.png"><div id="characloud_title">Cloud</div></div></a><br><br><br><br>'
+            '<div id="characloud_img"><img src="img/star_dust_city.png" id="chloe_star_dust_city"></div>\n<a id="verson" href="https://github.com/TavernAI/TavernAI" target="_blank">@@@TavernAI v'+VERSION+'@@@</a><a href="https://boosty.to/tavernai" target="_blank"><div id="characloud_url"><img src="img/cloud_logo.png"><div id="characloud_title">Cloud</div></div></a><br><br><br><br>'
     };
     var chat = [chloeMes];
     
@@ -161,7 +165,12 @@ $(document).ready(function(){
     var editorDescriptionWPP;
 
     var main_api = 'kobold';
-    
+    //Profile
+    var is_login = false;
+    var ALPHA_KEY = getCookie('ALPHA_KEY');
+    var BETA_KEY;
+    var login = getCookie('login');
+    var login_view = getCookie('login_view');
     //novel settings
     var temp_novel = 0.5;
     var rep_pen_novel = 1;
@@ -193,6 +202,8 @@ $(document).ready(function(){
     var max_context_openai = 2048;
     var model_openai = 'gpt-3.5-turbo';
 
+
+    var switch_log_reg = 'login';
     //css
     var bg1_toggle = true;
     var css_mes_bg = $('<div class="mes"></div>').css('background');
@@ -283,6 +294,11 @@ $(document).ready(function(){
     function setCharaCloudOnline(){
         $('#shell').css('display', 'none');
         $('#chara_cloud').css('display', 'block');
+        
+        //del
+        //$('#characloud_characters').css('display', 'none');
+        $('#characloud_character_page').css('display', 'none');
+        $('#characloud_user_profile_block').css('display', 'none');
         //$('#bg_chara_cloud').css('display', 'block');
         
         $('#chara_cloud').css('opacity', 0.0);
@@ -373,8 +389,8 @@ $(document).ready(function(){
                 if(getVersion !== 'error' && getVersion != undefined){
                     if(compareVersions(getVersion, VERSION) === 1){
                         $('#verson').append(' <span id="new_version_title">(New update @'+getVersion+')</span>');
-                        $('#characloud_version_block').css('display', 'flex');
-                        $('#characloud_version_block').text('New update '+getVersion);
+                        $('#characloud_status_button').css('display', 'flex');
+                        $('#characloud_status_button').text('New update '+getVersion);
                     }
                 }
 
@@ -388,7 +404,7 @@ $(document).ready(function(){
 
     }
     
-    $('#characloud_version_block').click(function(){
+    $('#characloud_status_button').click(function(){
         window.open('https://github.com/TavernAI/TavernAI', '_blank');
     });
     function setPygmalionFormating(){
@@ -1423,8 +1439,7 @@ $(document).ready(function(){
                                     $( "#send_button" ).css("display", "block");
                                     $( "#loading_mes" ).css("display", "none");
                                     is_send_press = false;
-                                    popup_type = 'char_not_selected';
-                                    callPopup('<h3>The model returned empty message.</h3>');
+                                    callPopup('The model returned empty message', 'alert');
                                 }
                             }
                         }else{
@@ -1447,8 +1462,7 @@ $(document).ready(function(){
         }else{
             if(this_chid == undefined){
                 //send ch sel
-                popup_type = 'char_not_selected';
-                callPopup('<h3>Сharacter is not selected</h3>');
+                callPopup('Сharacter is not selected', 'alert');
             }
             is_send_press = false;
         }
@@ -1947,8 +1961,7 @@ $(document).ready(function(){
         bg_file_for_del = $(this);
         //$(this).parent().remove();
         //delBackground(this_bgfile);
-        popup_type = 'del_bg';
-        callPopup('<h3>Delete the background?</h3>');
+        callPopup('<h3>Delete the background?</h3>', 'del_bg');
 
     });
     $(document).on('click', '.style_button', function() {
@@ -2119,33 +2132,69 @@ $(document).ready(function(){
             getChat();
 
         }
+        if(popup_type === 'logout'){
+            charaCloud.logout()
+            .then(function (data) {
+                login = undefined;
+                ALPHA_KEY = undefined;
+                deleteCookie('login_view');
+                deleteCookie('login');
+                deleteCookie('ALPHA_KEY');
+                $('.characloud_content').css('display', 'none');
+                $('#characloud_user_profile_block').css('display', 'none');
+                $('#characloud_characters').css('display', 'block');
+                
+                $('#profile_button_is_not_login').css('display', 'block');
+                $('#profile_button_is_login').css('display', 'none');
+                is_login = false;
+            })
+            .catch(function (error) {
+                callPopup(`Logout error`, 'alert_error');
+                return;
+            });
+        }
     });
     $("#dialogue_popup_cancel").click(function(){
         $("#shadow_popup").css('display', 'none');
         $("#shadow_popup").css('opacity:', 0.0);
         popup_type = '';
     });
-    function callPopup(text){
+    function callPopup(text = '', type){
+        popup_type = type;
         $("#dialogue_popup_cancel").css("display", "inline-block");
         switch(popup_type){
+            case 'logout':
+                $("#dialogue_popup_ok").css("background-color", "#191b31CC");
+                $("#dialogue_popup_ok").text("Yes");
+                $("#dialogue_popup_text").html('Log out of account?');
+                break;
+            case 'alert':
 
-        case 'char_not_selected':
-            $("#dialogue_popup_ok").css("background-color", "#191b31CC");
-            $("#dialogue_popup_ok").text("Ok");
-            $("#dialogue_popup_cancel").css("display", "none");
-            break;
+                $("#dialogue_popup_ok").css("background-color", "#191b31CC");
+                $("#dialogue_popup_ok").text("Ok");
+                $("#dialogue_popup_cancel").css("display", "none");
+                text = `<h3 class="alert">${text}</h3>`;
+                break;
+            case 'alert_error':
+                text = `<p>${text}</p>`;
+                $("#dialogue_popup_ok").css("background-color", "#191b31CC");
+                $("#dialogue_popup_ok").text("Ok");
+                $("#dialogue_popup_cancel").css("display", "none");
+                text = '<h3 class="error">Error</h3>'+text+'';
+                break;
+            case 'new_chat':
 
-        case 'new_chat':
-
-            $("#dialogue_popup_ok").css("background-color", "#191b31CC");
-            $("#dialogue_popup_ok").text("Yes");
-            break;
-        default:
-            $("#dialogue_popup_ok").css("background-color", "#791b31");
-            $("#dialogue_popup_ok").text("Delete");
+                $("#dialogue_popup_ok").css("background-color", "#191b31CC");
+                $("#dialogue_popup_ok").text("Yes");
+                break;
+            default:
+                $("#dialogue_popup_ok").css("background-color", "#791b31");
+                $("#dialogue_popup_ok").text("Delete");
 
         }
-        $("#dialogue_popup_text").html(text);
+        if(text !== ''){
+            $("#dialogue_popup_text").html(text);
+        }
         $("#shadow_popup").css('display', 'block');
         $('#shadow_popup').transition({ opacity: 1.0 ,duration: animation_rm_duration, easing:animation_rm_easing});
     }
@@ -2266,7 +2315,7 @@ $(document).ready(function(){
                     timeout: requestTimeout,
                     contentType: false,
                     processData: false, 
-                    success: function(html){
+                    success: function(data){
                         $('#character_cross').click();
                         $("#character_name_pole").val('');
                         create_save_name = '';
@@ -2289,17 +2338,9 @@ $(document).ready(function(){
                         $('#create_button').removeAttr("disabled");
                         $("#add_avatar_button").replaceWith($("#add_avatar_button").val('').clone(true));
                         $('#create_button').attr('value','Create');
-                        if(true){
-                            $('#rm_info_block').transition({ opacity: 0 ,duration: 0});
-                            var $prev_img = $('#avatar_div_container').clone();
-                            $('#rm_info_avatar').append($prev_img);
-                            select_rm_info("Character created");
 
-                            $('#rm_info_block').transition({ opacity: 1.0 ,duration: 2000});
-                            getCharacters();
-                        }else{
-                            $('#result_info').html(html);
-                        }
+                        characterAddedSign(data.file_name, 'Character created');
+
                     },
                     error: function (jqXHR, exception) {
                         $('#create_button').removeAttr("disabled");
@@ -2374,9 +2415,9 @@ $(document).ready(function(){
         }
 
     });
+
     $( "#delete_button" ).click(function() {
-        popup_type = 'del_ch';
-        callPopup('<h3>Delete the character?</h3>');
+        callPopup('<h3>Delete the character?</h3>', 'del_ch');
     });
     $( "#rm_info_button" ).click(function() {
         $('#rm_info_avatar').html('');
@@ -2490,8 +2531,7 @@ $(document).ready(function(){
     });
     $( "#option_start_new_chat" ).click(function() {
         if(this_chid != undefined && !is_send_press){
-            popup_type = 'new_chat';
-            callPopup('<h3>Start new chat?</h3>');
+            callPopup('<h3>Start new chat?</h3>', 'new_chat');
         }
     });
     $( "#option_regenerate" ).click(function() {
@@ -4432,14 +4472,7 @@ $(document).ready(function(){
             success: function(data){
                 if(data.file_name !== undefined){
 
-                    $('#rm_info_block').transition({ opacity: 0 ,duration: 0});
-                    var $prev_img = $('#avatar_div_container').clone();
-                    $prev_img.children('img').attr('src', 'characters/'+data.file_name+'.'+characterFormat);
-                    $('#rm_info_avatar').append($prev_img);
-                    select_rm_info("Character created");
-
-                    $('#rm_info_block').transition({ opacity: 1.0 ,duration: 2000});
-                    getCharacters();
+                    characterAddedSign(data.file_name, 'Character imported');
 
                 }
             },
@@ -4456,6 +4489,16 @@ $(document).ready(function(){
         link.click();
    });
 
+    function characterAddedSign(file_name, alert_text = 'Character created'){
+        $('#rm_info_block').transition({opacity: 0, duration: 0});
+        var $prev_img = $('#avatar_div_container').clone();
+        $prev_img.children('img').attr('src', 'characters/'+file_name+'.'+characterFormat);
+        $('#rm_info_avatar').append($prev_img);
+        select_rm_info("Character created");
+
+        $('#rm_info_block').transition({opacity: 1.0, duration: 2000});
+        getCharacters();
+    }
 
 
 //**************************CHAT IMPORT EXPORT*************************//
@@ -4657,9 +4700,15 @@ $(document).ready(function(){
     async function charaCloudInit(){
         if(settings.characloud){
             charaCloudServerStatus();
-            
+            $('#characloud_img').click(function () {
+                $('#shell').css('display', 'none');
+                $('#chara_cloud').css('display', 'block');
+            });
             let characloud_characters_board = await charaCloud.getAllCharacters();
             if(charaCloud.isOnline()){
+                if(login !== undefined && ALPHA_KEY !== undefined){
+                    userLogin(login, ALPHA_KEY, 'ALPHA_KEY');
+                }
                 setCharaCloudOnline();
                 const moveKey = 'Random';
                 const newCharacloudCharacters = {};
@@ -4825,9 +4874,7 @@ $(document).ready(function(){
     });
     $('#characloud_search_back_button').click(function(){
         $('#characloud_search').val('');
-        $('#characloud_search_back_button').css('display', 'none');
-        $('#characloud_search_block').css('display', 'none');
-        $('#characloud_characters').css('display', 'block');
+        showMain();
     });
     if(document.getElementById("nav-toggle").checked) {
         is_nav_toggle = true;
@@ -4873,13 +4920,13 @@ $(document).ready(function(){
             if(server_status.chara_logo !== undefined){
                 if(server_status.chara_logo != 'default'){
                     chara_logo = server_status.chara_logo;
-                    $('#characloud_status_block_content_logo').children('img').attr('src', charaCloudServer+'/img/'+chara_logo+'.png');
+                    $('#characloud_status_button_content_logo').children('img').attr('src', charaCloudServer+'/app/img/'+chara_logo+'.png');
                 }
             }
             if(count_supply > max_supply){
                 count_supply = max_supply;
             }
-            $('#characloud_status_block_content_logo_counter').text(count_supply+'/'+max_supply);
+            $('#characloud_status_button_content_logo_counter').text(count_supply+'/'+max_supply);
             let inputNumber = count_supply/max_supply; // example input number
             if(inputNumber <= 0.5){
                 inputNumber = 0.01;
@@ -4890,23 +4937,558 @@ $(document).ready(function(){
             const red = Math.round(255 - (inputNumber * 55)); // map inputNumber to red value
             const green = Math.round(180 + (inputNumber * 75)); // map inputNumber to green value
             //colorBox.style.backgroundColor = `rgba(${red}, ${green}, 200, 0.4)`;
-            $('#characloud_status_block_content_logo_counter').css('color', `rgba(${red}, ${green}, 200, 0.4)`);
-            $('#characloud_status_block_content_logo_line_fill').css('background-color', `rgba(${red}, ${green}, 200, 0.5)`);
+            $('#characloud_status_button_content_logo_counter').css('color', `rgba(${red}, ${green}, 200, 0.4)`);
+            $('#characloud_status_button_content_logo_line_fill').css('background-color', `rgba(${red}, ${green}, 200, 0.5)`);
             //if(count_supply >= max_supply){
-                //$('#characloud_status_block_content_logo_counter').css('color', 'rgba(200,255,200,0.4)');
-                //$('#characloud_status_block_content_logo_line_fill').css('background-color', 'rgba(200,255,200,0.5)');
+                //$('#characloud_status_button_content_logo_counter').css('color', 'rgba(200,255,200,0.4)');
+                //$('#characloud_status_button_content_logo_line_fill').css('background-color', 'rgba(200,255,200,0.5)');
 
             //}
             let fill_proportion = count_supply/max_supply;
-            let fill_width = Math.floor(fill_proportion*parseInt($('#characloud_status_block_content_logo_line_fill').css('max-width').replace('px', '')));
-            $('#characloud_status_block_content_logo_line_fill').css('width', fill_width);
+            let fill_width = Math.floor(fill_proportion*parseInt($('#characloud_status_button_content_logo_line_fill').css('max-width').replace('px', '')));
+            $('#characloud_status_button_content_logo_line_fill').css('width', fill_width);
         }else{
             setCharaCloudOffline();
         }
     }
+    
+    //Login Registration
+    $('#characloud_profile_button').click(function(event){
+        $('#successful_registration').css('display', 'none');
+        if (!is_login) {
+            $('#reg_login_popup_shadow').css('display', 'block');
+            $('#reg_login_popup_shadow').css('opacity', 0.0);
+            $('#reg_login_popup_shadow').transition({opacity: 1.0, duration: animation_rm_duration, easing: animation_rm_easing, complete: function () {
 
+                }});
+            let rect = this.getBoundingClientRect();
+            let xPosition = event.clientX - rect.left;
+            let width = rect.right - rect.left;
+
+            if (xPosition < width / 2.35) {
+                switch_log_reg = 'login';
+                showLoginForm();
+            } else {
+                switch_log_reg = 'reg';
+                showRegForm();
+            }
+        } else {
+            showUserProfile();
+        }
+    });
+    setRegLoginFormSize();
+    $(window).resize(function () {
+        setRegLoginFormSize();
+    });
+    function setRegLoginFormSize(){
+        try {
+            let max_height = parseInt($('#reg_login_popup').css('max-height').replace('px', ''));
+            let windowHeight = $(window).height();
+            if (max_height > windowHeight) {
+
+                $('#reg_login_popup').height(windowHeight - 100);
+            }else{
+                $('#reg_login_popup').height(max_height);
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    }
+    $('textarea.characloud_character').on('input', function (event) {
+        event.preventDefault();
+        event.stopImmediatePropagation();  
+        textareaAutosize($(this));
+    });
+    function textareaAutosize(textarea){
+        let texarea_height = textarea.height();
+        textarea.css('height', 'auto');
+        const height = Math.max(textarea.prop('scrollHeight'), texarea_height);
+        textarea.css('height', height + 'px');
+    }
+    $('#registration_form').on('submit', async (event) => {
+        event.preventDefault(); // prevent default form submission
+        const username = $('#reg_username').val();
+        const email = $('#reg_email').val();
+        const password = $('#reg_password').val();//$('#reg_password').val();
+        const conf_password = $('#reg_confirm_password').val();
+        $('#username_error').css('display', 'none');
+        $('#email_error').css('display', 'none');
+        $('#reg_password_error').css('display', 'none');
+        $('#reg_confirm_password_error').css('display', 'none');
+        
+        charaCloud.registration(username, email, password, conf_password)
+        .then(function (data) {
+            $('#registration_form').css('display', 'none');
+            $('#successful_registration').css('display', 'flex');
+            $('#successful_registration').css('opacity', 0.0);
+            $('#successful_registration').transition({opacity: 1.0, duration: 1000, easing: animation_rm_easing, complete: function () {
+                setTimeout(userLogin(username, password, 'password'), 1400);
+            }});
+        })
+        .catch(function (error) {
+            switch(error.status){
+                case 409: // Name already exists
+                    $('#username_error').css('display', 'inline-block');
+                    $('#username_error').text('Name already exists');
+                    return;
+                case 422:
+                    switch(error.msg){
+                        case 'Name validation error':
+                            $('#username_error').css('display', 'inline-block');
+                            $('#username_error').text('Name validation error. Only allowed A-Za-z0-9_');
+                            return;
+                        case 'Confirmation password does not match':
+                            $('#reg_confirm_password_error').css('display', 'inline-block');
+                            $('#reg_confirm_password_error').text(error.msg);
+                            return;   
+                        default:
+                            callPopup(`<h3>${error.msg}</h3>`, 'alert_error');
+                            return;
+                    }
+                    return;
+                case 504:
+                    callPopup(`${error.msg}`, 'alert_error');
+                    return;
+                default:
+                    callPopup(`${error.msg}`, 'alert_error');
+                    return;
+            }
+            console.log(error);
+        });
+
+       
+    });
+    $('#login_form').on('submit', async (event) => {
+        event.preventDefault(); // prevent default form submission
+
+        const username = $('#login_username').val();
+        const password = $('#login_password').val();//$('#reg_password').val();
+        $('#login_username_error').css('display', 'none');
+        userLogin(username, password, 'password');
+    });
+
+    function userLogin(username, password, type = 'password') {
+        charaCloud.login(username, password, type)
+                .then(function (data) {
+                    if (type === 'password') {
+                        ALPHA_KEY = data.ALPHA_KEY;
+                        login = data.username;
+                        login_view = data.username_view;
+                        setCookie("login_view", login_view, {'max-age': 31536000, 'secure': true, 'SameSite': 'Lax'});
+                        setCookie("login", login, {'max-age': 31536000, 'secure': true, 'SameSite': 'Lax'});
+                        setCookie("ALPHA_KEY", ALPHA_KEY, {'max-age': 31536000, 'secure': true, 'SameSite': 'Lax'});
+                    }
+                    setCookie("refresh_login", 'true', {'max-age': 600, 'secure': true, 'SameSite': 'Lax'});
+                    if (type === 'password') {
+                        showUserProfile();
+                    }
+                    $('#profile_button_is_not_login').css('display', 'none');
+                    $('#profile_button_is_login').css('display', 'block');
+                    
+                    $('#profile_button_is_login').children('.user_name').text(login_view);
+                    is_login = true;
+                })
+                .catch(function (error) {
+                    if (type === 'password') {
+                        switch (error.status) {
+                            case 401: // Wrong password or login
+                                $('#login_username_error').css('display', 'inline-block');
+                                $('#login_username_error').text('Wrong login or password');
+                                return;
+                            case 422:
+                                if (error.msg === 'Name validation error') {
+                                    $('#login_username_error').css('display', 'inline-block');
+                                    $('#login_username_error').text('Name validation error. Only allowed A-Za-z0-9_');
+                                    return;
+                                } else {
+                                    callPopup(`${error.msg}`, 'alert_error');
+                                    return;
+                                }
+                            case 504:
+                                callPopup(`${error.msg}`, 'alert_error');
+                                return;
+                            default:
+                                callPopup(`${error.msg}`, 'alert_error');
+                                return;
+                        }
+                    }
+                    console.log(error);
+                });
+    }
+
+    $('.switch_log_reg').click(function(){
+        switchLoginReg();
+    });
+    
+    $('.logout').click(function(){
+        callPopup('', 'logout');
+        
+    });
+   
+    function switchLoginReg() {
+            switch (switch_log_reg) {
+                case 'login':
+                    
+                    showRegForm();
+                    switch_log_reg = 'reg';
+                    return;
+                case 'reg':
+                    showLoginForm();
+                    switch_log_reg = 'login';
+                    return;
+            }
+
+    }
+    function showLoginForm(){
+        $('#reg_login_popup_shadow').css('display', 'block');
+        $('#registration_form').css('display', 'none');
+        $('#login_form').css('display', 'block');
+        $('#login_form').css('opacity', 0.0);
+        $('#login_form').transition({opacity: 1.0, duration: 1000, easing: animation_rm_easing, complete: function () {
+            }});
+    }
+    function showRegForm() {
+        $('#reg_login_popup_shadow').css('display', 'block');
+        $('#login_form').css('display', 'none');
+        $('#registration_form').css('display', 'block');
+        $('#registration_form').css('opacity', 0.0);
+        $('#registration_form').transition({opacity: 1.0, duration: 1000, easing: animation_rm_easing, complete: function () {
+            }});
+    }
+    $('#reg_login_cross').click(function () {
+        $('#reg_login_popup_shadow').transition({opacity: 0.0, duration: animation_rm_duration, easing: animation_rm_easing, complete: function () {
+                $('#reg_login_popup_shadow').css('display', 'none');
+            }});
+    });
+    
+    
+    //************************//
+    //UPLOAD CHARACTERS ONLINE//
+    $( "#characloud_upload_character_button" ).click(function() {
+        if(is_login){
+            $("#characloud_upload_character_file").click();
+        }else{
+            $('#characloud_profile_button').click();
+        }
+    });
+    $("#characloud_upload_character_file").on("change", function(e){
+        $('#rm_info_avatar').html('');
+        var file = e.target.files[0];
+        //console.log(1);
+        if (!file) {
+          return;
+        }
+        var ext = file.name.match(/\.(\w+)$/);
+        if(!ext || (ext[1].toLowerCase() != "png" && ext[1].toLowerCase() != "webp")){
+            return;
+        }
+        //console.log(format);
+        var formData = new FormData($("#form_characloud_upload_character").get(0));
+        //let button_text = $('#characloud_upload_character_button').text();
+        //let button_width = $('#characloud_upload_character_button').outerWidth();
+        jQuery.ajax({    
+            type: 'POST', 
+            url: '/api/characloud/characters/prepublish', 
+            data: formData,
+            beforeSend: function(){
+                //$('#characloud_upload_character_button').html('Uploading...');
+                //$('#characloud_upload_character_button').css('width', button_width);
+            },
+            cache: false,
+            timeout: 8*1000,
+            contentType: false,
+            processData: false, 
+            success: function(data){
+                charaCloud.cardeditor_image = data.image;
+                showCharacterCard(data, 'prepublish');
+
+            },
+            error: function (jqXHR, exception) {
+                if (exception === 'timeout') {
+                    callPopup('Timeout: Error uploading the character', 'alert_error');
+                }else{
+                    let error = handleError(jqXHR);
+                    callPopup(`${error.status} ${error.msg}`, 'alert_error');
+                }
+            },
+            complete: function (xhr, status) {
+                //$('#characloud_upload_character_button').html(button_text);
+            }
+        });  
+    });
+    $('.publish_button').click(function(){
+        charaCloud.publishCharacter('create_online')
+            .then(function (data) {
+                $('#character_published_shadow').css('display', 'flex');
+                $('#character_published_shadow').css('opacity', 0.0);
+                $('#character_published_popup_avatar').attr('src', `./cardeditor/${charaCloud.cardeditor_image}`);
+                $('#character_published_shadow').transition({opacity: 1.0, duration: 600, easing: animation_rm_easing, complete: function () {
+
+                    }});
+            })
+            .catch(function (error) {
+                switch (error.status) {
+                    case 504:
+                        callPopup(`${error.msg}`, 'alert_error');
+                        return;
+                    default:
+                        callPopup(`${error.msg}`, 'alert_error');
+                        return;
+                }
+            });
+    });
+    $('.update_button').click(function(){
+        charaCloud.publishCharacter('edit_online')
+            .then(function (data) {
+                callPopup(`Character updated`, 'alert');
+            })
+            .catch(function (error) {
+                switch (error.status) {
+                    default:
+                        callPopup(`${error.msg}`, 'alert_error');
+                        return;
+                }
+            });
+    });
+    $('.save_locally_button').click(function(){
+        charaCloud.publishCharacter('save_locally')
+            .then(function (data) {
+                callPopup(`Character loaded`, 'alert');
+                characterAddedSign(data.file_name, 'Character loaded');
+            })
+            .catch(function (error) {
+                switch (error.status) {
+                    default:
+                        callPopup(`${error.msg}`, 'alert_error');
+                        return;
+                }
+            });
+    });
+    $('.to_chat_button').click(function () {
+        charaCloud.publishCharacter('save_locally')
+            .then(function (data) {
+                callPopup(`Need to make seletiing character after loading`, 'alert');
+                characterAddedSign(data.file_name, 'Character loaded');
+            })
+            .catch(function (error) {
+                switch (error.status) {
+                    default:
+                        callPopup(`${error.msg}`, 'alert_error');
+                        return;
+                }
+            });
+
+    });
+    $('#character_published_popup_button').click(function(){
+        $('#character_published_shadow').transition({opacity: 0.0, duration: 300, easing: animation_rm_easing, complete: function () {
+                $('#character_published_shadow').css('display', 'none');
+            }});
+
+        showUserProfile();
+    });
+    
+    // Navigator
+    function showMain() {
+        hideAll();
+        $('#characloud_search_back_button').css('display', 'none');
+        $('#characloud_search_block').css('display', 'none');
+        $('#characloud_characters').css('display', 'block');
+    }
+    function showUserProfile() {
+        hideAll();
+        $('#characloud_header_navigator_p2').css('display', 'inline-block');
+        $('#characloud_header_navigator_p2').text(login_view);
+        $('#characloud_header_navigator_c1').css('display', 'inline-block');
+        $('.characloud_content').css('display', 'block');
+        $('#characloud_user_profile_block').css('display', 'block');
+        $('.character-gallery-content').html('');
+        charaCloud.getUserCharacters(login, charaCloud.user_profile_page)
+            .then(function (data) {
+                $('#user_profile_info').children('.username').children('.username_text').text(data.name_view);
+                $('#characloud_header_navigator_p2').text(data.name_view);
+                data.characters.forEach(function(item, i){
+                    $('.character-gallery-content').append(`<div user_name="${data.name}" public_id_short="${item.public_id_short}" class="user_profile_character"><img src="${charaCloudServer}/${data.name}/${item.public_id_short}.webp"></div>`);
+                });
+            })
+            .catch(function (error) {
+                console.log(error);
+                switch (error.status) {
+                    
+                    default:
+                        callPopup(`${error.msg}`, 'alert_error');
+                        return;
+                }
+            });
+
+    }
+
+    function showCharacterCardBlock() {
+        hideAll();
+        $('#characloud_header_navigator_p2').css('display', 'inline-block');
+        $('#characloud_header_navigator_p2').text(login_view);
+        $('#characloud_header_navigator_c1').css('display', 'inline-block');
+        
+        $('#characloud_header_navigator_p3').css('display', 'inline-block');
+        $('#characloud_header_navigator_p3').text('Publishing Character');
+        $('#characloud_header_navigator_c2').css('display', 'inline-block');
+        
+        $('.characloud_content').css('display', 'block');
+        $('#characloud_character_page').css('display', 'grid');
+
+    }
+    function showCharacterCard(data, type = 'prepublish'){ // actions with card: prepublish, select_online
+        let character_data;
+        let online_data;
+        let image_size = data.image_size;
+        showCharacterCardBlock();
+        if (type === 'prepublish'){
+            $('.publish_button').css('display', 'inline-block');
+            $('.update_button').css('display', 'none');
+            $('.chat_button').css('display', 'none');
+            character_data = JSON.parse(data.character);
+            
+            
+        }else if(type === 'select_online'){
+            $('.publish_button').css('display', 'none');
+            $('.update_button').css('display', 'inline-block');
+            $('.chat_button').css('display', 'inline-block');
+            character_data = data.character_data;
+            $('#characloud_header_navigator_p3').text(character_data.name);
+        }
+        $('.characloud_character_page_avatar').children('img').attr('src', `cardeditor/${data.image}`);
+        charaCloud.cardeditor_data = character_data;
+        
+        $('#name-input').val(character_data.name);
+        $('#short-description-input').val(character_data.short_description);
+        $('#personality-summary-input').val(character_data.personality);
+        $('#scenario-textarea').val(character_data.scenario);
+        textareaAutosize($('#scenario-textarea'));
+        $('#description-textarea').val(character_data.description);
+        textareaAutosize($('#description-textarea'));
+        $('#dialogues-example-textarea').val(character_data.mes_example);
+        textareaAutosize($('#dialogues-example-textarea'));
+        $('#first-message-textarea').val(character_data.first_mes);
+        textareaAutosize($('#first-message-textarea'));
+
+        $('#avatar-info-name').text(character_data.name);
+        let author;
+        if (character_data.user_name_view !== undefined) {
+            author = character_data.user_name_view;
+        } else {
+            author = login_view;
+        }
+        $('#avatar-info-author').text(`Author: ${author}`);
+        $('#avatar-info-filesize').text(`File Size: ${parseFloat(image_size).toFixed(1)}kb`);
+
+        const date = new Date(Number(character_data.create_date));
+
+        const options = {
+            year: 'numeric',
+            month: 'numeric',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric'
+        };
+        //console.log(`${month}/${day}/${year}, ${hours}:${minutes}:${seconds}`);
+        $('#avatar-info-creation-date').text(`Creation Date: ${date.toLocaleString(navigator.language, options)}`);
+    }
+    function hideAll() {
+        $('#characloud_search_back_button').css('display', 'none');
+        $('#characloud_search_block').css('display', 'none');
+        $('.characloud_content').css('display', 'none');
+        $('#characloud_character_page').css('display', 'none');
+        $('#reg_login_popup_shadow').css('display', 'none');
+        $('#characloud_user_profile_block').css('display', 'none');
+        $('#characloud_characters').css('display', 'none');
+        $('#characloud_search_back_button').css('display', 'none');
+        $('#characloud_search_block').css('display', 'none');
+        
+        $('#characloud_header_navigator_p2').css('display', 'none');
+        $('#characloud_header_navigator_p3').css('display', 'none');
+        $('#characloud_header_navigator_c1').css('display', 'none');
+        $('#characloud_header_navigator_c2').css('display', 'none');
+    }
+    $('#characloud_close_button').click(function(){
+        $('#shell').css('display', 'grid');
+        $('#chara_cloud').css('display', 'none');
+    });
+    $('#characloud_header_navigator_p1').click(function () {
+        showMain();
+    });
+    $('#characloud_header_navigator_p2').click(function () {
+        showUserProfile();
+    });
+    $('#user_profile_prev_button').click(function(){
+        if(charaCloud.user_profile_page > 1){
+            charaCloud.user_profile_page--;
+            showUserProfile();
+        }
+    });
+    $('#user_profile_next_button').click(function(){
+        if(charaCloud.user_profile_page < Math.ceil(charaCloud.user_page_characters_count/charaCloud.max_user_page_characters_count)){
+            charaCloud.user_profile_page++;
+            showUserProfile();
+        }
+    });
+    $('.character-gallery-content').on('click', '.user_profile_character', function () {
+        const publicIdShort = $(this).attr('public_id_short');
+        const userName = $(this).attr('user_name');
+        charaCloud.getCharacter(userName, publicIdShort)
+            .then(function (data) {
+                showCharacterCard(data, 'select_online');
+            })
+            .catch(function (error) {
+                console.log(error);
+                switch (error.status) {
+                    
+                    default:
+                        callPopup(`${error.msg}`, 'alert_error');
+                        return;
+                }
+            });
+        // Rest of your code to handle the click event goes here
+    });
+    $("#characloud_upload_character_page_avatar").on("change", function (e) {
+        charaCloud.changeCharacterAvatar(e)
+            .then(function (data) {
+                //
+            })
+            .catch(function (error) {
+                console.log(error);
+                switch (error.status) {
+
+                    default:
+                        callPopup(`${error.msg}`, 'alert_error');
+                        return;
+                }
+            });
+    });
+    
 });
-
+function handleError(jqXHR) { // Need to make one handleError and in script.js and in charaCloud.js
+    let msg;
+    let status;
+    try {
+        let msg_json = JSON.parse(jqXHR.responseText);
+        msg = msg_json.error;
+    } catch {
+        msg = 'Unique error';
+    }
+    if (jqXHR.status !== undefined) {
+        status = jqXHR.status;
+    } else {
+        status = 400;
+    }
+    if (status === 504) {
+        msg = 'Server is not responding';
+    }
+    if (status === 429) {
+        msg = 'Too many requests';
+    }
+    console.log(`Status: ${status}`);
+    console.log(msg);
+    return {'status': status, 'msg': msg};
+}
 document.getElementsByName("search_bar")[0].addEventListener('keyup', search_chars);
 function search_chars(){
     const character_list = document.querySelector('#rm_print_charaters_block').querySelectorAll('div.character_select');
