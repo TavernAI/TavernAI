@@ -11,6 +11,8 @@ class charaCloudClient {
         this.user_profile_page = 1;
         this.cardeditor_data;
         this.cardeditor_image;
+        this.delete_character_user_name;
+        this.delete_character_public_id_short;
         this.handleError = this.handleError.bind(this);
         this.validateUsername = this.validateUsername.bind(this);
         this.getEditorFields = this.getEditorFields.bind(this);
@@ -302,7 +304,7 @@ class charaCloudClient {
         return new Promise((resolve, reject) => {
             jQuery.ajax({    
                 type: 'POST', // 
-                url: `/api/characloud/character`, // 
+                url: `/api/characloud/characters/get`, // 
                 data: JSON.stringify({
                             'user_name': user_name,
                             'public_id_short': public_id_short
@@ -414,6 +416,38 @@ class charaCloudClient {
                 },
                 complete: function (xhr, status) {
                     //$('#characloud_upload_character_button').html(button_text);
+                }
+            });
+        });
+    }
+    deleteCharacter(user_name, public_id_short){
+        const self = this;
+        return new Promise((resolve, reject) => {
+            jQuery.ajax({    
+                type: 'POST', // 
+                url: `/api/characloud/characters/delete`, // 
+                data: JSON.stringify({
+                            'user_name': user_name,
+                            'public_id_short': public_id_short
+                        }),
+                beforeSend: function(){
+                    //$('.load_icon').children('.load_icon').css('display', 'inline-block');
+                    //$('.publish_button').children('.submit_button').css('display', 'none');
+                },
+                cache: false,
+                dataType: "json",
+                contentType: "application/json",
+                processData: false, 
+                success: function(data){
+                    resolve(data);
+                },
+                error: function (jqXHR, exception) {
+                    console.log(exception);
+                    reject(self.handleError(jqXHR));
+                },
+                complete: function (data) {
+                    //$('.load_icon').children('.load_icon').css('display', 'inline-block');
+                    //$('.publish_button').children('.submit_button').css('display', 'none');
                 }
             });
         });

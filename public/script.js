@@ -2050,6 +2050,7 @@ $(document).ready(function(){
         if(popup_type == 'del_bg'){
             delBackground(bg_file_for_del.attr("bgfile"));
             bg_file_for_del.parent().remove();
+            return;
         }
         if(popup_type == 'del_ch'){
             let filename = Characters.id[Characters.selectedID].filename;
@@ -2081,7 +2082,23 @@ $(document).ready(function(){
                     //getCharacters();
                     //$('#create_button_div').html(html);  
                 }  
-            });  
+            }); 
+            return;
+        }
+        if(popup_type == 'del_ch_characloud'){
+            charaCloud.deleteCharacter(charaCloud.delete_character_user_name, charaCloud.delete_character_public_id_short)
+            .then(function (data) {
+                $(`div.user_profile_character[public_id_short="${charaCloud.delete_character_public_id_short}"]`).remove();
+            })
+            .catch(function (error) {
+                console.log(error);
+                switch (error.status) {
+                    default:
+                        callPopup(`${error.msg}`, 'alert_error');
+                        return;
+                }
+            });
+            return;
         }
         if(popup_type == 'new_chat' && Characters.selectedID != undefined && menu_type != "create"){//Fix it; New chat doesn't create while open create character menu
             clearChat();
@@ -2090,7 +2107,7 @@ $(document).ready(function(){
             $("#selected_chat_pole").val(Characters.id[Characters.selectedID].chat);
             timerSaveEdit = setTimeout(() => {$("#create_button").click();},durationSaveEdit);
             getChat();
-
+            return;
         }
         if(popup_type === 'logout'){
             charaCloud.logout()
@@ -2107,6 +2124,7 @@ $(document).ready(function(){
                 $('#profile_button_is_not_login').css('display', 'block');
                 $('#profile_button_is_login').css('display', 'none');
                 is_login = false;
+                return;
             })
             .catch(function (error) {
                 callPopup(`Logout error`, 'alert_error');
@@ -2126,7 +2144,7 @@ $(document).ready(function(){
             case 'logout':
                 $("#dialogue_popup_ok").css("background-color", "#191b31CC");
                 $("#dialogue_popup_ok").text("Yes");
-                $("#dialogue_popup_text").html('Log out of account?');
+                $("#dialogue_popup_text").html('<h3>Log out of account?</h3>');
                 break;
             case 'alert':
 
@@ -4151,7 +4169,7 @@ $(document).ready(function(){
                     if(mes.length > strlen){
                         mes = '...'+mes.substring(mes.length - strlen);
                     }
-                    $('#select_chat_div').append('<div class="select_chat_block" file_name="'+data[key]['file_name']+'"><div class=avatar><img src="characters/'+Characters.id[Characters.selectedID]['avatar']+'"></div><div class="select_chat_block_filename">'+data[key]['file_name']+'</div><div class="select_chat_block_mes">'+mes+'</div></div>');
+                    $('#select_chat_div').append('<div class="select_chat_block" file_name="'+data[key]['file_name']+'"><div class=avatar><img src="characters/'+Characters.id[Characters.selectedID].filename+'"></div><div class="select_chat_block_filename">'+data[key]['file_name']+'</div><div class="select_chat_block_mes">'+mes+'</div></div>');
                     if(Characters.id[Characters.selectedID]['chat'] == data[key]['file_name'].replace('.jsonl', '')){
                         //children().last()
                         $('#select_chat_div').children(':nth-last-child(1)').attr('highlight', true);
@@ -4712,8 +4730,8 @@ $(document).ready(function(){
                     });
 
                     characloud_characters_board.characters.forEach(function(item, i){
-
-                        $('#characloud_characters_row'+row_i).children('.characloud_characters_row_scroll').append('<div id="characloud_character_block'+char_i+'" chid="'+char_i+'" class="characloud_character_block"><div class="characloud_character_block_card"><div class="avatar"><img data-src="'+charaCloudServer+'/'+item.user_name+'/'+item.public_id_short+'.webp" class="lazy"></div><div user_name="'+item.user_name+'" public_id_short="'+item.public_id_short+'" class="characloud_character_block_page_link">link</div><div user_name="'+item.user_name+'" class="characloud_character_block_user_name">'+item.user_name+'</div><div class="characloud_character_block_name">'+item.name+'</div><div class="characloud_character_block_description">'+'</div></div></div>');
+                        let link = `<img src="../img/vdots.png">`;
+                        $('#characloud_characters_row'+row_i).children('.characloud_characters_row_scroll').append('<div id="characloud_character_block'+char_i+'" chid="'+char_i+'" class="characloud_character_block"><div class="characloud_character_block_card"><div class="avatar"><img data-src="'+charaCloudServer+'/'+item.user_name+'/'+item.public_id_short+'.webp" class="lazy"></div><div user_name="'+item.user_name+'" public_id_short="'+item.public_id_short+'" class="characloud_character_block_page_link">'+link+'</div><div user_name="'+item.user_name+'" class="characloud_character_block_user_name">@'+item.user_name_view+'</div><div class="characloud_character_block_name">'+item.name+'</div><div class="characloud_character_block_description">'+'</div></div></div>');
                         //$('#characloud_character_block'+char_i).children('.characloud_character_block_card').children('.avatar').children('img').lazyLoadXT({edgeX:500, edgeY:500});
 
                         //$.lazyLoadXT.scrollContainer = '#chara_cloud';
@@ -5293,6 +5311,59 @@ $(document).ready(function(){
         $('#characloud_search_block').css('display', 'none');
         $('#characloud_characters').css('display', 'block');
     }
+    $('.characloud_user_profile_avatar_img').on('error', function () { // Set default avatar
+        $(this).attr('src', '../img/default_avatar.png');
+    });
+    $('.characloud_user_profile_avatar').click(function(){
+        $('#form_user_profile_avatar_file').click();
+    });
+    $("#form_user_profile_avatar_file").on("change", function(e){
+        $('#rm_info_avatar').html('');
+        var file = e.target.files[0];
+        //console.log(1);
+        if (!file) {
+          return;
+        }
+        var ext = file.name.match(/\.(\w+)$/); 
+        if(!ext || (ext[1].toLowerCase() != "png" && ext[1].toLowerCase() != "webp" && ext[1].toLowerCase() != "jpeg" && ext[1].toLowerCase() != "jpg" && ext[1].toLowerCase() != "gif")){
+            return;
+        }
+        //console.log(format);
+        var formData = new FormData($("#form_user_profile_avatar").get(0));
+        //let button_text = $('#characloud_upload_character_button').text();
+        //let button_width = $('#characloud_upload_character_button').outerWidth();
+        formData.append("user_name", login);
+        jQuery.ajax({    
+            type: 'POST', 
+            url: '/api/characloud/users/avatar', 
+            data: formData,
+            beforeSend: function(){
+                //$('#characloud_upload_character_button').html('Uploading...');
+                //$('#characloud_upload_character_button').css('width', button_width);
+            },
+            cache: false,
+            timeout: 8*1000,
+            contentType: false,
+            processData: false, 
+            success: function(data){
+                //charaCloud.cardeditor_image = data.image;
+                //showCharacterCard(data, 'prepublish');
+                $('.characloud_user_profile_avatar_img').attr('src', `${charaCloudServer}/users/${login}/img/avatar.webp?v=${Date.now()}`);
+
+            },
+            error: function (jqXHR, exception) {
+                if (exception === 'timeout') {
+                    callPopup('Timeout: Error uploading the character', 'alert_error');
+                }else{
+                    let error = handleError(jqXHR);
+                    callPopup(`${error.status} ${error.msg}`, 'alert_error');
+                }
+            },
+            complete: function (xhr, status) {
+                //$('#characloud_upload_character_button').html(button_text);
+            }
+        });  
+    });
     function showUserProfile(user_name = login) {
         hideAll();
         $('#characloud_header_navigator_p2').css('display', 'inline-block');
@@ -5300,14 +5371,23 @@ $(document).ready(function(){
         $('.characloud_content').css('display', 'block');
         $('#characloud_user_profile_block').css('display', 'block');
         $('.character-gallery-content').html('');
+        $('.characloud_user_profile_avatar_img').attr('src', `${charaCloudServer}/users/${user_name}/img/avatar.webp`);
         charaCloud.getUserCharacters(user_name, charaCloud.user_profile_page)
             .then(function (data) {
+                if(data.status === 4){
+                    $('.star-icon').css('display', 'inline-block');
+                }else{
+                    $('.star-icon').css('display', 'none');
+                }
+
                 $('#characloud_header_navigator_p2').text(data.name_view);
                 $('#user_profile_info').children('.username').children('.username_text').text(data.name_view);
                 $('#characloud_header_navigator_p2').text(data.name_view);
-                data.characters.forEach(function(item, i){
-                    $('.character-gallery-content').append(`<div user_name="${data.name}" public_id_short="${item.public_id_short}" class="user_profile_character"><img src="${charaCloudServer}/${data.name}/${item.public_id_short}.webp"></div>`);
-                });
+                if (data.characters[0].public_id !== null) {
+                    data.characters.forEach(function (item, i) {
+                        $('.character-gallery-content').append(`<div user_name="${data.name}" public_id_short="${item.public_id_short}" class="user_profile_character"><div class="user_profile_character_container"><img class="user_profile_character_img" src="${charaCloudServer}/${data.name}/${item.public_id_short}.webp"><img class="user_profile_character_delete" src="./img/cross.png"></div></div>`);
+                    });
+                }
             })
             .catch(function (error) {
                 console.log(error);
@@ -5435,6 +5515,16 @@ $(document).ready(function(){
         selectCharacterCardOnline(userName, publicIdShort);
         // Rest of your code to handle the click event goes here
     });
+    $('.character-gallery-content').on('click', '.user_profile_character_delete', function(event){
+        event.stopPropagation();
+        const publicIdShort = $(this).parent().parent().attr('public_id_short');
+        const userName = $(this).parent().parent().attr('user_name');
+        charaCloud.delete_character_user_name = userName;
+        charaCloud.delete_character_public_id_short = publicIdShort;
+        callPopup('<h3>Delete the character?</h3>', 'del_ch_characloud');
+        //showUserProfile($(this).attr('user_name'));
+        //charaCloudLoadCard(characloud_characters[$(this).parent().attr('chid')].public_id);
+    });
     function selectCharacterCardOnline(userName, publicIdShort){
         charaCloud.getCharacter(userName, publicIdShort)
             .then(function (data) {
@@ -5496,7 +5586,7 @@ function search_chars(){
     const character_list = document.querySelector('#rm_print_charaters_block').querySelectorAll('div.character_select');
     for (let i = 0; i < character_list.length; i++) {
         character_list[i].style.display = "";
-        if (character_list[i].textContent.toLowerCase().indexOf(this.value)<0){
+        if (character_list[i].textContent.toLowerCase().indexOf(this.value.toLowerCase())<0){
             character_list[i].style.display = "none";
         }
     }

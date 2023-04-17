@@ -453,6 +453,19 @@ function charaFormatData(data){
         name = 'null';
     }
     let char = {"public_id": checkCharaProp(data.public_id), "public_id_short": checkCharaProp(data.public_id_short), "user_name": checkCharaProp(data.user_name), "user_name_view": checkCharaProp(data.user_name_view), "name": name, "description": checkCharaProp(data.description), "short_description": checkCharaProp(data.short_description), "personality": checkCharaProp(data.personality), "first_mes": checkCharaProp(data.first_mes), "chat": Date.now(), "mes_example": checkCharaProp(data.mes_example), "scenario": checkCharaProp(data.scenario), "edit_date": Date.now(), "create_date": Date.now(), "add_date": Date.now(), "last_action_date": Date.now()};
+    // Filtration
+    if(data.public_id === undefined){ 
+        delete char.public_id;
+    }
+    if(data.public_id_short === undefined){
+        delete char.public_id_short;
+    }
+    if(data.user_name === undefined){
+        delete char.user_name;
+    }
+    if(data.user_name_view === undefined){
+        delete char.user_name_view;
+    }
     return char;
 }
 app.post("/createcharacter", urlencodedParser, async function(request, response){
@@ -549,8 +562,9 @@ app.post("/editcharacter", urlencodedParser, async function(request, response){
 });
 app.post("/deletecharacter", jsonParser, function(request, response){
     try {
-        if (!request.body)
+        if (!request.body){
             return response.sendStatus(400).json({error: 'Validation body error'});
+        }
         let filename = request.body.filename;
         rimraf.sync(charactersPath + filename);
         let dir_name = filename;

@@ -727,8 +727,11 @@
 
                 <div class="characloud_user_profile">
                     <div class="characloud_user_profile_avatar">
-                        <img src="../img/ava_del.png" alt="User Avatar">
+                        <img class="characloud_user_profile_avatar_img" src="../img/default_avatar.png">
                     </div>
+                    <form id="form_user_profile_avatar"  action="javascript:void(null);" method="post" enctype="multipart/form-data" style="display:none;">
+                            <input type="file" id="form_user_profile_avatar_file" name="avatar" accept="image/png, image/jpeg, image/jpg, image/gif, image/bmp, image/webp">         
+                    </form>
                     <div id="user_profile_info">
                         <h2 class="username"><span class="username_text"></span><span class="star-icon"></span><span class="logout_container"><span class="logout">(Logout)</span></span></h2>
                         <p class="registration-date">Registered on: April 8th, 2023</p>

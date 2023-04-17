@@ -224,9 +224,9 @@ router.post("/characters/prepublish", urlencodedParser, async function(request, 
         const stats = fs.statSync(sourcePath);
         const fileSizeInBytes = stats.size;
         const fileSizeInKB = fileSizeInBytes / 1024;
-        if (fileSizeInKB > 80) {
-            console.log(`Error: The maximum file size should not exceed 80 kb`);
-            return response.status(400).json({error: `The maximum file size should not exceed 80 kb`});
+        if (fileSizeInKB > 800) {
+            console.log(`Error: The maximum file size should not exceed 800 kb`);
+            return response.status(400).json({error: `The maximum file size should not exceed 800 kb`});
         }
         sharp(sourcePath)
                 .metadata()
@@ -369,7 +369,7 @@ router.post("/user/characters", jsonParser, function (request, response_characlo
         return response_characloud_user_characters.status(400).json({error: err.toString()});
     }
 });
-router.post("/character", jsonParser, function (request, response_characloud_character) {
+router.post("/characters/get", jsonParser, function (request, response_characloud_character) {
     try {
         let {user_name, public_id_short} = request.body;
         client.get(charaCloudServer + `/api/characters/${user_name}/${public_id_short}`, function (data, response) {
@@ -434,6 +434,37 @@ router.post("/character", jsonParser, function (request, response_characloud_cha
     }
 });
 
+router.post("/characters/delete", jsonParser, function (request, response_characloud_delete) {
+    try {
+        var options = {
+            headers: {
+                'Authorization': 'Bearer ' + MASTER_TOKEN
+            }
+        };
+        let {user_name, public_id_short} = request.body;
+        client.delete(charaCloudServer + `/api/characters/${user_name}/${public_id_short}`, options, function (data, response) {
+            try {
+                if (response.statusCode === 200) {
+                        return response_characloud_delete.status(200).json(data);
+     
+                } else {
+                    console.log(data);
+                    return response_characloud_delete.status(response.statusCode).json(data);
+                }
+            } catch (err) {
+                console.log(err);
+                return response_characloud_delete.status(400).json({error: err.toString()});
+            }
+        }).on('error', function (err) {
+            console.log(err);
+            console.log("No connection to charaCloud");//console.log(err);
+            return response_characloud_delete.sendStatus(504);
+        });
+    } catch (err) {
+        console.log(err);
+        return response_characloud_delete.status(400).json({error: err.toString()});
+    }
+});
 
 router.post("/characters/avatar", urlencodedParser, async function(request, response){
     try {
@@ -459,6 +490,85 @@ router.post("/characters/avatar", urlencodedParser, async function(request, resp
         console.log(err);
         return response.status(400).json({error: err.toString()});
     }
+});
+
+router.post("/users/avatar", urlencodedParser, async function (request, response) {
+    try {
+        if (!request.body)
+            return response.sendStatus(400);
+        let user_name = request.body.user_name;
+        let img_name = '';
+        let filedata = request.file;
+            //console.log(filedata.filename);
+        var format = request.body.file_type;
+        const sourcePath = './uploads/' + filedata.filename;
+        const stats = fs.statSync(sourcePath);
+        const fileSizeInBytes = stats.size;
+        const fileSizeInKB = fileSizeInBytes / 1024;
+        if (fileSizeInKB > 80) {
+            //console.log(`Error: The maximum file size should not exceed 80 kb`);
+            //return response.status(400).json({error: `The maximum file size should not exceed 80 kb`});
+        }
+        sharp(sourcePath)
+                .metadata()
+                .then(async (metadata) => {
+                    try {
+                        // Check if the source file exists
+                        if (!fs.existsSync(sourcePath)) {
+                            console.log(`Error: ${sourcePath} does not exist`);
+                            return response.status(400).json({error: `Error: ${sourcePath} does not exist`});
+                        }
+                        //if (metadata.width > 600 || metadata.heigth > 600) {
+                            //console.log(`Error: Image ${metadata.heigth}x${metadata.width} Max height/width: 600px`);
+                            //return response.status(400).json({error: `Error: Image ${metadata.heigth}x${metadata.width} Max height/width: 600px`});
+                        //}
+                        const destPath = './uploads/user_avatar.webp';
+                        await sharp(sourcePath)
+                        .resize(100, 100)
+                        .toFormat('webp')
+                        .toFile(destPath);
+                
+                        const imagePath = destPath;
+                        let data = {
+                            image: {
+                                file: imagePath,
+                                content_type: "image/webp"
+                            }
+                        };
+                        let headers = {
+                            'Authorization': 'Bearer ' + MASTER_TOKEN
+                        };
+                        let url = charaCloudServer + `/api/users/${user_name}/avatar`;
+                        needle.post(url, data, {multipart: true, headers: headers, timeout: 10000}, function (err, result) {
+                            if (err && err.code === 'ECONNRESET') {
+                                console.error('Timeout error:', err);
+                                // Handle the timeout error here
+                                return response.status(503).json({error: 'The request timed out'});
+                            } else if (err) {
+                                console.error('Error:', err);
+                                // Handle other errors here
+                                return response.status(500).json({error: err.toString()});
+                            }
+                            if (result.statusCode >= 300) { // check response status code
+                                console.error(result.body);
+                                return response.status(result.statusCode).json({error: result.body});
+                            }
+                            return response.status(200).json(result.body);
+                        });
+
+                    } catch (err) {
+                        console.log(err);
+                        return response.status(400).json({error: err.toString()});
+                    }
+                }).catch((err) => {
+            console.error(err);
+            return response.status(400).json({error: err.toString()});
+        });
+    } catch (err) {
+        console.log(err);
+        return response.status(400).json({error: err.toString()});
+    }
+
 });
 function generateMainKey(password) {
     ALPHA_KEY = crypto.createHash('sha256').update('ALPHA_KEY_' + password).digest('hex');

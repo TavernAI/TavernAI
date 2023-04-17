@@ -238,10 +238,10 @@
   color: white;
   z-index: 1; /* make the character name and description appear on top of the shadow */
 }
+
 .characloud_character_block_user_name {
     text-shadow: 0px 0px 4px rgba(0, 0, 0, 0.9);
-    font-weight: 600;
-    font-size: 20px;
+
     position: absolute;
     left: 0;
     right: 0;
@@ -251,19 +251,33 @@
     width: min-content;
     z-index: 1; /* make the character name and description appear on top of the shadow */
 }
+.characloud_character_block_user_name:hover {
+    filter: brightness(150%);
+}
 .characloud_character_block_page_link {
     text-shadow: 0px 0px 4px rgba(0, 0, 0, 0.9);
     font-weight: 600;
     font-size: 20px;
     position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 65px;
-    padding: 10px;
+
+    right: 0px;
+    bottom: 0px;
+    padding: 6px;
+    width: 15px;
+    margin-right: 10px;
+    opacity: 0.5;
     color: white;
-    width: min-content;
-    z-index: 1; /* make the character name and description appear on top of the shadow */
+    width: 15px;
+    z-index: 688; /* make the character name and description appear on top of the shadow */
 }
+.characloud_character_block_page_link:hover {
+    opacity: 1.0;
+}
+.characloud_character_block_page_link img{
+    width: 10px;
+    height: auto;
+}
+
 .characloud_character_block_description {
   opacity: 1.0;
   position: absolute;
@@ -734,6 +748,7 @@
 }
 .characloud_user_profile_avatar {
     margin-right: 20px;
+    cursor: pointer;
 }
 
 .characloud_user_profile_avatar img {
@@ -757,7 +772,7 @@
 }
 
 .star-icon {
-    display: inline-block;
+    display: none;/*inline-block;*/
     width: 20px;
     height: 20px;
     margin-top: 2px;
@@ -771,6 +786,7 @@
     align-items: end;
     justify-content: end;
     height: 18px;
+    margin-left: 5px;
 }
 .logout {
     height: 18px;
@@ -810,18 +826,11 @@
 }
 
 .character-gallery-content {
-
+    
 
 }
 
-.character-gallery-content img {
-    margin-right: 70px;
-    margin-left: 5px;
-    margin-bottom: 24px;
-    width: 132px;
-    height: 200px;
-    display: inline-block;
-}
+
 
 .moderation-gallery {
     margin-top: 20px;
@@ -980,7 +989,29 @@
 
 .user_profile_character {
     cursor: pointer;
+    position: relative;
+    
+    margin-right: 70px;
+    margin-left: 5px;
+    margin-bottom: 24px;
     display: inline-block;
+}
+.user_profile_character_img {
+    width: 132px;
+    height: 200px;
+}
+.user_profile_character_delete {
+
+    height: 20px;
+    position: absolute;
+    float: right;
+    right: 4px;
+    top: 4px;
+    cursor: pointer;
+    opacity: 0.5;
+    background-color: black;
+    border-radius: 2px;
+    padding: 1px;
 }
 
 #characloud_img {
