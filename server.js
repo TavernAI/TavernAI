@@ -75,6 +75,7 @@ var api_key_openai;
 
 var is_colab = false;
 var charactersPath = 'public/characters/';
+var worldPath = 'public/worlds/';
 var chatsPath = 'public/chats/';
 if (is_colab && process.env.googledrive == 2){
     charactersPath = '/content/drive/MyDrive/TavernAI/characters/';
@@ -526,7 +527,7 @@ app.post("/editcharacter", urlencodedParser, function(request, response){
 });
 app.post("/deletecharacter", urlencodedParser, function(request, response){
     if(!request.body) return response.sendStatus(400);
-    rimraf(charactersPath+request.body.avatar_url, (err) => { 
+    rimraf(charactersPath+request.body.avatar_url.replace(/\.\.[\/\\]/g, ""), (err) => {
         if(err) {
             response.send(err);
             return console.log(err);
@@ -803,6 +804,119 @@ app.post("/getcharacters", jsonParser, async function(request, response) {
     response.sendStatus(500);
   }
 });
+
+app.post("/getworldnames", jsonParser, async function(request, response) {
+    try {
+        const files = await fs.promises.readdir(worldPath);
+        const jsonFiles = files.filter(file => file.endsWith(".json"));
+        const reply = { world_names: [] };
+
+        jsonFiles.forEach(key => {
+            reply.world_names.push(key.replace(/\.json$/g, ""));
+        });
+
+        response.send(JSON.stringify(reply));
+    } catch (error) {
+        console.error(error);
+        response.sendStatus(500);
+    }
+});
+
+app.post("/saveworld", jsonParser, function(request, response){
+    if(!request.body.world_name) {
+        console.error("No world_name given in saveworld request");
+        return response.sendStatus(400);
+    }
+    if(!request.body.data || !request.body.data.entries) {
+        return response.sendStatus(406);
+    }
+    const path = worldPath + request.body.world_name + ".json";
+    const data = JSON.stringify(request.body.data, null, "  ");
+    fs.writeFile(path, data, 'utf8', function(err) {
+        if(err) {
+            response.send(err);
+            return console.log(err);
+        }else{
+            response.send({result: "ok"});
+        }
+    });
+
+});
+app.post("/loadworld", jsonParser, function(request, response) {
+    if(!request.body.world_name) {
+        console.error("No world_name given in saveworld request");
+        return response.sendStatus(400);
+    }
+    const path = worldPath + request.body.world_name + ".json";
+
+    fs.stat(path, function(err, stat) {
+        if(err === null) {
+            fs.readFile(path, 'utf8', (err, data) => {
+                if (err) {
+                    console.error(err);
+                    response.send(err);
+                    return;
+                }
+                response.send(data);
+            });
+        } else {
+            console.error(err);
+            response.send({});
+            return;
+        }
+    })
+});
+app.post("/deleteworld", jsonParser, function(request, response) {
+    if(!request.body.world_name) {
+        console.error("No world_name given in saveworld request");
+        return response.sendStatus(400);
+    }
+    const path = worldPath + request.body.world_name.replace(/\.\.[\/\\]/g, "") + ".json";
+
+    fs.stat(path, function(err, stat) {
+        if(err === null) {
+            fs.rm(path, () => {});
+            response.send({result: "ok"});
+        } else {
+            response.send(err);
+            return;
+        }
+    })
+});
+app.post("/importworld", urlencodedParser, async function(request, response){
+    if(!request.body) { return response.sendStatus(400); }
+
+    let filedata = request.file;
+    if(filedata){
+        fs.readFile('./uploads/'+filedata.filename, 'utf8', (err, data) => {
+            if (err){
+                console.log(err);
+                response.send({error: "Unable to access file."});
+                response.sendStatus(400);
+                return;
+            }
+            const jsonData = json5.parse(data);
+            let filename = request.body.filename
+                .replace(/\.json$/, "").trim()
+                .replace(/s+/g, " ")
+                .replace(/ /g, "_");
+
+            if(!jsonData.entries || typeof jsonData.entries !== "object") {
+                return response.sendStatus(406);
+            }
+            fs.writeFile(worldPath + filename + ".json", data, 'utf8', function(err) {
+                if(err) {
+                    response.send(err);
+                    return console.log(err);
+                } else {
+                    response.send({result: "ok", world_name: filename});
+                }
+                fs.rm("./uploads/"+filedata.filename, () => {})
+            })
+        })
+    }
+})
+
 app.post("/getbackgrounds", jsonParser, function(request, response){
     var images = getImages("public/backgrounds");
     if(is_colab === true){
@@ -849,7 +963,7 @@ app.post("/setbackground", jsonParser, function(request, response){
 });
 app.post("/delbackground", jsonParser, function(request, response){
     if(!request.body) return response.sendStatus(400);
-    rimraf('public/backgrounds/'+request.body.bg, (err) => { 
+    rimraf('public/backgrounds/'+request.body.bg.replace(/\.\.[\/\\]/g, ""), (err) => {
         if(err) {
             response.send(err);
             return console.log(err);

@@ -1,0 +1,52 @@
+<html>
+    <head>
+        <title>World info</title>
+        <link rel="stylesheet" href="/css/notes.css">
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <div id="main">
+            <div id="content">
+                <h2>World Info</h2>
+                <h4>World Info enhances AI's understanding of the details in your world.</h4>
+                <p>It functions like a dynamic dictionary that only inserts relevant information from World Info entries when keywords associated with the entries are present in the message text.</p>
+                <p>The TavernAI engine activates and seamlessly integrates the appropriate lore into the prompt, providing background information to the AI.</p>
+                <p><i>It is important to note that while World Info helps guide the AI towards your desired lore, it does not guarantee its appearance in the generated output messages.</i></p>
+
+                <h3>Token budget</h3>
+                <p>Sets how many tokens at maximum will be used for World Info <em>entries</em>.</p>
+
+                <h3>Evaluation depth</h3>
+                <p>Indicates how many messages into the past the TavernAI searches in order to find World Info keys.</p>
+
+                <h3>Editor</h3>
+                <p>The editor allows you to add, delete, and change World Info <em>entries</em>.</p>
+                <p>Each <em>entry</em> has primary keys and secondary keys (see below). These are chunks of text which, when matched, result in the <em>entry</em>'s properties being inserted into the request.</p>
+                <p><em>Entry</em>'s properties come in plain text or simplified W++ (which is more economical). W++ has an editor which shows three main components: category, name, and properties.</p>
+                <ul>
+                    <li><em>Category</em> (highlited item on first row of editor) is a general term like "Place", "Character", "Item", etc.</li>
+                    <li><em>Name</em> (second item on first row of editor) is the official name of the given <em>entry</em>, such as "New York", "John Thompson", "Luger 9mm", etc.</li>
+                    <li><em>Properties</em> (all following items) is the context for the <em>entry</em>, such as "bustling metropolis" "situated on East Coast of the USA" "expensive housing" "large rats", etc.</li>
+                </ul>
+                <p>Each <em>entry</em> also host several flags:</p>
+                <ul>
+                    <li><em>Constant</em> means the entry should <em>always</em> be used, no matter the key matches. This effectively works as a global <a href="21.html">Scroll of Memories</a>.</li>
+                    <li><em>Selective</em> means the entry can <em>only</em> be used if both primary and secondary keys have a match. (For instance, to distinguish between "Chris Evans" (primary) "actor" (secondary) and "Chris Evans" (primary) "presenter" (secondary).</li>
+                    <li><em>Prepend</em> means the entry, if included, will be put in front of character definitions instead of after them.</li>
+                </ul>
+
+                <h3>How World Info is evaluated</h3>
+                <p>World Info <em>entries</em> have an order of priority in which they are evaluated. This is done message by message, from the highest priority (further up the list) to the lowest.</p>
+                <p>On the first pass through all applicable message, main keys (first row in details) are evaluated. Then, if the token budget allows, a second pass is made, during which secondary keys are matched.</p>
+
+                <h3>Pro Tips</h3>
+                <ul>
+                    <li>The AI does not insert keywords into context, so each World Info entry should be a comprehensive, standalone description.</li>
+                    <li>To create a rich and detailed world lore, entries can be interlinked and reference one another.</li>
+                    <li>To conserve tokens, it is advisable to keep entry contents concise, with a general recommended limit of 50 tokens per entry.</li>
+                </ul>
+            </div>
+        </div>
+    </body>
+</html>
