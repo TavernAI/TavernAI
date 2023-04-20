@@ -580,6 +580,11 @@ display: none;
     margin-top: 15px;
 }
 
+.character_container{
+    display: flex;
+    flex-direction: row;
+}
+
 .character_select{
     padding: 5px;
     border-radius: 10px;
@@ -597,6 +602,22 @@ display: none;
     transform: translateY(25%);
 }
 
+.character_select .delete_icon{
+    width: 30px;
+    height: 30px;
+}
+
+.character_container .icon_container{
+    margin: 5px;
+    justify-self: end;
+}
+
+.character_container .icon_container .delete_icon{
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+    object-position: center;
+}
 /*LEFT SIDE BG MENU*/
 
 #logo_block{

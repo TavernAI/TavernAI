@@ -276,6 +276,11 @@ textarea {
     vertical-align: middle;
 }
 
+.character_container{
+    display: flex;
+    flex-direction: row;
+}
+
 .character_select {
     padding: 0px;
     border-radius: 6px;
@@ -288,6 +293,18 @@ textarea {
 .character_select .avatar {
     width: 48px;
     height: 48px;
+}
+
+.character_container .icon_container{
+    margin: 5px;
+    justify-self: end;
+}
+
+.character_container .icon_container .delete_icon{
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+    object-position: center;
 }
 
 #main_api {

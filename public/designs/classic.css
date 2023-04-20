@@ -666,19 +666,37 @@ input[type=submit], input[type=button] {
     display: block;
     /* visibility: hidden; */
 }
+
+.character_container{
+    display: flex;
+    flex-direction: row;
+}
+
 .character_select {
     padding: 0px;
     border-radius: 10px;
     cursor:pointer;
+    flex: 1;
     display: grid;
-    grid-template-columns: 67px auto;
+    grid-template-columns: auto 3fr 1fr;
 }
-
-
 
 .character_select:hover {
     background-color: #ffffff11;
 }
+
+.character_container .icon_container{
+    margin: 5px;
+    justify-self: end;
+}
+
+.character_container .icon_container .delete_icon{
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+    object-position: center;
+}
+
 #avatar_url_div, #selected_chat_div, #create_date_div, #last_mes_div {/*hidden text fields*/
     display: none;
 }

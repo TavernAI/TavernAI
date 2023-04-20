@@ -200,6 +200,8 @@ $(document).ready(function(){
 
     var colab_ini_step = 1;
 
+    let character_id_clicked_onlist = null;
+
     var requestTimeout = 60*1000;
     jQuery.ajax({
         type: "GET",
@@ -482,7 +484,29 @@ $(document).ready(function(){
                 this_avatar = "characters/"+item.avatar+"?v="+Date.now();
 
             }
-            $("#rm_print_charaters_block").prepend('<div class=character_select chid='+i+'><div class=avatar><img src="'+this_avatar+'"></div><div class=ch_name_menu>'+item.name+'</div></div>');
+            console.log(item.avatar);
+            const avatar_url = item.avatar+ "&chat=" + item.chat + "&create_date=" + item.create_date;
+            $("#rm_print_charaters_block").prepend(
+                `
+                <div class="character_container" id="character_container_${i}">
+                    <div class="character_select" chid='${i}'>
+                        <div class="avatar">
+                            <img src='${this_avatar}'>
+                        </div>
+                        <div class="ch_name_menu">${item.name}</div>
+                    </div>
+                    <form id="list_action_form_${i}"  action="javascript:void(null);" method="post" enctype="multipart/form-data">
+                    <div class="icon_container">
+                        <input value="${i}" name="chara_id" id="chara_id" hidden/>
+                        <input value="${avatar_url}" name="avatar_url" id="avatar_url_pole" hidden/>
+                        <button id="delete_button_on_chara_list" value="${i}" type="submit" style="background: transparent; border: none;">
+                            <img src="img/trash.png" class="delete_icon"/>
+                        </button>
+                    </div>
+                    </form>
+                </div>
+                `
+                );
             //console.log(item.name);
         });
 
@@ -503,10 +527,9 @@ $(document).ready(function(){
         });
         if (response.ok === true) {
             const getData = await response.json();
-            //console.log(getData);
             //var aa = JSON.parse(getData[0]);
             const load_ch_count = Object.getOwnPropertyNames(getData);
-
+            console.log(characters);
             for(var i = 0; i < load_ch_count.length;i++){
 
 
@@ -1735,6 +1758,14 @@ $(document).ready(function(){
         
     }
 
+    function remove_deleted_char_from_list(id){
+        $("#character_container_" + id).css({"opacity": "0", "transition": "opacity 2s"});
+        setTimeout(function() {
+            $("#character_container_" + id).removeClass('character_container');
+            $("#character_container_" + id).css({"display": "none"});
+            }, 2000);
+    }
+
     function getTokenCount(text = "") {
         return encode(JSON.stringify(text)).length;
     }
@@ -2092,6 +2123,7 @@ $(document).ready(function(){
         }
         if(popup_type == 'del_ch'){
             var msg   = jQuery('#form_create').serialize(); // ID form
+            // console.log(msg);
             jQuery.ajax({    
                 method: 'POST', 
                 url: '/deletecharacter',
@@ -2105,6 +2137,27 @@ $(document).ready(function(){
                 timeout: requestTimeout,
                 success: function(html){
                     location.reload();
+                    //getCharacters();
+                    //$('#create_button_div').html(html);  
+                }  
+            });  
+        }
+        if(popup_type == 'del_one_ch'){
+            let msg   = jQuery('#list_action_form_'+character_id_clicked_onlist).serialize(); // ID form
+            msg = decodeURIComponent(msg);
+            jQuery.ajax({    
+                method: 'POST', 
+                url: '/deletecharacter',
+                beforeSend: function(){
+                    remove_deleted_char_from_list(character_id_clicked_onlist);
+
+                    //$('#create_button').attr('value','Deleting...'); 
+                },
+                data: msg,
+                cache: false,
+                timeout: requestTimeout,
+                success: function(html){
+                    //location.reload();
                     //getCharacters();
                     //$('#create_button_div').html(html);  
                 }  
@@ -2140,6 +2193,7 @@ $(document).ready(function(){
             $("#dialogue_popup_ok").css("background-color", "#191b31CC");
             $("#dialogue_popup_ok").text("Yes");
             break;
+
         default:
             $("#dialogue_popup_ok").css("background-color", "#791b31");
             $("#dialogue_popup_ok").text("Delete");
@@ -2378,6 +2432,11 @@ $(document).ready(function(){
         popup_type = 'del_ch';
         callPopup('<h3>Delete the character?</h3>');
     });
+    $('body').on( 'click', '#delete_button_on_chara_list', function () { 
+        popup_type = 'del_one_ch';
+        character_id_clicked_onlist = $(this).attr('value');
+        callPopup('<h3>Delete the character?</h3>');
+    })
     $( "#rm_info_button" ).click(function() {
         $('#rm_info_avatar').html('');
         select_rm_characters();
