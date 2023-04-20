@@ -305,6 +305,7 @@ textarea {
     height: 30px;
     object-fit: contain;
     object-position: center;
+    cursor: pointer;
 }
 
 #main_api {

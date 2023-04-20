@@ -617,6 +617,7 @@ display: none;
     height: 30px;
     object-fit: contain;
     object-position: center;
+    cursor: pointer;
 }
 /*LEFT SIDE BG MENU*/
 

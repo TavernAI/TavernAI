@@ -695,6 +695,7 @@ input[type=submit], input[type=button] {
     height: 30px;
     object-fit: contain;
     object-position: center;
+    cursor: pointer;
 }
 
 #avatar_url_div, #selected_chat_div, #create_date_div, #last_mes_div {/*hidden text fields*/
