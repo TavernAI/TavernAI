@@ -484,7 +484,6 @@ $(document).ready(function(){
                 this_avatar = "characters/"+item.avatar+"?v="+Date.now();
 
             }
-            console.log(item.avatar);
             const avatar_url = item.avatar+ "&chat=" + item.chat + "&create_date=" + item.create_date;
             $("#rm_print_charaters_block").prepend(
                 `
@@ -529,7 +528,7 @@ $(document).ready(function(){
             const getData = await response.json();
             //var aa = JSON.parse(getData[0]);
             const load_ch_count = Object.getOwnPropertyNames(getData);
-            console.log(characters);
+
             for(var i = 0; i < load_ch_count.length;i++){
 
 

@@ -602,11 +602,6 @@ display: none;
     transform: translateY(25%);
 }
 
-.character_select .delete_icon{
-    width: 30px;
-    height: 30px;
-}
-
 .character_container .icon_container{
     margin: 5px;
     justify-self: end;
