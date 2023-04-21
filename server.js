@@ -63,7 +63,6 @@ var response_generate_openai;
 var request_promt;
 var response_promt;
 var response_characloud_loadcard;
-var response_characloud_getallcharacters;
 var characters = {};
 var character_i = 0;
 var response_create;
@@ -441,7 +440,8 @@ function checkCharaProp(prop) {
       .replace(/[\u201C\u201D“”]/g, '"');
 }
 function charaFormatData(data){
-    
+
+
     let name;
     if(data.ch_name === undefined){
         name = data.name;
@@ -452,10 +452,58 @@ function charaFormatData(data){
     if(name.length === 0){
         name = 'null';
     }
-    let char = {"public_id": checkCharaProp(data.public_id), "public_id_short": checkCharaProp(data.public_id_short), "user_name": checkCharaProp(data.user_name), "user_name_view": checkCharaProp(data.user_name_view), "name": name, "description": checkCharaProp(data.description), "short_description": checkCharaProp(data.short_description), "personality": checkCharaProp(data.personality), "first_mes": checkCharaProp(data.first_mes), "chat": Date.now(), "mes_example": checkCharaProp(data.mes_example), "scenario": checkCharaProp(data.scenario), "edit_date": Date.now(), "create_date": Date.now(), "add_date": Date.now(), "last_action_date": Date.now()};
+    let tags;
+    let create_date_online;
+    let edit_date_online;
+    if(data.create_date_online === undefined){
+        create_date_online = Date.now();
+    }else{
+        create_date_online = data.create_date_online;
+    }
+    if(data.edit_date_online === undefined){
+        edit_date_online = Date.now();
+    }else{
+        edit_date_online = data.edit_date_online;
+    }
+
+    let create_date_local;
+    let edit_date_local;
+    if(data.create_date_local === undefined){
+        create_date_local = Date.now();
+    }else{
+        create_date_local = data.create_date_local;
+    }
+    if(data.edit_date_local === undefined){
+        edit_date_local = Date.now();
+    }else{
+        edit_date_local = data.edit_date_local;
+    }
+    if (data.add_date_local === undefined) {
+        add_date_local = Date.now();
+    } else {
+        add_date_local = data.add_date_local;
+    }
+    
+    if(data.tags === undefined){
+        tags = [];
+    }else{
+        tags = data.tags;
+    }
+    
+    if(data.nsfw === undefined){
+        data.nsfw = false;
+    }else if(data.nsfw !== false){
+        data.nsfw = true;
+    }
+    
+    let char = {public_id: checkCharaProp(data.public_id), public_id_short: checkCharaProp(data.public_id_short), user_name: checkCharaProp(data.user_name), user_name_view: checkCharaProp(data.user_name_view), name: name, description: checkCharaProp(data.description), short_description: checkCharaProp(data.short_description), personality: checkCharaProp(data.personality), first_mes: checkCharaProp(data.first_mes), chat: Date.now(), mes_example: checkCharaProp(data.mes_example), scenario: checkCharaProp(data.scenario), tags: tags, create_date_online: create_date_online, edit_date_online: edit_date_online, create_date_local: create_date_local, edit_date_local: edit_date_local, add_date_local: add_date_local, last_action_date: Date.now(), online: data.online, nsfw: data.nsfw};
     // Filtration
     if(data.public_id === undefined){ 
-        delete char.public_id;
+        char.public_id = uuid.v4().replace(/-/g, '');
+    }else{
+        if(data.public_id == "undefined" || data.public_id.length === 0){
+            char.public_id = uuid.v4().replace(/-/g, '');
+        }
     }
     if(data.public_id_short === undefined){
         delete char.public_id_short;
@@ -465,6 +513,9 @@ function charaFormatData(data){
     }
     if(data.user_name_view === undefined){
         delete char.user_name_view;
+    }
+    if(data.online != true){
+        delete char.online;
     }
     return char;
 }
@@ -534,13 +585,14 @@ app.post("/editcharacter", urlencodedParser, async function(request, response){
         var char = charaFormatData(merged_char_data);//{"name": request.body.ch_name, "description": request.body.description, "personality": request.body.personality, "first_mes": request.body.first_mes, "avatar": request.body.avatar_url, "chat": request.body.chat, "last_mes": request.body.last_mes, "mes_example": ''};
         
         char.chat = request.body.chat;
-        char.create_date = request.body.create_date;
-        if (old_char_data.add_date != undefined) {
-            char.add_date = old_char_data.add_date;
+        char.create_date_local = request.body.create_date_local;
+        if (old_char_data.add_date_local !== undefined) {
+            char.add_date_local = old_char_data.add_date_local;
         } else {
-            char.add_date = old_char_data.create_date;
+            char.add_date_local = old_char_data.create_date_local;
         }
-        char.edit_date = Date.now();
+        
+        char.edit_date_local = Date.now();
 
         char = JSON.stringify(char);
         let target_img = (card_filename).replace(`.${characterFormat}`, '');
@@ -595,11 +647,11 @@ async function charaWrite(source_img, data, target_img, format = 'webp') {
 
                 break;
             case 'png':
-                var image = sharp(source_img).resize(400, 600).toFormat('png').toBufferSync();// old 170 234
+                var image = await sharp(source_img).resize(400, 600).toFormat('png').toBuffer();// old 170 234
 
                 // Get the chunks
                 var chunks = extract(image);
-                 var tEXtChunks = chunks.filter(chunk => chunk.create_date === 'tEXt');
+                var tEXtChunks = chunks.filter(chunk => chunk.name === 'tEXt');
 
                 // Remove all existing tEXt chunks
                 for (var tEXtChunk of tEXtChunks) {
@@ -737,6 +789,47 @@ app.post("/getuseravatars", jsonParser, function(request, response){
     response.send(JSON.stringify(images));
     
 });
+app.post("/adduseravatar", urlencodedParser, function(request, response){
+    try {
+        response_dw_bg = response;
+        if(!request.body) return response.sendStatus(400);
+
+        let filedata = request.file; 
+        let fileType = ".webp";
+        let img_file;
+
+        let img_path = "uploads/";
+        img_file = filedata.filename; 
+
+        sharp(img_path+img_file)
+            .resize(400, 600)
+            .toFormat('webp')
+            .toFile('public/User Avatars/'+img_file+fileType, (err) => {
+                if(err) {
+                    console.log(err);
+                    return response.status(400).send(err); 
+
+                }else{
+                    //console.log(img_file+fileType);
+                    return response.status(200).send(img_file+fileType);
+                }
+            });
+    }catch(err){
+        console.log(err);
+        return response.status(400).send(err);
+    }
+});
+app.post("/deleteuseravatar", jsonParser, function (request, response) {
+    try {
+        let filename = request.body.filename;
+        let filePath = path.join(__dirname, 'public', 'User Avatars', filename);
+        fs.unlinkSync(filePath);
+        return response.status(200).json({});
+    } catch (err) {
+        console.log(err);
+        return response.status(400).json({error: err.toString()});
+    }
+});
 app.post("/setbackground", jsonParser, function(request, response){
     //console.log(request.data);
     //console.log(request.body.bg);
@@ -760,6 +853,7 @@ app.post("/setbackground", jsonParser, function(request, response){
     });
     
 });
+
 app.post("/delbackground", jsonParser, function(request, response){
     if(!request.body) return response.sendStatus(400);
     rimraf('public/backgrounds/'+request.body.bg, (err) => { 
@@ -1535,70 +1629,113 @@ app.listen(server_port, listenIp, function() {
         }
     }
     console.log('Launching...');
-    initialization();
+    initializationCards();
+    clearUploads();
+    initCardeditor();
     if(autorun) open('http:127.0.0.1:'+server_port);
     console.log('TavernAI started: http://127.0.0.1:'+server_port);
     
 });
 
-function initialization(){
+function initializationCards() {
     const folderPath = charactersPath;
     // get all files in folder
     let this_format;
     let old_format;
-    if(characterFormat === 'webp'){
+    if (characterFormat === 'webp') {
         this_format = 'webp';
         old_format = 'png';
-    }else{
+    } else {
         this_format = 'png';
         old_format = 'webp';
     }
     fs.readdir(folderPath, async (err, files) => {
-        if (err) {
-            console.error('Error reading folder:', err);
-            return;
-        }
-        
-        for (const file of files) {
-                const filePath = path.join(folderPath, file);
-            // check if file is png image
-            if (!file.endsWith(`.${old_format}`)) {
-                continue;
+        try {
+            if (err) {
+                console.error('Error reading folder:', err);
+                return;
+            }
+            // add public_id
+            for (const file of files) {
+                try {
+                    const filePath = path.join(folderPath, file);
+                    // check if file is png image
+                    if (!file.endsWith(`.${this_format}`)) {
+                        continue;
+                    }
+
+                    // read metadata
+                    const json_metadata = await charaRead(filePath);
+                    let metadata = json5.parse(json_metadata);
+                    // check if metadata contains chara.name
+                    if (!metadata || !metadata.name) {
+                        continue;
+                    }
+                    
+                    if(metadata.public_id){ // Check if public_id already exist then pass to next card
+                        if(metadata.public_id.length === 32){
+                            continue;
+                        }
+                    }
+                    
+
+                    metadata = charaFormatData(metadata);
+                    await charaWrite(filePath, JSON.stringify(metadata), charactersPath + file.replace(`.${this_format}`, ''), this_format);
+
+
+                } catch (error) {
+                    console.log('Init card error ' + file);
+                    console.log(error);
+                }
             }
             
-            // read metadata
-            const json_metadata = await charaRead(filePath);
-            const metadata = json5.parse(json_metadata);
-            // check if metadata contains chara.name
-            if (!metadata || !metadata.name) {
-                continue;
-            }
+            // Change format
+            for (const file of files) {
+                try {
+                    const filePath = path.join(folderPath, file);
+                    // check if file is png image
+                    if (!file.endsWith(`.${old_format}`)) {
+                        continue;
+                    }
 
-            // choose target filename
-            let targetName = setCardName(file.replace(`.${old_format}`, ''));
-            let targetPath = path.join(folderPath, targetName+`.${this_format}`);
+                    // read metadata
+                    const json_metadata = await charaRead(filePath);
+                    const metadata = json5.parse(json_metadata);
+                    // check if metadata contains chara.name
+                    if (!metadata || !metadata.name) {
+                        continue;
+                    }
 
-            // write image
-            await charaWrite(filePath, JSON.stringify(metadata), charactersPath + targetName, this_format);
+                    // choose target filename
+                    let targetName = setCardName(file.replace(`.${old_format}`, ''));
+                    let targetPath = path.join(folderPath, targetName + `.${this_format}`);
 
-            // delete original file
-            if (fs.existsSync(targetPath)) { //make to check (need to meake charaWrite is )
-            // delete original file
-            fs.unlink(filePath, err => {
-                if (err) {
-                  console.error('Error deleting file:', err);
-                } else {
-                    console.log(targetName+' has been converted to .'+this_format);
-                  //console.log('Deleted file:', filePath);
+                    // write image
+                    await charaWrite(filePath, JSON.stringify(metadata), charactersPath + targetName, this_format);
+
+                    // delete original file
+                    if (fs.existsSync(targetPath)) { //make to check (need to meake charaWrite is )
+                        // delete original file
+                        fs.unlink(filePath, err => {
+                            if (err) {
+                                console.error('Error deleting file:', err);
+                            } else {
+                                console.log(targetName + ' has been converted to .' + this_format);
+                                //console.log('Deleted file:', filePath);
+                            }
+                        });
+                    } else {
+                        console.error('Error writing file:', targetPath);
+                    }
+                } catch (error) {
+                    console.log('Convert card error ' + file);
+                    console.log(error);
                 }
-            });
-          } else {
-                console.error('Error writing file:', targetPath);
-          }
+            }
+        } catch (error) {
+            console.log(error);
         }
     });
-    clearUploads();
-    initCardeditor();
 }
 
 function clearUploads() {
@@ -1623,23 +1760,27 @@ function clearUploads() {
   });
 }
 function initCardeditor() {
-  const folderPath = path.join(__dirname, 'public', 'cardeditor');
+    const folderPath = path.join(__dirname, 'public', 'cardeditor');
 
-  if (fs.existsSync(folderPath)) {
-    // Folder exists, delete files created more than 1 hour ago
-    fs.readdirSync(folderPath).forEach((file) => {
-      const filePath = path.join(folderPath, file);
-      const stats = fs.statSync(filePath);
-      const creationTime = stats.birthtime.getTime();
-      const hourAgo = Date.now() - (1 * 60 * 60 * 1000);
-      if (creationTime < hourAgo) {
-        fs.unlinkSync(filePath);
-      }
-    });
-  } else {
-    // Folder does not exist, create it
-    fs.mkdirSync(folderPath);
-  }
+    if (fs.existsSync(folderPath)) {
+        // Folder exists, delete files created more than 1 hour ago
+        fs.readdirSync(folderPath).forEach((file) => {
+            try {
+                const filePath = path.join(folderPath, file);
+                const stats = fs.statSync(filePath);
+                const creationTime = stats.birthtime.getTime();
+                const hourAgo = Date.now() - (1 * 60 * 60 * 1000);
+                if (creationTime < hourAgo) {
+                    fs.unlinkSync(filePath);
+                }
+            } catch (err) {
+                console.log(err);
+            }
+        });
+    } else {
+        // Folder does not exist, create it
+        fs.mkdirSync(folderPath);
+    }
 }
 
 

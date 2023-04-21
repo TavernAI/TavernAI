@@ -6,11 +6,14 @@ class charaCloudClient {
         charaCloudClient.instance = this;
         this.is_online = false;
         this.is_toggle = false;
-        this.max_user_page_characters_count = 6;
+        this.max_user_page_characters_count = 16;
         this.user_page_characters_count = 0;
         this.user_profile_page = 1;
+        this.user_profile_name;
         this.cardeditor_data;
         this.cardeditor_image;
+        this.cardeditor_id_local;
+        this.cardeditor_filename_local;
         this.delete_character_user_name;
         this.delete_character_public_id_short;
         this.handleError = this.handleError.bind(this);
@@ -24,12 +27,41 @@ class charaCloudClient {
     isOnline(){
         return this.is_online;
     }
-    getAllCharacters(){
+    getCharacters(){
         const self = this;
         return new Promise((resolve, reject) => {
             jQuery.ajax({    
                 type: 'GET', // 
                 url: '/api/characloud/characters',
+                beforeSend: function(){
+
+
+                },
+                cache: false,
+                dataType: "json",
+                contentType: "application/json",
+                //processData: false, 
+                success: function(data){
+                    self.is_online = true;
+                    resolve(data);
+                },
+                error: function (jqXHR, exception) {
+                    self.is_online = false;
+                    //console.log(exception);
+                    //console.log(jqXHR);
+                    console.log('No connection to charaCloud');
+
+                }
+            });
+        });
+
+    }
+    getBoard(){
+        const self = this;
+        return new Promise((resolve, reject) => {
+            jQuery.ajax({    
+                type: 'GET', // 
+                url: '/api/characloud/board',
                 beforeSend: function(){
 
 
@@ -257,13 +289,16 @@ class charaCloudClient {
             });
         });
     }
-    publishCharacter(type){
+    publishCharacter(type, target_filename = undefined){
         const self = this;
         return new Promise((resolve, reject) => {
             let character_data;
             try {
                 let new_editor_date = self.getEditorFields();
                 character_data = Object.assign({}, self.cardeditor_data, new_editor_date);
+                if(type === 'add_locally'){
+                    self.cardeditor_data.add_date = Date.now();
+                }
             }catch(err){
                 console.log(err);
                 return reject(err);
@@ -274,11 +309,21 @@ class charaCloudClient {
                 data: JSON.stringify({
                             'character_img': self.cardeditor_image,
                             'character_data': character_data,
-                            'type': type
+                            'type': type,
+                            'target_filename': target_filename
                         }),
                 beforeSend: function(){
-                    $('.load_icon').css('display', 'inline-block');
-                    $('.publish_button').css('display', 'none');
+                    switch(type){
+                        case 'create_online':
+                            $('.load_icon_publish').css('display', 'inline-block');
+                            $('.publish_button').css('display', 'none');
+                            return;
+                        case 'edit_online':
+                            $('.load_icon_update').css('display', 'inline-block');
+                            $('.update_button').css('display', 'none'); 
+                            return;
+                    }
+
                 },
                 cache: false,
                 dataType: "json",
@@ -293,8 +338,17 @@ class charaCloudClient {
                     reject(self.handleError(jqXHR));
                 },
                 complete: function (data) {
-                    $('.load_icon').css('display', 'none');
-                    $('.publish_button').css('display', 'inline-block');
+                    switch(type){
+                        case 'create_online':
+                            $('.load_icon').css('display', 'none');
+                            $('.publish_button').css('display', 'inline-block');
+                            return;
+                        case 'edit_online':
+                            $('.load_icon_update').css('display', 'none');
+                            $('.update_button').css('display', 'inline-block');
+                            return;
+                    }
+
                 }
             });
         });
@@ -380,6 +434,13 @@ class charaCloudClient {
         character_data.description = $('#description-textarea').val();
         character_data.mes_example = $('#dialogues-example-textarea').val();
         character_data.first_mes = $('#first-message-textarea').val();
+        character_data.nsfw = !!$('#editor_nsfw').prop('checked');
+        let tagsArray = [];
+        $('.character-tag').each(function () {
+            var tag = $(this).text().replace('x', '').trim();
+            tagsArray.push(tag);
+        });
+        character_data.tags = tagsArray;
         return character_data;
     }
     changeCharacterAvatar(e) {
@@ -451,6 +512,72 @@ class charaCloudClient {
                 }
             });
         });
+    }
+    getCharactersByCategory(category){
+        const self = this;
+        return new Promise((resolve, reject) => {
+            jQuery.ajax({    
+                type: 'POST', // 
+                url: `/api/characloud/category/characters`, // 
+                data: JSON.stringify({
+                            category: category
+                        }),
+                beforeSend: function(){
+                    //$('.load_icon').children('.load_icon').css('display', 'inline-block');
+                    //$('.publish_button').children('.submit_button').css('display', 'none');
+                },
+                cache: false,
+                dataType: "json",
+                contentType: "application/json",
+                processData: false, 
+                success: function(data){
+                    resolve(data);
+                },
+                error: function (jqXHR, exception) {
+                    console.log(exception);
+                    reject(self.handleError(jqXHR));
+                },
+                complete: function (data) {
+                    //$('.load_icon').children('.load_icon').css('display', 'inline-block');
+                    //$('.publish_button').children('.submit_button').css('display', 'none');
+                }
+            });
+        });
+    }
+    getCategories(){
+        const self = this;
+        return new Promise((resolve, reject) => {
+            jQuery.ajax({    
+                type: 'POST', // 
+                url: `/api/characloud/categories`, // 
+                data: JSON.stringify({
+
+                        }),
+                beforeSend: function(){
+                    //$('.load_icon').children('.load_icon').css('display', 'inline-block');
+                    //$('.publish_button').children('.submit_button').css('display', 'none');
+                },
+                cache: false,
+                dataType: "json",
+                contentType: "application/json",
+                processData: false, 
+                success: function(data){
+                    resolve(data);
+                },
+                error: function (jqXHR, exception) {
+                    console.log(exception);
+                    reject(self.handleError(jqXHR));
+                },
+                complete: function (data) {
+                    //$('.load_icon').children('.load_icon').css('display', 'inline-block');
+                    //$('.publish_button').children('.submit_button').css('display', 'none');
+                }
+            });
+        });
+    }
+    getCharacterDivBlock(character, charaCloudServer){
+        let cahr_link = `<img src="../img/vdots.png">`;
+        return `<div public_id="${character.public_id}" public_id_short="${character.public_id_short}" user_name="${character.user_name}" class="characloud_character_block"><div class="characloud_character_block_card"><div class="avatar"><img data-src="${charaCloudServer}/${character.user_name}/${character.public_id_short}.webp" class="lazy"></div><div user_name="${character.user_name}" public_id_short="${character.public_id_short}" class="characloud_character_block_page_link">${cahr_link}</div><div user_name="${character.user_name}" class="characloud_character_block_user_name">@${character.user_name_view}</div><div class="characloud_character_block_name">${character.name}</div><div class="characloud_character_block_description"></div></div></div>`;
     }
     validateUsername(user_name) {
         const regex = /^[A-Za-z0-9_\s]{2,32}$/;

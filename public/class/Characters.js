@@ -36,8 +36,8 @@ export class CharactersClass {
                         self.characters[i] = [];
                         self.characters[i] = getData[i];
                         self.characters[i]['name'] = window.DOMPurify.sanitize(self.characters[i]['name']);
-                        if (self.characters[i].add_date === undefined) {
-                            self.characters[i].add_date = self.characters[i].create_date;
+                        if (self.characters[i].add_date_local === undefined) {
+                            self.characters[i].add_date_local = self.characters[i].create_date_local;
                         }
                         self.charactersFilename[self.characters[i]['filename']] = i;
 
@@ -85,7 +85,17 @@ export class CharactersClass {
     
     sortByAddDate(){
         self = this;
-        self.characters.sort((a, b) => a.add_date - b.add_date);
+        self.characters.sort((a, b) => a.add_date_local - b.add_date_local);
+        self.charactersFilename = [];
+        self.characters.forEach(function(item, i){
+
+            self.charactersFilename[item.filename] = i;
+        });
+        //characters.reverse();
+    }
+    sortByLastActionDate(){
+        self = this;
+        self.characters.sort((a, b) => a.last_action_date - b.last_action_date);
         self.charactersFilename = [];
         self.characters.forEach(function(item, i){
             self.charactersFilename[item.filename] = i;
@@ -96,7 +106,9 @@ export class CharactersClass {
     getIDbyFilename(filename){
         return this.characters.findIndex(char => char.filename === filename);
     }
-
+    getIDbyPublicID(public_id){
+        return this.characters.findIndex(char => char.public_id === public_id);
+    }
     handleError(jqXHR) { // Need to make one handleError and in script.js and in charaCloud.js
         let msg;
         let status;

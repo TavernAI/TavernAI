@@ -231,7 +231,7 @@
                         </div>
                         <div>
                         <h4 class="h4_menu_title">Presence Penalty</h4><h5 id="pres_pen_counter_openai" class="range_counter">select</h5>
-                        <input type="range" class="range_bar" id="pres_pen_openai" name="volume" min="0.0" max="1.0" step="0.01">
+                        <input type="range" class="range_bar" id="pres_pen_openai" name="volume" min="0.0" max="2.0" step="0.01">
                         </div>
                         <div>
                             <h4 class="h4_menu_title">Top P Sample</h4><h5 id="top_p_counter_openai" class="range_counter">select</h5>
@@ -402,7 +402,7 @@
                 </div>
                 <div id="avatar_div" class="avatar_div">
                     <div id="avatar_div_container" class="avatar"><img id="avatar_load_preview" src="img/fluffy.png" alt="avatar"></div><input type="file" id="add_avatar_button" name="avatar" accept="image/png, image/jpeg, image/jpg, image/gif, image/bmp, image/webp">
-                    
+                    <div id="character_file_div"></div>
                 </div>
                 
                 <div id="description_div">
@@ -425,6 +425,7 @@
                 <input id="last_mes_pole" name="last_mes" class="text_pole" type="text" maxlength="999" size="2" value="" autocomplete="off">
                 </div>
                 <input id="character_advanced_button" type="button" value="Advanced Edit">
+                <div><input id="character_online_editor" type="button" value="🢀 Online editor"></div>
                 <div id="export_character_div">
                     <div id="result_info">&nbsp;</div>
                 
@@ -530,14 +531,17 @@
                 </div>
                 <div id="range_block_openai">
                     <h4 class="h4_menu_title">Temperature </h4><h5 id="temp_counter_openai" class="range_counter">select</h5>
-                    <input type="range" id="temp_openai" name="volume" min="0" max="1.0" step="0.01">
+                    <input type="range" id="temp_openai" name="volume" min="0" max="2.0" step="0.01">
                 </div>
             </div>
             <div id="additional_menu_settings">
                 <input id="master_settings_button" type="button" value="✧ Master Settings ✧">
                 <hr>
 
-                <h4 id="title_your_avatar" class="h4_menu_title">Your Avatar</h4>
+                <h4 id="title_your_avatar" class="h4_menu_title" >Your Avatar</h4> <span id="your_avatar_add_button"> <a>Add</a></span>
+                <form id='form_add_user_avatar' style="display: none" action="javascript:void(null);" method="post" enctype="multipart/form-data">
+                    <input type="file" id="user_avatar_add_file" accept="image/png, image/jpeg, image/jpg, image/gif, image/bmp, image/webp" name="avatar">
+                </form>
                 <div id="user_avatar_block"></div>
                 <form id='form_change_name' action="javascript:void(null);" method="post" enctype="multipart/form-data">
                     <h4 class="h4_menu_title">Name</h4>
@@ -594,7 +598,7 @@
                     <div id="options">
                         <div class="options-content">
                         <a id="option_start_new_chat"><img src="img/save_and_start_new_chat.png">Start new chat</a>
-                        <a id="option_select_chat"><img id="option_select_chat_logo" src="img/book6.png">Select chats</a>
+                        <a id="option_select_chat"><img id="option_select_chat_logo" src="img/book6.png">Chats book</a>
                         <a id="option_toggle_notes" class="option_toggle_notes"><img src="img/notes_scroll.png">Memory scroll</a>
                         
                         <hr>
@@ -675,17 +679,46 @@
                 </div>
                 
                 <div id="characloud_character_page_info">
+                    
                     <div class="characloud_character_page_buttons">
-                        <button class="publish_button">Publish</button><img class="load_icon" src="img/load.svg">
-                        <button class="update_button">Update</button>
+                        <div class="url-data" style="float:left"></div>
+                        <button class="publish_button">⏏ Publish</button><img class="load_icon load_icon_publish" src="img/load.svg">
+                        <button class="update_button">⏏ Update</button><img class="load_icon load_icon_update" src="img/load.svg">
+                        <button class="load_update_button">Load Update &#9668;</button>
                         <button class="to_chat_button">To Chat</button>
-                        <button class="save_locally_button">Save Locally</button>
+                        <button class="update_locally_button">Save ➧</button>
+                        <button class="add_locally_button">Add &#9654;</button>
+                        
                         <!--<button>Upload</button>-->
+                        <div class="publish_rules"><a href="https://tavernai.net/rulers" target="_blank">Publication Rules (?)</a></div>
                     </div>
+                    
+                    <div class="characloud_character_page_top_info"></div>
                     <div class="character-info">
+                        
                         <div class="info-section">
                             <label for="name-input">Name</label>
                             <input type="text" id="name-input" placeholder="The character's name" />
+                        </div>
+                        <div class="tag-form">
+                            <div id="nsfw_toggle_block" class="menu_toggle">
+                                <div class="toggle_label">NSFW</div>
+                                <input id="editor_nsfw" type="checkbox" class="toggle_checkbox">
+                            </div>
+                            <div class="tag-input">
+                                <input type="text" id="tag-input-field" placeholder="Enter a category">
+                            </div>
+                            <div class="tag-list">
+                                <!--<div class="tag character-tag">Responsive design <span class="tag-remove">x</span></div>-->
+                            </div>
+                            <div class="popular-tags">
+                                <div class="popular-tags-title">Popular categories</div>
+                                <div class="popular-tags-list">
+                                    <div class="tag popular-tag">+ Anime</div>
+                                    <div class="tag popular-tag">+ Manga</div>
+                                    <div class="tag popular-tag">+ Games</div>
+                                </div>
+                            </div>
                         </div>
                         <div class="info-section">
                             <label for="short-description-input">Short Description</label>
@@ -713,12 +746,16 @@
                         </div>
                     </div>
                     <div class="characloud_character_page_buttons">
-                        <button class="publish_button">Publish</button><img class="load_icon" src="img/load.svg">
-                        <button class="update_button">Update</button>
+                        <button class="publish_button">⏏ Publish</button><img class="load_icon load_icon_publish" src="img/load.svg">
+                        <button class="update_button">⏏ Update</button><img class="load_icon load_icon_update" src="img/load.svg">
+                        <button class="load_update_button">Load Update &#9668;</button>
                         <button class="to_chat_button">To Chat</button>
-                        <button class="save_locally_button">Save Locally</button>
+                        <button class="update_locally_button">Save ➧</button>
+                        <button class="add_locally_button">Add &#9654;</button>
+                        
                         <!--<button>Upload</button>-->
                     </div>
+                    <div class="characloud_character_page_top_info"></div>
                 </div>
             </div>
 
@@ -734,10 +771,13 @@
                     </form>
                     <div id="user_profile_info">
                         <h2 class="username"><span class="username_text"></span><span class="star-icon"></span><span class="logout_container"><span class="logout">(Logout)</span></span></h2>
-                        <p class="registration-date">Registered on: April 8th, 2023</p>
-                        <div>
-                            <button class="upload-character-button">Avatar</button>
-                            <button style="margin-left: 1px" class="upload-character-button">Settings</button>
+                        <p class="url-data"></p>
+                        <div id="user_profile_info_this_user">
+                            <button class="upload-avatar-button">Avatar</button>
+                            <button style="margin-left: 1px" class="upload-character-button">Upload Character</button>
+                        </div>
+                        <div id="user_profile_info_other_user">
+                            <button class="profile-button">Profile</button>
                         </div>
                     </div>
                 </div>
@@ -748,6 +788,7 @@
                     </div>
                     <div id="user_profile_navigation_page">
                         <button id="user_profile_prev_button">Prev</button>
+                        <span id="user_profile_page_pagination"></span>
                         <button id="user_profile_next_button">Next</button>
                     </div>
                 </div>
@@ -759,6 +800,17 @@
                         <img src="../characters/Megumin.webp" alt="Character 3">
                     </div>
                 </div>
+            </div>
+            <div id="characloud_category">
+                
+            </div>
+            <div id="characloud_categories">
+                <div class="categories-container">
+
+    <div class="categories-list">
+      <!-- categories will be added here -->
+    </div>
+  </div>
             </div>
         </div>
     </div>

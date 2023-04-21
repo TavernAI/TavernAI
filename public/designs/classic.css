@@ -39,6 +39,10 @@ body {
     margin-bottom:23px; 
     margin-left: 45px;
     margin-right: auto;
+    cursor: pointer;
+}
+#chloe_star_dust_city:hover {
+    opacity: 0.8;
 }
 #characloud_url {
     margin-right:10px;
@@ -201,9 +205,13 @@ code {
 }
 
 #chat_header_char_info {
-    font-size: 12px;
+    font-size: 13px;
     margin-left: 10px;
     color: gray;
+}
+
+.chat_header_char_info_user_name {
+    cursor: pointer;
 }
 
 #chat {
@@ -507,6 +515,9 @@ textarea {
 #form_create .text_pole{
     margin-top: 10px;
 }
+#character_file_div {
+    opacity: 0.8;
+}
 #description_textarea{
     height: 200px;
     margin-top: 0px;
@@ -556,6 +567,11 @@ textarea {
 }
 #title_your_avatar{
     margin-bottom: 6px;
+    display: inline-block;
+}
+#your_avatar_add_button {
+    cursor: pointer;
+    display: inline-block;
 }
 input:focus, textarea:focus, select:focus{
     outline: none;
@@ -906,6 +922,27 @@ input[type=submit], input[type=button] {
     opacity: 1.0;
 }
 
+#character_online_editor {
+    margin-top: 20px;
+    font-size: 14px;
+    background-repeat: no-repeat;
+    background-size: 28px;
+    background-position: 92px 5px;
+    /* background-image: url('img/book5.png'); */
+    width: 143px;
+    height: 48px;
+    font-weight: bold;
+    color: #ffffffbb;
+    padding: 0.5em;
+    border: thin solid rgba(200,200,200,0.2);
+    border-radius: 3px;
+    background-color: #191b3133;
+    opacity: 1.0;
+}
+
+#character_online_editor {
+    margin-top: 10px;
+}
 #create_button {
     opacity: 0.8;
     margin-left: -1px;
@@ -920,6 +957,10 @@ input[type=submit], input[type=button] {
     margin-left: 10px;
     margin-top: 22px;
     position: absolute;
+}
+
+#rm_charaters_block {
+    position: relative;
 }
 #rm_info_block {
     display: none;
@@ -957,7 +998,7 @@ input[type=submit], input[type=button] {
     float:right;
     margin-top: 25px;
     margin-right: 10px; 
-    color: #ffffff68;/* 66 */
+    color: #c47373;/*#ffaaaa68;/* 66 */
 }
 #export_button {
     opacity: 0.51;
@@ -965,7 +1006,7 @@ input[type=submit], input[type=button] {
     float:right;
     margin-top: 25px;
     margin-right: 16px; 
-    color: #ffffff68;
+    color: #fff;/*#ffffff68;*/
 }
 #result_info { /*Print tokens count and another info*/
     margin-top: 4px;
@@ -1400,10 +1441,24 @@ select {
     margin-bottom: 30px;
     width: 90px;
     height: 126px;
+    position: relative;
 }
-#user_avatar_block .avatar img {
+#user_avatar_block .avatar .user_avatar_img {
     width: 90px;
     height: 126px;
+}
+.user_avatar_cross {
+    height: 18px !important;
+    width: 18px !important;
+    position: absolute;
+    float: right;
+    right: -1px;
+    top: 8px;
+    cursor: pointer;
+    opacity: 0.5;
+    background-color: black;
+    border-radius: 1px !important;
+    padding: 1px;
 }
 #rm_api_block {
     display: none;
@@ -2285,7 +2340,6 @@ label.checkbox :checked + span:after {
       box-shadow: none
     }
 }
-
 
 
 

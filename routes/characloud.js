@@ -24,7 +24,23 @@ router.get("/characters", function(request, response_characloud_getallcharacters
         response_characloud_getallcharacters.sendStatus(500);
     }
 });
-
+router.get("/board", function(request, response_characloud_getallcharacters){
+    try {
+        client.get(charaCloudServer + "/api/characters/board", function (data, response) {
+            if (response.statusCode === 200) {
+                response_characloud_getallcharacters.send(data);
+            } else {
+                response_characloud_getallcharacters.sendStatus(500);
+            }
+        }).on('error', function (err) {
+            console.log("No connection to charaCloud");//console.log(err);
+            response_characloud_getallcharacters.sendStatus(500);
+        });
+    } catch (err) {
+        console.log(err);
+        response_characloud_getallcharacters.sendStatus(500);
+    }
+});
 router.post("/characters/load", jsonParser, function(request, response_characloud_loadcard){
     try {
         let public_id_short = request.body.public_id_short;
@@ -76,20 +92,21 @@ router.post("/characters/load", jsonParser, function(request, response_characlou
 router.post("/characters/search", jsonParser, function(request, response_characloud_search){
     let search_string = request.body.q;
     try {
-        client.get(charaCloudServer + "api/characters?q="+search_string, function (data, response) {
+        const encoded_search_string = encodeURIComponent(search_string);
+        client.get(charaCloudServer + "/api/characters?q="+encoded_search_string, function (data, response) {
             if (response.statusCode === 200) {
                 response_characloud_search.send(data);
             } else {
-                response_characloud_search.sendStatus(500);
+                return response_characloud_search.status(400).json(data);
             }
         }).on('error', function (err) {
             console.log(err);
             console.log("No connection to charaCloud");//console.log(err);
-            response_characloud_search.sendStatus(500);
+            return response_characloud_search.status(400).json({error: err.toString()});
         });
     } catch (err) {
         console.log(err);
-        response_characloud_search.sendStatus(500);
+        return response_characloud_search.status(400).json({error: err.toString()});
     }
 });
 
@@ -215,12 +232,20 @@ router.post("/characters/prepublish", urlencodedParser, async function(request, 
     try {
         if (!request.body)
             return response.sendStatus(400);
-
-        let img_name = '';
-        let filedata = request.file;
-            //console.log(filedata.filename);
-        var format = request.body.file_type;
-        const sourcePath = './uploads/' + filedata.filename;
+        let filename;
+        let sourcePath;
+        let type; // upload, select //upload file, select from local library
+        if(request.file){
+            type = 'upload';
+            let filedata = request.file;
+            filename = filedata.filename;
+            sourcePath = './uploads/' + filename;
+        }else{
+            type = 'select';
+            filename = request.body.filename_local;
+            filename = filename.replace(`.${characterFormat}`, '');
+            sourcePath = `./public/characters/${filename}.${characterFormat}`;
+        }
         const stats = fs.statSync(sourcePath);
         const fileSizeInBytes = stats.size;
         const fileSizeInKB = fileSizeInBytes / 1024;
@@ -238,8 +263,12 @@ router.post("/characters/prepublish", urlencodedParser, async function(request, 
                     }
 
                     // Rename the file
-                    const destPath = `./public/cardeditor/${filedata.filename}.${metadata.format}`; // Destination file path
-                    fs.renameSync(sourcePath, destPath);
+                    const destPath = `./public/cardeditor/${filename}.${metadata.format}`; // Destination file path
+                    if(type === 'upload'){
+                        fs.renameSync(sourcePath, destPath);
+                    }else if(type === 'select'){
+                        fs.copyFileSync(sourcePath, destPath);
+                    }
 
                     //console.log(`Renamed ${sourcePath} to ${destPath}`);
                     let character_json_data = false;
@@ -254,7 +283,7 @@ router.post("/characters/prepublish", urlencodedParser, async function(request, 
 
                             character_data = json5.parse(character_json_data);
                             if (character_data.name !== undefined) {
-                                return response.status(200).json({character: character_json_data, image: `${filedata.filename}.${metadata.format}`, image_size: fileSizeInKB});
+                                return response.status(200).json({character: character_json_data, image: `${filename}.${metadata.format}`, image_size: fileSizeInKB});
                             } else {
                                 throw new Error('Failed to read character data');
                             }
@@ -284,20 +313,21 @@ router.post("/characters/publish", jsonParser, async function (request, response
         let character_data = request.body.character_data;
         let character_img = request.body.character_img;
         const type = request.body.type; //create_online, edit_online
-        
+        let target_filename = request.body.target_filename; // target file name for update character from editor
         
         let user_name;
-        let publick_id_short;
+        let public_id_short;
         if(type === 'edit_online'){
             if(character_data.user_name !== undefined && character_data.public_id_short !== undefined){
                 user_name = character_data.user_name;
-                publick_id_short = character_data.public_id_short;
+                public_id_short = character_data.public_id_short;
             }else{
                 throw new Error(`Parameters for 'edit_online' type did not setup`);
             }
         }
         let new_file = uuid.v4().replace(/-/g, '');
-        
+
+
         const character_data_json = JSON.stringify(charaFormatData(character_data));
         if (type === 'create_online' || type === 'edit_online') {
             await charaWrite(`./public/cardeditor/${character_img}`, character_data_json, `./public/cardeditor/${new_file}`, 'webp');
@@ -315,7 +345,7 @@ router.post("/characters/publish", jsonParser, async function (request, response
             if (type === 'create_online') {
                 url = charaCloudServer + '/api/characters';
             } else if (type === 'edit_online') {
-                url = charaCloudServer + `/api/characters/${user_name}/${publick_id_short}`;
+                url = charaCloudServer + `/api/characters/${user_name}/${public_id_short}`;
             }
             needle.post(url, data, {multipart: true, headers: headers, timeout: 10000}, function (err, result) {
                 if (err && err.code === 'ECONNRESET') {
@@ -333,10 +363,14 @@ router.post("/characters/publish", jsonParser, async function (request, response
                 }
                 return response_characloud_publish.status(200).json(result.body);
             });
-        }else if(type === 'save_locally'){
+        }else if(type === 'add_locally'){
             new_file = setCardName(character_data.name);
-            await charaWrite(`./public/cardeditor/${character_img}`, character_data_json, `./public/characters/${new_file}`, 'webp');
+            await charaWrite(`./public/cardeditor/${character_img}`, character_data_json, `./public/characters/${new_file}`, characterFormat);
             return response_characloud_publish.status(200).json({file_name: new_file});
+        }else if(type === 'update_locally'){
+            target_filename = target_filename.replace(`.${characterFormat}`,'');
+            await charaWrite(`./public/cardeditor/${character_img}`, character_data_json, `./public/characters/${target_filename}`, characterFormat);
+            return response_characloud_publish.status(200).json({file_name: target_filename});
         }
     } catch (err) {
         console.log(err);
@@ -371,6 +405,7 @@ router.post("/user/characters", jsonParser, function (request, response_characlo
 });
 router.post("/characters/get", jsonParser, function (request, response_characloud_character) {
     try {
+        
         let {user_name, public_id_short} = request.body;
         client.get(charaCloudServer + `/api/characters/${user_name}/${public_id_short}`, function (data, response) {
             try {
@@ -569,6 +604,57 @@ router.post("/users/avatar", urlencodedParser, async function (request, response
         return response.status(400).json({error: err.toString()});
     }
 
+});
+
+router.post("/category/characters", jsonParser, function (request, response_characloud_category) {
+    try {
+        let {category} = request.body;
+        client.get(charaCloudServer + `/api/tags/${category}/characters`, function (data, response) {
+            try {
+                if (response.statusCode === 200) {
+                    return response_characloud_category.status(200).json(data);
+                } else {
+                    console.log(data);
+                    return response_characloud_category.status(response.statusCode).json(data);
+                }
+            } catch (err) {
+                console.log(err);
+                return response_characloud_category.sendStatus(500);
+            }
+        }).on('error', function (err) {
+            console.log(err);
+            //console.log("No connection to charaCloud");//console.log(err);
+            return response_characloud_category.sendStatus(504);
+        });
+    } catch (err) {
+        console.log(err);
+        return response_characloud_category.status(400).json({error: err.toString()});
+    }
+});
+router.post("/categories", jsonParser, function (request, response_characloud_category) {
+    try {
+        let {category} = request.body;
+        client.get(charaCloudServer + `/api/tags`, function (data, response) {
+            try {
+                if (response.statusCode === 200) {
+                    return response_characloud_category.status(200).json(data);
+                } else {
+                    console.log(data);
+                    return response_characloud_category.status(response.statusCode).json(data);
+                }
+            } catch (err) {
+                console.log(err);
+                return response_characloud_category.sendStatus(500);
+            }
+        }).on('error', function (err) {
+            console.log(err);
+            //console.log("No connection to charaCloud");//console.log(err);
+            return response_characloud_category.sendStatus(504);
+        });
+    } catch (err) {
+        console.log(err);
+        return response_characloud_category.status(400).json({error: err.toString()});
+    }
 });
 function generateMainKey(password) {
     ALPHA_KEY = crypto.createHash('sha256').update('ALPHA_KEY_' + password).digest('hex');
