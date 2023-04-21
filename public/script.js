@@ -1778,7 +1778,7 @@ $(document).ready(function(){
             } else {
                 $('#character_online_editor').val('🢤 Check Online');
             }
-            $('#chat_header_char_info').html(`designed by <a user_name="${Characters.id[$(this).attr("chid")].user_name}" class="chat_header_char_info_user_name">@${Characters.id[$(this).attr("chid")].user_name}</a>`);
+            $('#chat_header_char_info').html(`designed by <a user_name="${Characters.id[$(this).attr("chid")].user_name}" class="chat_header_char_info_user_name">${Characters.id[$(this).attr("chid")].user_name_view}</a>`);
         } else {
             $('#character_online_editor').val('🢤 Publish Card');
             $('#chat_header_char_info').text('designed by User');
