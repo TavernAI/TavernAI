@@ -179,21 +179,19 @@ export class UIWorldInfoMain extends Resizable {
     createEntry(index, data) {
         let row = document.createElement("div");
         row.classList.add("row");
-        row.index = index;
-        row.uid = data.uid;
 
         row.appendChild(UIFactory.createButton({
-            image: "img/arrow_up.png", class: "inline button-up", title: "Move up", onclick: this.onMoveItem.bind(this, { by: -1 })
+            image: "img/arrow_up.png", class: "inline button-up", title: "Move up", onclick: this.onMoveItem.bind(this, { uid: data.uid, by: -1 })
         }));
         row.appendChild(UIFactory.createButton({
-            image: "img/arrow_down.png", class: "inline button-down", title: "Move down", onclick: this.onMoveItem.bind(this, { by: 1 })
+            image: "img/arrow_down.png", class: "inline button-down", title: "Move down", onclick: this.onMoveItem.bind(this, { uid: data.uid, by: 1 })
         }));
 
         let tags = document.createElement("span");
             tags.classList.add("tags");
             tags.appendChild(document.createTextNode(data.key.join(", ")));
             tags.setAttribute("title", "Edit entry");
-            tags.onclick = this.onOpenDetail.bind(this, {});
+            tags.onclick = this.onOpenDetail.bind(this, { uid: data.uid });
         row.appendChild(tags);
 
         let tokens = document.createElement("span");
@@ -202,11 +200,8 @@ export class UIWorldInfoMain extends Resizable {
             tokens.innerHTML = this.getTokenCount(data).toString();
         row.appendChild(tokens);
 
-        /*row.appendChild(UIFactory.createButton({
-            image: "img/clone.png", class: "inline", title: "Create a copy", onclick: this.onCloneItem.bind(this, { })
-        }));*/
         row.appendChild(UIFactory.createButton({
-            image: "img/del_mes.png", class: "inline", title: "Delete", onclick: this.onDeleteItem.bind(this, { })
+            image: "img/del_mes.png", class: "inline", title: "Delete", onclick: this.onDeleteItem.bind(this, { uid: data.uid })
         }));
 
         return row;
@@ -218,7 +213,7 @@ export class UIWorldInfoMain extends Resizable {
         row.classList.add("add");
         row.appendChild(document.createTextNode("Add new entry..."));
         row.onclick = function(event) {
-            this.onAddEntry({ index: event.target.index, uid: event.target.uid }, event);
+            this.onAddEntry({}, event);
         }.bind(this);
         return row;
     }
@@ -232,11 +227,7 @@ export class UIWorldInfoMain extends Resizable {
 
     evaluateOrder() {
         for(let i = 0; i < this.editor.children.length; i++) {
-            if(this.data.entries[this.editor.children[i].index]) {
-                this.data.entries[this.editor.children[i].index].order = i;
-            }
             for(let j = 0; j < this.editor.children[i].children.length; j++) {
-                this.editor.children[i].index = i;
                 const child = this.editor.children[i].children[j];
                 if(child.classList.contains("button-up")) {
                     if(i === 0) {
@@ -246,30 +237,13 @@ export class UIWorldInfoMain extends Resizable {
                     }
                 }
                 if(child.classList.contains("button-down")) {
-                    if(i === this.editor.children.length-1) {
+                    if(i === this.editor.children.length-2) {
                         child.setAttribute("disabled", "disabled");
                     } else {
                         child.removeAttribute("disabled");
                     }
                 }
             }
-        }
-        if(this.data.entries) {
-            let uidList = [];
-            let max = 0;
-            for(let key in this.data.entries) {
-                uidList.push(this.data.entries[key].uid);
-                max++;
-            }
-            uidList.sort();
-            let i = 0;
-            for(; i < uidList.length; i++) {
-                if(uidList[i] !== i) {
-                    break;
-                }
-            }
-            this.adder.index = max;
-            this.adder.uid = i;
         }
     }
 
@@ -279,44 +253,48 @@ export class UIWorldInfoMain extends Resizable {
 
     onMoveItem(options, event) {
         let row = this.getRow(event.target);
-        options.index = options.index !== undefined ? options.index : row.index;
-        options.to = options.to !== undefined ? options.to : options.by !== undefined ? options.index + options.by : undefined;
-        if(options.to === undefined) { return; }
-        if(options.to < 0 || options.to >= this.data.length) { return; }
-        let arr = this.entriesArray;
-        let item = arr.splice(options.index, 1)[0];
-        arr.splice(options.to > options.index ? options.to : options.to+1, 0, item);
-        arr.forEach((v, i) => { v.order = i; });
-        this.entriesArray = arr;
-        if(options.to >= options.index) {
-            row.parentNode.insertBefore(row, row.nextSibling.nextSibling);
-        } else {
-            if(row.previousSibling) {
-                row.parentNode.insertBefore(row, row.previousSibling);
+        let fromOrder = this.data.entries[options.uid].order;
+        let toOrder = options.to !== undefined ? options.to : options.by !== undefined ? fromOrder + options.by : undefined;
+        if(toOrder === undefined) { return; }
+        let max = 0;
+        for(let uid in this.data.entries) {
+            max++;
+        }
+        let index = 0;
+        let sorted = this.entriesArray.sort((a, b) => (a.order !== undefined ? a.order : 9999) - (b.order !== undefined ? b.order : 9999));
+        for(let i = 0; i < sorted.length; i++) {
+            if(sorted[i].uid == options.uid) {
+                index = i;
+                break;
             }
         }
-        this.evaluateOrder();
-        this.save();
-    }
+        let delta = (toOrder-fromOrder);
+        let targetIndex = index + delta;
 
-    /* obsolete */
-    onCloneItem(options, event) {
-        if(!confirm("Make a copy of this item?")) { return; }
-        let row = this.getRow(event.target);
-        options.index = options.index !== undefined ? options.index : row.index;
-        let clone = JSON.parse(JSON.stringify(this.data.entries[options.index]));
-        let arr = this.entriesArray;
-            arr.splice(options.index, 0, clone);
-        this.entriesArray = arr;
-        row.parentNode.insertBefore(row.cloneNode(true), row);
-        this.evaluateOrder();
+        if(toOrder < 0 || toOrder > max) { return; }
+
+        for(let uid in this.data.entries) {
+            const entry = this.data.entries[uid];
+            if(parseInt(uid) === options.uid) {
+                entry.order = toOrder;
+            } else if((delta > 0 && entry.order > fromOrder) || (delta < 0 && entry.order < fromOrder)) {
+                entry.order -= delta;
+            }
+        }
+        if(targetIndex >= index) {
+            row.parentNode.insertBefore(row, row.parentNode.children[targetIndex+1]);
+        } else {
+            if(row.previousSibling) {
+                row.parentNode.insertBefore(row, row.parentNode.children[targetIndex]);
+            }
+        }
         this.save();
+        this.evaluateOrder();
     }
 
     onDeleteItem(options, event) {
         if(!confirm("Are you sure you want to delete this item?")) { return; }
         let row = this.getRow(event.target);
-        options.uid = options.uid !== undefined ? options.uid : row.uid;
         if(!this.data.entries[options.uid]) {
             console.error("Cannot find uid: " + options.uid);
             return;
@@ -370,15 +348,12 @@ export class UIWorldInfoMain extends Resizable {
     }
 
     onOpenDetail(options, event) {
-        let row = this.getRow(event.target);
-        options.index = options.index !== undefined ? options.index : row.index;
-        const entry = this.data.entries[options.index];
         for(let key in this.details) {
             this.details[key].unfocus();
         }
-        if(!this.details[entry.uid]) {
-            this.details[entry.uid] = new UIWorldInfoDetails({
-                uid: "worldinfo-" + this.normalizeName(this.worldName) + "-" + entry.uid + "-details",
+        if(!this.details[options.uid]) {
+            this.details[options.uid] = new UIWorldInfoDetails({
+                uid: "worldinfo-" + this.normalizeName(this.worldName) + "-" + options.uid + "-details",
                 root: this.detailsMaster.cloneNode(true),
                 top: 0.3,
                 left: 0.3,
@@ -386,26 +361,32 @@ export class UIWorldInfoMain extends Resizable {
                 bottom: 0.7,
 
                 master: this,
-                index: entry.uid,
+                index: options.uid,
                 save: function(entry) {
                     this.save();
                     event.target.innerHTML = entry.key.join(", ");
                     if(event.target.nextElementSibling) {
-                        event.target.nextElementSibling.innerHTML = this.getTokenCount(entry).toString();
+                        event.target.nextElementSibling.innerHTML = this.getTokenCount(this.data.entries[options.uid]).toString();
                     }
-                }.bind(this, entry)
+                }.bind(this, this.data.entries[options.uid])
             });
-            this.root.parentNode.appendChild(this.details[entry.uid].root);
+            this.root.parentNode.appendChild(this.details[options.uid].root);
         }
-        this.details[entry.uid].show();
-        this.details[entry.uid].focus();
+        this.details[options.uid].show();
+        this.details[options.uid].focus();
     }
 
     onAddEntry(options, event) {
         let row = this.getRow(event.target);
-        options.index = options.index !== undefined ? options.index : row.index;
-        this.data.entries[options.index] = {
-            uid: options.uid,
+        let freeUid = 0;
+        for(let uid in this.data.entries) {
+            if(uid != freeUid) {
+                break;
+            }
+            freeUid++;
+        }
+        this.data.entries[freeUid] = {
+            uid: freeUid,
             key: [],
             keysecondary: [],
             comment: "",
@@ -414,15 +395,15 @@ export class UIWorldInfoMain extends Resizable {
             selective: false,
             order: this.entriesArray.length,
         };
-        row.index = options.index+1;
-        let newRow = this.createEntry(options.index, this.data.entries[options.index]);
+        let newRow = this.createEntry(options.index, this.data.entries[freeUid]);
         row.parentNode.insertBefore(newRow, row);
-        if(this.details[options.index]) {
-            this.details[options.index].destroy();
-            delete this.details[options.index];
+        if(this.details[freeUid]) {
+            this.details[freeUid].destroy();
+            delete this.details[freeUid];
         }
         this.save();
-        this.onOpenDetail({ index: options.uid }, event);
+        this.evaluateOrder();
+        this.onOpenDetail({ uid: freeUid }, { target: this.findChildWithClass("tags", newRow) });
     }
 
     /* requests */
