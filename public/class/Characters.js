@@ -1,4 +1,4 @@
-import { token, default_avatar } from '../script.js';
+import { token, default_avatar, vl } from '../script.js';
 
 
 export class CharactersClass {
@@ -35,7 +35,27 @@ export class CharactersClass {
                     for (var i = 0; i < load_ch_count.length; i++) {
                         self.characters[i] = [];
                         self.characters[i] = getData[i];
-                        self.characters[i]['name'] = window.DOMPurify.sanitize(self.characters[i]['name']);
+                        if(self.characters[i]['name'] !== undefined)
+                            self.characters[i]['name'] = vl(self.characters[i]['name']);
+                        
+                        if(self.characters[i]['user_name'] !== undefined)
+                            self.characters[i]['user_name'] = vl(self.characters[i]['user_name']);
+                        
+                        if(self.characters[i]['user_name_view'] !== undefined)
+                            self.characters[i]['user_name_view'] = vl(self.characters[i]['user_name_view']);
+                        
+                        if(self.characters[i]['public_id'] !== undefined)
+                            self.characters[i]['public_id'] = vl(self.characters[i]['public_id']);
+                        
+                        if(self.characters[i]['public_id_short'] !== undefined)
+                            self.characters[i]['public_id_short'] = vl(self.characters[i]['public_id_short']);
+                        
+                        if(self.characters[i]['short_description'] !== undefined)
+                            self.characters[i]['short_description'] = vl(self.characters[i]['short_description']);
+                    
+                        if(self.characters[i]['personality'] !== undefined)
+                            self.characters[i]['personality'] = vl(self.characters[i]['personality']);
+                        
                         if (self.characters[i].add_date_local === undefined) {
                             self.characters[i].add_date_local = self.characters[i].create_date_local;
                         }
@@ -66,9 +86,9 @@ export class CharactersClass {
     }
     
     print(item){
-        let this_avatar = "characters/"+item.filename+"?v="+Date.now();
+        let this_avatar = "characters/"+vl(item.filename)+"?v="+Date.now();
         const id = this.getIDbyFilename(item.filename);
-        $("#rm_print_charaters_block").prepend('<div class=character_select chid='+id+'><div class=avatar><img src="'+this_avatar+'"></div><div class=ch_name_menu>'+item.name+'</div></div>');
+        $("#rm_print_charaters_block").prepend('<div class=character_select chid='+id+'><div class=avatar><img src="'+this_avatar+'"></div><div class=ch_name_menu>'+vl(item.name)+'</div></div>');
     }
     
     selectByArrayId(){

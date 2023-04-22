@@ -85,7 +85,7 @@
                 
                 <img id="character_published_popup_avatar" src="./img/fluffy.png">
                 <!--<label>Alex</label>-->
-                <h2>Character Published</h2>
+                <h2 class="character_published_popup_title">Character Published</h2>
                 <input type="submit" id="character_published_popup_button" class="submit_button" value="Go to Profile">
             </div>
         </div>
@@ -700,23 +700,23 @@
                             <label for="name-input">Name</label>
                             <input type="text" id="name-input" placeholder="The character's name" />
                         </div>
-                        <div class="tag-form">
+                        <div class="category-form">
                             <div id="nsfw_toggle_block" class="menu_toggle">
                                 <div class="toggle_label">NSFW</div>
                                 <input id="editor_nsfw" type="checkbox" class="toggle_checkbox">
                             </div>
-                            <div class="tag-input">
-                                <input type="text" id="tag-input-field" placeholder="Enter a category">
+                            <div class="category-input">
+                                <input type="text" id="category-input-field" placeholder="Enter a category">
                             </div>
-                            <div class="tag-list">
-                                <!--<div class="tag character-tag">Responsive design <span class="tag-remove">x</span></div>-->
+                            <div class="category-list">
+                                <!--<div class="category character-category">Responsive design <span class="category-remove">x</span></div>-->
                             </div>
-                            <div class="popular-tags">
-                                <div class="popular-tags-title">Popular categories</div>
-                                <div class="popular-tags-list">
-                                    <div class="tag popular-tag">+ Anime</div>
-                                    <div class="tag popular-tag">+ Manga</div>
-                                    <div class="tag popular-tag">+ Games</div>
+                            <div class="popular-categories">
+                                <div class="popular-categories-title">Popular categories</div>
+                                <div class="popular-categories-list">
+                                    <div class="category popular-category">+ Anime</div>
+                                    <div class="category popular-category">+ Manga</div>
+                                    <div class="category popular-category">+ Games</div>
                                 </div>
                             </div>
                         </div>
@@ -781,6 +781,18 @@
                         </div>
                     </div>
                 </div>
+                <div class="new-mod-character-gallery">
+                    <h3 class="gallery-title">Moderation New</h3>
+                    <div class="new-mod-character-gallery-content">
+
+                    </div>
+                </div>
+                <div class="edit-mod-character-gallery">
+                    <h3 class="gallery-title">Moderation Edit</h3>
+                    <div class="edit-mod-character-gallery-content">
+
+                    </div>
+                </div>
                 <div class="character-gallery">
                     <h3 class="character-gallery-title">Characters</h3>
                     <div class="character-gallery-content">
@@ -792,14 +804,7 @@
                         <button id="user_profile_next_button">Next</button>
                     </div>
                 </div>
-                <div class="moderation-gallery">
-                    <h3 class="gallery-title">Characters in Moderation</h3>
-                    <div class="characters-in-moderation">
-                        <img src="../characters/Megumin.webp" alt="Character 1">
-                        <img src="../characters/Megumin.webp" alt="Character 2">
-                        <img src="../characters/Megumin.webp" alt="Character 3">
-                    </div>
-                </div>
+                
             </div>
             <div id="characloud_category">
                 

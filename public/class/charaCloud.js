@@ -16,6 +16,7 @@ class charaCloudClient {
         this.cardeditor_filename_local;
         this.delete_character_user_name;
         this.delete_character_public_id_short;
+        this.delete_character_type;
         this.handleError = this.handleError.bind(this);
         this.validateUsername = this.validateUsername.bind(this);
         this.getEditorFields = this.getEditorFields.bind(this);
@@ -353,7 +354,7 @@ class charaCloudClient {
             });
         });
     }
-    getCharacter(user_name, public_id_short){
+    getCharacter(user_name, public_id_short, mode = 'default'){
         const self = this;
         return new Promise((resolve, reject) => {
             jQuery.ajax({    
@@ -361,7 +362,8 @@ class charaCloudClient {
                 url: `/api/characloud/characters/get`, // 
                 data: JSON.stringify({
                             'user_name': user_name,
-                            'public_id_short': public_id_short
+                            'public_id_short': public_id_short,
+                            'mode': mode
                         }),
                 beforeSend: function(){
                     //$('.load_icon').children('.load_icon').css('display', 'inline-block');
@@ -435,12 +437,12 @@ class charaCloudClient {
         character_data.mes_example = $('#dialogues-example-textarea').val();
         character_data.first_mes = $('#first-message-textarea').val();
         character_data.nsfw = !!$('#editor_nsfw').prop('checked');
-        let tagsArray = [];
-        $('.character-tag').each(function () {
-            var tag = $(this).text().replace('x', '').trim();
-            tagsArray.push(tag);
+        let categoriesArray = [];
+        $('.character-category').each(function () {
+            var category = $(this).text().replace('x', '').trim();
+            categoriesArray.push(category);
         });
-        character_data.tags = tagsArray;
+        character_data.categories = categoriesArray;
         return character_data;
     }
     changeCharacterAvatar(e) {
@@ -466,6 +468,7 @@ class charaCloudClient {
                 contentType: false,
                 processData: false,
                 success: function (data) {
+                    data.image = window.DOMPurify.sanitize(data.image);
                     $('.characloud_character_page_avatar').children('img').attr('src', `./cardeditor/${data.image}`);
                     self.cardeditor_image = data.image;
                     resolve(data);
@@ -481,7 +484,7 @@ class charaCloudClient {
             });
         });
     }
-    deleteCharacter(user_name, public_id_short){
+    deleteCharacter(user_name, public_id_short, mode = 'default'){
         const self = this;
         return new Promise((resolve, reject) => {
             jQuery.ajax({    
@@ -489,7 +492,8 @@ class charaCloudClient {
                 url: `/api/characloud/characters/delete`, // 
                 data: JSON.stringify({
                             'user_name': user_name,
-                            'public_id_short': public_id_short
+                            'public_id_short': public_id_short,
+                            'mode': mode
                         }),
                 beforeSend: function(){
                     //$('.load_icon').children('.load_icon').css('display', 'inline-block');
@@ -575,9 +579,23 @@ class charaCloudClient {
             });
         });
     }
-    getCharacterDivBlock(character, charaCloudServer){
+    getCharacterDivBlock(character, charaCloudServer, type = 'default'){
+        character.user_name = window.DOMPurify.sanitize(character.user_name);
+        character.public_id_short = window.DOMPurify.sanitize(character.public_id_short);
         let cahr_link = `<img src="../img/vdots.png">`;
-        return `<div public_id="${character.public_id}" public_id_short="${character.public_id_short}" user_name="${character.user_name}" class="characloud_character_block"><div class="characloud_character_block_card"><div class="avatar"><img data-src="${charaCloudServer}/${character.user_name}/${character.public_id_short}.webp" class="lazy"></div><div user_name="${character.user_name}" public_id_short="${character.public_id_short}" class="characloud_character_block_page_link">${cahr_link}</div><div user_name="${character.user_name}" class="characloud_character_block_user_name">@${character.user_name_view}</div><div class="characloud_character_block_name">${character.name}</div><div class="characloud_character_block_description"></div></div></div>`;
+        let img_url = `${charaCloudServer}/${character.user_name}/${character.public_id_short}.webp`;
+        let char_link_mode = 'default';
+            if(type === 'moderation'){
+                img_url = `${charaCloudServer}/users/${character.user_name}/moderation/${character.public_id_short}.webp?v=${Date.now()}`;
+                if(parseInt(character.status) === 4 && Boolean(character.moderation) === true){
+                char_link_mode = 'moderation_edit';
+            }
+        }
+        character.public_id = window.DOMPurify.sanitize(character.public_id);
+        character.public_id_short = window.DOMPurify.sanitize(character.public_id_short);
+        character.name = window.DOMPurify.sanitize(character.name);
+        character.user_name_view = window.DOMPurify.sanitize(character.user_name_view);
+        return `<div public_id="${character.public_id}" public_id_short="${character.public_id_short}" user_name="${character.user_name}" class="characloud_character_block"><div class="characloud_character_block_card"><div class="avatar"><img data-src="${img_url}" class="lazy"></div><div user_name="${character.user_name}" public_id_short="${character.public_id_short}" mode=${char_link_mode} class="characloud_character_block_page_link">${cahr_link}</div><div user_name="${character.user_name}" class="characloud_character_block_user_name">@${character.user_name_view}</div><div class="characloud_character_block_name">${character.name}</div><div class="characloud_character_block_description"></div></div></div>`;
     }
     validateUsername(user_name) {
         const regex = /^[A-Za-z0-9_\s]{2,32}$/;

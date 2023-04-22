@@ -873,7 +873,7 @@
 
 
 
-.moderation-gallery {
+.new-mod-character-gallery, .edit-mod-character-gallery {
     margin-top: 20px;
     display: none;
 }
@@ -1058,7 +1058,7 @@
 
 
 
-/* Tags */
+/* Categories */
 #nsfw_toggle_block {
     position: absolute;
     grid-template-columns: 60px 55px !important;
@@ -1084,7 +1084,7 @@
     height: 18px;
     width: 18px;
 }
-.tag-form {
+.category-form {
   background-color: #282b40;
   padding: 10px;
   border-radius: 5px;
@@ -1094,12 +1094,12 @@
   position: relative;
 }
 
-.tag-input {
+.category-input {
   display: flex;
   align-items: center;
 }
 
-#tag-input-field {
+#category-input-field {
   flex: 1;
   background-color: transparent;
   border: none;
@@ -1108,13 +1108,13 @@
   color: #fff;
 }
 
-.tag-list {
+.category-list {
   display: flex;
   flex-wrap: wrap;
   margin-top: 10px;
 }
 
-.tag {
+.category {
   display: inline-block;
   padding: 5px 10px;
   margin: 5px;
@@ -1123,33 +1123,34 @@
   cursor: pointer;
 }
 
-.popular-tag {
-  background-color: #007bff;
+.popular-category {
+  background-color: #007bff !important;
+  border: 1px solid #007bff !important;
 }
 
-.character-tag, .show-tag {
+.character-category, .show-category {
   background-color: #6c757d;
 }
 
-.tag-remove {
+.category-remove {
   margin-left: 5px;
   cursor: pointer;
   font-size: 12px;
   color: #fff;
 }
 
-.popular-tags {
+.popular-categories {
   margin-top: 7px;
   display: none;
 }
 
-.popular-tags-title {
+.popular-categories-title {
   font-size: 16px;
   color: #fff;
   margin-bottom: 10px;
 }
 
-.popular-tags-list {
+.popular-categories-list {
   display: flex;
   flex-wrap: wrap;
 }

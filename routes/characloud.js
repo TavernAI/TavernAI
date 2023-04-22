@@ -381,7 +381,12 @@ router.post("/characters/publish", jsonParser, async function (request, response
 router.post("/user/characters", jsonParser, function (request, response_characloud_user_characters) {
     try {
         let {name, page, perpage} = request.body;
-        client.get(charaCloudServer + `/api/users/${name}/characters?perpage=${perpage}&page=${page}`, function (data, response) {
+        var options = {
+            headers: {
+                'Authorization': 'Bearer ' + MASTER_TOKEN
+            }
+        };
+        client.get(charaCloudServer + `/api/users/${name}/characters?perpage=${perpage}&page=${page}`, options, function (data, response) {
             try {
                 if (response.statusCode === 200) {
                     return response_characloud_user_characters.status(200).json(data);
@@ -406,13 +411,19 @@ router.post("/user/characters", jsonParser, function (request, response_characlo
 router.post("/characters/get", jsonParser, function (request, response_characloud_character) {
     try {
         
-        let {user_name, public_id_short} = request.body;
+        let {user_name, public_id_short, mode} = request.body;
         client.get(charaCloudServer + `/api/characters/${user_name}/${public_id_short}`, function (data, response) {
             try {
                 if (response.statusCode === 200) {
                     //return response_characloud_character.status(200).json(data);
                     let public_id = request.body.public_id;
-                    const url = `${charaCloudServer}/${user_name}/${public_id_short}.webp`;
+                    let url;
+                    if(mode === 'moderation_edit'){
+                        url = `${charaCloudServer}/users/${user_name}/moderation/${public_id_short}.webp`;
+                    }else{
+                        url = `${charaCloudServer}/${user_name}/${public_id_short}.webp`;
+                    }
+
                     const img_card_name = uuid.v4().replace(/-/g, '') + '.webp';
                     const filename = path.join('public', 'cardeditor', img_card_name);
                     //let this_chara_data = charaRead(filename);
@@ -476,8 +487,8 @@ router.post("/characters/delete", jsonParser, function (request, response_charac
                 'Authorization': 'Bearer ' + MASTER_TOKEN
             }
         };
-        let {user_name, public_id_short} = request.body;
-        client.delete(charaCloudServer + `/api/characters/${user_name}/${public_id_short}`, options, function (data, response) {
+        let {user_name, public_id_short, mode} = request.body;
+        client.delete(charaCloudServer + `/api/characters/${user_name}/${public_id_short}?mode=${mode}`, options, function (data, response) {
             try {
                 if (response.statusCode === 200) {
                         return response_characloud_delete.status(200).json(data);
@@ -609,7 +620,7 @@ router.post("/users/avatar", urlencodedParser, async function (request, response
 router.post("/category/characters", jsonParser, function (request, response_characloud_category) {
     try {
         let {category} = request.body;
-        client.get(charaCloudServer + `/api/tags/${category}/characters`, function (data, response) {
+        client.get(charaCloudServer + `/api/categories/${category}/characters`, function (data, response) {
             try {
                 if (response.statusCode === 200) {
                     return response_characloud_category.status(200).json(data);
@@ -634,7 +645,7 @@ router.post("/category/characters", jsonParser, function (request, response_char
 router.post("/categories", jsonParser, function (request, response_characloud_category) {
     try {
         let {category} = request.body;
-        client.get(charaCloudServer + `/api/tags`, function (data, response) {
+        client.get(charaCloudServer + `/api/categories`, function (data, response) {
             try {
                 if (response.statusCode === 200) {
                     return response_characloud_category.status(200).json(data);

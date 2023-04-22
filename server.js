@@ -452,7 +452,7 @@ function charaFormatData(data){
     if(name.length === 0){
         name = 'null';
     }
-    let tags;
+    let categories;
     let create_date_online;
     let edit_date_online;
     if(data.create_date_online === undefined){
@@ -484,10 +484,10 @@ function charaFormatData(data){
         add_date_local = data.add_date_local;
     }
     
-    if(data.tags === undefined){
-        tags = [];
+    if(data.categories === undefined){
+        categories = [];
     }else{
-        tags = data.tags;
+        categories = data.categories;
     }
     
     if(data.nsfw === undefined){
@@ -496,7 +496,7 @@ function charaFormatData(data){
         data.nsfw = true;
     }
     
-    let char = {public_id: checkCharaProp(data.public_id), public_id_short: checkCharaProp(data.public_id_short), user_name: checkCharaProp(data.user_name), user_name_view: checkCharaProp(data.user_name_view), name: name, description: checkCharaProp(data.description), short_description: checkCharaProp(data.short_description), personality: checkCharaProp(data.personality), first_mes: checkCharaProp(data.first_mes), chat: Date.now(), mes_example: checkCharaProp(data.mes_example), scenario: checkCharaProp(data.scenario), tags: tags, create_date_online: create_date_online, edit_date_online: edit_date_online, create_date_local: create_date_local, edit_date_local: edit_date_local, add_date_local: add_date_local, last_action_date: Date.now(), online: data.online, nsfw: data.nsfw};
+    let char = {public_id: checkCharaProp(data.public_id), public_id_short: checkCharaProp(data.public_id_short), user_name: checkCharaProp(data.user_name), user_name_view: checkCharaProp(data.user_name_view), name: name, description: checkCharaProp(data.description), short_description: checkCharaProp(data.short_description), personality: checkCharaProp(data.personality), first_mes: checkCharaProp(data.first_mes), chat: Date.now(), mes_example: checkCharaProp(data.mes_example), scenario: checkCharaProp(data.scenario), categories: categories, create_date_online: create_date_online, edit_date_online: edit_date_online, create_date_local: create_date_local, edit_date_local: edit_date_local, add_date_local: add_date_local, last_action_date: Date.now(), online: data.online, nsfw: data.nsfw};
     // Filtration
     if(data.public_id === undefined){ 
         char.public_id = uuid.v4().replace(/-/g, '');

@@ -7,7 +7,10 @@ import { CharactersClass } from './class/Characters.js';
 
 var token;
 var default_avatar = 'img/fluffy.png';
-export {token, default_avatar};
+function vl(text) { //Validation security function for html
+    return window.DOMPurify.sanitize(text);
+}
+export {token, default_avatar, vl};
 $(document).ready(function(){
     /*
     const observer = new MutationObserver(function(mutations) {
@@ -211,7 +214,8 @@ $(document).ready(function(){
     var css_send_form_display = $('<div id=send_form></div>').css('display');
 
     var colab_ini_step = 1;
-
+    
+    
     var requestTimeout = 60*1000;
     jQuery.ajax({
         type: "GET",
@@ -226,7 +230,7 @@ $(document).ready(function(){
             console.error(exception);
         }
     });
-
+    
     editorDescriptionWPP = new WPPEditor({
         container: $('#description_wppeditor')[0],
     });
@@ -661,12 +665,12 @@ $(document).ready(function(){
         messageText = messageFormating(messageText, characterName);
         let container = null;
         if(type !== 'swipe'){
-                container = $('<div class="mes" mesid='+count_view_mes+' ch_name="'+characterName+'" is_user="'+mes['is_user']+'"></div>')
+                container = $('<div class="mes" mesid='+count_view_mes+' ch_name="'+vl(characterName)+'" is_user="'+mes['is_user']+'"></div>')
                 container.append('<div class="for_checkbox"></div><input type="checkbox" class="del_checkbox">');       // delete checkbox
                 container.append('<div class="avatar"><img class="avt_img" src="'+avatarImg+'"></div>');                                // avatar
 
             let messageBlock = $('<div class="mes_block"></div>');
-                messageBlock.append('<div class="ch_name">'+characterName+'</div>');                                    // character name block
+                messageBlock.append('<div class="ch_name">'+vl(characterName)+'</div>');                                    // character name block
                 messageBlock.append('<select class="name_select"></select>');                                    // character name selector for editing
             container.append(messageBlock);
 
@@ -1778,7 +1782,7 @@ $(document).ready(function(){
             } else {
                 $('#character_online_editor').val('🢤 Check Online');
             }
-            $('#chat_header_char_info').html(`designed by <a user_name="${Characters.id[$(this).attr("chid")].user_name}" class="chat_header_char_info_user_name">${Characters.id[$(this).attr("chid")].user_name_view}</a>`);
+            $('#chat_header_char_info').html(`designed by <a user_name="${Characters.id[$(this).attr("chid")].user_name}" class="chat_header_char_info_user_name">${vl(Characters.id[$(this).attr("chid")].user_name_view)}</a>`);
         } else {
             $('#character_online_editor').val('🢤 Publish Card');
             $('#chat_header_char_info').text('designed by User');
@@ -2120,6 +2124,21 @@ $(document).ready(function(){
         }
         if(popup_type == 'del_ch_characloud'){
             charaCloud.deleteCharacter(charaCloud.delete_character_user_name, charaCloud.delete_character_public_id_short)
+            .then(function (data) {
+                $(`div.characloud_character_block[public_id_short="${charaCloud.delete_character_public_id_short}"]`).remove();
+            })
+            .catch(function (error) {
+                console.log(error);
+                switch (error.status) {
+                    default:
+                        callPopup(`${error.msg}`, 'alert_error');
+                        return;
+                }
+            });
+            return;
+        }
+        if(popup_type == 'del_ch_characloud_from_edit_moderation'){
+            charaCloud.deleteCharacter(charaCloud.delete_character_user_name, charaCloud.delete_character_public_id_short, 'moderation_edit')
             .then(function (data) {
                 $(`div.characloud_character_block[public_id_short="${charaCloud.delete_character_public_id_short}"]`).remove();
             })
@@ -4276,7 +4295,7 @@ $(document).ready(function(){
                     if(mes.length > strlen){
                         mes = '...'+mes.substring(mes.length - strlen);
                     }
-                    $('#select_chat_div').append('<div class="select_chat_block" file_name="'+data[key]['file_name']+'"><div class=avatar><img src="characters/'+Characters.id[Characters.selectedID].filename+'"></div><div class="select_chat_block_filename">'+data[key]['file_name']+'</div><div class="select_chat_block_mes">'+mes+'</div></div>');
+                    $('#select_chat_div').append('<div class="select_chat_block" file_name="'+data[key]['file_name']+'"><div class=avatar><img src="characters/'+Characters.id[Characters.selectedID].filename+'"></div><div class="select_chat_block_filename">'+data[key]['file_name']+'</div><div class="select_chat_block_mes">'+vl(mes)+'</div></div>');
                     if(Characters.id[Characters.selectedID]['chat'] == data[key]['file_name'].replace('.jsonl', '')){
                         //children().last()
                         $('#select_chat_div').children(':nth-last-child(1)').attr('highlight', true);
@@ -4659,7 +4678,18 @@ $(document).ready(function(){
     });
     
     
-
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    //**************************************************************//
+    //**************************************************************//
     //**************************************************************//
     //**************************************************************//
     //**************************CHARA CLOUD*************************//
@@ -4827,7 +4857,7 @@ $(document).ready(function(){
                 return;
 
             characloud_characters_rows[row_i] = 0;
-            $('#characloud_characters').append('<div category="' + category.title + '" class="characloud_characters_category_title">' + category.title.replace('$', '') + '</div><div characloud_row_id="' + row_i + '" id="characloud_characters_row' + row_i + '" class="characloud_characters_row"><div class="characloud_swipe_rigth"><img src="img/swipe_right.png"></div><div class="characloud_swipe_left"><img src="img/swipe_left.png"></div></div>');
+            $('#characloud_characters').append('<div category="' + vl(category.title) + '" class="characloud_characters_category_title">' + vl(category.title.replace('$', '')) + '</div><div characloud_row_id="' + row_i + '" id="characloud_characters_row' + row_i + '" class="characloud_characters_row"><div class="characloud_swipe_rigth"><img src="img/swipe_right.png"></div><div class="characloud_swipe_left"><img src="img/swipe_left.png"></div></div>');
             $('#characloud_characters_row' + row_i).append('<div class="characloud_characters_row_scroll"></div>');
 
             let row = $('#characloud_characters_row' + row_i);
@@ -4906,7 +4936,8 @@ $(document).ready(function(){
         
         const publicIdShort = $(this).attr('public_id_short');
         const userName = $(this).attr('user_name');
-        selectCharacterCardOnline(userName, publicIdShort);
+        const mode = $(this).attr('mode');
+        selectCharacterCardOnline(userName, publicIdShort, mode);
         
 
     });
@@ -4984,7 +5015,7 @@ $(document).ready(function(){
         let characloud_found_categories = [];
         let characloud_found_data = await charaCloud.searchCharacter(searchQuery);
         characloud_found_characters = characloud_found_data.characters;
-        characloud_found_categories = characloud_found_data.tags;
+        characloud_found_categories = characloud_found_data.categories;
         $('#characloud_search_block').css('display', 'block');
         $('#characloud_search_back_button').css('display', 'block');
         $('#characloud_characters').css('display', 'none');
@@ -5017,13 +5048,14 @@ $(document).ready(function(){
         });
         if(characloud_found_categories.length > 0){
             characloud_found_categories.forEach(function(item, i){
+                item.name = vl(item.name);
                 $('#characloud_search_result').append(`<div class="character_select" category="${item.name}"><div class=avatar></div><div style="color:rgb(168, 137, 97);" class="ch_name_menu">Category:</div><div class="ch_short_desctription">${item.name} (${item.count})</div></div>`);
 
             });
         }
         if(characloud_found_characters.length > 0){
             characloud_found_characters.forEach(function(item, i){
-                $('#characloud_search_result').append('<div public_id_short="'+item.public_id_short+'" public_id="'+item.public_id+'" user_name="'+item.user_name+'" class=character_select chid='+i+'><div class=avatar><img src="'+charaCloudServer+'/'+item.user_name+'/'+item.public_id_short+'.webp"></div><div class="ch_name_menu">'+item.name+'</div><div class="ch_short_desctription">'+item.short_description+'</div></div>');
+                $('#characloud_search_result').append('<div public_id_short="'+vl(item.public_id_short)+'" public_id="'+vl(item.public_id)+'" user_name="'+vl(item.user_name)+'" class=character_select chid='+i+'><div class=avatar><img src="'+charaCloudServer+'/'+vl(item.user_name)+'/'+vl(item.public_id_short)+'.webp"></div><div class="ch_name_menu">'+vl(item.name)+'</div><div class="ch_short_desctription">'+vl(item.short_description)+'</div></div>');
 
             });
         }
@@ -5393,6 +5425,12 @@ $(document).ready(function(){
         if (login !== undefined) {
             charaCloud.publishCharacter('create_online')
                     .then(function (data) {
+                        if(data.premod === true){
+                            $('.character_published_popup_title').text('Character added for moderation');
+                        }else{
+                            $('.character_published_popup_title').text('Character Published');
+                        }
+
                         $('#character_published_shadow').css('display', 'flex');
                         $('#character_published_shadow').css('opacity', 0.0);
                         $('#character_published_popup_avatar').attr('src', `./cardeditor/${charaCloud.cardeditor_image}`);
@@ -5426,7 +5464,11 @@ $(document).ready(function(){
         if (login !== undefined) {
             charaCloud.publishCharacter('edit_online')
                     .then(function (data) {
-                        callPopup(`Character updated`, 'alert');
+                        if(data.premod === true){
+                            callPopup(`Character update added for moderation`, 'alert');
+                        }else{
+                            callPopup(`Character updated`, 'alert');
+                        }
                         $('.update_locally_button').eq(0).data("params", {type: 'update_locally_with_publish', online_public_id: data.public_id}).click();
                     })
                     .catch(function (error) {
@@ -5444,7 +5486,7 @@ $(document).ready(function(){
         let card_data = {};
         if($(this).data("params") !== undefined){
             type = $(this).data("params").type;
-            online_public_id = $(this).data("params").online_public_id;
+            online_public_id = vl($(this).data("params").online_public_id);
             
             charaCloud.cardeditor_data.public_id = online_public_id;
             charaCloud.cardeditor_data.public_id_short = online_public_id.substr(0,6);
@@ -5478,7 +5520,7 @@ $(document).ready(function(){
         let card_data = {};
         if($(this).data("params") !== undefined){
             type = $(this).data("params").type;
-            online_public_id = $(this).data("params").online_public_id;
+            online_public_id = vl($(this).data("params").online_public_id);
             
             charaCloud.cardeditor_data.public_id = online_public_id;
             charaCloud.cardeditor_data.public_id_short = online_public_id.substr(0,6);
@@ -5565,7 +5607,7 @@ $(document).ready(function(){
             processData: false, 
             success: function(data){
                 //charaCloud.cardeditor_image = data.image;
-                //showCharacterCard(data, 'prepublish');
+
                 $('.characloud_user_profile_avatar_img').attr('src', `${charaCloudServer}/users/${login}/img/avatar.webp?v=${Date.now()}`);
 
             },
@@ -5595,6 +5637,7 @@ $(document).ready(function(){
         if(user_name === undefined){
             user_name = login;
         }
+        user_name = vl(user_name);
         charaCloud.user_profile_name = user_name;
         hideAll();
         $('#characloud_header_navigator_p2').css('display', 'inline-block');
@@ -5602,11 +5645,15 @@ $(document).ready(function(){
         $('.characloud_content').css('display', 'block');
         $('#characloud_user_profile_block').css('display', 'block');
         $('.character-gallery-content').html('');
+        $('.edit-mod-character-gallery-content').html('');
+        $('.new-mod-character-gallery-content').html('');
+
         $('.characloud_user_profile_avatar_img').attr('src', `${charaCloudServer}/users/${user_name.toLowerCase()}/img/avatar.webp`);
         $('.url-data').text(`Profile: ${charaCloudServer}/${user_name.toLowerCase()}`);
         $('.url-data').attr('url',`${charaCloudServer}/${user_name.toLowerCase()}`);
         charaCloud.getUserCharacters(user_name.toLowerCase(), charaCloud.user_profile_page)
             .then(function (data) {
+                data.name_view = vl(data.name_view);
                 let user_count_pages = Math.ceil(data.charactersCount / charaCloud.max_user_page_characters_count);
                 if (user_count_pages === 0) {
                     user_count_pages = 1;
@@ -5630,16 +5677,65 @@ $(document).ready(function(){
                 $('#characloud_header_navigator_p2').text(data.name_view);
                 $('#user_profile_info').children('.username').children('.username_text').text(data.name_view);
                 $('#characloud_header_navigator_p2').text(data.name_view);
-                if (data.characters[0].public_id !== null) {
-                    data.characters.forEach(function (item, i) {
-                        item.user_name = user_name.toLowerCase();
-                        item.user_name_view = user_name;
-                        let $lastAppendedElement = $('.character-gallery-content').append(charaCloud.getCharacterDivBlock(item, charaCloudServer)).last();
-                        //$('.character-gallery-content').append(`<div user_name="${data.name}" public_id_short="${item.public_id_short}" class="user_profile_character"><div class="user_profile_character_container"><img class="user_profile_character_img" src="${charaCloudServer}/${data.name}/${item.public_id_short}.webp"><img class="user_profile_character_delete" src="./img/cross.png"></div></div>`);
-
-                        $('.character-gallery-content .characloud_character_block  .characloud_character_block_card').last().append('<img class="user_profile_character_delete" src="./img/cross.png">');
-                    });
-                    $('.lazy').lazyLoadXT({edgeX:500, edgeY:500});
+                if(data.characters[0] !== undefined){
+                    if (data.characters[0].public_id !== null) {
+                        // Characters Gallery
+                        data.characters.forEach(function (item, i) {
+                            item.moderation = Boolean(item.moderation);
+                            item.user_name = user_name.toLowerCase();
+                            item.user_name_view = user_name;
+                            if(item.status === 4){
+                                let $lastAppendedElement = $('.character-gallery-content').append(charaCloud.getCharacterDivBlock(item, charaCloudServer)).last();
+                                //$('.character-gallery-content').append(`<div user_name="${data.name}" public_id_short="${item.public_id_short}" class="user_profile_character"><div class="user_profile_character_container"><img class="user_profile_character_img" src="${charaCloudServer}/${data.name}/${item.public_id_short}.webp"><img class="user_profile_character_delete" src="./img/cross.png"></div></div>`);
+                            
+                                if(login === user_name.toLowerCase()){
+                                    $('.character-gallery-content .characloud_character_block  .characloud_character_block_card').last().append('<img class="user_profile_character_delete" src="./img/cross.png">');
+                                }
+                            }
+                        });
+                        // Character on moderation
+                        let is_show_new_moderation_gallery = false; //new-moderation-gallery
+                        let is_show_edit_moderation_gallery = false; //new-moderation-gallery
+                        
+                        if(login === user_name.toLowerCase()){
+                            // New characters
+                            data.characters.forEach(function (item, i) {
+                                
+                                item.moderation = Boolean(item.moderation);
+                                item.user_name = user_name.toLowerCase();
+                                item.user_name_view = user_name;
+                                if(item.moderation === true && item.status === 2){
+                                    is_show_new_moderation_gallery = true;
+                                    let $lastAppendedElement = $('.new-mod-character-gallery-content').append(charaCloud.getCharacterDivBlock(item, charaCloudServer, 'moderation')).last();
+                                    //$('.character-gallery-content').append(`<div user_name="${data.name}" public_id_short="${item.public_id_short}" class="user_profile_character"><div class="user_profile_character_container"><img class="user_profile_character_img" src="${charaCloudServer}/${data.name}/${item.public_id_short}.webp"><img class="user_profile_character_delete" src="./img/cross.png"></div></div>`);
+                                    $('.new-mod-character-gallery-content .characloud_character_block  .characloud_character_block_card').last().append('<img class="user_profile_character_delete" src="./img/cross.png">');
+                                }
+                                
+                            });
+                            if(is_show_new_moderation_gallery){
+                                $('.new-mod-character-gallery').css('display', 'block');
+                            }
+                            
+                            // Edited characters
+                            data.characters.forEach(function (item, i) {
+                                
+                                item.moderation = Boolean(item.moderation);
+                                item.user_name = user_name.toLowerCase();
+                                item.user_name_view = user_name;
+                                if(item.moderation === true && item.status === 4){
+                                    is_show_edit_moderation_gallery = true;
+                                    let $lastAppendedElement = $('.edit-mod-character-gallery-content').append(charaCloud.getCharacterDivBlock(item, charaCloudServer, 'moderation')).last();
+                                    //$('.character-gallery-content').append(`<div user_name="${data.name}" public_id_short="${item.public_id_short}" class="user_profile_character"><div class="user_profile_character_container"><img class="user_profile_character_img" src="${charaCloudServer}/${data.name}/${item.public_id_short}.webp"><img class="user_profile_character_delete" src="./img/cross.png"></div></div>`);
+                                    $('.edit-mod-character-gallery-content .characloud_character_block  .characloud_character_block_card').last().append('<img class="user_profile_character_delete" type="edit_moderation" src="./img/cross.png">');
+                                }
+                                
+                            });
+                            if(is_show_edit_moderation_gallery){
+                                $('.edit-mod-character-gallery').css('display', 'block');
+                            }
+                        }
+                        $('.lazy').lazyLoadXT({edgeX:500, edgeY:500});
+                    }
                 }
             })
             .catch(function (error) {
@@ -5656,7 +5752,7 @@ $(document).ready(function(){
 
     function showCharacterCardBlock() {
         hideAll();
-        $('.url-data').css('display', 'none')
+        $('.url-data').css('display', 'none');
         $('#characloud_header_navigator_p2').css('display', 'inline-block');
         $('#characloud_header_navigator_c1').css('display', 'inline-block');
         
@@ -5705,12 +5801,12 @@ $(document).ready(function(){
         }
         $('#editor_nsfw').prop('checked', character_data.nsfw);
 
-        // Tags
-        if (character_data.tags !== undefined) {
+        // Categories
+        if (character_data.categories !== undefined) {
 
-            let tags = character_data.tags;
-            tags.forEach(function (item, i) {
-                addTag(item);
+            let categories = character_data.categories;
+            categories.forEach(function (item, i) {
+                addCategory(item);
             });
         }
 
@@ -5748,6 +5844,8 @@ $(document).ready(function(){
                 }
             }else{
                 $('.url-data').css('display','inline-block');
+                character_data.user_name = vl(character_data.user_name);
+                character_data.public_id_short = vl(character_data.public_id_short);
                 $('.url-data').text(`${charaCloudServer}/${character_data.user_name.toLowerCase()}/${character_data.public_id_short}`);
                 $('.url-data').attr('url',`${charaCloudServer}/${character_data.user_name.toLowerCase()}/${character_data.public_id_short}`);
             }
@@ -5840,7 +5938,10 @@ $(document).ready(function(){
         $('#characloud_header_navigator_c1').css('display', 'none');
         $('#characloud_header_navigator_c2').css('display', 'none');
         
-        $('.tag-list').html('');
+        $('.new-moderation-gallery').css('display', 'none');
+        $('.edit-moderation-gallery').css('display', 'none');
+        
+        $('.category-list').html('');
     }
     $('#characloud_close_button').click(function(){
         $('#shell').css('display', 'grid');
@@ -5871,19 +5972,29 @@ $(document).ready(function(){
     $('.character-gallery-content').on('click', '.user_profile_character', function () {
         const publicIdShort = $(this).attr('public_id_short');
         const userName = $(this).attr('user_name');
-        selectCharacterCardOnline(userName, publicIdShort);
+        const mode = $(this).attr('mode');
+        selectCharacterCardOnline(userName, publicIdShort, mode);
+
         // Rest of your code to handle the click event goes here
     });
-    $('.character-gallery-content').on('click', '.user_profile_character_delete', function(event){
+    $('#characloud_user_profile_block').on('click', '.user_profile_character_delete', function(event){
         event.stopPropagation();
+        const type = $(this).attr('type');
         const publicIdShort = $(this).parent().parent().attr('public_id_short');
         const userName = $(this).parent().parent().attr('user_name');
-        charaCloud.delete_character_user_name = userName;
-        charaCloud.delete_character_public_id_short = publicIdShort;
-        callPopup('<h3>Delete the character?</h3>', 'del_ch_characloud');
+        if(type === 'edit_moderation'){
+            charaCloud.delete_character_user_name = userName;
+            charaCloud.delete_character_public_id_short = publicIdShort;
+            callPopup('<h3>Cancel editing?</h3>', 'del_ch_characloud_from_edit_moderation');
+        }else{
+            charaCloud.delete_character_user_name = userName;
+            charaCloud.delete_character_public_id_short = publicIdShort;
+            callPopup('<h3>Delete the character?</h3>', 'del_ch_characloud');
+        }
+        
     });
-    function selectCharacterCardOnline(userName, publicIdShort){
-        charaCloud.getCharacter(userName, publicIdShort)
+    function selectCharacterCardOnline(userName, publicIdShort, mode = 'default'){
+        charaCloud.getCharacter(userName, publicIdShort, mode)
             .then(function (data) {
                 $('#chara_cloud').scrollTop(0);
                 showCharacterCard(data, 'select_online');
@@ -5916,12 +6027,12 @@ $(document).ready(function(){
     
     
     ///////////////////////////
-    //********* Tags ********//
-    var is_character_page_tags_show = false;
-    $('#tag-input-field').on('focus', function () {
-        if (!is_character_page_tags_show) {
-            $('.popular-tags').slideDown(200, function () {
-                is_character_page_tags_show = true;
+    //********* Categories ********//
+    var is_character_page_categories_show = false;
+    $('#category-input-field').on('focus', function () {
+        if (!is_character_page_categories_show) {
+            $('.popular-categories').slideDown(200, function () {
+                is_character_page_categories_show = true;
                 //$(this).transit({ y: '3px' }, 50)
                 //     .transit({ y: '-3px' }, 50)
                 //   .transit({ y: '0px' }, 50);
@@ -5931,46 +6042,47 @@ $(document).ready(function(){
 
 
     $(document).on('click', function (e) {
-        if (!$('.tag-form').is(e.target) && $('.tag-form').has(e.target).length === 0 && is_character_page_tags_show) {
-            is_character_page_tags_show = false;
-            $('.popular-tags').slideUp(200);
+        if (!$('.category-form').is(e.target) && $('.category-form').has(e.target).length === 0 && is_character_page_categories_show) {
+            is_character_page_categories_show = false;
+            $('.popular-categories').slideUp(200);
         }
     });
     
-    $('#tag-input-field').on('keypress', function (e) {
+    $('#category-input-field').on('keypress', function (e) {
+
         if (e.which == 13) { // 13 is the code for the Enter key
-            let tag = $(this).val().trim();
-            addTag(tag);
+            let category = $(this).val().trim();
+            addCategory(vl(category));
         }
     });
-    function addTag(tag) {
-        tag = window.DOMPurify.sanitize(tag);
-        let tagRegex = /^[A-Za-z0-9_\- ]{1,32}$/;
-        let existingTags = $('.character-tag').map(function () {
+    function addCategory(category) {
+        category = window.DOMPurify.sanitize(category);
+        let categoryRegex = /^[A-Za-z0-9_\- ]{1,32}$/;
+        let existingCategories = $('.character-category').map(function () {
             return $(this).text().replace('x', '').trim().toLowerCase();
         }).get();
-        if (existingTags.includes(tag.toLowerCase())) {
-            //alert('This tag has already been added.');
-            $(this).val('');
-        } else if ($('.character-tag').length < 12) {
-            if (tagRegex.test(tag)) {
-                $('.tag-list').append('<div class="tag character-tag">' + tag + '<span class="tag-remove">x</span></div>');
+        if (existingCategories.includes(category.toLowerCase())) {
+            //alert('This category has already been added.');
+            $('#category-input-field').val('');
+        } else if ($('.character-category').length < 12) {
+            if (categoryRegex.test(category)) {
+                $('.category-list').append('<div class="category character-category">' + category + '<span class="category-remove">x</span></div>');
                 $(this).val('');
             } else {
-                callPopup('Invalid tag format. Tags can only contain letters, numbers, spaces, underscores, hyphens, and must be between 1 and 32 characters long.', 'alert_error');
+                callPopup('Invalid category format. Categories can only contain letters, numbers, spaces, underscores, hyphens, and must be between 1 and 32 characters long.', 'alert_error');
             }
         } else {
-            callPopup('You have reached the maximum number of tags allowed (12).', 'alert_error');
+            callPopup('You have reached the maximum number of categories allowed (12).', 'alert_error');
         }
     }
-    $(document).on('click', '.character-tag', function (e) {
+    $(document).on('click', '.character-category', function (e) {
         $(this).remove();
     });
     
-    $('.popular-tag').on('click', function () {
-        let tag = $(this).text().substr(2);
-        addTag(tag);
-        //$('.tag-list').prepend('<div class="tag character-tag">' + tag + '<span class="tag-remove">x</span></div>');
+    $('.popular-category').on('click', function () {
+        let category = $(this).text().substr(2);
+        addCategory(category);
+        //$('.category-list').prepend('<div class="category character-category">' + category + '<span class="category-remove">x</span></div>');
     });
     $('#chara_cloud').on('click', '.characloud_characters_category_title', function () {
         let category = $(this).attr('category');
@@ -6013,7 +6125,7 @@ $(document).ready(function(){
                 //$('#characloud_characters').html('');
                 //printCharactersBoard(characters_board);
                 //$('#chara_cloud').scrollTop(0);
-                //showCharacterCard(data, 'select_online');
+
             })
             .catch(function (error) {
                 console.log(error);
@@ -6046,7 +6158,7 @@ $(document).ready(function(){
                 // loop through the categories array and create a category element for each one
                 for (let i = 0; i < categories.length; i++) {
                     const $category = $('<div>', {
-                        class: 'tag show-tag',
+                        class: 'category show-category',
                         text: categories[i].name,
                         // add a data attribute to store the category name
                         'data-category': categories[i].name
@@ -6071,9 +6183,9 @@ $(document).ready(function(){
                 }
             });
     }
-    $(document).on('click', '.show-tag', function (e) {
-        let tag = $(this).text();
-        showCategory(tag);
+    $(document).on('click', '.show-category', function (e) {
+        let category = $(this).text();
+        showCategory(category);
     });
 
 });
