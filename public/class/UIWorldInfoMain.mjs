@@ -190,6 +190,9 @@ export class UIWorldInfoMain extends Resizable {
         let tags = document.createElement("span");
             tags.classList.add("tags");
             tags.appendChild(document.createTextNode(data.key.join(", ")));
+            if(!data.key.length || !data.content || !data.content.length) {
+                row.classList.add("error");
+            }
             tags.setAttribute("title", "Edit entry");
             tags.onclick = this.onOpenDetail.bind(this, { uid: data.uid });
         row.appendChild(tags);
@@ -349,7 +352,11 @@ export class UIWorldInfoMain extends Resizable {
 
     onOpenDetail(options, event) {
         for(let key in this.details) {
-            this.details[key].unfocus();
+            if(!this.details[key]) {
+                delete this.details[key];
+            } else {
+                this.details[key].unfocus();
+            }
         }
         if(!this.details[options.uid]) {
             this.details[options.uid] = new UIWorldInfoDetails({
@@ -365,6 +372,11 @@ export class UIWorldInfoMain extends Resizable {
                 save: function(entry) {
                     this.save();
                     event.target.innerHTML = entry.key.join(", ");
+                    if(!entry.key.length || !entry.content || !entry.content.length) {
+                        event.target.parentNode.classList.add("error");
+                    } else {
+                        event.target.parentNode.classList.remove("error");
+                    }
                     if(event.target.nextElementSibling) {
                         event.target.nextElementSibling.innerHTML = this.getTokenCount(this.data.entries[options.uid]).toString();
                     }
