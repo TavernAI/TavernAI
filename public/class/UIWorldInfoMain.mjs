@@ -272,7 +272,6 @@ export class UIWorldInfoMain extends Resizable {
             }
         }
         let delta = (toOrder-fromOrder);
-        let targetIndex = index + delta;
 
         if(toOrder < 0 || toOrder > max) { return; }
 
@@ -280,17 +279,25 @@ export class UIWorldInfoMain extends Resizable {
             const entry = this.data.entries[uid];
             if(parseInt(uid) === options.uid) {
                 entry.order = toOrder;
-            } else if((delta > 0 && entry.order > fromOrder) || (delta < 0 && entry.order < fromOrder)) {
+            } else if(
+                (delta > 0 && entry.order >= fromOrder && entry.order <= toOrder) ||
+                (delta < 0 && entry.order >= toOrder && entry.order <= fromOrder)
+            ) {
                 entry.order -= delta;
             }
         }
-        if(targetIndex >= index) {
-            row.parentNode.insertBefore(row, row.parentNode.children[targetIndex+1]);
-        } else {
-            if(row.previousSibling) {
-                row.parentNode.insertBefore(row, row.parentNode.children[targetIndex]);
-            }
+        let target = row;
+        if(delta > 0) {
+            target = target.nextElementSibling;
         }
+        while(delta) {
+            if(delta > 0 ? !target.nextElementSibling : !target.previousElementSibling) {
+                break;
+            }
+            target = delta > 0 ? target.nextElementSibling : target.previousElementSibling;
+            delta = delta > 0 ? delta-1 : delta+1;
+        }
+        row.parentNode.insertBefore(row, target);
         this.save();
         this.evaluateOrder();
     }
