@@ -18,6 +18,8 @@ export class UIWorldInfoMain extends Resizable {
     detailsMaster;
     details = {};
 
+    dragged;
+
     worldName = null;
     worldNames = [];
 
@@ -179,6 +181,13 @@ export class UIWorldInfoMain extends Resizable {
     createEntry(index, data) {
         let row = document.createElement("div");
         row.classList.add("row");
+        row.uid = data.uid;
+
+        row.setAttribute("draggable", "true");
+
+        row.ondragstart = this.onDragStart.bind(this, { uid: data.uid });
+        row.ondragover = this.onDragOver.bind(this, { uid: data.uid });
+        row.ondragend = this.onDragEnd.bind(this);
 
         row.appendChild(UIFactory.createButton({
             image: "img/arrow_up.png", class: "inline button-up", title: "Move up", onclick: this.onMoveItem.bind(this, { uid: data.uid, by: -1 })
@@ -254,6 +263,31 @@ export class UIWorldInfoMain extends Resizable {
         return encode(item.use_wpp && item.wpp ? JSON.stringify(item.wpp) : item.content).length;
     }
 
+    onDragStart(options, event) {
+        let row = this.getRow(event.target);
+        this.dragged = row;
+    }
+
+    onDragOver(options, event) {
+        let row = this.getRow(event.target);
+        row.parentNode.insertBefore(this.dragged, row.nextElementSibling);
+        this.evaluateOrder();
+    }
+
+    onDragEnd() {
+        let row = this.getRow(event.target);
+        let i = 0;
+        for(let key in row.parentNode.children) {
+            const child = row.parentNode.children[key];
+            if(this.data.entries[child.uid]) {
+                this.data.entries[child.uid].order = i;
+            }
+            i++;
+        }
+        this.save();
+        this.evaluateOrder();
+    }
+
     onMoveItem(options, event) {
         let row = this.getRow(event.target);
         let fromOrder = this.data.entries[options.uid].order;
@@ -301,6 +335,8 @@ export class UIWorldInfoMain extends Resizable {
         this.save();
         this.evaluateOrder();
     }
+
+
 
     onDeleteItem(options, event) {
         if(!confirm("Are you sure you want to delete this item?")) { return; }
