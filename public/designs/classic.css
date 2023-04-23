@@ -2134,7 +2134,12 @@ label.wpp_label {
     overflow: auto;
     display: flex;
     flex-flow: column;
-    flex-wrap: wrap;
+    /*flex-wrap: wrap;*/
+}
+.world_info .content {
+    overflow-x: hidden;
+    overflow-y: auto;
+    flex-flow: column;
 }
 .world_info input[type="file"] {
     display: none
