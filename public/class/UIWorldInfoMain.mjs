@@ -270,7 +270,18 @@ export class UIWorldInfoMain extends Resizable {
 
     onDragOver(options, event) {
         let row = this.getRow(event.target);
-        row.parentNode.insertBefore(this.dragged, row.nextElementSibling);
+        let fromIndex, toIndex;
+        let i = 0;
+        for(let key in row.parentNode.children) {
+            if(row.parentNode.children[key] === row) { toIndex = i; }
+            if(row.parentNode.children[key] === this.dragged) { fromIndex = i; }
+            i++;
+        }
+        if(toIndex < fromIndex) {
+            row.parentNode.insertBefore(this.dragged, row);
+        } else {
+            row.parentNode.insertBefore(this.dragged, row.nextElementSibling);
+        }
         this.evaluateOrder();
     }
 
