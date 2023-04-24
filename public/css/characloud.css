@@ -131,7 +131,7 @@
     font-size: 18px;
     cursor: pointer;
     width: min-content;
-    
+    white-space: nowrap;
 }
 
 .characloud_characters_row {
@@ -1182,7 +1182,7 @@
     justify-content: left;
     margin-top: 20px;
 }
-
+/*
 .category {
     background-color: #555;
     border: 1px solid #777;
@@ -1192,7 +1192,7 @@
     cursor: pointer;
     transition: all 0.3s ease-in-out;
 }
-
+*/
 .category:hover {
     background-color: #777;
 }

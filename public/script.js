@@ -202,6 +202,8 @@ $(document).ready(function(){
     
     var api_key_openai = "";
     var openai_system_prompt = "";
+    var openai_jailbreak_prompt = "";
+    var openai_jailbreak2_prompt = "";
     var amount_gen_openai = 220;
     var max_context_openai = 2048;
     var model_openai = 'gpt-3.5-turbo';
@@ -772,7 +774,7 @@ $(document).ready(function(){
     async function Generate(type) {//encode("dsfs").length
         let gap_holder = 120;
         if(main_api === 'openai' && (model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-0301' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k')) 
-            gap_holder = parseInt(amount_gen_openai);
+            gap_holder = parseInt(amount_gen_openai)+gap_holder;
         var textareaText = '';
         tokens_already_generated = 0;
         if(!free_char_name_mode){
@@ -1055,6 +1057,16 @@ $(document).ready(function(){
                     chatString = "";
                     arrMes = arrMes.reverse();
                     var is_add_personality = false;
+                    if (main_api === 'openai' && (model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-0301' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k')) { // Jailbreak
+                        if (openai_jailbreak2_prompt.length > 0) {
+                            arrMes[arrMes.length-1] = arrMes[arrMes.length-1]+'\n'+openai_jailbreak2_prompt;
+                        }
+                        if (openai_jailbreak_prompt.length > 0) {
+                            //arrMes.splice(-1, 0, openai_jailbreak_prompt);
+                            arrMes.push(openai_jailbreak_prompt);
+                        }
+                        
+                    }
                     arrMes.forEach(function(item, i, arr) {//For added anchors and others
 
                         if(i >= arrMes.length-1 && $.trim(item).substr(0, (name1+":").length) != name1+":"){
@@ -1089,6 +1101,7 @@ $(document).ready(function(){
                                 }
                             }
                         }
+                        
                         if(is_pygmalion){
                             if($.trim(item).indexOf(name1) === 0){
                                 item = item.replace(name1+':', 'You:');
@@ -1158,10 +1171,14 @@ $(document).ready(function(){
                     
                     finalPromt[0] = {"role": "system", "content": storyString+mesExmString};
                     mesSend.forEach(function(item,i){
-                        if(item.indexOf(name1+':') === 0){
-                            finalPromt[i+1] = {"role": "user", "content": item};
-                        }else{
-                            finalPromt[i+1] = {"role": "assistant", "content": item};
+                        if (openai_jailbreak_prompt.length > 0 && i === mesSend.length-1) {
+                            finalPromt[i + 1] = {"role": "system", "content": item};
+                        } else {
+                            if (item.indexOf(name1 + ':') === 0) {
+                                finalPromt[i + 1] = {"role": "user", "content": item};
+                            } else {
+                                finalPromt[i + 1] = {"role": "assistant", "content": item};
+                            }
                         }
 
                     });
@@ -3206,6 +3223,14 @@ $(document).ready(function(){
         openai_system_prompt = $(this).val();
         var saveRangeTimer = setTimeout(saveSettings, 500);
     });
+    $(document).on('input', '#openai_jailbreak_prompt_textarea', function() {
+        openai_jailbreak_prompt = $(this).val();
+        var saveRangeTimer = setTimeout(saveSettings, 500);
+    });
+    $(document).on('input', '#openai_jailbreak2_prompt_textarea', function() {
+        openai_jailbreak2_prompt = $(this).val();
+        var saveRangeTimer = setTimeout(saveSettings, 500);
+    });
     //***************SETTINGS****************//
     ///////////////////////////////////////////
     async function getSettings(){//timer
@@ -3267,6 +3292,14 @@ $(document).ready(function(){
                     if(settings.openai_system_prompt != undefined){
                         openai_system_prompt = settings.openai_system_prompt;
                         $("#openai_system_prompt_textarea").val(openai_system_prompt);
+                    }
+                    if(settings.openai_jailbreak_prompt != undefined){
+                        openai_jailbreak_prompt = settings.openai_jailbreak_prompt;
+                        $("#openai_jailbreak_prompt_textarea").val(openai_jailbreak_prompt);
+                    }
+                    if(settings.openai_jailbreak2_prompt != undefined){
+                        openai_jailbreak2_prompt = settings.openai_jailbreak2_prompt;
+                        $("#openai_jailbreak2_prompt_textarea").val(openai_jailbreak2_prompt);
                     }
                     model_openai = settings.model_openai;
                     $('#model_openai_select option[value="'+model_openai+'"]').attr('selected', 'true');
@@ -3653,6 +3686,8 @@ $(document).ready(function(){
                     api_key_novel: api_key_novel,
                     api_key_openai: api_key_openai,
                     openai_system_prompt: openai_system_prompt,
+                    openai_jailbreak_prompt: openai_jailbreak_prompt,
+                    openai_jailbreak2_prompt: openai_jailbreak2_prompt,
                     model_novel: model_novel,
                     temp_novel: temp_novel,
                     top_p_novel: top_p_novel,
@@ -4857,7 +4892,7 @@ $(document).ready(function(){
                 return;
 
             characloud_characters_rows[row_i] = 0;
-            $('#characloud_characters').append('<div category="' + vl(category.title) + '" class="characloud_characters_category_title">' + vl(category.title.replace('$', '')) + '</div><div characloud_row_id="' + row_i + '" id="characloud_characters_row' + row_i + '" class="characloud_characters_row"><div class="characloud_swipe_rigth"><img src="img/swipe_right.png"></div><div class="characloud_swipe_left"><img src="img/swipe_left.png"></div></div>');
+            $('#characloud_characters').append('<div category="' + vl(category.name) + '" class="characloud_characters_category_title">' + vl(category.name_view.replace('$', '')) + '</div><div characloud_row_id="' + row_i + '" id="characloud_characters_row' + row_i + '" class="characloud_characters_row"><div class="characloud_swipe_rigth"><img src="img/swipe_right.png"></div><div class="characloud_swipe_left"><img src="img/swipe_left.png"></div></div>');
             $('#characloud_characters_row' + row_i).append('<div class="characloud_characters_row_scroll"></div>');
 
             let row = $('#characloud_characters_row' + row_i);
@@ -5049,7 +5084,8 @@ $(document).ready(function(){
         if(characloud_found_categories.length > 0){
             characloud_found_categories.forEach(function(item, i){
                 item.name = vl(item.name);
-                $('#characloud_search_result').append(`<div class="character_select" category="${item.name}"><div class=avatar></div><div style="color:rgb(168, 137, 97);" class="ch_name_menu">Category:</div><div class="ch_short_desctription">${item.name} (${item.count})</div></div>`);
+                item.name_view = vl(item.name_view);
+                $('#characloud_search_result').append(`<div class="character_select" category="${item.name}"><div class=avatar></div><div style="color:rgb(168, 137, 97);" class="ch_name_menu">Category:</div><div class="ch_short_desctription">${item.name_view} (${item.count})</div></div>`);
 
             });
         }
@@ -5472,6 +5508,7 @@ $(document).ready(function(){
                         $('.update_locally_button').eq(0).data("params", {type: 'update_locally_with_publish', online_public_id: data.public_id}).click();
                     })
                     .catch(function (error) {
+                        console.log(error);
                         switch (error.status) {
                             default:
                                 callPopup(`${error.msg}`, 'alert_error');
@@ -6066,6 +6103,7 @@ $(document).ready(function(){
             $('#category-input-field').val('');
         } else if ($('.character-category').length < 12) {
             if (categoryRegex.test(category)) {
+                $('#category-input-field').val('');
                 $('.category-list').append('<div class="category character-category">' + category + '<span class="category-remove">x</span></div>');
                 $(this).val('');
             } else {
@@ -6151,15 +6189,16 @@ $(document).ready(function(){
                 const $categoriesList = $('.categories-list');
                 $categoriesList.html('');
                 //$categoriesList.html('');
-                let categories = [{name: '$Recent'},{name: '$Random'}];
+                let categories = [{name: '$Recent', name_view: '$Recent'},{name: '$Random', name_view: '$Random'}];
 
                 categories = categories.concat(data);
 
                 // loop through the categories array and create a category element for each one
                 for (let i = 0; i < categories.length; i++) {
+                    console.log(categories[i]);
                     const $category = $('<div>', {
                         class: 'category show-category',
-                        text: categories[i].name,
+                        text: categories[i].name_view,
                         // add a data attribute to store the category name
                         'data-category': categories[i].name
                     });
