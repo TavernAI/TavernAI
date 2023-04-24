@@ -4,8 +4,6 @@ Examples of interface and output:
 
 ###### Download: 
 * [Windows .exe](https://sourceforge.net/projects/tavernaimain/files/TavernAI.rar/download)&nbsp;&nbsp;|&nbsp;&nbsp;[Node.js version](https://github.com/TavernAI/TavernAI/archive/refs/heads/main.zip)<br>
-###### Run online: 
-* [TavernAI Colab](https://colab.research.google.com/github/TavernAI/TavernAI/blob/main/colab/GPU.ipynb)<br>
 ###### Links: 
 * [TavernAI Boosty](https://boosty.to/tavernai)
 * [TavernAI Discord](https://discord.gg/zmK2gmr45t)
