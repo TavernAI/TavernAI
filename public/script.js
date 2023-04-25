@@ -5686,6 +5686,7 @@ $(document).ready(function(){
         $('.new-mod-character-gallery-content').html('');
 
         $('.characloud_user_profile_avatar_img').attr('src', `${charaCloudServer}/users/${user_name.toLowerCase()}/img/avatar.webp`);
+        $('.url-data').css('display','inline-block');
         $('.url-data').text(`Profile: ${charaCloudServer}/${user_name.toLowerCase()}`);
         $('.url-data').attr('url',`${charaCloudServer}/${user_name.toLowerCase()}`);
         charaCloud.getUserCharacters(user_name.toLowerCase(), charaCloud.user_profile_page)
