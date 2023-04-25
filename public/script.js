@@ -1432,7 +1432,7 @@ $(document).ready(function(){
                         //$('#create_button').attr('value','Creating...'); 
                     },
                     cache: false,
-                    timeout: requestTimeout,
+                    timeout: (main_api == 'horde' && requestTimeout < 5*60*1000 ? 5*60*1000 : requestTimeout),
                     dataType: "json",
                     contentType: "application/json",
                     success: function(data){
