@@ -1,0 +1,31 @@
+<html>
+    <head>
+        <title>Kobold Horde</title>
+        <link rel="stylesheet" href="/css/notes.css">
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <div id="main">
+            <div id="content">
+                <h2>Kobold Horde</h2>
+                <p>Kobold Horde is a computation distribution platform. That means it generates responses for you, and allows you to generate for others, anonymously.</p>
+                <p><strong>You can register at <a href="https://horde.koboldai.net/register" target="_blank">https://horde.koboldai.net/register</a>. If you don't want to, simply leave the API key empty.</strong> As a guest, your requests will have the lowest possible priority.</p>
+                <p>If you register and generate for others, you earn <em>kudos</em>, which help your own requests to be prioritized. For instance, you can run a lighter model, earn kudos, and use them to be prioritized when generating with more complex models.</p>
+                <p>If you already run KoboldAI and want to generate for others, simply follow these steps (for Windows):</p>
+                <ol>
+                    <li>If you haven't already, <strong>register</strong> at <a href="https://horde.koboldai.net/register" target="_blank">https://horde.koboldai.net/register</a> and claim your <strong>Horde API key</strong></li>
+                    <li>Download <strong>KoboldAI-Horde-Bridge</strong> from <a href="https://github.com/db0/KoboldAI-Horde-Bridge" target="_blank">https://github.com/db0/KoboldAI-Horde-Bridge</a></li>
+                    <li>Rename <strong>clientData_template.py</strong> to <strong>clientData.py</strong></li>
+                    <li>Edit <strong>clientData.py</strong>. Change the <em>kai_name</em>, and input your Horde API key into <em>api_key</em></li>
+                    <li>Launch your KoboldAI client and load up a model</li>
+                    <li>Launch <strong>bridge_start.bat</strong>. In the command prompt, you should see a connection being established to your KoboldAI, and requests being handled.</li>
+                </ol>
+                <p>Your Horde Bridge should automatically prioritize requests made by your own API key.</p>
+                <p>If you are a part of Kobold Horde, thank you!</p>
+                <p>For more details, see: <a href="https://horde.koboldai.net" target="_blank">https://horde.koboldai.net</a>.</p>
+                <p>Original <a href="https://github.com/Aspartame-e951/TavernAI" target="_blank">implementation</a> of Horde API was created by <em>stoic</em>.</p>
+            </div>
+        </div>
+    </body>
+</html>

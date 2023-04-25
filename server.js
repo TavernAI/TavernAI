@@ -53,6 +53,11 @@ var api_server = "";//"http://127.0.0.1:5000";
 
 const api_novelai = "https://api.novelai.net";
 const api_openai = "https://api.openai.com/v1";
+const api_horde = "https://stablehorde.net/api";
+
+var hordeActive = false;
+var hordeQueue;
+
 var response_get_story;
 var response_generate;
 var response_generate_novel;
@@ -1149,7 +1154,131 @@ app.post("/generate_novelai", jsonParser, function(request, response_generate_no
         response_generate_novel.send({error: true});
     });
 });
-//***********Open.ai API 
+
+//***********Horde API
+app.post("/generate_horde", jsonParser, function(request, response_generate_horde = response){
+
+    hordeActive = true;
+    hordeQueue = 0;
+
+    // Throw validation error if nothing sent/fails?
+    if(!request.body) return response_generate_horde.sendStatus(400);
+    //console.log(request.body.prompt); // debug
+
+    // Prompt variable
+    let request_prompt = request.body.prompt;
+
+    var this_settings = {
+        "prompt": request_prompt,
+        "params": {
+            "n": request.body.n,
+            "frmtadsnsp": request.body.frmtadsnsp,
+            "frmtrmblln": request.body.frmtrmblln,
+            "frmtrmspch": request.body.frmtrmspch,
+            "frmttriminc": request.body.frmttriminc,
+            "max_context_length": request.body.max_context_length,
+            "max_length": request.body.max_length,
+            "rep_pen": request.body.rep_pen,
+            "rep_pen_range": request.body.rep_pen_range,
+            "rep_pen_slope": request.body.rep_pen_slope,
+            "singleline": request.body.singleline,
+            "temperature": request.body.temperature,
+            "tfs": request.body.tfs,
+            "top_a": request.body.top_a,
+            "top_k": request.body.top_k,
+            "top_p": request.body.top_p,
+            "typical": request.body.typical,
+            "sampler_order":  [request.body.s1,request.body.s2,request.body.s3,request.body.s4,request.body.s5,request.body.s6,request.body.s7]
+        },
+        "models": request.body.models
+    };
+
+    var args = {
+        data: this_settings,
+        headers: {"Content-Type": "application/json", "apikey": request.body.horde_api_key}
+    };
+
+    console.log(this_settings);
+
+    client.post(api_horde+"/v2/generate/text/async", args, function (data, response) {
+        if(response.statusCode == 202){
+            console.log(data);
+            var waiting = setInterval(function(){
+                client.get(api_horde+"/v2/generate/text/status/"+data.id, args, function (gen, response) {
+
+                    hordeWaitProgress(gen);
+
+                    if (gen.done && gen.generations != undefined){
+                        hordeActive = false;
+                        hordeQueue = 0;
+                        console.log({ Kudos: gen.kudos })
+                        console.log(gen.generations)
+                        response_generate_horde.send(gen);
+                        clearInterval(waiting);
+                    }
+                });
+            }, 5000);
+        }
+
+        if(response.statusCode == 401){
+            console.log('Validation error');
+            response_generate_horde.send({error: true});
+        }
+        if(response.statusCode == 429 || response.statusCode == 503 || response.statusCode == 507){
+            console.log(data);
+            response_generate_horde.send({error: true});
+        }
+    }).on('error', function (err) {
+        console.log(err);
+        //console.log('something went wrong on the request', err.request.options);
+        response_generate.send({error: true});
+    });
+});
+
+function hordeWaitProgress(data){
+    try {
+        process.stdout.clearLine();
+        process.stdout.cursorTo(0);
+        var progress = "";
+
+        hordeQueue = data.queue_position;
+
+        if (data.queue_position > 0) {
+            process.stdout.write("Queue position: " + data.queue_position);
+        } else if (data.wait_time > 0) {
+            process.stdout.write("Wait time: " + data.wait_time);
+        }
+    } catch (error) {
+        return;
+    }
+}
+
+app.post("/getstatus_horde", jsonParser, function(request, response_getstatus_horde = response){
+    if(!request.body) return response_getstatus_horde.sendStatus(400);
+    horde_api_key = request.body.horde_api_key;
+    var args = { "type": "text" };
+    client.get(api_horde+"/v2/status/models?type=text",args, function (data, response) {
+        if(response.statusCode == 200){
+            console.log({ Models: 'List fetched and updated.' });
+            response_getstatus_horde.send(data);//data);
+        } else {
+            console.log(data);
+            response_getstatus_horde.send({error: true});
+        }
+    }).on('error', function (err) {
+        response_getstatus_horde.send({error: true});
+    });
+});
+
+app.get("/gethordeinfo", jsonParser, function(request, response){
+    response.send({
+        running: hordeActive,
+        queue: hordeQueue
+    });
+});
+
+
+//***********Open.ai API
 
 app.post("/getstatus_openai", jsonParser, function(request, response_getstatus_openai = response){
     if(!request.body) return response_getstatus_openai.sendStatus(400);
