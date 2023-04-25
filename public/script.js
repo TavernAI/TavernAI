@@ -6189,7 +6189,7 @@ $(document).ready(function(){
                 const $categoriesList = $('.categories-list');
                 $categoriesList.html('');
                 //$categoriesList.html('');
-                let categories = [{name: '$Recent', name_view: '$Recent'},{name: '$Random', name_view: '$Random'}];
+                let categories = [{name: '$recent', name_view: '$Recent'},{name: '$random', name_view: '$Random'}];
 
                 categories = categories.concat(data);
 
