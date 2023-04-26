@@ -9,7 +9,13 @@
     <script src="scripts/purify.min.js"></script>
     <script src="scripts/sha256.min.js"></script>
     <script src="scripts/cookie.js"></script>
-
+    
+    
+    
+    <script src="scripts/xss.js"></script>
+    <script src="scripts/showdown-xss-filter.js"></script>
+    
+    
     <link id="base_theme" rel="stylesheet" type="text/css" href="css/designs.css">
     <link rel="stylesheet" href="css/bg_load.css">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
@@ -56,9 +62,12 @@
                     <input type="password" id="reg_password" name="password" minlength="8" maxlength="32" required>
                     <label for="confirm-password">Confirm Password:</label><div class="form_error" id="reg_confirm_password_error"></div>
                     <input type="password" id="reg_confirm_password" name="confirm_password" minlength="8" maxlength="32" required>
-                    
                     <input type="submit" class="submit_button" value="Register"><img class="load_icon" src="img/load.svg">
                     <div class="switch_log_reg">Switch to Login</div>
+                    <br><div class="google-captcha-terms">This site is protected by reCAPTCHA and the Google
+                        <a href="https://policies.google.com/privacy">Privacy Policy</a> and
+                        <a href="https://policies.google.com/terms">Terms of Service</a> apply.
+                    </div>
                 </form>
 
                 <!-- Login form -->
@@ -254,14 +263,14 @@
                     <textarea id="openai_system_prompt_textarea" placeholder=""></textarea>
                     <div>
                         <h4 class="h4_menu_title">OpenAI Jailbreak</h4>
-                        <h5 class="h5_menu_help">Jailbreak for OpenAI (<a href="/notes/20" target="_blank">?</a>)</h5>
+                        <h5 class="h5_menu_help">Jailbreak for OpenAI (<a href="/notes/22" target="_blank">?</a>)</h5>
                     </div>
                     <textarea id="openai_jailbreak_prompt_textarea" placeholder=""></textarea>
-                    <div style="display: none;">
-                        <h4 class="h4_menu_title">OpenAI additional jailbreak</h4>
-                        <h5 class="h5_menu_help">Additional jailbreak for OpenAI (<a href="/notes/20" target="_blank">?</a>)</h5>
+                    <div>
+                        <h4 class="h4_menu_title">OpenAI additional Jailbreak</h4>
+                        <h5 class="h5_menu_help">Additional Jailbreak for OpenAI (<a href="/notes/23" target="_blank">?</a>)</h5>
                     </div>
-                    <textarea style="display: none;" id="openai_jailbreak2_prompt_textarea" placeholder=""></textarea>
+                    <textarea id="openai_jailbreak2_prompt_textarea" placeholder=""></textarea>
 
                 </div>
                 <div id="master_settings_toggle_block">
@@ -684,7 +693,7 @@
                         
                     </div>
                     <form id="form_characloud_upload_character_page"  action="javascript:void(null);" method="post" enctype="multipart/form-data">
-                        <input type="file" id="characloud_upload_character_page_avatar" accept="image/png, image/webp" name="avatar">
+                        <input type="file" id="characloud_upload_character_page_avatar" accept="image/png, image/jpeg, image/jpg, image/gif, image/bmp, image/webp" name="avatar">
                     </form>
                 </div>
                 

@@ -51,7 +51,7 @@ $(document).ready(function(){
     var charaCloudServer = 'http://127.0.0.1:80';
     ///////////
     const VERSION = '1.4.0';
-    var converter = new showdown.Converter();
+    var converter = new showdown.Converter({ extensions: ['xssfilter'] })
     var bg_menu_toggle = false;
     var default_user_name = "You";
     var name1 = default_user_name;
@@ -93,7 +93,9 @@ $(document).ready(function(){
     var create_save_avatar = '';
     var create_save_scenario = '';
     var create_save_mes_example = '';
-
+    
+    var use_reg_recaptcha = false;
+    
     var timerSaveEdit;
     var durationSaveEdit = 300;
     //animation right menu
@@ -335,6 +337,27 @@ $(document).ready(function(){
                     easing: "ease-in-out",
                     complete: function() {  }
                 });
+                
+                
+                $('#shell').css('display', 'none');
+            $('#chara_cloud').css('display', 'block');
+            $('#chara_cloud').css('opacity', 0.0);
+            $('#chara_cloud').transition({  
+                opacity: 1.0,
+                duration: 300,
+                queue: false,
+                easing: "",
+                complete: function() {  }
+            });
+
+            $('#rm_button_characters').click();
+            $('#bg_chara_cloud').transition({  
+                opacity: 1.0,
+                duration: 1000,
+                queue: false,
+                easing: "",
+                complete: function() {  }
+            });
         
         
     }
@@ -619,7 +642,8 @@ $(document).ready(function(){
         $('#chat').html('');
     }
     function messageFormating(mes, ch_name){
-        if(Characters.selectedID != undefined) mes = mes.replaceAll("<", "&lt;").replaceAll(">", "&gt;");//for Chloe
+        //if(Characters.selectedID != undefined) mes = mes.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+        //for Chloe
         if(Characters.selectedID === undefined){
             mes = mes.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\*(.+?)\*/g, '<i>$1</i>').replace(/\n/g, '<br/>');
 
@@ -1795,9 +1819,9 @@ $(document).ready(function(){
     $(document).on('click', '#rm_print_charaters_block .character_select', function(){
         if (Characters.id[$(this).attr("chid")].online === true) {
             if (Characters.id[$(this).attr("chid")].user_name === login) {
-                $('#character_online_editor').val('🢤 Update Card');
+                $('#character_online_editor').val('🢤 Online Editor');
             } else {
-                $('#character_online_editor').val('🢤 Check Online');
+                $('#character_online_editor').val('🢤 Online Editor');
             }
             $('#chat_header_char_info').html(`designed by <a user_name="${Characters.id[$(this).attr("chid")].user_name}" class="chat_header_char_info_user_name">${vl(Characters.id[$(this).attr("chid")].user_name_view)}</a>`);
         } else {
@@ -5043,6 +5067,7 @@ $(document).ready(function(){
     
     //search character
     $('#characloud_search_form').on('submit', async (event) => {
+        hideAll();
         event.preventDefault(); // prevent default form submission
         // get search query from input field
         const searchQuery = $('#characloud_search').val().trim();
@@ -5145,6 +5170,7 @@ $(document).ready(function(){
             showCharaCloud();
             count_supply = server_status.count_supply;
             max_supply = server_status.max_supply;
+            use_reg_recaptcha = server_status.use_reg_recaptcha;
             if(server_status.chara_logo !== undefined){
                 if(server_status.chara_logo != 'default'){
                     chara_logo = server_status.chara_logo;
@@ -5234,8 +5260,23 @@ $(document).ready(function(){
         const height = Math.max(textarea.prop('scrollHeight'), texarea_height);
         textarea.css('height', height + 'px');
     }
+
     $('#registration_form').on('submit', async (event) => {
         event.preventDefault(); // prevent default form submission
+        if(use_reg_recaptcha){
+            grecaptcha.ready(function () {
+                grecaptcha.execute('6Lf4za4lAAAAAKntV6fQX7daXJeWspwIN_bOBmwW', {action: 'submit'}).then(function (re_token) {
+                    registration(re_token);
+                });
+            });
+        } else {
+            registration();
+        }
+
+       
+    });
+    function registration(re_token = undefined){
+
         const username = $('#reg_username').val();
         const email = $('#reg_email').val();
         const password = $('#reg_password').val();//$('#reg_password').val();
@@ -5245,7 +5286,7 @@ $(document).ready(function(){
         $('#reg_password_error').css('display', 'none');
         $('#reg_confirm_password_error').css('display', 'none');
         
-        charaCloud.registration(username, email, password, conf_password)
+        charaCloud.registration(username, email, password, conf_password, re_token)
         .then(function (data) {
             $('#registration_form').css('display', 'none');
             $('#successful_registration').css('display', 'flex');
@@ -5284,9 +5325,7 @@ $(document).ready(function(){
             }
             console.log(error);
         });
-
-       
-    });
+    }
     $('#login_form').on('submit', async (event) => {
         event.preventDefault(); // prevent default form submission
 
@@ -5377,6 +5416,12 @@ $(document).ready(function(){
             }});
     }
     function showRegForm() {
+        if(use_reg_recaptcha){
+            $('.google-captcha-terms').css('display', 'block');
+            const recaptcha_url = `https://www.google.com/recaptcha/api.js?render=6Lf4za4lAAAAAKntV6fQX7daXJeWspwIN_bOBmwW`;
+
+            $('head').append(`<script src="${recaptcha_url}"></script>`);
+        }
         $('#reg_login_popup_shadow').css('display', 'block');
         $('#login_form').css('display', 'none');
         $('#registration_form').css('display', 'block');
@@ -5386,6 +5431,8 @@ $(document).ready(function(){
     }
     $('#reg_login_cross').click(function () {
         $('#reg_login_popup_shadow').transition({opacity: 0.0, duration: animation_rm_duration, easing: animation_rm_easing, complete: function () {
+                const script = document.querySelector('script[src="https://www.google.com/recaptcha/api.js?render=6Lf4za4lAAAAAKntV6fQX7daXJeWspwIN_bOBmwW"]');
+                script.remove();
                 $('#reg_login_popup_shadow').css('display', 'none');
             }});
     });
@@ -5686,7 +5733,7 @@ $(document).ready(function(){
         $('.new-mod-character-gallery-content').html('');
 
         $('.characloud_user_profile_avatar_img').attr('src', `${charaCloudServer}/users/${user_name.toLowerCase()}/img/avatar.webp`);
-        $('.url-data').css('display','inline-block');
+        $('.url-data').css('display','block');
         $('.url-data').text(`Profile: ${charaCloudServer}/${user_name.toLowerCase()}`);
         $('.url-data').attr('url',`${charaCloudServer}/${user_name.toLowerCase()}`);
         charaCloud.getUserCharacters(user_name.toLowerCase(), charaCloud.user_profile_page)
@@ -5928,8 +5975,12 @@ $(document).ready(function(){
         }
         $('#avatar-info-author').text(`Author: ${author}`);
         $('#avatar-info-filesize').text(`File Size: ${parseFloat(image_size).toFixed(1)}kb`);
-
-        const date = new Date(Number(character_data.create_date_online));
+        
+        let date = new Date(Number(character_data.create_date_online));
+        if(character_data.create_date_online === undefined){
+            date = new Date(Number(Date.now()));
+        }
+        
 
         const options = {
             year: 'numeric',
@@ -5939,7 +5990,7 @@ $(document).ready(function(){
             minute: 'numeric'
         };
         //console.log(`${month}/${day}/${year}, ${hours}:${minutes}:${seconds}`);
-        $('#avatar-info-creation-date').text(`Creation Date: ${date.toLocaleString(navigator.language, options)}`);
+        $('#avatar-info-creation-date').text(`Creation Date: ${date.toLocaleString(navigator.language, options).replace(',','')}`);
     }
     function printCharacterPageLocalButtons(){
         $('.characloud_character_page_top_info').text('');

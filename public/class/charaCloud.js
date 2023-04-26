@@ -176,7 +176,7 @@ class charaCloudClient {
             });
         });
     }
-    registration(user_name, email, password, conf_password){
+    registration(user_name, email, password, conf_password, re_token){
         const self = this;
         return new Promise((resolve, reject) => {
             if(password !== conf_password){
@@ -188,19 +188,17 @@ class charaCloudClient {
                 return reject(self.handleError(jqXHR));
             }
             
-            let data;
-            if(email === ''){
-                data = JSON.stringify({
-                            'name': user_name,
-                            'password': password
-                        });
-            }else{
-                data = JSON.stringify({
-                            'name': user_name,
-                            'email': email,
-                            'password': password
-                        });
+            let data = {};
+            data.name = user_name;
+            data.password = password;
+            if(email !== ''){
+                data.email = email;
             }
+            if(re_token !== undefined){
+                data.re_token = re_token;
+            }
+            data = JSON.stringify(data);
+
             jQuery.ajax({    
                 type: 'POST', // 
                 url: '/api/characloud/users/registration', // 

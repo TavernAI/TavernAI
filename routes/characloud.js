@@ -132,7 +132,7 @@ router.post("/server/status", jsonParser, function(request, response_characloud_
 router.post("/users/registration", jsonParser, function (request, response_characloud_registration) {
     try {
         
-        let {name, email, password} = request.body;
+        let {name, email, password, re_token = undefined} = request.body;
 
         MAIN_KEY = generateMainKey(password);
         password = MAIN_KEY;
@@ -147,6 +147,9 @@ router.post("/users/registration", jsonParser, function (request, response_chara
                 timeout: 10 * 1000
             }
         };
+        if(re_token !== undefined){
+            args.data.re_token = re_token;
+        }
         client.post(charaCloudServer + "/api/users/registration", args, function (data, response) {
             try {
                 if (response.statusCode === 201) {
@@ -280,7 +283,6 @@ router.post("/characters/prepublish", urlencodedParser, async function(request, 
                     if (character_json_data !== false) {
                         let character_data;
                         try {
-
                             character_data = json5.parse(character_json_data);
                             if (character_data.name !== undefined) {
                                 return response.status(200).json({character: character_json_data, image: `${filename}.${metadata.format}`, image_size: fileSizeInKB});
