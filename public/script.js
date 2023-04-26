@@ -933,10 +933,17 @@ $(document).ready(function(){
             var mesSend = [];
             var charDescription = characters[this_chid].description.replace(/\r/g, "");
             var charPersonality = $.trim(characters[this_chid].personality);
+            var inject = "";
 
             let wDesc = WPP.parseExtended(charDescription);
             if(settings.notes && winNotes.strategy === "discr") {
                 charDescription = WPP.stringifyExtended(WPP.getMergedExtended(wDesc, winNotes.wppx), "line");
+            } else if(settings.notes && winNotes.strategy === "prep") {
+                inject = (WPP.stringifyExtended(winNotes.wppx) + "\n")
+                    .replace(/{{user}}/gi, name1)
+                    .replace(/{{char}}/gi, name2)
+                    .replace(/<USER>/gi, name1)
+                    .replace(/<BOT>/gi, name2);
             } else {
                 charDescription = WPP.stringifyExtended(wDesc, "line");
             }
@@ -1139,6 +1146,11 @@ $(document).ready(function(){
                     chatString = "";
                     arrMes = arrMes.reverse();
                     var is_add_personality = false;
+
+                    if(inject && inject.length && arrMes.length) {
+                        arrMes.splice(1, 0, inject);
+                    }
+
                     arrMes.forEach(function(item, i, arr) {//For added anchors and others
 
                         if(i >= arrMes.length-1 && $.trim(item).substr(0, (name1+":").length) != name1+":"){
