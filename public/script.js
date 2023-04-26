@@ -1485,6 +1485,7 @@ $(document).ready(function(){
                                 if(type === 'force_name2' && tokens_already_generated === tokens_first_request_count){
                                     getMessage = name2+": "+getMessage;
                                 }
+                                getMessage = getMessage.replace(/\n+$/, "");
                                 message_already_generated +=getMessage;
 
                                 if(message_already_generated.indexOf('You:') === -1 && message_already_generated.indexOf('<|endoftext|>') === -1 && tokens_already_generated < parseInt(this_max_gen) && getMessage.length > 0){
