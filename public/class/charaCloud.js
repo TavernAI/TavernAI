@@ -6,6 +6,7 @@ class charaCloudClient {
         charaCloudClient.instance = this;
         this.is_online = false;
         this.is_toggle = false;
+        this.is_init = false;
         this.max_user_page_characters_count = 16;
         this.user_page_characters_count = 0;
         this.user_profile_page = 1;

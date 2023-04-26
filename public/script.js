@@ -300,70 +300,48 @@ $(document).ready(function(){
             
     
     function showCharaCloud(){
+        if(!charaCloud.is_init){
+            charaCloudInit();
+        }
         $('#shell').css('display', 'none');
         $('#chara_cloud').css('display', 'block');
-        
-        //del
-        //$('#characloud_characters').css('display', 'none');
-        $('#characloud_character_page').css('display', 'none');
-        $('#characloud_user_profile_block').css('display', 'none');
-        //$('#bg_chara_cloud').css('display', 'block');
-        
         $('#chara_cloud').css('opacity', 0.0);
-        $('#chara_cloud').transition({  
+        $('#chara_cloud').transition({
             opacity: 1.0,
-            delay: 0,
-            duration: 0,
-            queue: true,
-            easing: "ease-in-out",
-                complete: function() {  
-                    
-            
-            
-            }
+            duration: 300,
+            queue: false,
+            easing: "",
+            complete: function () { }
         });
-        $('#bg_chara_cloud').transition({  
-                opacity: 1.0,
-                duration: 1000,
-                queue: false,
-                easing: "",
-                complete: function() {  }
-            });
-        $('#characloud_search_form').transition({  
-                    opacity: 1.0,
-                    delay: 270,
-                    duration: 70,
-                    queue: false,
-                    easing: "ease-in-out",
-                    complete: function() {  }
-                });
-                
-                
-                $('#shell').css('display', 'none');
-            $('#chara_cloud').css('display', 'block');
-            $('#chara_cloud').css('opacity', 0.0);
-            $('#chara_cloud').transition({  
-                opacity: 1.0,
-                duration: 300,
-                queue: false,
-                easing: "",
-                complete: function() {  }
-            });
 
-            $('#rm_button_characters').click();
-            $('#bg_chara_cloud').transition({  
-                opacity: 1.0,
-                duration: 1000,
-                queue: false,
-                easing: "",
-                complete: function() {  }
-            });
-        
+        $('#rm_button_characters').click();
+        $('#bg_chara_cloud').transition({
+            opacity: 1.0,
+            duration: 1000,
+            queue: false,
+            easing: "",
+            complete: function () { }
+        });
+        $('#characloud_search_form').transition({
+            opacity: 1.0,
+            delay: 270,
+            duration: 70,
+            queue: false,
+            easing: "ease-in-out",
+            complete: function () { }
+        });
         
     }
     
     function hideCharaCloud(){
         $('#shell').css('display', 'grid');
+        $('#shell').css('opacity', 0.0);
+        $('#shell').transition({  
+            opacity: 1.0,
+            duration: 1000,
+            easing: "",
+            complete: function() {  }
+        });
         $('#chara_cloud').css('display', 'none');
         $('#bg_chara_cloud').transition({  
             opacity: 0.0,
@@ -3636,7 +3614,9 @@ $(document).ready(function(){
                         }
 
                     }
-
+                    if(settings.characloud){
+                        showCharaCloud();
+                    }
                     //User
                     user_avatar = settings.user_avatar;
                     $('.mes').each(function(){
@@ -3654,9 +3634,6 @@ $(document).ready(function(){
                         }, 2000);
                     }
 
-                    if(settings.characloud) {
-                        charaCloudInit();
-                    }
                     
                 }
                 if(!is_checked_colab) isColab();
@@ -4882,20 +4859,18 @@ $(document).ready(function(){
             $(this).css("opacity", "0");
         }
     };
-
+    $('#shell').on('click', '#chloe_star_dust_city', function(){
+        showCharaCloud();
+    });
     async function charaCloudInit(){
-        if(settings.characloud){
+            charaCloud.is_init = true;
             charaCloudServerStatus();
-            $('#chloe_star_dust_city').click(function () {
-                $('#shell').css('display', 'none');
-                $('#chara_cloud').css('display', 'block');
-            });
             let characloud_characters_board = await charaCloud.getBoard();
             if(charaCloud.isOnline()){
                 if(login !== undefined && ALPHA_KEY !== undefined){
                     userLogin(login, ALPHA_KEY, 'ALPHA_KEY');
                 }
-                showCharaCloud();
+                //showCharaCloud();
                 
                 printCharactersBoard(characloud_characters_board);
 
@@ -4903,9 +4878,7 @@ $(document).ready(function(){
 
 
             }
-        }else{
-            hideCharaCloud();
-        }
+
     }
     function printCharactersBoard(characloud_characters_board) {
         
@@ -5167,7 +5140,6 @@ $(document).ready(function(){
         let chara_logo = 'default';
         let server_status = await charaCloud.getServerStatus();
         if(charaCloud.isOnline()){
-            showCharaCloud();
             count_supply = server_status.count_supply;
             max_supply = server_status.max_supply;
             use_reg_recaptcha = server_status.use_reg_recaptcha;
@@ -5724,10 +5696,12 @@ $(document).ready(function(){
         user_name = vl(user_name);
         charaCloud.user_profile_name = user_name;
         hideAll();
+        $('#characloud_bottom').css('display', 'flex');
         $('#characloud_header_navigator_p2').css('display', 'inline-block');
         $('#characloud_header_navigator_c1').css('display', 'inline-block');
         $('.characloud_content').css('display', 'block');
         $('#characloud_user_profile_block').css('display', 'block');
+
         $('.character-gallery-content').html('');
         $('.edit-mod-character-gallery-content').html('');
         $('.new-mod-character-gallery-content').html('');
@@ -5846,6 +5820,7 @@ $(document).ready(function(){
         $('#characloud_header_navigator_c2').css('display', 'inline-block');
         
         $('.characloud_content').css('display', 'block');
+        $('#characloud_bottom').css('display', 'flex');
         $('#characloud_character_page').css('display', 'grid');
 
     }
@@ -6007,7 +5982,7 @@ $(document).ready(function(){
     }
     
     function hideAll() {
-        
+        characloud_bottom
         $('#user_profile_info_this_user').css('display', 'none');
         $('#user_profile_info_other_user').css('display', 'none');
         $('#characloud_category').css('display', 'none');
@@ -6033,8 +6008,7 @@ $(document).ready(function(){
         $('.category-list').html('');
     }
     $('#characloud_close_button').click(function(){
-        $('#shell').css('display', 'grid');
-        $('#chara_cloud').css('display', 'none');
+        hideCharaCloud();
     });
     $('#characloud_header_navigator_p1').click(function () {
         showMain();
@@ -6232,6 +6206,7 @@ $(document).ready(function(){
             .then(function (data) {
 
                 hideAll();
+                $('#characloud_bottom').css('display', 'flex');
                 $('#characloud_header_navigator_p2').css('display', 'inline-block');
                 $('#characloud_header_navigator_c1').css('display', 'inline-block');
                 $('#characloud_header_navigator_p2').text('Category');
