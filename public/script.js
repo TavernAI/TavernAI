@@ -97,6 +97,7 @@ $(document).ready(function(){
     var online_status = 'no_connection';
 
     var api_server = "";
+    var horde_api_server = "";
     //var interval_timer = setInterval(getStatus, 2000);
     var interval_timer_novel = setInterval(getStatusNovel, 3000);
     var is_get_status = false;
@@ -180,7 +181,12 @@ $(document).ready(function(){
     var novelai_settings;
     var novelai_setting_names;
     var preset_settings_novel = 'Classic-Krake';
-    
+
+    // HORDE
+    var horde_api_key = "0000000000";
+    var horde_model = "";
+    var hordeCheck;
+
     //openai settings
     var temp_openai = 0.9;
     var top_p_openai = 1.0;
@@ -331,6 +337,8 @@ $(document).ready(function(){
             $("#online_status_text3").html("No connection...");
             $("#online_status_indicator4").addClass('online_status_indicator_offline');
             $("#online_status_text4").html("No connection...");
+            $("#online_status_indicator_horde").css("background-color", "red");
+            $("#online_status_text_horde").html("No connection...");
             is_get_status = false;
             is_get_status_novel = false;
             is_get_status_openai = false;
@@ -348,6 +356,8 @@ $(document).ready(function(){
             $("#online_status_text3").html(online_status);
             $("#online_status_indicator4").addClass('online_status_indicator_online');
             $("#online_status_text4").html(online_status);
+            $("#online_status_indicator_horde").css("background-color", "green");
+            $("#online_status_text_horde").html(online_status);
         }
 
     }
@@ -471,6 +481,57 @@ $(document).ready(function(){
         checkOnlineStatus();
         $("#api_loading").css("display", 'none');
         $("#api_button").css('display', 'inline-block');
+    }
+
+    // HORDE
+    async function getStatusHorde(){
+        if(is_get_status){
+            var data = {'type':'text'};
+
+            jQuery.ajax({
+                type: 'POST', //
+                url: '/getstatus_horde', //
+                data: JSON.stringify(data),
+                beforeSend: function(){
+                    //$('#create_button').attr('value','Creating...');
+                },
+                cache: false,
+                dataType: "json",
+                contentType: "application/json",
+                success: function(data){
+                    if (!('error' in data)) online_status = 'Models list fetched and updated';
+
+                    $('#horde_model_select').empty();
+                    $('#horde_model_select').append($('<option></option>').val('').html('-- Select Model --'));
+                    $.each(data, function(i, p) {
+                        $('#horde_model_select').append($('<option></option>').val(p.name).html('['+p.count.toString()+'] - '+p.name));
+                    });
+
+                    is_pygmalion = true;
+                    resultCheckStatusHorde();
+                },
+                error: function (jqXHR, exception) {
+                    online_status = 'no_connection';
+                    $('#horde_model_select').empty();
+                    $('#horde_model_select').append($('<option></option>').val('').html('-- Connect to Horde for models --'));
+
+                    console.log(exception);
+                    console.log(jqXHR);
+                    resultCheckStatusHorde();
+                }
+            });
+        }else{
+            if(!is_get_status && !is_get_status_novel){
+                online_status = 'no_connection';
+            }
+        }
+    }
+
+    function resultCheckStatusHorde(){
+        is_api_button_press = false;
+        checkOnlineStatus();
+        $("#api_loading_horde").css("display", 'none');
+        $("#api_button_horde").css("display", 'inline-block');
     }
 
     function printCharaters(){
@@ -789,6 +850,9 @@ $(document).ready(function(){
         }
     });
     async function Generate(type) {//encode("dsfs").length
+        // HORDE
+        if (main_api == 'horde' && horde_model == '') { return; }
+
         let gap_holder = 120;
         if(main_api === 'openai' && (model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-0301' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k')) 
             gap_holder = parseInt(amount_gen_openai);
@@ -869,10 +933,17 @@ $(document).ready(function(){
             var mesSend = [];
             var charDescription = characters[this_chid].description.replace(/\r/g, "");
             var charPersonality = $.trim(characters[this_chid].personality);
+            var inject = "";
 
             let wDesc = WPP.parseExtended(charDescription);
             if(settings.notes && winNotes.strategy === "discr") {
                 charDescription = WPP.stringifyExtended(WPP.getMergedExtended(wDesc, winNotes.wppx), "line");
+            } else if(settings.notes && winNotes.strategy === "prep") {
+                inject = (WPP.stringifyExtended(winNotes.wppx) + "\n")
+                    .replace(/{{user}}/gi, name1)
+                    .replace(/{{char}}/gi, name2)
+                    .replace(/<USER>/gi, name1)
+                    .replace(/<BOT>/gi, name2);
             } else {
                 charDescription = WPP.stringifyExtended(wDesc, "line");
             }
@@ -991,6 +1062,7 @@ $(document).ready(function(){
             //chat2 = chat2.reverse();
             var this_max_context = 1487;
             if(main_api == 'kobold') this_max_context = max_context;
+            if(main_api == 'horde') this_max_context = max_context;
             if(main_api == 'novel'){
                 if(novel_tier === 1){
                     this_max_context = 1024;
@@ -1074,6 +1146,11 @@ $(document).ready(function(){
                     chatString = "";
                     arrMes = arrMes.reverse();
                     var is_add_personality = false;
+
+                    if(inject && inject.length && arrMes.length) {
+                        arrMes.splice(arrMes.length-1, 0, inject);
+                    }
+
                     arrMes.forEach(function(item, i, arr) {//For added anchors and others
 
                         if(i >= arrMes.length-1 && $.trim(item).substr(0, (name1+":").length) != name1+":"){
@@ -1281,6 +1358,48 @@ $(document).ready(function(){
                                     "order": this_settings.order
                                         };
                 }
+
+                // HORDE
+                if(main_api == 'horde'){
+                    // Same settings as Kobold?
+                    var this_settings = koboldai_settings[koboldai_setting_names[preset_settings]];
+                    this_amount_gen = parseInt(amount_gen);
+
+                    if (horde_api_key == null) {
+                        horde_api_key = "0000000000";
+                    }
+
+                    generate_data = {
+                        "prompt": finalPromt,
+                        "horde_api_key": horde_api_key,
+                        "n": 1,
+                        "frmtadsnsp": false,
+                        "frmtrmblln": false,
+                        "frmtrmspch": false,
+                        "frmttriminc": false,
+                        "max_context_length": parseInt(max_context),
+                        "max_length": this_amount_gen,
+                        "rep_pen": parseFloat(rep_pen),
+                        "rep_pen_range": parseInt(rep_pen_size),
+                        "rep_pen_slope": this_settings.rep_pen_slope,
+                        "singleline": singleline || false,
+                        "temperature": parseFloat(temp),
+                        "tfs": this_settings.tfs,
+                        "top_a": this_settings.top_a,
+                        "top_k": this_settings.top_k,
+                        "top_p": this_settings.top_p,
+                        "typical": this_settings.typical,
+                        "s1": this_settings.sampler_order[0],
+                        "s2": this_settings.sampler_order[1],
+                        "s3": this_settings.sampler_order[2],
+                        "s4": this_settings.sampler_order[3],
+                        "s5": this_settings.sampler_order[4],
+                        "s6": this_settings.sampler_order[5],
+                        "s7": this_settings.sampler_order[6],
+                        "models": [horde_model]
+                    };
+                }
+
                 if(main_api == 'openai'){
                     generate_data = {
                         "model": model_openai,
@@ -1306,6 +1425,14 @@ $(document).ready(function(){
                 if(main_api == 'novel'){
                     generate_url = '/generate_novelai';
                 }
+                // HORDE
+                if(main_api == 'horde'){
+                    generate_url = '/generate_horde';
+                    if(hordeCheck) {
+                        clearInterval(hordeCheck);
+                    }
+                    hordeCheck = setInterval(updateHordeStats.bind(this), 1000);
+                }
                 if(main_api == 'openai'){
                     generate_url = '/generate_openai';
                 }
@@ -1317,7 +1444,7 @@ $(document).ready(function(){
                         //$('#create_button').attr('value','Creating...'); 
                     },
                     cache: false,
-                    timeout: requestTimeout,
+                    timeout: (main_api == 'horde' && requestTimeout < 5*60*1000 ? 5*60*1000 : requestTimeout),
                     dataType: "json",
                     contentType: "application/json",
                     success: function(data){
@@ -1334,6 +1461,15 @@ $(document).ready(function(){
                             if(main_api == 'novel'){
                                 getMessage = data.output;
                             }
+                            if(main_api == 'horde'){
+                                getMessage = data.generations[0].text;
+                                if(hordeCheck) {
+                                    clearInterval(hordeCheck);
+                                    hordeCheck = null;
+                                    document.getElementById("hordeInfo").classList.remove("hidden");
+                                    document.getElementById("hordeQueue").innerHTML = "-";
+                                }
+                            }
                             if(main_api == 'openai'){
                                 if(model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-0301' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k'){
                                     getMessage = data.choices[0].message.content;
@@ -1349,6 +1485,7 @@ $(document).ready(function(){
                                 if(type === 'force_name2' && tokens_already_generated === tokens_first_request_count){
                                     getMessage = name2+": "+getMessage;
                                 }
+                                getMessage = getMessage.replace(/\n+$/, "");
                                 message_already_generated +=getMessage;
 
                                 if(message_already_generated.indexOf('You:') === -1 && message_already_generated.indexOf('<|endoftext|>') === -1 && tokens_already_generated < parseInt(this_max_gen) && getMessage.length > 0){
@@ -2455,6 +2592,18 @@ $(document).ready(function(){
         }
     });
 
+    // HORDE
+    $( "#api_button_horde" ).click(function() {
+        if($('#horde_api_key').val() != ''){
+            horde_api_key == "0000000000";
+        }
+        $("#api_loading_horde").css("display", 'inline-block');
+        $("#api_button_horde").css("display", 'none');
+        is_get_status = true;
+        is_api_button_press = true;
+        getStatusHorde();
+    });
+
     $( "body" ).click(function() {
         if($("#options").css('opacity') == 1.0){
             $('#options').transition({  
@@ -2742,17 +2891,25 @@ $(document).ready(function(){
         checkOnlineStatus();
         changeMainAPI();
         saveSettings();
+
+        // HORDE
+        horde_model = "";
+        $('#horde_model_select').empty();
+        $('#horde_model_select').append($('<option></option>').val('').html('-- Connect to Horde for models --'));
     });
     function changeMainAPI(){
         if($('#main_api').find(":selected").val() == 'kobold'){
             $('#kobold_api').css("display", "block");
             $('#novel_api').css("display", "none");
             $('#openai_api').css("display","none");
+            $('#horde_api').css("display", "none");
+            document.getElementById("hordeInfo").classList.add("hidden");
             
             $('#master_settings_koboldai_block').css("display", "grid");
             $('#master_settings_novelai_block').css("display", "none");
             $('#master_settings_openai_block').css("display", "none");
             $('#singleline_toggle').css("display", "grid");
+            $('#multigen_toggle').css("display", "grid");
 
             main_api = 'kobold';
         }
@@ -2760,10 +2917,13 @@ $(document).ready(function(){
             $('#kobold_api').css("display", "none");
             $('#novel_api').css("display", "block");
             $('#openai_api').css("display","none");
+            $('#horde_api').css("display", "none");
             $('#master_settings_koboldai_block').css("display", "none");
             $('#master_settings_novelai_block').css("display", "grid");
             $('#master_settings_openai_block').css("display", "none");
             $('#singleline_toggle').css("display", "none");
+            $('#multigen_toggle').css("display", "grid");
+            document.getElementById("hordeInfo").classList.add("hidden");
 
             main_api = 'novel';
         }
@@ -2771,11 +2931,28 @@ $(document).ready(function(){
             $('#kobold_api').css("display", "none");
             $('#novel_api').css("display", "none");
             $('#openai_api').css("display","block");
+            $('#horde_api').css("display", "none");
             $('#master_settings_koboldai_block').css("display", "none");
             $('#master_settings_novelai_block').css("display", "none");
             $('#master_settings_openai_block').css("display", "grid");
             $('#singleline_toggle').css("display", "none");
+            $('#multigen_toggle').css("display", "grid");
+            document.getElementById("hordeInfo").classList.add("hidden");
             main_api = 'openai';
+        }
+        // HORDE
+        if($('#main_api').find(":selected").val() == 'horde'){
+            $('#kobold_api').css("display", "none");
+            $('#novel_api').css("display", "none");
+            $('#openai_api').css("display","none");
+            $('#horde_api').css("display", "block");
+            $('#master_settings_koboldai_block').css("display", "grid");
+            $('#master_settings_novelai_block').css("display", "none");
+            $('#master_settings_openai_block').css("display", "none");
+            $('#singleline_toggle').css("display", "grid");
+            $('#multigen_toggle').css("display", "none");
+            document.getElementById("hordeInfo").classList.remove("hidden");
+            main_api = 'horde';
         }
     }
     async function getUserAvatars(){
@@ -3041,6 +3218,34 @@ $(document).ready(function(){
         $('#rep_pen_size_counter_novel').html( $(this).val()+" Tokens");
         var repPenSizeTimer = setTimeout(saveSettings, 500);
     });
+    // HORDE
+    $(document).on('input', '#horde_api_key', function() {
+        horde_api_key = $(this).val();
+    });
+    $( "#horde_model_select" ).change(function() {
+        horde_model = $( "#horde_model_select" ).val();
+    });
+    function updateHordeStats() {
+        jQuery.ajax({
+            type: "GET",
+            url: "/gethordeinfo",
+            cache: false,
+            contentType: "application/json",
+            success: function(data) {
+                if(data.running && data.queue > 0) {
+                    document.getElementById("hordeInfo").classList.remove("hidden");
+                    document.getElementById("hordeQueue").innerHTML = String(data.queue);
+                } else {
+                    document.getElementById("hordeInfo").classList.remove("hidden");
+                    document.getElementById("hordeQueue").innerHTML = "-";
+                }
+            },
+            error: function (jqXHR, exception) {
+                console.error(jqXHR);
+                console.error(exception);
+            }
+        });
+    }
     $(document).on('input', '#rep_pen_slope_novel', function() {
         rep_pen_slope_novel = $(this).val();
         if(isInt(rep_pen_slope_novel)){

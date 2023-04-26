@@ -200,7 +200,7 @@
 
                 </div>
                 <div id="master_settings_toggle_block">
-                    <div class="menu_toggle">
+                    <div class="menu_toggle" id="multigen_toggle">
                         <div class="toggle_label"><h4 class="h4_menu_title">Multigen</h4><h5 class="h5_menu_help">Information (<a href="/notes/14" target="_blank">?</a>)</h5></div>
                         <input id="multigen" type="checkbox" class="toggle_checkbox">
                     </div>
@@ -305,6 +305,7 @@
             <div id="notes_wpp_editor" class="wpp-editor"></div>
             <select id="notes_strategy" class="notes_strategy">
                 <option value="discr" title="Inject all notes as single line after character's description">Add to description</option>
+                <option value="prep" title="Inject all notes before your last chat">Add before last chat</option>
                 <option value="none" title="Do not add notes to request">Don't add</option>
             </select>
         </div>
@@ -393,6 +394,7 @@
             <h3 id="title_api">API</h3>
             <select id="main_api">
                 <option value="kobold">KoboldAI</option>
+                <option value="horde">Kobold Horde</option>
                 <option value="novel">NovelAI</option>
                 <option value="openai">OpenAI</option>
             </select>
@@ -420,6 +422,27 @@
                     <h4 class="h4_menu_title">Repetition Penalty </h4><h5 id="rep_pen_counter" class="range_counter">select</h5>
                     <input type="range" id="rep_pen" name="volume" min="1" max="1.5" step="0.01">
                 </div>
+            </div>
+            <!-- HORDE -->
+            <div id="horde_api" style="position: relative;">
+                <form  action="javascript:void(null);" method="post" enctype="multipart/form-data">
+                    <h4 class="h4_menu_title">Horde API Key</h4><h5 class="h5_menu_help">Leave blank for guest account. <a href="notes/31.html" target="_blank">How does it work?</a></h5>
+                    <!--<h5>Register at: <a href="https://horde.koboldai.net/register" target="_blank">https://horde.koboldai.net/register</a></h5>-->
+                    <input type="password" id="horde_api_key" name="horde_api_key" class="text_pole_horde" maxlength="500" size="35" placeholder="0000000000" autocomplete="off">
+                    <input id="api_button_horde" type="submit" value="Connect">
+                    <img id="api_loading_horde" src="img/load.svg" >
+                    <div id="online_status_horde">
+                        <div id="online_status_indicator_horde"></div><div id="online_status_text_horde">No connection...</div>
+                    </div>
+
+
+                    <h4 class="h4_menu_title">Models</h4>
+                    <select id="horde_model_select" style="color:#fff;background-color:#13152c;" >
+                        <option value="" selected>-- Connect to Horde for models --</option>
+                    </select>
+
+
+                </form>
             </div>
             <div id="novel_api">
                 <div id="novel_api_logo"><a href="https://novelai.net/" target="_blank"><img src="img/novelai.png"></a></div>
@@ -554,6 +577,9 @@
             </form>
             <div id="online_status">
                 <div id="online_status_indicator" class="online_status_indicator_offline"></div><div id="online_status_text">No connection...</div>
+            </div>
+            <div id="hordeInfo" class="hidden">
+                <span id="hordeQueue">-</span>
             </div>
         </div>
     </div>

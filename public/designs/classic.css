@@ -1243,14 +1243,12 @@ input[type=submit], input[type=button] {
     min-height: 40px;
 }
 
-
-
 #online_status {
     opacity: 0.3;
-    position: absolute;
     bottom: 0px;
-    margin-left: 9px;
-    margin-bottom: 15px;
+    margin-left: 1ex;
+    margin-top: 1ex;
+    display: inline-block;
 }
 #online_status2, #online_status3, #online_status4 {
     opacity: 0.5;
@@ -2618,4 +2616,66 @@ label.checkbox :checked + span:after {
 #search_bar::placeholder  {
     color: white;
 }
+/* HORDE */
+#api_button_horde{
+    cursor: pointer;
+    color:#ffffffaa;
+}
+#api_loading_horde{
+    width: 25px;
+    height: 25px;
+    display: none;
+}
+#online_status_text_horde{
+    margin-left: 4px;
+    display: inline-block;
+}
+#online_status_horde{
+    opacity: 0.5;
+    margin-top: 2px;
+    margin-left: 10px;
+    margin-bottom: 30px;
+}
+#online_status_indicator_horde{
+    border-radius: 7px;
+    width: 14px;
+    height: 14px;
+    background-color: red;
+    display: inline-block;
+}
 
+.text_pole_horde{
+
+    border:0px solid grey;
+    box-shadow: 0 0 2px rgba(200,200,200,0.5);
+    background-color: #13152c;
+    /* padding: 10px; */
+
+    margin-left: 10px;
+
+    padding: 10px;
+    color: #ffffffaa;
+    font-family: "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+    font-size: 18px;
+    size: 10;
+    font-size: 11pt;
+    padding: 7px;
+}
+#hordeInfo {
+    opacity: 0.3;
+    bottom: 0px;
+    margin-left: 1ex;
+    margin-top: 1ex;
+    display: inline-block;
+}
+#hordeInfo.hidden {
+    display: none;
+}
+#hordeQueue {
+    text-align: left;
+    margin-left: 1ex;
+}
+#hordeQueue:before {
+    text-align: right;
+    content: "Queue position: "
+}

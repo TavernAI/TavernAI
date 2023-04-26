@@ -146,9 +146,13 @@ export class Notes extends Resizable {
         if(!this.textarea) { return; }
         this.textarea.value = value.replace(/\r/g, "");
         this._wpp.clear();
-        let parsed = WPP.parseExtended(this.textarea.value);
-        this._wpp.wpp = parsed.wpp;
-        this.appendix = parsed.appendix;
+        try {
+            let parsed = WPP.parseExtended(this.textarea.value);
+            this._wpp.wpp = parsed.wpp;
+            this.appendix = parsed.appendix;
+        } catch (e) {
+            this.appendix = this.textarea.value;
+        }
         this.updateNotesTokenCount();
     }
 
