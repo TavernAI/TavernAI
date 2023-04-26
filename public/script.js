@@ -1148,7 +1148,7 @@ $(document).ready(function(){
                     var is_add_personality = false;
 
                     if(inject && inject.length && arrMes.length) {
-                        arrMes.splice(1, 0, inject);
+                        arrMes.splice(arrMes.length-1, 0, inject);
                     }
 
                     arrMes.forEach(function(item, i, arr) {//For added anchors and others
