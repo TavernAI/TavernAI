@@ -369,6 +369,25 @@ hr {
     height: auto;
     
 }
+.mes .token_counter {
+    position: absolute;
+    bottom: 0.5ex;
+    left: 1ex;
+    width: 3em;
+    height: 1.5em;
+    line-height: 1.5em;
+    vertical-align: middle;
+    text-align: center;
+    border-radius: 1.25ex;
+    color: #191b31;
+    background: #ccc;
+    opacity: 0;
+    z-index: 4;
+    cursor: pointer;
+}
+.mes .token_counter:hover {
+    opacity: 0.75;
+}
 
 .last_mes .mes_text {
     min-height: 80px;

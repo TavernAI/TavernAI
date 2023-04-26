@@ -771,6 +771,9 @@ $(document).ready(function(){
             container.append('<div class="swipe_left"><img src="img/swipe_left.png"></div>');
             container.append('<div class="swipe_right"><img src="img/swipe_right.png"></div>');
 
+            let tokenCounter = $('<div class="token_counter" title="Token count"></div>');         // token count
+            container.append(tokenCounter);
+
             $("#chat").append(container);
         }
         
@@ -778,12 +781,14 @@ $(document).ready(function(){
             if(type === 'swipe'){
                 $("#chat").children().filter('[mesid="'+(count_view_mes-1)+'"]').children('.mes_block').children('.mes_text').html('');
                 $("#chat").children().filter('[mesid="'+(count_view_mes-1)+'"]').children('.mes_block').children('.mes_text').append(messageText);
+                $("#chat").children().filter('[mesid="'+(count_view_mes-1)+'"]').children('.token_counter').html(String(getTokenCount(messageText)));
                 if(mes['swipe_id'] !== 0 && swipes){
                     $("#chat").children().filter('[mesid="'+(count_view_mes-1)+'"]').children('.swipe_right').css('display', 'block');
                     $("#chat").children().filter('[mesid="'+(count_view_mes-1)+'"]').children('.swipe_left').css('display', 'block');
                 }
             }else{
                 $("#chat").children().filter('[mesid="'+count_view_mes+'"]').children('.mes_block').children('.mes_text').append(messageText);
+                $("#chat").children().filter('[mesid="'+count_view_mes+'"]').children('.token_counter').html(String(getTokenCount(messageText)));
                 
                 hideSwipeButtons();
                 
@@ -4066,6 +4071,7 @@ $(document).ready(function(){
         root.find('.mes_text').empty();
         toggleEdit(root, false);
         root.find('.mes_text').append(messageFormating(text,this_edit_mes_chname));
+        root.find('.token_counter').html(String(getTokenCount(text)));
         if(this_edit_target_id !== undefined && this_edit_target_id !== this_edit_mes_id) {
             let date = message.send_date;
             chat.splice(this_edit_target_id, 0, chat.splice(this_edit_mes_id, 1)[0]);
@@ -4152,6 +4158,7 @@ $(document).ready(function(){
                         const is_animation_scroll = ($('#chat').scrollTop() >= ($('#chat').prop("scrollHeight") - $('#chat').outerHeight()) - 10);
                         if(run_generate && parseInt(chat[chat.length-1]['swipe_id']) === chat[chat.length-1]['swipes'].length){
                             $("#chat").children().filter('[mesid="'+(count_view_mes-1)+'"]').children('.mes_block').children('.mes_text').html('...');
+                            $("#chat").children().filter('[mesid="'+(count_view_mes-1)+'"]').children('.token_counter').html("-");
                         }else{
                             addOneMessage(chat[chat.length-1], 'swipe');
                         }
