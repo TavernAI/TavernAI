@@ -198,8 +198,11 @@ export class UIWorldInfoMain extends Resizable {
 
         let tags = document.createElement("span");
             tags.classList.add("tags");
-            tags.appendChild(document.createTextNode(data.key.join(", ")));
-            if(!data.key.length || !data.content || !data.content.length) {
+            tags.appendChild(document.createTextNode(data.comment && data.comment.length ? data.comment : data.key.join(", ")));
+            if(
+                (!data.key.length && !data.key.length && !data.constant) ||
+                ((!data.comment || !data.comment.length) && (!data.key.length || !data.content || !data.content.length))
+            ) {
                 row.classList.add("error");
             }
             tags.setAttribute("title", "Edit entry");
@@ -425,8 +428,11 @@ export class UIWorldInfoMain extends Resizable {
                 index: options.uid,
                 save: function(entry) {
                     this.save();
-                    event.target.innerHTML = entry.key.join(", ");
-                    if(!entry.key.length || !entry.content || !entry.content.length) {
+                    event.target.innerHTML = entry.comment && entry.comment.length ? entry.comment : entry.key.join(", ");
+                    if(
+                        (!entry.key.length && !entry.key.length && !entry.constant) ||
+                        ((!entry.comment || !entry.comment.length) && (!entry.key.length || !entry.content || !entry.content.length))
+                    ) {
                         event.target.parentNode.classList.add("error");
                     } else {
                         event.target.parentNode.classList.remove("error");
@@ -674,12 +680,6 @@ export class UIWorldInfoMain extends Resizable {
             for(let i = 0; i < sorted.length; i++) {
                 const entry = sorted[i];
                 entry.key = entry.key || [];
-                if(entry.constant) {
-                    (entry.prepend ? prepend : append).push(sorted.splice(i, 1)[0].content);
-                    (entry.prepend ? append : prepend).push(null);
-                    i--;
-                    continue;
-                }
                 let included = false;
                 for(let j = 0; j < entry.key.length; j++) {
                     if(message.includes(entry.key[j].trim().toLowerCase())) {
@@ -702,12 +702,6 @@ export class UIWorldInfoMain extends Resizable {
             for(let i = 0; i < sorted.length; i++) {
                 const entry = sorted[i];
                 entry.keysecondary = entry.keysecondary || [];
-                if(entry.constant) {
-                    (entry.prepend ? prepend : append).push(sorted.splice(i, 1)[0].content);
-                    (entry.prepend ? append : prepend).push(null);
-                    i--;
-                    continue;
-                }
                 let included = false;
                 for(let j = 0; j < entry.keysecondary.length; j++) {
                     if(message.includes(entry.keysecondary[j].trim().toLowerCase())) {
@@ -732,19 +726,30 @@ export class UIWorldInfoMain extends Resizable {
                     continue;
                 }
             }
-
-            if(prepend.length) {
-                let prependReplaces = this.evaluate(prepend.slice(), sorted);
-                prepend = prepend.concat(prependReplaces.prepend);
-                append = append.concat(prependReplaces.append);
-            }
-            if(append.length) {
-                let appendReplaces = this.evaluate(append.slice(), sorted);
-                prepend = prepend.concat(appendReplaces.prepend);
-                append = append.concat(appendReplaces.append);
-            }
             return true;
         });
+        // constant keys
+        for(let i = 0; i < sorted.length; i++) {
+            const entry = sorted[i];
+            if(entry.constant) {
+                (entry.prepend ? prepend : append).push(sorted.splice(i, 1)[0].content);
+                (entry.prepend ? append : prepend).push(null);
+                i--;
+                continue;
+            }
+        }
+
+        if(prepend.length) {
+            let prependReplaces = this.evaluate(prepend.slice(), sorted);
+            prepend = prepend.concat(prependReplaces.prepend);
+            append = append.concat(prependReplaces.append);
+        }
+        if(append.length) {
+            let appendReplaces = this.evaluate(append.slice(), sorted);
+            prepend = prepend.concat(appendReplaces.prepend);
+            append = append.concat(appendReplaces.append);
+        }
+
         return {
             prepend: prepend,
             append: append

@@ -17,6 +17,8 @@ export class UIWorldInfoDetails extends Resizable {
     wpp;
     wppEditor;
 
+    comment;
+
     constant;
     selective;
     prepend;
@@ -58,17 +60,39 @@ export class UIWorldInfoDetails extends Resizable {
             }
         }.bind(this);
 
+        this.comment = this.findChildWithClass("comment", this.footer);
+        this.comment.value = this.data.comment || "";
+        if(this.comment.value.length) {
+            this.comment.classList.remove("empty");
+        } else {
+            this.comment.classList.add("empty");
+        }
+        this.comment.onkeyup = function(event) {
+            this.data.comment = event.target.value;
+            if(this.data.comment) {
+                event.target.classList.remove("empty");
+            } else {
+                event.target.classList.add("empty");
+            }
+            this.save();
+        }.bind(this);
+        this.comment.oncut = this.comment.onkeyup;
+        this.comment.onpaste = this.comment.onkeyup;
+
         this.constant = this.findChildWithClass("constant", this.footer);
+        this.constant.checked = this.data.constant;
         this.constant.onchange = function(event) {
             this.data.constant = event.target.value === "on";
             this.save();
         }.bind(this);
         this.selective = this.findChildWithClass("selective", this.footer);
+        this.selective.checked = this.data.selective;
         this.selective.onchange = function(event) {
             this.data.selective = event.target.value === "on";
             this.save();
         }.bind(this);
         this.prepend = this.findChildWithClass("prepend", this.footer);
+        this.prepend.checked = this.data.prepend;
         this.prepend.onchange = function(event) {
             this.data.prepend = event.target.value === "on";
             this.save();

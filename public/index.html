@@ -321,12 +321,6 @@
             <div class="header">
                 <img class="note_icon icon" src="img/world.png" title="World info">
                 <select class="worldinfo_name" title="Select world"></select>
-                <label class="button inline">Import...
-                    <form action="javascript:void(null);" method="post" enctype="multipart/form-data">
-                        <input type="file" id="world_import_file" accept=".json" name="avatar">
-                        <input name="filename" type="hidden" maxlength="999" size="2" value="" autocomplete="off">
-                    </form>
-                </label>
                 <button title="Delete world" class="inline delete" disabled="disabled"><img src="img/del_mes.png"></button>
                 <button title="Create new world" class="inline create"><img src="img/save_and_start_new_chat.png"></button>
                 <img class="cross" src="img/cross.png" title="Hide">
@@ -351,6 +345,7 @@
                 <div class="wpp-editor-field"></div>
             </div>
             <div class="footer">
+                <label class="comment-label">Comment: </label><input type="text" class="comment" title="Optional comment to help you organize entries">
                 <label>Constant</label><input type="checkbox" class="toggle_checkbox constant" title="Always add this entry, even when it's not mentioned">
                 <label>Selective</label><input type="checkbox" class="toggle_checkbox selective" title="This entry will only be added if the message has both a main key, and a secondary key">
                 <label>Prepend</label><input type="checkbox" class="toggle_checkbox prepend" title="When including, place this entry before character definition">
@@ -464,6 +459,12 @@
                 <select id="worldinfo_select" class="menu_select">
                     <option value="none">None</option>
                 </select><button class="inline double" id="option_toggle_worldinfo">Editor</button>
+                <label class="button worldinfo-import">Import...
+                    <form action="javascript:void(null);" method="post" enctype="multipart/form-data">
+                        <input type="file" id="world_import_file" accept=".json" name="avatar">
+                        <input name="filename" type="hidden" maxlength="999" size="2" value="" autocomplete="off">
+                    </form>
+                </label>
                 <h5 class="h5_menu_help">Evaluation depth</h5>
                 <input type="number" id="input_worldinfo_depth" min="1" step="1" title="How many latest chat messages will be evaluated for World Info">
                 <h5 class="h5_menu_help">Token budget</h5>

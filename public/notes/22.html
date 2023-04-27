@@ -9,43 +9,251 @@
         <div id="main">
             <div id="content">
                 <h2>World Info</h2>
-                <h4>World Info enhances AI's understanding of the details in your world.</h4>
+
+                <strong>World Info enhances AI's understanding of the details in your world.</strong>
                 <p>It functions like a dynamic dictionary that only inserts relevant information from World Info entries when keywords associated with the entries are present in the message text.</p>
                 <p>The TavernAI engine activates and seamlessly integrates the appropriate lore into the prompt, providing background information to the AI.</p>
                 <p><i>It is important to note that while World Info helps guide the AI towards your desired lore, it does not guarantee its appearance in the generated output messages.</i></p>
 
-                <h3>Token budget</h3>
-                <p>Sets how many tokens at maximum will be used for World Info <em>entries</em>.</p>
 
-                <h3>Evaluation depth</h3>
-                <p>Indicates how many messages into the past the TavernAI searches in order to find World Info keys.</p>
+                <img id="fig-22-1" src="22-a.png" class="fig" alt="World info selection in settings, with evaluation depth and token budget input fields below"/>
+                <label for="fig-22-1">Fig.1: World info in settings</label>
 
-                <h3>Editor</h3>
-                <p>The editor allows you to add, delete, and change World Info <em>entries</em>.</p>
+                <ol>
+                    <li><strong>World selector</strong> - changes which world is active, and which will be edited</li>
+                    <li><strong>Editor button</strong> - edits currently selected world</li>
+                    <li><strong>Import button</strong> - import world from JSON</li>
+                    <li><strong>Token budget</strong> - sets how many tokens at maximum will be used for World Info <em>entries</em>. Actually used budget is automatically subtracted from context size of request - the more budget, the less conversation history.</li>
+                    <li><strong>Evaluation depth</strong> - sets how many messages into the past World Info should look when searching for matching keys</li>
+                </ol>
+
+                <h3>Editor's main window</h3>
+
+                <img id="fig-22-2" src="22-b.png" class="fig" alt="World info editor window, with the world 'Toaru' opened, showing the header with import, delete, and new buttons, as well as several entries, and the option to add new entry on the bottom."/>
+                <label for="fig-22-2">Fig.2: World info editor</label>
+
+                <p>The editor allows you to add, delete, and change World Info <em>entries</em>. Worlds are saved in <string>public/worlds</string>. Names are de-capitalized and spaces are changed to underscores.</p>
+                <p>Entries with no keys (and not being constant), or entries with W++ content but no properties, are highlited in red.</p>
+
+                <ol>
+                    <li><strong>World name</strong> and selector</li>
+                    <li><strong>Delete world</strong> button</li>
+                    <li><strong>Order up/down</strong> buttons - change the priority of entries. Entries on the top are evaluated first. You can also drag-and-drop entries.</li>
+                    <li><strong>Entry's name</strong> - clicking this will open entry editor. The name is either the comment field of the entry, or its primary key will use comment, if given.</li>
+                    <li><strong>Token count</strong> - how many tokens this entry will take up if it's matched</li>
+                    <li><strong>Delete entry</strong> button</li>
+                    <li><strong>Add new entry</strong> button</li>
+                </ol>
+
+                <h3>Entry editor</h3>
                 <p>Each <em>entry</em> has primary keys and secondary keys (see below). These are chunks of text which, when matched, result in the <em>entry</em>'s properties being inserted into the request.</p>
                 <p><em>Entry</em>'s properties come in plain text or simplified W++ (which is more economical). W++ has an editor which shows three main components: category, name, and properties.</p>
-                <ul>
-                    <li><em>Category</em> (highlited item on first row of editor) is a general term like "Place", "Character", "Item", etc.</li>
-                    <li><em>Name</em> (second item on first row of editor) is the official name of the given <em>entry</em>, such as "New York", "John Thompson", "Luger 9mm", etc.</li>
-                    <li><em>Properties</em> (all following items) is the context for the <em>entry</em>, such as "bustling metropolis" "situated on East Coast of the USA" "expensive housing" "large rats", etc.</li>
-                </ul>
-                <p>Each <em>entry</em> also host several flags:</p>
-                <ul>
-                    <li><em>Constant</em> means the entry should <em>always</em> be used, no matter the key matches. This effectively works as a global <a href="21.html">Scroll of Memories</a>.</li>
-                    <li><em>Selective</em> means the entry can <em>only</em> be used if both primary and secondary keys have a match. (For instance, to distinguish between "Chris Evans" (primary) "actor" (secondary) and "Chris Evans" (primary) "presenter" (secondary).</li>
-                    <li><em>Prepend</em> means the entry, if included, will be put in front of character definitions instead of after them.</li>
-                </ul>
 
-                <h3>How World Info is evaluated</h3>
-                <p>World Info <em>entries</em> have an order of priority in which they are evaluated. This is done message by message, from the highest priority (further up the list) to the lowest.</p>
+                <img id="fig-22-3" src="22-c.gif" class="fig" alt="World info entry window, alternating between standard text editor and W++ format editor."/>
+                <label for="fig-22-3">Fig.3: Entry editor</label>
+
+                <ol>
+                    <li><strong>Token count</strong> - number of tokens of the content</li>
+                    <li><strong>W++ editor switch</strong> - W++ format is more economic, but might not work for APIs other than KoboldAI</li>
+                    <li><strong>Primary keys</strong> - these are keywords matched in the first pass through the messages in evaluation depth scope</li>
+                    <li><strong>Secondary keys</strong> - these are keywords matched on the second pass through the messages. This means they automatically have lower priority than primary keys.</li>
+                    <li><strong>Content as plain text</strong> - content is the <em>only part</em> of entry that gets injected if conditions are met. Plain text and W++ are synchronized automatically and can even be mixed.</li>
+                    <li><strong>Content as W++</strong> - only simplified W++ format is used, described below. W++ is further optimized to take up as few tokens as possible.
+                        <ol style="list-style-type: lower-alpha">
+                            <li><strong>Category</strong> - general term like "Place", "Character", "Item", etc. Autofill values are suggestions, not the only options.</li>
+                            <li><strong>Name</strong> - official name of the given <em>entry</em>, such as "New York", "John Thompson", "Luger 9mm", etc.</li>
+                            <li><strong>Properties</strong> - context for the <em>entry</em>, such as "bustling metropolis" "situated on East Coast of the USA" "expensive housing" "large rats", etc.</li>
+                        </ol>
+                    </li>
+                    <li><strong>Comment</strong> field - optional field for labeling items. If entered, is shown in editor menu by priority.</li>
+                    <li><strong>Constant</strong> switch - when on, the entry will <em>always</em> be used, no matter the key matches (provided the budget allows for it). This effectively works as a global record in <a href="21.html">Scroll of Memories</a>.</li>
+                    <li><strong>Selective</strong> switch - when on, the entry can <em>only</em> be used if both primary and secondary keys have a match. (For instance, to distinguish between "Chris Evans" (primary) "actor" (secondary) and "Chris Evans" (primary) "presenter" (secondary).</li>
+                    <li><strong>Prepend</strong> switch - when on, the content will be put in front of character definitions instead of behind them.</li>
+                </ol>
+
+                <h2>How World Info is evaluated</h2>
+                <p>World Info <em>entries</em> have an order of priority in which they are evaluated. This is done message by message, from the highest priority (further up the list) to the lowest. You can change the order with the side buttons, or by dragging and dropping items.</p>
                 <p>On the first pass through all applicable message, main keys (first row in details) are evaluated. Then, if the token budget allows, a second pass is made, during which secondary keys are matched.</p>
+                <p><strong>World info is case-insensitive</strong>. It doesn't matter if keys or text are or are not capitalized for them to match.</p>
+                <p><strong>World info is recursive</strong>. This means that when matching of primary and secondary keys against all messages is finished, another round of matching happens against the resulting context, if any. This round obviously doesn't include entries already matched. This continues until there is token budget to use, context generated by entry matches, and unused matches left.</p>
 
-                <h3>Pro Tips</h3>
+                <h2>Example</h2>
+                <table class="center">
+                    <tr><th colspan="3">Example dialogue</th></tr>
+                    <tr>
+                        <th>Message number</th>
+                        <th>Author</th>
+                        <th>Content</th>
+                    </tr>
+                    <tr>
+                        <td>1</td>
+                        <td>Felix the Cat</td>
+                        <td>The Moon sounds like a nice place to live.</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>You</td>
+                        <td>Really? What about the lack of oxygen and copious amount of dust?</td>
+                    </tr>
+                </table>
+                </p>
+                <table class="center">
+                    <tr><th colspan="6">Example World Info</th></tr>
+                    <tr>
+                        <th>Comment</th>
+                        <th>Keys</th>
+                        <th>Secondary keys</th>
+                        <th>Content</th>
+                        <th>Constant?</th>
+                        <th>Selective?</th>
+                    </tr>
+                    <tr>
+                        <td>Place</td>
+                        <td>place, places, location</td>
+                        <td></td>
+                        <td>Concept("place")["contiguous portion of spacetime"]</td>
+                        <td>false</td>
+                        <td>false</td>
+                    </tr>
+                    <tr>
+                        <td>Human</td>
+                        <td>human</td>
+                        <td></td>
+                        <td>Species("human")["bipedal life forms"+"have two hands"+"no tail"+"considered intelligent by themselves"]</td>
+                        <td>false</td>
+                        <td>false</td>
+                    </tr>
+                    <tr>
+                        <td>The Moon</td>
+                        <td>moon</td>
+                        <td></td>
+                        <td>Place("Moon")["space body"+"lifeless"+"orbits earth"+"not out of cheese"]</td>
+                        <td>false</td>
+                        <td>false</td>
+                    </tr>
+                    <tr>
+                        <td>Lunar dust</td>
+                        <td>dust</td>
+                        <td>moon, lunar</td>
+                        <td>Object("moon dust")["fine dust made from lunar regolith"+"sticks to things with static electricity"+"hazardous to health"]</td>
+                        <td>false</td>
+                        <td><strong>true</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Lunar regolith</td>
+                        <td>regolith</td>
+                        <td></td>
+                        <td>Matter("regolith")["loose matter"+"found on surface of the Moon"+"includes rocks and lunar dust"+"not suitable for plant growth"]</td>
+                        <td>false</td>
+                        <td>false</td>
+                    </tr>
+                    <tr>
+                        <td>Cat</td>
+                        <td>cat</td>
+                        <td></td>
+                        <td>Animal("cat")["fluffy"+"eats mice"+"possibly psychopathic"+"purr"+"humans love them"]</td>
+                        <td><strong>true</strong></td>
+                        <td>false</td>
+                    </tr>
+                    <tr>
+                        <td>Oxygen</td>
+                        <td>oxygen</td>
+                        <td></td>
+                        <td>Element("oxygen")["gas"+"allows things to burn"+"humans usually need it for breathing"]</td>
+                        <td><strong>true</strong></td>
+                        <td>false</td>
+                    </tr>
+                    <tr>
+                        <td>Universe</td>
+                        <td></td>
+                        <td></td>
+                        <td>Place("universe")["all of space and time and their contents"+"includes planets, stars, galaxies, matter, energy"]</td>
+                        <td><strong>true</strong></td>
+                        <td>false</td>
+                    </tr>
+                </table>
+
+                <table class="center">
+                    <tr><th colspan="6">Evaluation process<br>
+                    Assuming no token limit. If there is one, as entries are added, their token size is added to a total. If the next added entry would get over that limit, the evaluation is ended.</th></tr>
+                    <tr>
+                        <th>Source</th>
+                        <th>Matched key</th>
+                        <th>Entry injected</th>
+                        <th>Note</th>
+                    </tr>
+                    <tr>
+                        <td>[message 2]</td>
+                        <td>dust</td>
+                        <td>(none)</td>
+                        <td>Because it's selective, the entry is not injected yet.</td>
+                    </tr>
+                    <tr>
+                        <td>[message 2]</td>
+                        <td>oxygen</td>
+                        <td>Element("oxygen")["gas"+"allows things to burn"+"humans usually need it for breathing"]</td>
+                        <td>Note that while the entry is constant, it was added prematurely because it matched one of its primary keys</td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" class="strong">Finished matching second sentence. Note that sentences are matched from newest to oldest.</td>
+                    </tr>
+                    <tr>
+                        <td>[message 1]</td>
+                        <td>place</td>
+                        <td>Concept("place")["contiguous portion of spacetime"]</td>
+                        <td>Matched before "Moon" because it has higher priority.</td>
+                    </tr>
+                    <tr>
+                        <td>[message 1]</td>
+                        <td>Moon</td>
+                        <td>Place("Moon")["space body"+"lifeless"+"orbits earth"+"not out of cheese"+"covered with regolith"]</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>[message 1]</td>
+                        <td>moon</td>
+                        <td>Object("lunar dust")["fine dust made from lunar regolith"+"sticks to things with static electricity"+"hazardous to health"]</td>
+                        <td>Injected, because the secondary key was matched. Note that this is after first pass through all messages.</td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" class="strong">Finished checking all sentences. Adding constant entries.</td>
+                    </tr>
+                    <tr>
+                        <td>(message evaluation finished)</td>
+                        <td>Universe</td>
+                        <td>Place("universe")["all of space and time and their contents"+"includes planets, stars, galaxies, matter, energy"]</td>
+                        <td>Constant; should always be included. Note that this was added this way <em>before</em> being matched from previously matched entry "universe", which includes its keyword "space"</td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" class="strong">Finished adding all constant entries.</td>
+                    </tr>
+                    <tr>
+                        <td>["Oxygen" entry]</td>
+                        <td>human</td>
+                        <td>Species("human")["bipedal life forms"+"have two hands"+"no tail"+"considered intelligent by themselves"]</td>
+                        <td>Note that "human" was matched from the plural, as it's a subset of "humans"</td>
+                    </tr>
+                    <tr>
+                        <td>["Lunar dust" entry]</td>
+                        <td>regolith</td>
+                        <td>Matter("regolith")["loose matter"+"found on surface of the Moon"+"includes rocks and lunar dust"+"not suitable for plant growth"]</td>
+                        <td>Injected before lunar dust despite the priority, because primary key was matched.</td>
+                    </tr>
+                    <tr>
+                        <td colspan="4"><strong>End of matching.</strong><br>
+                            Note that sadly, "cat" was not matched at any point. This is despite it being in the name of a character (names are not examined for keys), and part of "lo<strong>cat</strong>ion" (one of keys for "place"; keys are not part examined – had it been part of the content, it would have been matched).<br>
+                            This shows why it's important to choose the right combination of primary and secondary keys.
+                        </td>
+                    </tr>
+                </table>
+
+                <h4>Pro Tips</h4>
                 <ul>
                     <li>The AI does not insert keywords into context, so each World Info entry should be a comprehensive, standalone description.</li>
                     <li>To create a rich and detailed world lore, entries can be interlinked and reference one another.</li>
                     <li>To conserve tokens, it is advisable to keep entry contents concise, with a general recommended limit of 50 tokens per entry.</li>
                 </ul>
+
             </div>
         </div>
     </body>
