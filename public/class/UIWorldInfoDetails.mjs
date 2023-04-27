@@ -214,6 +214,7 @@ export class UIWorldInfoDetails extends Resizable {
         }
         if(!event.target.value || !event.target.value.length) {
             if(event.target.nextSibling) {
+                const parent = event.target.parentNode;
                 let next = event.target.nextSibling;
                 let i = index;
                 while(next) {
@@ -225,6 +226,14 @@ export class UIWorldInfoDetails extends Resizable {
                     i++;
                 }
                 event.target.parentNode.removeChild(event.target);
+                next = parent.children[0];
+                while(next) {
+                    if(!next.value || !next.value.length) {
+                        next.focus();
+                        break;
+                    }
+                    next = next.nextSibling;
+                }
             }
             this.wpp.wpp.properties.splice(index, 1);
         } else if(!event.target.nextSibling) {
@@ -251,6 +260,7 @@ export class UIWorldInfoDetails extends Resizable {
         }
         if(!event.target.value || !event.target.value.length) {
             if(event.target.nextSibling) {
+                const parent = event.target.parentNode;
                 let next = event.target.nextSibling;
                 let i = index;
                 while(next) {
@@ -262,6 +272,14 @@ export class UIWorldInfoDetails extends Resizable {
                     i++;
                 }
                 event.target.parentNode.removeChild(event.target);
+                next = parent.children[0];
+                while(next) {
+                    if(!next.value || !next.value.length) {
+                        next.focus();
+                        break;
+                    }
+                    next = next.nextSibling;
+                }
             }
             (minor ? this.data.keysecondary : this.data.key).splice(index, 1);
         } else if(!event.target.nextSibling) {
