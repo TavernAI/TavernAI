@@ -1615,42 +1615,51 @@ app.post("/importchat", urlencodedParser, function(request, response){
                             }
                         });
                     } else if(jsonData.histories !== undefined){
-                        let i = 0;
-                        new_chat[i] = {};
-                        new_chat[0]['user_name'] = 'You';
-                        new_chat[0]['character_name'] = ch_name;
-                        new_chat[0]['create_date'] = Date.now();
-                        i++;
-                        jsonData.histories.histories[0].msgs.forEach(function(item) {
-                            new_chat[i] = {};
-                            if(item.src.is_human == true){
-                                new_chat[i]['name'] = 'You';
-                            }else{
-                                new_chat[i]['name'] = ch_name;
+                        const chat = {
+                            from(history) {
+                                return [
+                                    {
+                                        user_name: 'You',
+                                        character_name: ch_name,
+                                        create_date: Date.now(),
+
+                                    },
+                                    ...history.msgs.map(
+                                        (message) => ({
+                                            name: message.src.is_human ? 'You' : ch_name,
+                                            is_user: message.src.is_human,
+                                            is_name: true,
+                                            send_date: Date.now(),
+                                            mes: message.text,
+                                        })
+                                    )];
                             }
-                            new_chat[i]['is_user'] = item.src.is_human;
-                            new_chat[i]['is_name'] = true;
-                            new_chat[i]['send_date'] = Date.now();
-                            new_chat[i]['mes'] = item.text;
-                            i++;
+                        }
+
+                        const chats = [];
+                        (jsonData.histories.histories ?? []).forEach((history) => {
+                            chats.push(chat.from(history));
                         });
-                        const chatJsonlData = new_chat.map(JSON.stringify).join('\n');
-                        fs.writeFile(chatsPath+avatar_url+'/'+Date.now()+'.jsonl', chatJsonlData, 'utf8', function(err) {
-                            if(err) {
-                                response.send(err);
-                                return console.log(err);
-                                //response.send(err);
-                            }else{
-                                //response.redirect("/");
-                                response.send({res:true});
-                            }
-                        });
-                        
+
+                        const errors = [];
+                        chats.forEach(chat => fs.writeFile(
+                            chatsPath+avatar_url+'/'+Date.now()+'.jsonl',
+                            chat.map(JSON.stringify).join('\n'), 'utf8',
+                            (err) =>{
+                                if(err) {
+                                    errors.push(err);
+                                }
+                            })
+                        );
+
+                        if (0 < errors.length) {
+                            response.send('One or more errors occurred while writing character files. Errors: ' + JSON.stringify(errors));
+                        }
+
+                        response.send({res:true});
                     }else{
                         response.send({error:true});
-                        return;
                     }
-
                 });
             } else if(format === 'jsonl'){
                 const fileStream = fs.createReadStream('./uploads/'+filedata.filename);
