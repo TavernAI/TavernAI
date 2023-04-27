@@ -139,16 +139,15 @@ export class UIWorldInfoDetails extends Resizable {
         }));
 
         this.textarea.innerHTML = data.content;
-        this.textarea.onchange = function(event) {
-            this.data.content = event.target.innerHTML;
+        this.textarea.onkeyup = function(event) {
+            this.data.content = this.textarea.value;
             this.wpp = WPP.parseSingle(this.data.content);
             this.refreshWPP();
             this.updateTokens();
             this.save();
         }.bind(this);
-        this.textarea.onkeyup = this.textarea.onchange;
-        this.textarea.oncut = this.textarea.onchange;
-        this.textarea.onpaste = this.textarea.onchange;
+        this.textarea.oncut = this.textarea.onkeyup;
+        this.textarea.onpaste = this.textarea.onkeyup;
 
         this.wpp = WPP.parseSingle(data.content);
         this.refreshWPP();
