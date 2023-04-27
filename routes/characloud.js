@@ -383,9 +383,14 @@ router.post("/characters/publish", jsonParser, async function (request, response
 router.post("/user/characters", jsonParser, function (request, response_characloud_user_characters) {
     try {
         let {name, page, perpage} = request.body;
+
+        let this_master_token = MASTER_TOKEN;
+        if(this_master_token === undefined || this_master_token === ''){
+            this_master_token = '';
+        }
         var options = {
             headers: {
-                'Authorization': 'Bearer ' + MASTER_TOKEN
+                'Authorization': 'Bearer ' + this_master_token
             }
         };
         client.get(charaCloudServer + `/api/users/${name}/characters?perpage=${perpage}&page=${page}`, options, function (data, response) {
