@@ -574,6 +574,9 @@ export class UIWorldInfoMain extends Resizable {
 
     createWorld() {
         let name = prompt("Enter the world's name.", "Eternal realm of Bob");
+        if(!name) {
+            return;
+        }
         name = this.normalizeName(name);
         if(!name || !name.length) {
             alert("This name cannot be used.");
