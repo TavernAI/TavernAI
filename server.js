@@ -1621,7 +1621,7 @@ app.post("/importchat", urlencodedParser, function(request, response){
                                     {
                                         user_name: 'You',
                                         character_name: ch_name,
-                                        create_date: Date.now(),
+                                        create_date: Date.now()
 
                                     },
                                     ...history.msgs.map(
@@ -1630,7 +1630,7 @@ app.post("/importchat", urlencodedParser, function(request, response){
                                             is_user: message.src.is_human,
                                             is_name: true,
                                             send_date: Date.now(),
-                                            mes: message.text,
+                                            mes: message.text
                                         })
                                     )];
                             }
@@ -1642,9 +1642,10 @@ app.post("/importchat", urlencodedParser, function(request, response){
                         });
 
                         const errors = [];
+                        let chat_name_i = 1;
                         chats.forEach(chat => fs.writeFile(
 
-                            `${chatsPath}${avatar_url}/${Date.now()}.jsonl`,
+                            `${chatsPath}${avatar_url}/${Date.now()+(chat_name_i++)}.jsonl`,
                             chat.map(JSON.stringify).join('\n'), 'utf8',
                             (err) =>{
                                 if(err) {
