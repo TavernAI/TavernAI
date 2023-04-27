@@ -48,7 +48,7 @@ export class UIWorldInfoDetails extends Resizable {
         this.wppEditor = this.findChildWithClass("wpp-editor-field", this.content);
 
         let checkbox = this.findChildWithClass("wpp-checkbox", this.header);
-        checkbox.checked = true;
+        checkbox.checked = false;
         this.textarea.style.display = "none";
         checkbox.onchange = function(event) {
             if(event.target.checked) {
