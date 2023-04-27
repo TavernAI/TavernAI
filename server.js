@@ -1643,7 +1643,8 @@ app.post("/importchat", urlencodedParser, function(request, response){
 
                         const errors = [];
                         chats.forEach(chat => fs.writeFile(
-                            chatsPath+avatar_url+'/'+Date.now()+'.jsonl',
+
+                            `${chatsPath}${avatar_url}/${Date.now()}.jsonl`,
                             chat.map(JSON.stringify).join('\n'), 'utf8',
                             (err) =>{
                                 if(err) {
@@ -1653,10 +1654,10 @@ app.post("/importchat", urlencodedParser, function(request, response){
                         );
 
                         if (0 < errors.length) {
-                            response.send('One or more errors occurred while writing character files. Errors: ' + JSON.stringify(errors));
+                            return response.send('One or more errors occurred while writing character files. Errors: ' + JSON.stringify(errors));
                         }
 
-                        response.send({res:true});
+                        return response.send({res:true});
                     }else{
                         response.send({error:true});
                     }
