@@ -3416,8 +3416,8 @@ $(document).ready(function(){
                             }.bind(this)
                         });
                     }
-                    document.getElementById("input_worldinfo_depth").value = settings.world_depth;
-                    document.getElementById("input_worldinfo_budget").value = settings.world_budget;
+                    document.getElementById("input_worldinfo_depth").value = settings.world_depth !== undefined && settings.world_depth !== null ? settings.world_depth : 2;
+                    document.getElementById("input_worldinfo_budget").value = settings.world_budget !== undefined && settings.world_budget !== null ? settings.world_budget : 100;
 
                     document.getElementById("input_worldinfo_depth").onchange = function(event) {
                         settings.world_depth = parseInt(event.target.value);
