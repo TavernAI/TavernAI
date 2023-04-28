@@ -3,6 +3,8 @@ import {Notes} from "./class/Notes.mjs";
 import {WPP} from "./class/WPP.mjs";
 import {WPPEditor} from "./class/WPPEditor.mjs";
 import { CharactersClass } from './class/Characters.js';
+import {UIWorldInfoMain} from "./class/UIWorldInfoMain.mjs";
+
 
 
 var token;
@@ -169,6 +171,7 @@ $(document).ready(function(){
     var character_anchor = true;
 
     var winNotes;
+    var winWorldInfo;
     var editorDescriptionWPP;
 
     var main_api = 'kobold';
@@ -943,8 +946,39 @@ $(document).ready(function(){
                 charDescription = WPP.stringifyExtended(wDesc, "line");
             }
             charDescription = $.trim(charDescription);
+
+
+            /* World info */
+            let prepend = [];
+            let append = [];
+            if(main_api == 'kobold' && winWorldInfo.worldName && winWorldInfo.worldName.length) {
+                let depth = parseInt(document.getElementById("input_worldinfo_depth").value);
+                let budget = parseInt(document.getElementById("input_worldinfo_budget").value);
+
+                let process = [];
+                let i = chat.length-1;
+                let k = 0;
+                while(chat[i] && i >= 0 && k < depth) {
+                    process.push(chat[i].mes);
+                    k++;
+                    i--;
+                }
+                let result = winWorldInfo.evaluate(process);
+                let totalTokens = 0;
+                for(let i = 0; i < result.prepend.length; i++) {
+                    const isAppend = !result.prepend[i];
+                    const candidate = result.prepend[i] ? result.prepend[i] : result.append[i];
+                    totalTokens += encode(candidate);
+                    if(totalTokens > budget) {
+                        break;
+                    }
+                    (isAppend ? append : prepend).push(candidate);
+                }
+            }
+
             var Scenario = $.trim(Characters.id[Characters.selectedID].scenario);
             var mesExamples = $.trim(Characters.id[Characters.selectedID].mes_example);
+
             var checkMesExample = $.trim(mesExamples.replace(/<START>/gi, ''));//for check length without tag
             if(checkMesExample.length == 0) mesExamples = '';
             var mesExamplesArray = [];
@@ -1021,7 +1055,16 @@ $(document).ready(function(){
 
 
             }
-            
+
+            if(main_api == 'kobold') {
+                if(prepend.length) {
+                    storyString = prepend.join("\n") + "\n" + storyString;
+                }
+                if(append.length) {
+                    storyString = storyString + append.join("\n") + "\n";
+                }
+                storyString = storyString.replace(/\n+/g, "\n");
+            }
 
             if(main_api === 'openai' && (model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-0301' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k')){
                 let osp_string = openai_system_prompt.replace(/{{user}}/gi, name1) //System prompt for OpenAI
@@ -2234,22 +2277,6 @@ $(document).ready(function(){
             $('#master_settings_popup').css('display', 'none');
         }
     });
-    $('#option_toggle_notes').click(function() {
-        showHideNotes();
-    });
-    $('#notes_wpp_cross').click(function() {
-        showHideNotes();
-    });
-    function showHideNotes(){
-        if(winNotes.shown){
-            $('#shadow_notes_popup').transition({ opacity: 0.0 ,duration: animation_rm_duration, easing:animation_rm_easing, complete: function(){
-                winNotes.hide();
-            }});
-        }else{
-            $('#shadow_notes_popup').transition({ opacity: 0.0 ,duration: 1, easing:animation_rm_easing});
-            $('#shadow_notes_popup').transition({ opacity: 1.0 ,duration: animation_rm_duration, easing:animation_rm_easing});
-        }
-    }
     $("#dialogue_popup_ok").click(function(){
         $("#shadow_popup").css('display', 'none');
         $("#shadow_popup").css('opacity:', 0.0);
@@ -3742,10 +3769,32 @@ $(document).ready(function(){
                     settings.characloud = settings.characloud === false ? false : true;
                     settings.notes = settings.notes === false ? false : true;
 
-                    winNotes = new Notes({
-                        root: document.getElementById("shadow_notes_popup"),
-                        save: saveChat.bind(this)
-                    });
+                    if(!winNotes) {
+                        winNotes = new Notes({
+                            root: document.getElementById("shadow_notes_popup"),
+                            save: saveChat.bind(this)
+                        });
+                    }
+
+                    if(!winWorldInfo) {
+                        winWorldInfo = new UIWorldInfoMain({
+                            root: document.getElementById("shadow_worldinfo_popup"),
+                            worldName: settings.worldName || null,
+                            metaSave: function(worldName) {
+                                settings.worldName = worldName;
+                                saveSettings();
+                            }.bind(this)
+                        });
+                    }
+                    document.getElementById("input_worldinfo_depth").value = settings.world_depth !== undefined && settings.world_depth !== null ? settings.world_depth : 2;
+                    document.getElementById("input_worldinfo_budget").value = settings.world_budget !== undefined && settings.world_budget !== null ? settings.world_budget : 100;
+
+                    document.getElementById("input_worldinfo_depth").onchange = function(event) {
+                        settings.world_depth = parseInt(event.target.value);
+                    }.bind(this);
+                    document.getElementById("input_worldinfo_budget").onchange = function(event) {
+                        settings.world_budget = parseInt(event.target.value);
+                    }.bind(this);
 
                     $('#style_anchor').prop('checked', style_anchor);
                     $('#character_anchor').prop('checked', character_anchor);
@@ -3895,6 +3944,9 @@ $(document).ready(function(){
                     lock_context_size: lock_context_size,
                     multigen: multigen,
                     singleline: singleline,
+                    worldName: settings.worldName || null,
+                    world_depth: settings.world_depth || 2,
+                    world_budget: settings.world_budget || 100,
                     auto_connect: settings.auto_connect || false,
                     characloud: settings.characloud === false ? false : true,
                     swipes: swipes,
@@ -4891,6 +4943,7 @@ $(document).ready(function(){
         var format = ext[1].toLowerCase();
         $("#chat_import_file_type").val(format);
         //console.log(format);
+        console.warn($("#form_import_chat").get(0));
         var formData = new FormData($("#form_import_chat").get(0));
 
         jQuery.ajax({    

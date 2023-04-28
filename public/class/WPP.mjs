@@ -77,6 +77,52 @@ export class WPP {
         };
     }
 
+    static parseSingle(string) {
+        string = string
+            .replace(/\n/g, " ")
+            .replace(/\s+/g, " ")
+            .replace(/\)\s*\[/g, ')[');
+        let match = string
+            .match(/[^(]*\([^)]*\)\[[^\]]*\]/);
+        let tail = string.replace(/[^(]*\([^)]*\)\[[^\]]*\]/, "") || null;
+        if(!match) {
+            return {
+                wpp: null,
+                tail: string
+            };
+        }
+        let splat = match[0]
+            .match(/[^(]*\([^)]*\)/)[0]
+            .replace(/\)/g, '')
+            .split("(")
+        let name = splat[0].trim();
+        let value = splat[1].trim()
+            .replace(/\s+/, " ")
+            .replace(/^"/, "")
+            .replace(/"$/, "")
+        ;
+        let properties = match[0]
+            .replace(/[^(]*\([^)]*\)/, "")
+            .trim()
+            .replace(/\s+/, " ")
+            .replace(/^\s*\[/, "")
+            .replace(/\]\s*$/, "")
+            .split("+")
+            .map(v => v
+                .replace(/^\s*"/, "")
+                .replace(/"\s*$/, "")
+            )
+        ;
+        return {
+            wpp: {
+                name: name,
+                value: value,
+                properties: properties
+            },
+            tail: tail
+        };
+    }
+
     static stringify(wpp, mode = "normal") {
         if(!Array.isArray(wpp)) {
             wpp = [ wpp ];
@@ -109,6 +155,25 @@ export class WPP {
         const trimmed = WPP.trim(wppX.wpp);
         const str = WPP.stringify(trimmed, mode);
         return (trimmed.length && str && str.length ? str : "") + (wppX.appendix && wppX.appendix.length ? wppX.appendix : "");
+    }
+
+    static stringifySingle(wpp, mode = "normal") {
+        let all = [];
+        if(wpp.wpp) {
+            all.push(wpp.wpp.name + "(" + wpp.wpp.value + ")" +
+                JSON.stringify(wpp.wpp.properties).replace(/","/g, '"+"'));
+        }
+        if(wpp.tail && wpp.tail.length) {
+            all.push(wpp.tail);
+        }
+        all = all.join("\n");
+        switch(mode) {
+            case "line":
+                return all.replace(/\n/g, "");
+            case "compact":
+                return WPP.removeExtraSpaces(all);
+        }
+        return all;
     }
 
     static validate(wpp) {

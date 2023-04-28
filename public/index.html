@@ -263,12 +263,12 @@
                     <textarea id="openai_system_prompt_textarea" placeholder=""></textarea>
                     <div>
                         <h4 class="h4_menu_title">OpenAI Jailbreak</h4>
-                        <h5 class="h5_menu_help">Jailbreak for OpenAI (<a href="/notes/22" target="_blank">?</a>)</h5>
+                        <h5 class="h5_menu_help">Jailbreak for OpenAI (<a href="/notes/23" target="_blank">?</a>)</h5>
                     </div>
                     <textarea id="openai_jailbreak_prompt_textarea" placeholder=""></textarea>
                     <div>
                         <h4 class="h4_menu_title">OpenAI additional Jailbreak</h4>
-                        <h5 class="h5_menu_help">Additional Jailbreak for OpenAI (<a href="/notes/23" target="_blank">?</a>)</h5>
+                        <h5 class="h5_menu_help">Additional Jailbreak for OpenAI (<a href="/notes/24" target="_blank">?</a>)</h5>
                     </div>
                     <textarea id="openai_jailbreak2_prompt_textarea" placeholder=""></textarea>
 
@@ -371,17 +371,59 @@
 
     <div id="shadow_notes_popup" class="shadow_popup through">
         <div class="container" id="notes_popup">
-            <img class="note_icon icon" src="img/notes_scroll.png">
-            <div class="notes_token_stat"><span>0</span> tokens <h5 class="h5_menu_help"> (<a href="/notes/21" target="_blank">?</a>)</h5></div>
-                        <input id="notes_wpp_checkbox" type="checkbox" class="toggle_checkbox wpp-checkbox"><label for="notes_wpp_checkbox" id="notes_wpp_label" title="W++ is an attribute-based shorthand format used in KoboldAI">W++<br>Editor</label>
-            <img id="notes_wpp_cross" class="cross" src="img/cross.png" title="Hide">
-            <textarea id="notes_textarea"></textarea>
-            <div id="notes_wpp_editor" class="wpp-editor"></div>
-            <select id="notes_strategy" class="notes_strategy">
-                <option value="discr" title="Inject all notes as single line after character's description">Add to description</option>
-                <option value="prep" title="Inject all notes before your last chat">Add before last chat</option>
-                <option value="none" title="Do not add notes to request">Don't add</option>
-            </select>
+            <div class="header">
+                <img class="note_icon icon" src="img/notes_scroll.png">
+                <div class="notes_token_stat"><span>0</span> tokens <h5 class="h5_menu_help"> (<a href="/notes/21" target="_blank">?</a>)</h5></div>
+                <label for="notes_wpp_checkbox" class="wpp_label" id="notes_wpp_label" title="W++ is an attribute-based shorthand format used in KoboldAI">W++<br>Editor</label>
+                <input id="notes_wpp_checkbox" type="checkbox" class="toggle_checkbox wpp-checkbox">
+                <img class="cross" src="img/cross.png" title="Hide">
+            </div>
+            <div class="content">
+                <textarea id="notes_textarea"></textarea>
+                <div id="notes_wpp_editor" class="wpp-editor wpp-editor"></div>
+            </div>
+            <div class="footer">
+                <select id="notes_strategy" class="notes_strategy">
+                    <option value="discr" title="Inject all notes as single line after character's description">Add to description</option>
+                    <option value="none" title="Do not add notes to request">Don't add</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div id="shadow_worldinfo_popup" class="shadow_popup through">
+        <div class="container world_info" id="world_info">
+            <div class="header">
+                <img class="note_icon icon" src="img/world.png" title="World info">
+                <select class="worldinfo_name" title="Select world"></select>
+                <button title="Delete world" class="inline delete" disabled="disabled"><img src="img/del_mes.png"></button>
+                <button title="Create new world" class="inline create"><img src="img/save_and_start_new_chat.png"></button>
+                <img class="cross" src="img/cross.png" title="Hide">
+            </div>
+            <div class="content">
+            </div>
+        </div>
+    </div>
+    <div id="shadow_worldinfo_details_popup" class="shadow_popup through">
+        <div class="container world_info world_info_details">
+            <div class="header">
+                <img class="note_icon icon" src="img/world.png">
+                <div class="notes_token_stat"><span>0</span> tokens <h5 class="h5_menu_help"> (<a href="/notes/22" target="_blank">?</a>)</h5></div>
+                <label class="wpp_label" title="W++ is an attribute-based shorthand format used in KoboldAI">W++<br>Editor</label>
+                <input type="checkbox" class="toggle_checkbox wpp-checkbox" checked="checked">
+                <img class="cross" src="img/cross.png" title="Hide">
+            </div>
+            <div class="content">
+                <div class="keys-editor" title="Keys (tags)"></div>
+                <div class="secondary-keys-editor" title="Secondary keys"></div>
+                <textarea></textarea>
+                <div class="wpp-editor-field"></div>
+            </div>
+            <div class="footer">
+                <label class="comment-label">Comment: </label><input type="text" class="comment" title="Optional comment to help you organize entries">
+                <label>Constant</label><input type="checkbox" class="toggle_checkbox constant" title="Always add this entry, even when it's not mentioned">
+                <label>Selective</label><input type="checkbox" class="toggle_checkbox selective" title="This entry will only be added if the message has both a main key, and a secondary key">
+                <label>Prepend</label><input type="checkbox" class="toggle_checkbox prepend" title="When including, place this entry before character definition">
+            </div>
         </div>
     </div>
 
@@ -426,7 +468,7 @@
                 </div>
                 
                 <div id="description_div">
-                    <input id="description_wpp_checkbox" type="checkbox" class="toggle_checkbox"><label for="description_wpp_checkbox" id="description_wpp_label" title="W++ is an attribute-based shorthand format used in KoboldAI">W++<br>Editor</label>
+                    <input id="description_wpp_checkbox" type="checkbox" class="toggle_checkbox"><label for="description_wpp_checkbox" id="description_wpp_label" class="wpp_label" title="W++ is an attribute-based shorthand format used in KoboldAI">W++<br>Editor</label>
                     <h4 class="h4_menu_title">Description</h4><h5 class="h5_menu_help">Personality and other characteristics (<a href="/notes/1" target="_blank">?</a>)</h5>
                     <textarea id="description_textarea" name="description" placeholder=""></textarea>
                     <div id="description_wppeditor"></div>
@@ -488,6 +530,21 @@
                 <select id="settings_perset" class="menu_select">
                     <option value="gui">GUI KoboldAI Settings</option>
                 </select>
+                <h4 class="h4_menu_title">World info</h4><h5 class="h5_menu_help">Select world info (<a href="/notes/22" target="_blank">?</a>)</h5>
+                <select id="worldinfo_select" class="menu_select">
+                    <option value="none">None</option>
+                </select><button class="inline double" id="option_toggle_worldinfo">Editor</button>
+                <label class="button worldinfo-import">Import...
+                    <form action="javascript:void(null);" method="post" enctype="multipart/form-data">
+                        <input type="file" id="world_import_file" accept=".json" name="avatar">
+                        <input name="filename" type="hidden" maxlength="999" size="2" value="" autocomplete="off">
+                    </form>
+                </label>
+                <h5 class="h5_menu_help">Evaluation depth</h5>
+                <input type="number" id="input_worldinfo_depth" min="1" step="1" title="How many latest chat messages will be evaluated for World Info">
+                <h5 class="h5_menu_help">Token budget</h5>
+                <input type="number" id="input_worldinfo_budget" min="1" step="1" value="100" title="How many tokens at maximum will be used for World Info">
+
                 <div id="range_block">
                     <h4 class="h4_menu_title">Temperature </h4><h5 id="temp_counter" class="range_counter">select</h5>
                     <input type="range" id="temp" name="volume" min="0.1" max="2.0" step="0.01">
