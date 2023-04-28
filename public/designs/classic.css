@@ -1951,13 +1951,13 @@ label.checkbox :checked + span:after {
     background-color:#13152c;
 }
 #worldinfo_select {
-    width: 224px;/*width: 15.75em;*/
+    width: 284px;/*width: 15.75em;*/
     display: inline-block;
 }
 .worldinfo-import {
     display: inline-block;
     padding: 0.5em;
-    border: thin solid rgba(200,200,200,0.2);
+    border: thin solid rgba(200,200,200,0.0);
     border-radius: 3px;
     background-color: #191b3133;
     cursor: pointer;
@@ -1972,6 +1972,7 @@ label.checkbox :checked + span:after {
     background-repeat: no-repeat;
     background-size: contain;
     background-position: 0 10px;
+    border: thin solid rgba(200,200,200,0.0);
     
 }
 #model_novel_select {
