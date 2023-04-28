@@ -398,6 +398,25 @@ hr {
     height: auto;
     
 }
+.mes .token_counter {
+    position: absolute;
+    bottom: 0.5ex;
+    left: 1ex;
+    width: 3em;
+    height: 1.5em;
+    line-height: 1.5em;
+    vertical-align: middle;
+    text-align: center;
+    border-radius: 1.25ex;
+    color: #191b31;
+    background: #ccc;
+    opacity: 0;
+    z-index: 4;
+    cursor: pointer;
+}
+.mes .token_counter:hover {
+    opacity: 0.75;
+}
 
 .last_mes .mes_text {
     min-height: 80px;
@@ -1340,14 +1359,12 @@ input[type=submit], input[type=button] {
     min-height: 40px;
 }
 
-
-
 #online_status {
     opacity: 0.3;
-    position: absolute;
     bottom: 0px;
-    margin-left: 9px;
-    margin-bottom: 15px;
+    margin-left: 1ex;
+    margin-top: 1ex;
+    display: inline-block;
 }
 #online_status2, #online_status3, #online_status4 {
     opacity: 0.5;
@@ -2375,6 +2392,3 @@ label.checkbox :checked + span:after {
       box-shadow: none
     }
 }
-
-
-
