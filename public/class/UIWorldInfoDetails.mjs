@@ -68,13 +68,15 @@ export class UIWorldInfoDetails extends Resizable {
             this.comment.classList.add("empty");
         }
         this.comment.onkeyup = function(event) {
-            this.data.comment = event.target.value;
-            if(this.data.comment) {
-                event.target.classList.remove("empty");
-            } else {
-                event.target.classList.add("empty");
-            }
-            this.save();
+            setTimeout(function(event) {
+                this.data.comment = event.target.value;
+                if(this.data.comment) {
+                    event.target.classList.remove("empty");
+                } else {
+                    event.target.classList.add("empty");
+                }
+                this.save();
+            }.bind(this, event), 0);
         }.bind(this);
         this.comment.oncut = this.comment.onkeyup;
         this.comment.onpaste = this.comment.onkeyup;
@@ -164,11 +166,13 @@ export class UIWorldInfoDetails extends Resizable {
 
         this.textarea.innerHTML = data.content;
         this.textarea.onkeyup = function(event) {
-            this.data.content = this.textarea.value;
-            this.wpp = WPP.parseSingle(this.data.content);
-            this.refreshWPP();
-            this.updateTokens();
-            this.save();
+            setTimeout(function(){;
+                this.data.content = this.textarea.value;
+                this.wpp = WPP.parseSingle(this.data.content);
+                this.refreshWPP();
+                this.updateTokens();
+                this.save();
+            }.bind(this), 0);
         }.bind(this);
         this.textarea.oncut = this.textarea.onkeyup;
         this.textarea.onpaste = this.textarea.onkeyup;
@@ -242,7 +246,10 @@ export class UIWorldInfoDetails extends Resizable {
                 let next = event.target.nextSibling;
                 let i = index;
                 while(next) {
-                    next.onchange = this.updateWPPProperty.bind(this, i);
+                    next.onchange = setTimeout.bind(this,
+                        this.updateWPPProperty.bind(this, i),
+                        0
+                    );
                     next.onkeyup = next.onchange;
                     next.oncut = next.onchange;
                     next.onpaste = next.onchange;
@@ -288,7 +295,10 @@ export class UIWorldInfoDetails extends Resizable {
                 let next = event.target.nextSibling;
                 let i = index;
                 while(next) {
-                    next.onchange = this.updateKey.bind(this, i, minor);
+                    next.onchange = setTimeout.bind(this,
+                        this.updateKey.bind(this, i, minor),
+                        0
+                    );
                     next.onkeyup = next.onchange;
                     next.oncut = next.onchange;
                     next.onpaste = next.onchange;
