@@ -32,7 +32,7 @@ body {
 }
 #chloe_star_dust_city {
     width: 80%;
-    opacity:0.6; 
+    opacity:0.95; 
     display:block;
     border-radius:5px;
     margin-top:25px;
@@ -1944,14 +1944,14 @@ label.checkbox :checked + span:after {
 }
 /*    */
 .menu_select {
-    /*width:284px;*/
+    width:284px;
     margin-bottom: 15px;
     color: #ffffff9d;
     box-shadow: 0 0 2px rgba(200,200,200,0.5);
     background-color:#13152c;
 }
 #worldinfo_select {
-    width: 15.75em;
+    width: 224px;/*width: 15.75em;*/
     display: inline-block;
 }
 .worldinfo-import {
@@ -1961,6 +1961,18 @@ label.checkbox :checked + span:after {
     border-radius: 3px;
     background-color: #191b3133;
     cursor: pointer;
+    margin: 0px;
+    
+}
+#option_toggle_worldinfo {
+    margin-left: 4px;
+}
+#worldinfo-import {
+    background-image: url(../img/import.png);
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: 0 10px;
+    
 }
 #model_novel_select {
     margin-bottom: 16px;
@@ -2088,7 +2100,7 @@ label.checkbox :checked + span:after {
     min-width: 10%;
     min-height: 15%;
     box-shadow: 0 0 2px rgba(200,200,200,0.3);
-    padding: 1ex;
+    padding: 1.8ex;
     padding-top: 1.25ex;
     background: #191b31F0;
     border-radius: 5px;
@@ -2442,7 +2454,9 @@ label.wpp_label {
     padding: 0.5ex;
     margin-left: 3px;
     margin-bottom: 1em;
-    width: 94%;
+    width: 284px;
+    /*height: 30px;*/
+    padding-left: 10px;
 }
 #kobold_api input[type=number]::-webkit-inner-spin-button {
     opacity: 1;

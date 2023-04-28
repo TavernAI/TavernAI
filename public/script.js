@@ -4988,7 +4988,9 @@ $(document).ready(function(){
     
     
     
-    
+    $( "#worldinfo-import" ).click(function() {
+        $("#world_import_file").click();
+    });
     
     
     
