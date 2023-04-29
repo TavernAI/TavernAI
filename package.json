@@ -37,6 +37,7 @@
             "node_modules/sharp/vendor/lib/**/*",
             "node_modules/open/xdg-open/",
             "public",
+            "public/cardeditor/**",
             "uploads"
         ]
     }

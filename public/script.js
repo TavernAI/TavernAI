@@ -5005,7 +5005,7 @@ $(document).ready(function(){
     //**************************************************************//
     //**************************CHARA CLOUD*************************//
     $('#chat_header_back_button').click(function(){
-        if(charaCloud.isOnline() && settings.characloud){
+        if(charaCloud.isOnline()){
             $('#shell').css('display', 'none');
             $('#chara_cloud').css('display', 'block');
             $('#chara_cloud').css('opacity', 0.0);

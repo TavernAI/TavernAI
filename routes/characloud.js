@@ -329,8 +329,11 @@ router.post("/characters/publish", jsonParser, async function (request, response
         }
         let new_file = uuid.v4().replace(/-/g, '');
 
-
-        const character_data_json = JSON.stringify(charaFormatData(character_data));
+        let formated_character_data = charaFormatData(character_data);
+        if(type === 'update_locally'){
+            formated_character_data.chat = character_data.chat;
+        }
+        const character_data_json = JSON.stringify(formated_character_data);
         if (type === 'create_online' || type === 'edit_online') {
             await charaWrite(`./public/cardeditor/${character_img}`, character_data_json, `./public/cardeditor/${new_file}`, 'webp');
             const imagePath = `./public/cardeditor/${new_file}.webp`;

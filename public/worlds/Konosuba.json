@@ -1,0 +1,177 @@
+{
+  "entries": {
+    "0": {
+      "uid": 0,
+      "key": [
+        "Axel"
+      ],
+      "keysecondary": [],
+      "comment": "",
+      "content": "Axel is a city in Belzerg which serves as the starting point for beginner adventurers and is the primary location.",
+      "constant": false,
+      "selective": false,
+      "order": 0
+    },
+    "1": {
+      "uid": 1,
+      "key": [
+        "Belzerg"
+      ],
+      "keysecondary": [],
+      "comment": "",
+      "content": "As the Kingdom of Belzerg is the only country whose borders overlap those of the Devil King's Territory, their border is heavily protected. In order to help them, surrounding countries send soldiers to join the border guard, with Elroad being the only exception, assisting with defense costs instead because of their country's wealth.",
+      "constant": false,
+      "selective": false,
+      "order": 1
+    },
+    "2": {
+      "uid": 2,
+      "key": [
+        "Eris Order"
+      ],
+      "keysecondary": [],
+      "comment": "",
+      "content": "The Eris Order, also known as the Eris Cult or the Eris Church, is a religion that reveres Eris, the Goddess of Fortune. ",
+      "constant": false,
+      "selective": false,
+      "order": 9
+    },
+    "3": {
+      "uid": 3,
+      "key": [
+        "Eris"
+      ],
+      "keysecondary": [],
+      "comment": "",
+      "content": "Eris  is the goddess of Fortune and Aqua's junior in the fantasy world, as well as a main supporting character in the Konosuba series. While disguised as Chris, she is a thief and a good friend of Darkness and Kazuma. ",
+      "constant": false,
+      "selective": false,
+      "order": 8
+    },
+    "4": {
+      "uid": 4,
+      "key": [
+        "Adventurer Guild"
+      ],
+      "keysecondary": [],
+      "comment": "",
+      "content": "A facility dedicated to providing quests and other services to Adventurers.",
+      "constant": false,
+      "selective": false,
+      "order": 11
+    },
+    "5": {
+      "uid": 5,
+      "key": [
+        "Succubus Cafe"
+      ],
+      "keysecondary": [],
+      "comment": "",
+      "content": "A cafe run by Succubi which gives male adventurers lewd dreams. It is kept a secret from women. ",
+      "constant": false,
+      "selective": false,
+      "order": 12
+    },
+    "6": {
+      "uid": 6,
+      "key": [
+        "Kazuma"
+      ],
+      "keysecondary": [],
+      "comment": "",
+      "content": "Satou Kazuma (last name Satou, first name Kazuma) is the main protagonist of the KonoSuba series. He was reincarnated into the Fantasy World after dying. Kazuma is a young man of average height 5'5\" (165 cm) weighing 120lb (54 kg) with slightly spiky chestnut-brown hair and green eyes (brown eyes in the light novel). His usual outfit initially wore a green tracksuit, but later he started using an adventurer outfit consisting of a gold-trimmed green mantle, white shirt, pants, and leather boots. He wore a short sword on his belt, later replaced by his short katana, Chunchunmaru. ",
+      "constant": false,
+      "selective": false,
+      "order": 2
+    },
+    "7": {
+      "uid": 7,
+      "key": [
+        "Dustiness Ford Ignis",
+        "Ford Ignis",
+        "Ignis"
+      ],
+      "keysecondary": [],
+      "comment": "",
+      "content": "Dustiness Ford Ignis is the father of Darkness and the current head of the Dustiness House. ",
+      "constant": false,
+      "selective": false,
+      "order": 13
+    },
+    "8": {
+      "uid": 8,
+      "key": [
+        "Chomusuke "
+      ],
+      "keysecondary": [],
+      "comment": "",
+      "content": "Chomusuke is Megumin's familiar and the other half of the goddess Wolbach. Chomusuke is a black cat with a red cross-shaped marking on her forehead and bat like wings. She has stubby legs, a big round head, and yellow oval eyes. When she's happy or angry, she shows sharp teeth. ",
+      "constant": false,
+      "selective": false,
+      "order": 10
+    },
+    "9": {
+      "uid": 9,
+      "key": [
+        "Megumin"
+      ],
+      "keysecondary": [],
+      "comment": "",
+      "content": "Megumin is an Arch Wizard of the Crimson Demons in the Fantasy World, and is the first person to join Kazuma's party. Megumin is a young girl with shoulder-length dark brown hair (smooth black in light novel) and oddly languid crimson-colored eyes. She has fair skin and a light complexion. ",
+      "constant": false,
+      "selective": false,
+      "order": 4
+    },
+    "10": {
+      "uid": 10,
+      "key": [
+        "Dustiness",
+        "Dustiness Ford Lalatina",
+        "Lalatina"
+      ],
+      "keysecondary": [],
+      "comment": "",
+      "content": "Dustiness Ford Lalatina, usually known as Darkness, is one of the three main female protagonists of the KonoSuba series. She is a crusader with masochistic tendencies who joins Kazuma's party. ",
+      "constant": false,
+      "selective": false,
+      "order": 5
+    },
+    "11": {
+      "uid": 11,
+      "key": [
+        "Aqua"
+      ],
+      "keysecondary": [],
+      "comment": "",
+      "content": "Aqua is one of the three main deuteragonists in the KonoSuba series. Before life in the Fantasy World, she was a goddess of water who guided humans to the afterlife; within, she is worshipped by the Axis Order. ",
+      "constant": false,
+      "selective": false,
+      "order": 3
+    },
+    "12": {
+      "uid": 12,
+      "key": [
+        "Yunyun"
+      ],
+      "keysecondary": [],
+      "comment": "",
+      "content": "Yunyun is a member and future chief of the Crimson Demons, as well as a friend and self-proclaimed rival to Megumin. Yunyun is a beautiful young girl with crimson-colored eyes, a determined and gentle look, and mid-length dark brown hair tied into two twin-tails with ribbons that lie on her shoulders.",
+      "constant": false,
+      "selective": false,
+      "order": 6
+    },
+    "13": {
+      "uid": 13,
+      "key": [
+        "The Axis Order",
+        "Axis Order"
+      ],
+      "keysecondary": [],
+      "comment": "",
+      "content": "The Axis Order also referred to as the Axis Cult is a religion that reveres the Goddess Aqua. The order is headquartered in Arcanletia, where members aggressively attempt to convert tourists, (even when they publicly decline repeatedly) with some members even resorting to trickery; traumatizing Megumin and driving Hans to near insanity. As a result, the religion comes off as more of a cult, and members of the Axis Order are known to be \"crazy in the head\" to the public because of their fanaticism. Additionally, members of the Axis order openly discriminate against those who choose not to join, treating them with deep loathing and disrespect. ",
+      "constant": false,
+      "selective": false,
+      "order": 7
+    }
+  }
+}

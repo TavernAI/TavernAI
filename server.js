@@ -23,10 +23,11 @@ const crypto = require('crypto');
 const ipaddr = require('ipaddr.js');
 const json5 = require('json5');
 var sanitize_filename = require("sanitize-filename");
+const { TextEncoder, TextDecoder } = require('util');
 const utf8Encode = new TextEncoder();
 const utf8Decode = new TextDecoder('utf-8', { ignoreBOM: true });
 
-const config = require(path.join(process.cwd(), './config.conf'));
+const config = require('./config.conf');
 const server_port = config.port;
 const whitelist = config.whitelist;
 const whitelistMode = config.whitelistMode;
@@ -193,6 +194,28 @@ app.use('/characters', (req, res) => {
     if (err) {
         res.status(404).send('File not found');
         return;
+    }
+    //res.contentType('image/jpeg');
+    res.send(data);
+  });
+});
+app.use('/cardeditor', (req, res) => {
+  const filePath = decodeURIComponent(path.join(process.cwd(), 'public/cardeditor', req.url.replace(/%20/g, ' ')));
+  fs.readFile(filePath, (err, data) => {
+    if (err) {
+      res.status(404).send('File not found');
+      return;
+    }
+    //res.contentType('image/jpeg');
+    res.send(data);
+  });
+});
+app.use('/User%20Avatars', (req, res) => {
+  const filePath = decodeURIComponent(path.join(process.cwd(), 'public/User Avatars', req.url.replace(/%20/g, ' ')));
+  fs.readFile(filePath, (err, data) => {
+    if (err) {
+      res.status(404).send('File not found');
+      return;
     }
     //res.contentType('image/jpeg');
     res.send(data);
@@ -501,8 +524,13 @@ function charaFormatData(data){
     }else if(data.nsfw !== false){
         data.nsfw = true;
     }
-    
-    let char = {public_id: checkCharaProp(data.public_id), public_id_short: checkCharaProp(data.public_id_short), user_name: checkCharaProp(data.user_name), user_name_view: checkCharaProp(data.user_name_view), name: name, description: checkCharaProp(data.description), short_description: checkCharaProp(data.short_description), personality: checkCharaProp(data.personality), first_mes: checkCharaProp(data.first_mes), chat: Date.now(), mes_example: checkCharaProp(data.mes_example), scenario: checkCharaProp(data.scenario), categories: categories, create_date_online: create_date_online, edit_date_online: edit_date_online, create_date_local: create_date_local, edit_date_local: edit_date_local, add_date_local: add_date_local, last_action_date: Date.now(), online: data.online, nsfw: data.nsfw};
+    let short_description;
+    if(data.short_description === undefined){
+        short_description = "";
+    }else{
+        short_description = data.short_description;
+    }
+    let char = {public_id: checkCharaProp(data.public_id), public_id_short: checkCharaProp(data.public_id_short), user_name: checkCharaProp(data.user_name), user_name_view: checkCharaProp(data.user_name_view), name: name, description: checkCharaProp(data.description), short_description: checkCharaProp(short_description), personality: checkCharaProp(data.personality), first_mes: checkCharaProp(data.first_mes), chat: Date.now(), mes_example: checkCharaProp(data.mes_example), scenario: checkCharaProp(data.scenario), categories: categories, create_date_online: create_date_online, edit_date_online: edit_date_online, create_date_local: create_date_local, edit_date_local: edit_date_local, add_date_local: add_date_local, last_action_date: Date.now(), online: data.online, nsfw: data.nsfw};
     // Filtration
     if(data.public_id === undefined){ 
         char.public_id = uuid.v4().replace(/-/g, '');
@@ -1783,7 +1811,7 @@ app.post("/importchat", urlencodedParser, function(request, response){
                         }
 
                         const chats = [];
-                        (jsonData.histories.histories ?? []).forEach((history) => {
+                        (jsonData.histories.histories ? jsonData.histories.histories : []).forEach((history) => {
                             chats.push(chat.from(history));
                         });
 
@@ -2015,7 +2043,8 @@ function clearUploads() {
   });
 }
 function initCardeditor() {
-    const folderPath = path.join(__dirname, 'public', 'cardeditor');
+    
+    const folderPath = path.join(process.cwd(), 'public', 'cardeditor');
 
     if (fs.existsSync(folderPath)) {
         // Folder exists, delete files created more than 1 hour ago
