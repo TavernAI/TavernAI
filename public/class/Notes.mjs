@@ -32,37 +32,23 @@ export class Notes extends Resizable {
         });
         this.saveFunction = options.save || null;
 
-        for(let i = 0; i < this.container.children.length; i++) {
-            const child = this.container.children[i];
-            if(!this.textarea && child instanceof HTMLTextAreaElement) {
-                this.textarea = child;
+        this.tokens = this.findChildWithClass("notes_token_stat", this.header).children[0];
+        let chb = this.findChildWithClass("wpp-checkbox", this.header)
+        chb.checked = false;
+        chb.onchange = function(event) {
+            if(event.target.checked) {
+                this.textarea.style.display = "none";
+                this._wpp.container.style.display = null;
+            } else {
+                this.textarea.style.display = null;
+                this._wpp.container.style.display = "none";
             }
-            if(!this.select && child instanceof HTMLSelectElement) {
-                this.select = child;
-            }
-            if(!this._wpp && child.classList.contains("wpp-editor")) {
-                this._wpp = new WPPEditor({
-                    container: child
-                });
-            }
-            if(!this.tokens && child.classList.contains("notes_token_stat")) {
-                if(child.children.length) {
-                    this.tokens = child.children[0];
-                }
-            }
-            if(child.classList.contains("wpp-checkbox")) {
-                child.checked = false;
-                child.onchange = function(event) {
-                    if(event.target.checked) {
-                        this.textarea.style.display = "none";
-                        this._wpp.container.style.display = null;
-                    } else {
-                        this.textarea.style.display = null;
-                        this._wpp.container.style.display = "none";
-                    }
-                }.bind(this);
-            }
-        }
+        }.bind(this);
+        this.textarea = this.findChildWithType("textarea", this.content);
+        this._wpp = new WPPEditor({
+            container: this.findChildWithClass("wpp-editor", this.content)
+        });
+        this.select = this.findChildWithClass("notes_strategy", this.footer);
 
         //
         if(this.select) {
@@ -146,9 +132,13 @@ export class Notes extends Resizable {
         if(!this.textarea) { return; }
         this.textarea.value = value.replace(/\r/g, "");
         this._wpp.clear();
-        let parsed = WPP.parseExtended(this.textarea.value);
-        this._wpp.wpp = parsed.wpp;
-        this.appendix = parsed.appendix;
+        try {
+            let parsed = WPP.parseExtended(this.textarea.value);
+            this._wpp.wpp = parsed.wpp;
+            this.appendix = parsed.appendix;
+        } catch (e) {
+            this.appendix = this.textarea.value;
+        }
         this.updateNotesTokenCount();
     }
 

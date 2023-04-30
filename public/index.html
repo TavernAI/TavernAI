@@ -7,7 +7,15 @@
     <script src="scripts/showdown.min.js"></script>
     <script src="scripts/jquery.lazyloadxt.min.js"></script>
     <script src="scripts/purify.min.js"></script>
-
+    <script src="scripts/sha256.min.js"></script>
+    <script src="scripts/cookie.js"></script>
+    
+    
+    
+    <script src="scripts/xss.js"></script>
+    <script src="scripts/showdown-xss-filter.js"></script>
+    
+    
     <link id="base_theme" rel="stylesheet" type="text/css" href="css/designs.css">
     <link rel="stylesheet" href="css/bg_load.css">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
@@ -23,8 +31,10 @@
         //let text = "hello world";
         //console.log(encode("dsfs").length); // [258, 18798, 995]
     </script>
-    <script src="scripts/charaCloud.js"></script>
+
+    <script src="class/charaCloud.js"></script>
     <script type=module src="script.js"></script>
+    
         
 <title>Tavern.AI</title>
 </head>
@@ -33,8 +43,62 @@
     <div id="bg1"></div>
     <div id="bg2"></div>
     <div id="bg_chara_cloud"></div>
-    
-    
+    <div id="reg_login_popup_shadow">
+        <div id="reg_login_popup">
+            <div class="form-container">
+
+                <!-- Registration form -->
+                <span id="reg_login_cross"><img src="img/cross.png" class="popup_cross"></span>
+
+                <form id="registration_form" method="post">
+                    <h2>User Registration</h2>
+                    <label for="username">Username:</label><div class="form_error" id="username_error"></div>
+                    <input type="text" id="reg_username" name="username" required>
+                    
+                    <label for="email" class="email" >Email:</label> <label class="optional">(optional)</label>
+                    <input type="email" id="reg_email" name="email">
+                    <div class="form_error" id="email_error"></div>
+                    <label for="password">Password:</label><div class="form_error" id="reg_password_error"></div>
+                    <input type="password" id="reg_password" name="password" minlength="8" maxlength="32" required>
+                    <label for="confirm-password">Confirm Password:</label><div class="form_error" id="reg_confirm_password_error"></div>
+                    <input type="password" id="reg_confirm_password" name="confirm_password" minlength="8" maxlength="32" required>
+                    <input type="submit" class="submit_button" value="Register"><img class="load_icon" src="img/load.svg">
+                    <div class="switch_log_reg">Switch to Login</div>
+                    <br><div class="google-captcha-terms">This site is protected by reCAPTCHA and the Google
+                        <a href="https://policies.google.com/privacy">Privacy Policy</a> and
+                        <a href="https://policies.google.com/terms">Terms of Service</a> apply.
+                    </div>
+                </form>
+
+                <!-- Login form -->
+                <form id="login_form" method="post">
+                    <h2>User Login</h2>
+                    <label for="login_username">Username:</label><div class="form_error" id="login_username_error"></div>
+                    <input type="text" id="login_username" name="login-username" required>
+                    <label for="login_password">Password:</label>
+                    <input type="password" id="login_password" name="login-password" minlength="8" maxlength="32" required>
+                    <input type="submit" class="submit_button" value="Login"><img class="load_icon" src="img/load.svg">
+                    <div class="switch_log_reg">Switch to Registration</div>
+                </form>
+                <div id="successful_registration">
+                    <h2>Account created</h2>
+                    <img src="./img/success.png">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="character_published_shadow" class="shadow_popup">
+        <div id="character_published_popup" class="popup_large">
+            
+            <div class="form-container">
+                
+                <img id="character_published_popup_avatar" src="./img/fluffy.png">
+                <!--<label>Alex</label>-->
+                <h2 class="character_published_popup_title">Character Published</h2>
+                <input type="submit" id="character_published_popup_button" class="submit_button" value="Go to Profile">
+            </div>
+        </div>
+    </div>
     <div id="shadow_popup" class="shadow_popup">
         <div id="dialogue_popup">
             <div id="dialogue_popup_text"><h3>text</h3></div>
@@ -176,7 +240,7 @@
                         </div>
                         <div>
                         <h4 class="h4_menu_title">Presence Penalty</h4><h5 id="pres_pen_counter_openai" class="range_counter">select</h5>
-                        <input type="range" class="range_bar" id="pres_pen_openai" name="volume" min="0.0" max="1.0" step="0.01">
+                        <input type="range" class="range_bar" id="pres_pen_openai" name="volume" min="0.0" max="2.0" step="0.01">
                         </div>
                         <div>
                             <h4 class="h4_menu_title">Top P Sample</h4><h5 id="top_p_counter_openai" class="range_counter">select</h5>
@@ -197,10 +261,20 @@
                         <h5 class="h5_menu_help">Defines how the model will behave (<a href="/notes/20" target="_blank">?</a>)</h5>
                     </div>
                     <textarea id="openai_system_prompt_textarea" placeholder=""></textarea>
+                    <div>
+                        <h4 class="h4_menu_title">OpenAI Jailbreak</h4>
+                        <h5 class="h5_menu_help">Jailbreak for OpenAI (<a href="/notes/23" target="_blank">?</a>)</h5>
+                    </div>
+                    <textarea id="openai_jailbreak_prompt_textarea" placeholder=""></textarea>
+                    <div>
+                        <h4 class="h4_menu_title">OpenAI additional Jailbreak</h4>
+                        <h5 class="h5_menu_help">Additional Jailbreak for OpenAI (<a href="/notes/24" target="_blank">?</a>)</h5>
+                    </div>
+                    <textarea id="openai_jailbreak2_prompt_textarea" placeholder=""></textarea>
 
                 </div>
                 <div id="master_settings_toggle_block">
-                    <div class="menu_toggle">
+                    <div class="menu_toggle" id="multigen_toggle">
                         <div class="toggle_label"><h4 class="h4_menu_title">Multigen</h4><h5 class="h5_menu_help">Information (<a href="/notes/14" target="_blank">?</a>)</h5></div>
                         <input id="multigen" type="checkbox" class="toggle_checkbox">
                     </div>
@@ -230,16 +304,12 @@
                         <input id="autoconnect" type="checkbox" class="toggle_checkbox">
                     </div>
                     <div class="menu_toggle" id="characloud_toggle">
-                        <div class="toggle_label"><h4 class="h4_menu_title">Show charaCloud</h4><h5 class="h5_menu_help">Show charaCloud on startup</h5></div>
+                        <div class="toggle_label"><h4 class="h4_menu_title">Autorun charaCloud</h4><h5 class="h5_menu_help">Autorun charaCloud on startup</h5></div>
                         <input id="characloud" type="checkbox" class="toggle_checkbox">
                     </div>
                     <div class="menu_toggle" id="notes_toggle">
                         <div class="toggle_label"><h4 class="h4_menu_title" style="font-size: 0.95em;">Memory scroll</h4><h5 class="h5_menu_help">Information (<a href="/notes/21" target="_blank">?</a>)</h5></div>
                         <input id="notes_checkbox" type="checkbox" class="toggle_checkbox">
-                    </div>
-                    <div class="menu_toggle" id="alert_toggle">
-                        <div class="toggle_label"><h4 class="h4_menu_title">Message sound</h4><h5 class="h5_menu_help">Information (<a href="/notes/22" target="_blank">?</a>)<h5 class="h5_menu_help"></h5></div>
-                        <input id="checkbox_alert" type="checkbox" class="toggle_checkbox">
                     </div>
 
                 </div>
@@ -301,16 +371,59 @@
 
     <div id="shadow_notes_popup" class="shadow_popup through">
         <div class="container" id="notes_popup">
-            <img class="note_icon icon" src="img/notes_scroll.png">
-            <div class="notes_token_stat"><span>0</span> tokens <h5 class="h5_menu_help"> (<a href="/notes/21" target="_blank">?</a>)</h5></div>
-                        <input id="notes_wpp_checkbox" type="checkbox" class="toggle_checkbox wpp-checkbox"><label for="notes_wpp_checkbox" id="notes_wpp_label" title="W++ is an attribute-based shorthand format used in KoboldAI">W++<br>Editor</label>
-            <img id="notes_wpp_cross" class="cross" src="img/cross.png" title="Hide">
-            <textarea id="notes_textarea"></textarea>
-            <div id="notes_wpp_editor" class="wpp-editor"></div>
-            <select id="notes_strategy" class="notes_strategy">
-                <option value="discr" title="Inject all notes as single line after character's description">Add to description</option>
-                <option value="none" title="Do not add notes to request">Don't add</option>
-            </select>
+            <div class="header">
+                <img class="note_icon icon" src="img/notes_scroll.png">
+                <div class="notes_token_stat"><span>0</span> tokens <h5 class="h5_menu_help"> (<a href="/notes/21" target="_blank">?</a>)</h5></div>
+                <label for="notes_wpp_checkbox" class="wpp_label" id="notes_wpp_label" title="W++ is an attribute-based shorthand format used in KoboldAI">W++<br>Editor</label>
+                <input id="notes_wpp_checkbox" type="checkbox" class="toggle_checkbox wpp-checkbox">
+                <img class="cross" src="img/cross.png" title="Hide">
+            </div>
+            <div class="content">
+                <textarea id="notes_textarea"></textarea>
+                <div id="notes_wpp_editor" class="wpp-editor wpp-editor"></div>
+            </div>
+            <div class="footer">
+                <select id="notes_strategy" class="notes_strategy">
+                    <option value="discr" title="Inject all notes as single line after character's description">Add to description</option>
+                    <option value="none" title="Do not add notes to request">Don't add</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div id="shadow_worldinfo_popup" class="shadow_popup through">
+        <div class="container world_info" id="world_info">
+            <div class="header">
+                <img class="note_icon icon" src="img/world.png" title="World info">
+                <select class="worldinfo_name" title="Select world"></select>
+                <button title="Delete world" class="inline delete" disabled="disabled"><img src="img/del_mes.png"></button>
+                <button title="Create new world" class="inline create"><img src="img/save_and_start_new_chat.png"></button>
+                <img class="cross" src="img/cross.png" title="Hide">
+            </div>
+            <div class="content">
+            </div>
+        </div>
+    </div>
+    <div id="shadow_worldinfo_details_popup" class="shadow_popup through">
+        <div class="container world_info world_info_details">
+            <div class="header">
+                <img class="note_icon icon" src="img/world.png">
+                <div class="notes_token_stat"><span>0</span> tokens <h5 class="h5_menu_help"> (<a href="/notes/22" target="_blank">?</a>)</h5></div>
+                <label class="wpp_label" title="W++ is an attribute-based shorthand format used in KoboldAI">W++<br>Editor</label>
+                <input type="checkbox" class="toggle_checkbox wpp-checkbox" checked="checked">
+                <img class="cross" src="img/cross.png" title="Hide">
+            </div>
+            <div class="content">
+                <div class="keys-editor" title="Keys (tags)"></div>
+                <div class="secondary-keys-editor" title="Secondary keys"></div>
+                <textarea></textarea>
+                <div class="wpp-editor-field"></div>
+            </div>
+            <div class="footer">
+                <label class="comment-label">Comment: </label><input type="text" class="comment" title="Optional comment to help you organize entries">
+                <label>Constant</label><input type="checkbox" class="toggle_checkbox constant" title="Always add this entry, even when it's not mentioned">
+                <label>Selective</label><input type="checkbox" class="toggle_checkbox selective" title="This entry will only be added if the message has both a main key, and a secondary key">
+                <label>Prepend</label><input type="checkbox" class="toggle_checkbox prepend" title="When including, place this entry before character definition">
+            </div>
         </div>
     </div>
 
@@ -351,11 +464,11 @@
                 </div>
                 <div id="avatar_div" class="avatar_div">
                     <div id="avatar_div_container" class="avatar"><img id="avatar_load_preview" src="img/fluffy.png" alt="avatar"></div><input type="file" id="add_avatar_button" name="avatar" accept="image/png, image/jpeg, image/jpg, image/gif, image/bmp, image/webp">
-                    
+                    <div id="character_file_div"></div>
                 </div>
                 
                 <div id="description_div">
-                    <input id="description_wpp_checkbox" type="checkbox" class="toggle_checkbox"><label for="description_wpp_checkbox" id="description_wpp_label" title="W++ is an attribute-based shorthand format used in KoboldAI">W++<br>Editor</label>
+                    <input id="description_wpp_checkbox" type="checkbox" class="toggle_checkbox"><label for="description_wpp_checkbox" id="description_wpp_label" class="wpp_label" title="W++ is an attribute-based shorthand format used in KoboldAI">W++<br>Editor</label>
                     <h4 class="h4_menu_title">Description</h4><h5 class="h5_menu_help">Personality and other characteristics (<a href="/notes/1" target="_blank">?</a>)</h5>
                     <textarea id="description_textarea" name="description" placeholder=""></textarea>
                     <div id="description_wppeditor"></div>
@@ -363,10 +476,6 @@
                 <div id="first_message_div">
                 <h4 class="h4_menu_title">First message</h4><h5 class="h5_menu_help">First message from the character (<a href="/notes/3" target="_blank">?</a>)</h5>
                 <textarea id="firstmessage_textarea" name="first_mes" placeholder=""></textarea>
-                </div>
-                
-                <div id="avatar_url_div">
-                <input id="avatar_url_pole" name="avatar_url" class="text_pole" type="text" maxlength="999" size="2" value="" autocomplete="off">
                 </div>
                 <div id="selected_chat_div">
                 <input id="selected_chat_pole" name="chat" class="text_pole" type="text" maxlength="999" size="2" value="" autocomplete="off">
@@ -378,6 +487,7 @@
                 <input id="last_mes_pole" name="last_mes" class="text_pole" type="text" maxlength="999" size="2" value="" autocomplete="off">
                 </div>
                 <input id="character_advanced_button" type="button" value="Advanced Edit">
+                <div><input id="character_online_editor" type="button" value="🢀 Online editor"></div>
                 <div id="export_character_div">
                     <div id="result_info">&nbsp;</div>
                 
@@ -386,6 +496,9 @@
                 <input id="create_button" type="submit" value="Create">
                 </div>
             </form>
+            <div id="rm_characloud_character_block">
+            <!--<input id="characloud_load_character_button" type="submit" value="Upload">-->
+            </div>
             <div id="delete_button_div">
                 <input id="delete_button" type="submit" value="Delete">
                 <input id="export_button" type="submit" value="Export">
@@ -397,6 +510,7 @@
             <h3 id="title_api">API</h3>
             <select id="main_api">
                 <option value="kobold">KoboldAI</option>
+                <option value="horde">Kobold Horde</option>
                 <option value="novel">NovelAI</option>
                 <option value="openai">OpenAI</option>
             </select>
@@ -416,6 +530,7 @@
                 <select id="settings_perset" class="menu_select">
                     <option value="gui">GUI KoboldAI Settings</option>
                 </select>
+                
                 <div id="range_block">
                     <h4 class="h4_menu_title">Temperature </h4><h5 id="temp_counter" class="range_counter">select</h5>
                     <input type="range" id="temp" name="volume" min="0.1" max="2.0" step="0.01">
@@ -424,6 +539,44 @@
                     <h4 class="h4_menu_title">Repetition Penalty </h4><h5 id="rep_pen_counter" class="range_counter">select</h5>
                     <input type="range" id="rep_pen" name="volume" min="1" max="1.5" step="0.01">
                 </div>
+                
+                <h4 class="h4_menu_title" style="margin-top: 22px;">World info</h4><h5 class="h5_menu_help">Select world info (<a href="/notes/22" target="_blank">?</a>)</h5>
+                <select id="worldinfo_select" class="menu_select">
+                    <option value="none">None</option>
+                </select><button class="inline double" id="option_toggle_worldinfo">Editor</button>
+                <button class="inline double worldinfo-import" id="worldinfo-import">&nbsp;</button>
+
+                    <form action="javascript:void(null);" method="post" enctype="multipart/form-data" style="display: none;">
+                        <input type="file" id="world_import_file" accept=".json" name="avatar">
+                        <input name="filename" type="hidden" autocomplete="off">
+                    </form>
+
+                <h5 class="h5_menu_help">Evaluation depth</h5>
+                <input type="number" id="input_worldinfo_depth" min="1" step="1" title="How many latest chat messages will be evaluated for World Info">
+                <h5 class="h5_menu_help">Token budget</h5>
+                <input type="number" id="input_worldinfo_budget" min="1" step="1" value="100" title="How many tokens at maximum will be used for World Info">
+            </div>
+            
+            <!-- HORDE -->
+            <div id="horde_api" style="position: relative;">
+                <form  action="javascript:void(null);" method="post" enctype="multipart/form-data">
+                    <h4 class="h4_menu_title">Horde API Key</h4><h5 class="h5_menu_help">Leave blank for guest account. <a href="notes/31.html" target="_blank">How does it work?</a></h5>
+                    <!--<h5>Register at: <a href="https://horde.koboldai.net/register" target="_blank">https://horde.koboldai.net/register</a></h5>-->
+                    <input type="password" id="horde_api_key" name="horde_api_key" class="text_pole_horde" maxlength="500" size="35" placeholder="0000000000" autocomplete="off">
+                    <input id="api_button_horde" type="submit" value="Connect">
+                    <img id="api_loading_horde" src="img/load.svg" >
+                    <div id="online_status_horde">
+                        <div id="online_status_indicator_horde"></div><div id="online_status_text_horde">No connection...</div>
+                    </div>
+
+
+                    <h4 class="h4_menu_title">Models</h4>
+                    <select id="horde_model_select" class="menu_select" style="color:#fff;background-color:#13152c;" >
+                        <option value="" selected>-- Connect to Horde for models --</option>
+                    </select>
+
+
+                </form>
             </div>
             <div id="novel_api">
                 <div id="novel_api_logo"><a href="https://novelai.net/" target="_blank"><img src="img/novelai.png"></a></div>
@@ -458,7 +611,7 @@
             <div id="openai_api">
                 <div id="openai_api_logo"><a href="https://openai.com" target="_blank"><img src="img/openai.png"></a></div>
                 <form  action="javascript:void(null);" method="post" enctype="multipart/form-data">
-                    <h4 class="h4_menu_title">API key</h4><h5 class="h5_menu_help">Where to get (<a href="/notes/19" target="_blank">?</a>)</h5>
+                    <h4 class="h4_menu_title">API key or Proxy</h4><h5 class="h5_menu_help">Where to get (<a href="/notes/19" target="_blank">?</a>)</h5>
                     <input id="api_key_openai" name="api_key_openai" class="text_pole" type="text" maxlength="500" size="35" value="" autocomplete="off">
                     <input id="api_button_openai" type="submit" value="Connect">
                     <img id="api_loading_openai" src="img/load.svg" >
@@ -480,14 +633,17 @@
                 </div>
                 <div id="range_block_openai">
                     <h4 class="h4_menu_title">Temperature </h4><h5 id="temp_counter_openai" class="range_counter">select</h5>
-                    <input type="range" id="temp_openai" name="volume" min="0" max="1.0" step="0.01">
+                    <input type="range" id="temp_openai" name="volume" min="0" max="2.0" step="0.01">
                 </div>
             </div>
             <div id="additional_menu_settings">
                 <input id="master_settings_button" type="button" value="✧ Master Settings ✧">
                 <hr>
 
-                <h4 id="title_your_avatar" class="h4_menu_title">Your Avatar</h4>
+                <h4 id="title_your_avatar" class="h4_menu_title" >Your Avatar</h4> <span id="your_avatar_add_button"> <a>Add</a></span>
+                <form id='form_add_user_avatar' style="display: none" action="javascript:void(null);" method="post" enctype="multipart/form-data">
+                    <input type="file" id="user_avatar_add_file" accept="image/png, image/jpeg, image/jpg, image/gif, image/bmp, image/webp" name="avatar">
+                </form>
                 <div id="user_avatar_block"></div>
                 <form id='form_change_name' action="javascript:void(null);" method="post" enctype="multipart/form-data">
                     <h4 class="h4_menu_title">Name</h4>
@@ -507,7 +663,7 @@
             
             <div id="rm_button_create" class="right_menu_title_button"><h2>+New Character</h2></div>
             <div id="rm_button_import" class="right_menu_title_button"><h2>+Import</h2></div>
-            <input id="search_bar" name="search_bar" class="text_pole" type="text" size="35" value="" autocomplete="off" placeholder="search...">
+            <input id="rm_search_bar" name="rm_search_bar" class="text_pole" type="text" size="35" value="" autocomplete="off" placeholder="search...">
             <div id="rm_print_charaters_block"></div>
         </div>
         <div id="rm_info_block" class="right_menu">
@@ -544,7 +700,7 @@
                     <div id="options">
                         <div class="options-content">
                         <a id="option_start_new_chat"><img src="img/save_and_start_new_chat.png">Start new chat</a>
-                        <a id="option_select_chat"><img id="option_select_chat_logo" src="img/book6.png">Select chats</a>
+                        <a id="option_select_chat"><img id="option_select_chat_logo" src="img/book6.png">Chats book</a>
                         <a id="option_toggle_notes" class="option_toggle_notes"><img src="img/notes_scroll.png">Memory scroll</a>
                         
                         <hr>
@@ -559,46 +715,226 @@
             <div id="online_status">
                 <div id="online_status_indicator" class="online_status_indicator_offline"></div><div id="online_status_text">No connection...</div>
             </div>
+            <div id="hordeInfo" class="hidden">
+                <span id="hordeQueue">-</span>
+            </div>
         </div>
     </div>
     
     <div id="chara_cloud">
         <form id="characloud_search_form">
             <button id="characloud_search_button" type="submit">Search</button>
-            <input id="characloud_search" name="q" autocomplete="off" type="text" class="text_pole" type="text" placeholder="Search characters...">
-            <div id="characloud_status_block">
+            <input id="characloud_search" name="q" autocomplete="off" type="text" class="text_pole" placeholder="Search characters...">
+            <div id="characloud_status_button">
                 <a href="https://boosty.to/tavernai" target="_blank">
-                    <div id="characloud_status_block_content">
-                        <div id="characloud_status_block_content_logo">
+                    <div id="characloud_status_button_content">
+                        <div id="characloud_status_button_content_logo">
                             <img src="img/cloud_logo.png">
-                            <div id="characloud_status_block_content_logo_counter"></div>
-                            <div id="characloud_status_block_content_logo_line_container">
-                                <div id="characloud_status_block_content_logo_line_fill"></div>
-                                    
+                            <div id="characloud_status_button_content_logo_counter"></div>
+                            <div id="characloud_status_button_content_logo_line_container">
+                                <div id="characloud_status_button_content_logo_line_fill"></div>
+
                             </div>
-                            
+
                         </div>
-                        <div id="characloud_status_block_content_title">Cloud</div>
-                            
+                        <div id="characloud_status_button_content_title">Cloud</div>
+
                     </div>
                 </a>
-                        
             </div>
-            <div id="characloud_version_block">
-                New Update 1.3.1
+            <div id="characloud_version_button"></div> 
+            <div id="characloud_profile_button">
+                <div id="profile_button_is_not_login">Login / Regestaration</div>
+                <div id="profile_button_is_login"><img src="/img/user_card.png" class="icon"><div class="user_name">Humi</div></div>
             </div>
+            <div id="characloud_upload_character_button">
+                Upload Character
+            </div>
+            <div id="characloud_close_button">
+                <img src="img/cross.png">
+            </div>
+
+        </form>
+        <form id="form_characloud_upload_character"  action="javascript:void(null);" method="post" enctype="multipart/form-data" style="display: none;">
+            <input type="file" id="characloud_upload_character_file" accept="image/png, image/webp" name="avatar">
         </form>
         <div id="characloud_search_block">
             <button id="characloud_search_back_button" type="button"></button>
             <div id="characloud_search_result"></div>       
         </div>
         <div id="characloud_characters"></div>
+
+        <div class="characloud_content">
+            <div class="characloud_header">
+                <div id="characloud_header_navigator"><h2 id="characloud_header_navigator_p1">TavernAI</h2><h2 id="characloud_header_navigator_c1">&nbsp;&gt;&nbsp;</h2><h2 id="characloud_header_navigator_p2"></h2><h2 id="characloud_header_navigator_c2">&nbsp;&gt;&nbsp;</h2><h2 id="characloud_header_navigator_p3"></h2> <!--&gt; Publishing Character--></div>
+            </div>
+            <div id="characloud_character_page">
+                <div class="characloud_character_page_avatar">
+                    <img src="../img/fluffy.png" width="400" height="600">
+                    <div class="avatar-info">
+                        <p id="avatar-info-name"></p>
+                        <p id="avatar-info-author"></p>
+                        <p id="avatar-info-filesize"></p>
+                        <p id="avatar-info-creation-date"></p>
+
+                    </div>
+                    <form id="form_characloud_upload_character_page"  action="javascript:void(null);" method="post" enctype="multipart/form-data">
+                        <input type="file" id="characloud_upload_character_page_avatar" accept="image/png, image/jpeg, image/jpg, image/gif, image/bmp, image/webp" name="avatar">
+                    </form>
+                </div>
+
+                <div id="characloud_character_page_info">
+
+                    <div class="characloud_character_page_buttons">
+                        <div class="url-data" style="float:left"></div>
+                        <button class="publish_button">⏏ Publish</button><img class="load_icon load_icon_publish" src="img/load.svg">
+                        <button class="update_button">⏏ Update</button><img class="load_icon load_icon_update" src="img/load.svg">
+                        <button class="load_update_button">Load Update &#9668;</button>
+                        <button class="to_chat_button">To Chat</button>
+                        <button class="update_locally_button">Save ➧</button>
+                        <button class="add_locally_button">Add &#9654;</button>
+
+                        <!--<button>Upload</button>-->
+                        <div class="publish_rules"><a href="https://tavernai.net/app/rulers.html" target="_blank">Publication Rules (?)</a></div>
+                    </div>
+
+                    <div class="characloud_character_page_top_info"></div>
+                    <div class="character-info">
+
+                        <div class="info-section">
+                            <label for="name-input">Name</label>
+                            <input type="text" id="name-input" placeholder="The character's name" />
+                        </div>
+                        <div class="category-form">
+                            <div id="nsfw_toggle_block" class="menu_toggle">
+                                <div class="toggle_label">NSFW</div>
+                                <input id="editor_nsfw" type="checkbox" class="toggle_checkbox">
+                            </div>
+                            <div class="category-input">
+                                <input type="text" id="category-input-field" placeholder="Enter a category">
+                            </div>
+                            <div class="category-list">
+                                <!--<div class="category character-category">Responsive design <span class="category-remove">x</span></div>-->
+                            </div>
+                            <div class="popular-categories">
+                                <div class="popular-categories-title">Popular categories</div>
+                                <div class="popular-categories-list">
+                                    <div class="category popular-category">+ Anime</div>
+                                    <div class="category popular-category">+ Manga</div>
+                                    <div class="category popular-category">+ Games</div>
+                                    <div class="category popular-category">+ NSFW</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="info-section">
+                            <label for="short-description-input">Short Description</label>
+                            <input type="text" id="short-description-input" placeholder="Displayed under the character's avatar" />
+                        </div>
+                        <div class="info-section">
+                            <label for="personality-summary-input">Personality Summary</label>
+                            <input type="text" id="personality-summary-input" placeholder="A brief description of the character's personality traits" />
+                        </div>
+                        <div class="info-section">
+                            <label for="scenario-textarea">Scenario</label>
+                            <textarea id="scenario-textarea" class="characloud_character" placeholder="Enter a situation in which the character is involved"></textarea>
+                        </div>
+                        <div class="info-section">
+                            <label for="description-textarea">Description</label>
+                            <textarea id="description-textarea" class="characloud_character" placeholder="A detailed description of the character"></textarea>
+                        </div>
+                        <div class="info-section">
+                            <label for="first-message-textarea">First Message</label>
+                            <textarea id="first-message-textarea" class="characloud_character" placeholder="First message from character"></textarea>
+                        </div>
+                        <div class="info-section">
+                            <label for="dialogues-example-textarea">Dialogues Example</label>
+                            <textarea id="dialogues-example-textarea" class="characloud_character" placeholder="An example of the character's dialogue"></textarea>
+                        </div>
+                    </div>
+                    <div class="characloud_character_page_buttons">
+                        <button class="publish_button">⏏ Publish</button><img class="load_icon load_icon_publish" src="img/load.svg">
+                        <button class="update_button">⏏ Update</button><img class="load_icon load_icon_update" src="img/load.svg">
+                        <button class="load_update_button">Load Update &#9668;</button>
+                        <button class="to_chat_button">To Chat</button>
+                        <button class="update_locally_button">Save ➧</button>
+                        <button class="add_locally_button">Add &#9654;</button>
+
+                        <!--<button>Upload</button>-->
+                    </div>
+                    <div class="characloud_character_page_top_info"></div>
+                </div>
+            </div>
+
+
+            <div id="characloud_user_profile_block">
+
+                <div class="characloud_user_profile">
+                    <div class="characloud_user_profile_avatar">
+                        <img class="characloud_user_profile_avatar_img" src="../img/default_avatar.png">
+                    </div>
+                    <form id="form_user_profile_avatar"  action="javascript:void(null);" method="post" enctype="multipart/form-data" style="display:none;">
+                        <input type="file" id="form_user_profile_avatar_file" name="avatar" accept="image/png, image/jpeg, image/jpg, image/gif, image/bmp, image/webp">         
+                    </form>
+                    <div id="user_profile_info">
+                        <h2 class="username"><span class="username_text"></span><span class="star-icon"></span><span class="logout_container"><span class="logout">(Logout)</span></span></h2>
+                        <p class="url-data"></p>
+                        <div id="user_profile_info_this_user">
+                            <button class="upload-avatar-button">Avatar</button>
+                            <button style="margin-left: 1px" class="upload-character-button">Upload Character</button>
+                        </div>
+                        <div id="user_profile_info_other_user">
+                            <button class="profile-button">Profile</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="new-mod-character-gallery">
+                    <h3 class="gallery-title">Moderation New</h3>
+                    <div class="new-mod-character-gallery-content">
+
+                    </div>
+                </div>
+                <div class="edit-mod-character-gallery">
+                    <h3 class="gallery-title">Moderation Edit</h3>
+                    <div class="edit-mod-character-gallery-content">
+
+                    </div>
+                </div>
+                <div class="character-gallery">
+                    <h3 class="character-gallery-title">Characters</h3>
+                    <div class="character-gallery-content">
+
+                    </div>
+                    <div id="user_profile_navigation_page">
+                        <button id="user_profile_prev_button">Prev</button>
+                        <span id="user_profile_page_pagination"></span>
+                        <button id="user_profile_next_button">Next</button>
+                    </div>
+                </div>
+
+            </div>
+            <div id="characloud_category">
+
+            </div>
+            <div id="characloud_categories">
+                <div class="categories-container">
+
+                    <div class="categories-list">
+                        <!-- categories will be added here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="characloud_bottom">
+            <div id="characloud_bottom_block">
+                <div><div style="margin-top: 14px;display: flex; justify-content: center;"><a href="https://discord.gg/zmK2gmr45t" target="_blank">Discord</a><a href="https://github.com/TavernAI/TavernAI" target="_blank">GitHub</a><a href="https://boosty.to/tavernai" target="_blank">Donation</a>
+                    </div><div style="margin-top: 11px;opacity:0.15; display: flex; justify-content: center; font-size: 10px;">All characters 18+. The administration is not responsible for the content uploaded by users</div></div>
+            </div>
+            
+        </div>
     </div>
-   
-    <audio id="sound_alert">
-        <source src="sounds/harp.mp3" type="audio/mp3"/>
-        <source src="sounds/harp.ogg" type="audio/ogg"/>
-    </audio>
-    
+
+
+
+
 </body>
 </html>

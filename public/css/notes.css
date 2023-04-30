@@ -10,3 +10,34 @@
     max-width: 700px;
 
 }
+
+img.fig {
+    display: block;
+    margin: auto;
+}
+
+label {
+    display: block;
+    text-align: center;
+    font-style: italic;
+}
+
+table {
+    border-collapse: collapse;
+    margin-bottom: 1em;
+    width: 100%;
+}
+
+th, td {
+    border: 1px solid black;
+}
+.strong {
+    font-weight: bold;
+}
+th {
+    border-bottom: 3px double black;
+}
+
+table.center * {
+    text-align: center;
+}

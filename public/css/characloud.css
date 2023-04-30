@@ -1,0 +1,1233 @@
+/**********************************/
+/**********CHARA CLOUD*************/
+#bg_chara_cloud {
+    background-image: inherit;
+    background-size: auto 100%;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+    /*filter: blur(2px);*/
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background-image: linear-gradient(rgba(19,21,44,0.6), rgba(19,21,44,0.6));
+}
+
+#chara_cloud{
+    display: none;
+    width: calc(100vw - 180px);
+    height: 100vh;
+    overflow: hidden;
+    overflow-y: scroll;
+    margin-left: 130px;/*170px;*/
+    scrollbar-width: none; /* hide scrollbar in Firefox */
+    -ms-overflow-style: none; /* hide scrollbar in IE 10+ */
+    
+}
+
+
+#chara_cloud::-webkit-scrollbar {
+  display: none; /* hide scrollbar in WebKit-based browsers */
+}
+
+#characloud_search_form {
+    opacity: 0.0;
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    height: 80px;
+    margin-top: 80px;
+}
+
+#characloud_search {
+    padding: 10px;
+    font-size: 20px;
+    border: none;
+    border-radius: 10px;
+    background-color: transparent;
+    box-shadow: 0px 0px 8px rgba(255, 255, 255, 0.5);
+    width: 400px;
+}
+
+
+#characloud_search_button {
+    margin-right: 10px;
+    padding: 10px 20px;
+    background-color: #1abc9c;
+    color: white;
+    font-size: 20px;
+    border: none;
+    border-radius: 20px;
+    box-shadow: 0px 0px 10px rgba(26, 188, 156, 0.5);
+    cursor: pointer;
+}
+
+#characloud_search_button:hover {
+    background-color: #16a085;
+}
+
+#characloud_search_block {
+    display: none;
+    height: 100%;
+}
+
+#characloud_search_back_button {
+    margin-left: 10px;
+    padding: 10px;
+    background-color: transparent;
+    font-size: 20px;
+    border: none;
+    border-radius: 20px;
+    width: 40px;
+    height: 40px;
+    box-shadow: 0px 0px 10px rgba(231, 76, 60, 0.0);
+    cursor: pointer;
+    display: none;
+    background-image: url(../img/swipe_left.png);
+    background-repeat: no-repeat;
+    background-size: contain;
+    opacity: 0.6;
+}
+
+
+#characloud_search_back_button:hover {
+    opacity: 0.8;
+}
+
+#characloud_search_result {
+    margin-top: 15px;
+    /*background-color: #ffffff22;*/
+    padding: 10px;
+    border-radius: 5px;
+    height: 100%;
+    max-width: 1900px;
+}
+
+
+#characloud_search_result .character_select {
+    grid-template-rows: 30px auto;
+    margin-top: 3px;
+    max-width: 600px;
+}
+
+#characloud_search_result .character_select .avatar {
+    grid-row: span 2;
+}
+
+#characloud_search_result .character_select .ch_short_desctription {
+    margin-left: 6px;
+    opacity: 0.8;
+}
+
+#characloud_characters {
+    
+    margin-top: 20px;
+}
+
+.characloud_characters_category_title {
+    padding: 6px;
+    font-weight: 600;
+    font-size: 18px;
+    cursor: pointer;
+    width: min-content;
+    white-space: nowrap;
+}
+
+.characloud_characters_row {
+    position: relative;
+    overflow: hidden;
+    height: 340px;/*height: 345px;*/
+    margin-bottom: 35px;
+    background-color: #ffffff22;
+    padding: 8px;
+    padding-top: 30px;
+    border-radius: 10px;
+}
+.characloud_characters_row_scroll {
+    display: flex;
+    justify-content: center;
+    width: 0;
+    height: 100%;
+}
+.characloud_character_block{
+    display: inline-block;
+    
+}
+/*
+.characloud_character_block_card {
+    top: 0px;
+    margin-right: 50px;
+    cursor: pointer;
+}
+
+
+.characloud_character_block_name {
+    max-width: 180px;
+}
+*/
+.characloud_swipe_rigth, .characloud_swipe_left {
+    z-index: 230;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    /*margin-left: -30px; /* Half of the button's width */
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: rgba(13, 13, 13, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+.characloud_swipe_rigth {
+    right: 20px;
+}
+.characloud_swipe_left {
+    left: 20px;
+    display: none;
+    opacity: 0.0;
+}
+.characloud_swipe_rigth img, .characloud_swipe_left img {
+  width: 40px;
+  height: 40px;
+}
+
+/*        */
+.characloud_character_block_card {
+  position: relative;
+  margin-right: 25px;
+  cursor: pointer;
+}
+
+.characloud_character_block_card .avatar {
+  padding: 0px;
+  border-radius: 5px;
+  width: 280px;
+  height: 280px;
+  position: relative; /* make the avatar container position:relative */
+  overflow: hidden; /* hide the overflow of the box-shadow */
+}
+
+.characloud_character_block_card .avatar img {
+  border-radius: 5px;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+}
+
+/* Add the shadow effect to the avatar container */
+.characloud_character_block_card .avatar::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -10px; /* adjust the shadow position */
+  height: 100px; /* adjust the shadow height */
+  background-image: linear-gradient(rgba(0,0,0,0.00) 0%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0.7) 100%); /* add the gradient background image */
+}
+
+.characloud_character_block_name {
+  text-shadow: 0px 0px 4px rgba(0, 0, 0, 0.9);
+  font-weight: 600;
+  font-size: 20px;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 10px;
+  padding: 10px;
+  color: white;
+  z-index: 1; /* make the character name and description appear on top of the shadow */
+}
+
+.characloud_character_block_user_name {
+    text-shadow: 0px 0px 4px rgba(0, 0, 0, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 40px;
+    height: 40px;
+    margin: 10px;
+    margin-bottom: 0px;
+    color: white;
+    width: min-content;
+    z-index: 699; /* make the character name and description appear on top of the shadow */
+}
+.characloud_character_block_user_name:hover {
+    filter: brightness(150%);
+}
+.characloud_character_block_page_link {
+    text-shadow: 0px 0px 4px rgba(0, 0, 0, 0.9);
+    font-weight: 600;
+    font-size: 20px;
+    position: absolute;
+
+    right: 0px;
+    bottom: 0px;
+    padding: 6px;
+    width: 40px;
+    height: 56px;
+    margin-right: 3px;
+    opacity: 0.5;
+    color: white;
+    
+    z-index: 688; /* make the character name and description appear on top of the shadow */
+}
+.characloud_character_block_page_link:hover {
+    opacity: 1.0;
+}
+.characloud_character_block_page_link img{
+    margin-top: 10px;
+    width: 10px;
+    height: auto;
+    float: right;
+}
+
+.characloud_character_block_description {
+  opacity: 1.0;
+  position: absolute;
+  font-weight: 400;
+  text-shadow: 0px 0px 2px rgba(0, 0, 0, 0.9);
+  font-size: 13px;
+  left: 1px;
+  right: 0;
+  top:89%;/*top: calc(100% + 0px); /* position the description below the name */
+  margin-top: 0px; /* add margin to separate the name and description */
+  padding: 10px;
+  z-index: 1; /* make the character name and description appear on top of the shadow */
+}
+
+#characloud_status_button_content_logo {
+    margin-left: 15px;
+    margin-top: 0px;
+    /*-moz-filter: blur(0.2px);*/ /* Firefox */
+    /*-o-filter: blur(0.2px);*/ /* Opera */
+
+    /*filter: drop-shadow(0px 0px 2px #656565ff);*/
+    display: inline-grid;
+    opacity: 0.82;
+    grid-auto-rows: auto auto;
+    grid-template-columns: auto auto;
+    background-color: rgba(255,255,255, 0.1);
+    border-radius: 4px;
+    height: 50px;
+    padding: 6px;
+    padding-top: 10px;
+    padding-left: 13px;
+    padding-right: 13px;
+    
+}
+
+#characloud_status_button_content_logo:hover {
+    opacity: 1.0;
+}
+
+#characloud_status_button_content_logo img {
+    
+    opacity: 0.5;
+    height: 28px;
+    width: auto;
+    margin-left: 3px;
+    margin-bottom: 3px;
+    
+}
+
+#characloud_status_button_content_title {
+    display: none;
+    grid-row: span 2;
+}
+
+
+#characloud_status_button_content_logo_line_container {
+    /*-webkit-filter: blur(0.3px);*/ /* Safari, Chrome */
+    margin-left: 2px;
+    position: relative;
+    width: 45px;
+    height: 4px;
+    top: -9px;
+    left: 0px;
+    background-color: rgba(255,255,255,0.2);
+    grid-column: 2;
+    grid-row: 2;
+    border-radius: 2px;
+
+}
+
+#characloud_status_button_content_logo_line_fill {
+    left: 0;
+    top: 0;
+    background-color: rgba(255,180,180,0.6);
+    position: absolute;
+    width: 0px;
+    max-width: 45px;
+    height: 4px;
+    border-radius: 2px;
+    
+}
+
+#characloud_status_button_content_logo_counter {
+    /*-webkit-filter: blur(0.3px);*/ /* Safari, Chrome */
+    display: inline-block;
+    color: rgba(255,180,180,0.4);
+    font-weight: 900;
+    font-size: 10px;
+    margin-left: -2px;
+    margin-top: 5px;
+    text-align: center;
+    
+}
+
+#characloud_version_button {
+    display: none; 
+    
+    align-items: center; 
+    justify-content: center;
+    background-color: rgba(255,255,255, 0.1);
+    border-radius: 4px;
+    height: 50px;
+    padding: 6px;
+    padding-left: 13px;
+    padding-right: 13px;
+    margin-left: 10px;
+    color: #94bf8d; 
+    font-weight: 900;
+    cursor: pointer;
+}
+/*searchbox*/
+#search_bar {
+    display: none;
+    width: 150px;
+    position: sticky;
+    top: 0px;
+    z-index: 100;
+    margin-left: 8px;
+}
+#search_bar::placeholder  {
+    color: white;
+}
+
+#chara_cloud #characloud_profile_button {
+
+    display: inline-block;
+    margin-left: 15px;
+    margin-top: 0px;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255,255,255, 0.1);
+    border-radius: 4px;
+    height: 50px;
+    padding: 6px;
+    padding-top: 13px;
+    padding-left: 13px;
+    padding-right: 13px;
+    cursor: pointer;
+    opacity: 0.82;
+    /*color: #94bf8d; */
+    font-weight: 600;
+    position: relative;
+}
+
+#chara_cloud #characloud_profile_button:hover {
+    opacity: 1.0;
+}
+#chara_cloud #characloud_profile_button .icon {
+    width: 20px; 
+    height: 20px; 
+    margin-top: 1px;
+    margin-right: 6px;
+    opacity: 0.6;
+    position: absolute;
+}
+#chara_cloud #characloud_profile_button .user_name {
+    margin-bottom: 0px;
+    margin-left: 27px;
+}
+
+#chara_cloud #characloud_close_button {
+    display: inline-block;
+    margin-left: 25px;
+    margin-top: 0px;
+
+    background-color: rgba(255,255,255, 0.1);
+    border-radius: 4px;
+    height: 50px;
+    padding: 6px;
+    padding-top: 10px;
+    padding-left: 13px;
+    padding-right: 13px;
+    cursor: pointer;
+    opacity: 0.82;
+}
+
+#chara_cloud #characloud_close_button img {
+    opacity: 0.2;
+    width: 25px;
+    height: 25px;
+    vertical-align: middle;
+}
+
+#chara_cloud #characloud_close_button:hover {
+    opacity: 1.0;
+}
+
+#characloud_upload_character_button {
+    display: inline-block;
+    margin-left: 15px;
+    margin-top: 0px;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255,255,255, 0.1);
+    border-radius: 4px;
+    height: 50px;
+    padding: 6px;
+    padding-top: 13px;
+    padding-left: 13px;
+    padding-right: 13px;
+    cursor: pointer;
+    opacity: 0.82;
+    /*color: #94bf8d; */
+    font-weight: 600;
+}
+
+#chara_cloud #characloud_upload_character_button:hover {
+    opacity: 1.0;
+}
+/* Login */
+#reg_login_popup_shadow {
+    display: none;
+    opacity: 1.0;
+    position: absolute;
+    top: 48%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2120;
+
+}
+
+#reg_login_popup {
+    width:700px;
+    max-height: 780px;
+    height:780px;
+    box-shadow: 0 0 2px rgba(200,200,200,0.1);
+    padding: 4px;
+    background: #191b31FB;
+    border-radius: 1px;
+    overflow: auto;
+    padding: 30px;
+    border-radius: 4px;
+
+    background-image: linear-gradient(to bottom, rgba(25, 27, 49, 0.8) 0%, rgba(25, 27, 49, 1) 100%), url("../img/login.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center center;
+}
+
+
+
+.form-container {
+    margin-top: 60px;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 500px;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+}
+
+/* Form title */
+.form-container h2 {
+    text-align: center;
+}
+
+/* Form labels */
+.form-container label {
+    display: inline-block;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+/* Form input fields */
+.form-container input[type="text"],
+.form-container input[type="email"],
+.form-container input[type="password"] {
+    width: 100%;
+    padding: 6px;
+    border: 1px solid #ccc;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    background-color: #e6e6e6;
+    font-size: 20px;
+}
+
+/* Form submit buttons */
+.form-container input[type="submit"] {
+    background-color: #4caf50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Form submit buttons on hover */
+.form-container input[type="submit"]:hover {
+    background-color: #45a049;
+}
+
+/* Form error messages */
+.form-container .error {
+    color: red;
+    margin-bottom: 10px;
+}
+#reg_login_cross {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#login-form {
+    display: none;
+}
+
+.switch_log_reg {
+    float:right;
+    cursor: pointer;
+}
+
+/*Contant block*/
+.characloud_content {
+    display: none;
+    background-color: #1e2135;/*#222431;/*#191b31;*/
+    min-height: calc(100vh - 185px);
+    margin-top: 10px;
+}
+
+/*Header*/
+.characloud_header {
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* center content vertically */
+    /*align-items: center;  center content horizontally */
+    background-color: #16182d;
+    /*padding: 15px;*/
+    width: 100%;
+    height: 60px;
+    margin: 0px;
+    border: 2px solid #cccccc10;
+    /*box-shadow: 0 2px 4px rgba(150, 150, 150, 0.05);*/
+}
+.characloud_header div {
+    margin-left: 22px;
+}
+.characloud_header h2 {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 0;
+    color: #6b6f7b;
+}
+/* Ccharacter block */
+#characloud_character_page {
+    padding: 20px;
+    display: grid;
+    grid-template-columns: 450px auto;
+}
+
+.character-block {
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.characloud_character_page_avatar {
+    width: 400px;
+    height: 600px;
+    position: relative;
+    margin-right: 20px;
+}
+
+.characloud_character_page_avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 0px;
+}
+
+.avatar-info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+}
+
+.character-info {
+    flex: 1;
+    max-width: 800px;
+}
+
+.info-section {
+    margin-bottom: 20px;
+}
+
+.info-section label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #b1b9c2;
+}
+.info-section input,
+.info-section textarea {
+    width: 100%;
+    padding: 10px;
+    border: 0px solid #ccc;
+    box-shadow: 0 0 1px rgba(200,200,200,0.5);
+    border-radius: 4px;
+    font-size: 17px;
+    background-color: #282b40;/*#222431;/*rgb(33,37,41);/*#13152c;*/
+    color: #b1b9c2;
+    resize: vertical;
+
+}
+#scenario-textarea {
+    height: 58px;
+}
+/*White
+.info-section input,
+.info-section textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    background-color: #eeeeee;
+    color: black;
+}
+*/
+.info-section textarea {
+    height: 100px;
+}
+
+.signature {
+    font-style: italic;
+    margin-bottom: 5px;
+}
+.characloud_character_page_top_info {
+    margin-top: 0px;
+    max-width: 800px;
+    text-align: right;
+    height: 20px;
+    margin-bottom: 5px;
+}
+.characloud_character_page_buttons {
+    margin-top: 0px;
+    max-width: 800px;
+    text-align: right;
+    height: 55px;
+    position: relative;
+}
+.publish_rules {
+    float: left;
+    cursor: pointer;
+    position: absolute;
+    top:42px;
+}
+.characloud_character_page_buttons button {
+    margin-left: 10px;
+    padding: 10px 20px;
+    background-color: #0077cc;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    display: none;
+}
+
+.characloud_character_page_buttons button:hover {
+    background-color: #0066b3;
+}
+
+.update_button {
+    float: left;
+    margin-left: 0px !important; 
+}
+.publish_button {
+    float: left;
+    margin-left: 0px !important; 
+}
+/* User profile block */
+
+#characloud_user_profile_block {
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 0px;
+}
+.characloud_user_profile {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.characloud_user_profile_avatar {
+    margin-right: 20px;
+    cursor: pointer;
+}
+
+.characloud_user_profile_avatar img {
+    display: block;
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+}
+.url-data {
+    margin: 0;
+    margin-bottom: 2px;
+    margin-top: 6px;
+    padding: 0;
+    cursor: pointer;
+    color: rgb(168, 137, 97);
+}
+.user-info {
+    flex-grow: 1;
+}
+
+.username {
+    display: flex;
+    align-items: center;
+    font-size: 24px;
+    font-weight: bold;
+    margin: 0;
+
+}
+.username_text {
+    color: #6b727b;
+}
+.star-icon {
+    display: none;/*inline-block;*/
+    width: 20px;
+    height: 20px;
+    margin-top: 2px;
+    margin-left: 2px;
+    background-image: url(../img/star.png);
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+.logout_container {
+    display: flex;
+    align-items: end;
+    justify-content: end;
+    height: 18px;
+    margin-left: 5px;
+}
+.logout {
+    height: 18px;
+    font-size: 12px;
+    font-weight: unset;
+    cursor: pointer;
+}
+.registration-date {
+    
+    margin: 5px 0;
+    font-size: 16px;
+    font-style: italic;
+}
+
+.upload-character-button, .upload-avatar-button, .profile-button {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #4CAF50;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.character-gallery {
+    margin-top: 20px;
+}
+
+.character-gallery-title {
+    font-size: 20px;
+    font-weight: bold;
+    margin: 0;
+    margin-left: 5px;
+    margin-bottom: 8px;
+}
+
+.character-gallery-content {
+    
+
+}
+
+
+
+.new-mod-character-gallery, .edit-mod-character-gallery {
+    margin-top: 20px;
+    display: none;
+}
+
+.characters-in-moderation {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.characters-in-moderation img {
+    margin-right: 10px;
+    margin-bottom: 10px;
+    width: 132px;
+    height: 200px;
+}
+
+#reg_login_popup .email {
+    display: inline-block; 
+}
+#reg_login_popup .optional {
+    display: inline-block; 
+    float: right; 
+    opacity: 0.3
+}
+
+.load_icon {
+    float: left;
+    width: 40px;
+    height: 40px;
+    display: none;
+}
+#login_form {
+    /*display: none;*/
+}
+#registration_form {
+    /*display: none;*/
+}
+
+#successful_registration {
+  display: none; /*flex*/
+  justify-content: center;
+  align-items: center;
+  height: 400px;
+}
+#successful_registration h2 {
+    color: #ac8f83;
+    font-weight: 700;
+}
+#successful_registration img {
+    margin-left: 10px;
+    width: 40px;
+    height: 40px;
+    opacity: 0.8;
+}
+
+.form_error {
+    height: 20px;
+    color: #b5967f;
+    display: none;
+    margin-left: 7px;
+}
+
+#profile_button_is_not_login {
+
+}
+#profile_button_is_login {
+    display: none;
+}
+
+#character_published_shadow {
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+
+#character_published_popup {
+    display: block;
+    max-width: 600px;
+    max-height: 600px;
+    margin-top: unset;
+    margin-bottom: 40px;
+    border-radius: 5px;
+    
+    background-image: linear-gradient(to bottom, rgba(25, 27, 49, 0.8) 0%, rgba(25, 27, 49, 1) 100%), url("../img/published.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center center;
+}
+
+#character_published_popup .form-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 50px;
+    border: 1px solid #ccccccaa;
+}
+#character_published_popup .form-container label {
+    text-align: center;
+}
+#character_published_popup_avatar {
+    width: 30%;
+    height: auto;
+    margin-bottom: 0px;
+    border-radius: 3px;
+    
+}
+#character_published_popup_button {
+    padding: 13px 36px;
+    font-size: 16px;
+    background-color: #4b8f82;
+    
+}
+
+
+/* Navigator */
+#characloud_header_navigator_p1,
+#characloud_header_navigator_p2,
+#characloud_header_navigator_p3{
+    cursor: pointer;
+    display: inline-block;
+}
+#characloud_header_navigator_p2,
+#characloud_header_navigator_p3{
+    display: none;
+}
+#characloud_header_navigator_c1,
+#characloud_header_navigator_c2{
+    display: none;
+}
+
+#user_profile_navigation_page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    margin-bottom: 35px;
+    
+}
+#user_profile_prev_button, #user_profile_next_button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px;
+    margin: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+#user_profile_prev_button:hover, #user_profile_next_button:hover {
+    background-color: #3e8e41;
+}
+
+.user_profile_character {
+    cursor: pointer;
+    position: relative;
+    
+    margin-right: 70px;
+    margin-left: 5px;
+    margin-bottom: 24px;
+    display: inline-block;
+}
+.user_profile_character_img {
+    width: 132px;
+    height: 200px;
+}
+.user_profile_character_delete {
+
+    height: 25px;
+    position: absolute;
+    float: right;
+    right: 8px;
+    top: 8px;
+    cursor: pointer;
+    opacity: 0.5;
+    background-color: black;
+    border-radius: 2px;
+    padding: 1px;
+}
+
+
+
+/* Categories */
+#nsfw_toggle_block {
+    position: absolute;
+    grid-template-columns: 60px 55px !important;
+    right: 10px;
+    top: 1px;
+}
+
+#nsfw_toggle_block .toggle_label {
+    display: flex;
+    align-items: center;
+    justify-content: right;
+    opacity: 0.5;
+    font-weight: 600;
+}
+#nsfw_toggle_block .toggle_checkbox {
+    border-radius: 20px;
+    height: 24px;
+    width: 48px;
+    background-color: #3a3e51f7;
+}
+#nsfw_toggle_block .toggle_checkbox:before {
+    border-radius: 20px;
+    height: 18px;
+    width: 18px;
+}
+.category-form {
+  background-color: #282b40;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  margin-top: 5px;
+  box-shadow: 0 0 1px rgba(200,200,200,0.5);
+  position: relative;
+}
+
+.category-input {
+  display: flex;
+  align-items: center;
+}
+
+#category-input-field {
+  flex: 1;
+  background-color: transparent;
+  border: none;
+  padding: 5px;
+  font-size: 16px;
+  color: #fff;
+}
+
+.category-list {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.category {
+  display: inline-block;
+  padding: 5px 10px;
+  margin: 5px;
+  font-size: 14px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.popular-category {
+  background-color: #007bff !important;
+  border: 1px solid #007bff !important;
+}
+
+.character-category, .show-category {
+  background-color: #6c757d;
+}
+
+.category-remove {
+  margin-left: 5px;
+  cursor: pointer;
+  font-size: 12px;
+  color: #fff;
+}
+
+.popular-categories {
+  margin-top: 7px;
+  display: none;
+}
+
+.popular-categories-title {
+  font-size: 16px;
+  color: #fff;
+  margin-bottom: 10px;
+}
+
+.popular-categories-list {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+#characloud_category {
+    padding: 30px;
+}
+
+#characloud_category .characloud_character_block {
+    margin: 30px;
+}
+#characloud_category .characloud_character_block .characloud_character_block_card {
+    margin: 0px;
+}
+
+
+.categories-container {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: center;
+    /*background-color: #333;*/
+    color: #fff;
+}
+
+.categories-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: left;
+    margin-top: 20px;
+}
+/*
+.category {
+    background-color: #555;
+    border: 1px solid #777;
+    border-radius: 5px;
+    padding: 10px 20px;
+    margin: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+}
+*/
+.category:hover {
+    background-color: #777;
+}
+
+.characloud_content .characloud_character_block .characloud_character_block_card .avatar {
+    width: 195px;
+}
+
+#characloud_user_profile_block .characloud_character_block {
+    margin: 10px;
+}
+
+#characloud_bottom {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    margin-top: 0px;
+    background-color: #1e2135; 
+    height: 80px;
+    margin-bottom: 6px;
+    padding: 2px;
+}
+#characloud_bottom_block {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #16182da8;
+    width: 100%;
+    height: 100%;
+}
+
+#characloud_bottom_block a {
+    color: #a4a4a4;
+    margin-left: 10px;
+    margin-right: 10px;
+    opacity: 0.3;
+    font-weight: 600;
+}

@@ -2,15 +2,24 @@
  * Resizeable and draggable window with optional close button
  */
 export class Resizable {
+    static focused;
+
     uid;
     root;
+    header;
+    content;
+    footer;
+    cross;
     container;
+    closeButton;
 
     shown = false;
     left = 0;
     top = 0;
     right = 0;
     bottom = 0;
+
+    allEvents = [];
 
     /**
      * Creates modular, resizable window in given container. Root is a "shadow" (taking up the whole screen), its sole div .container child is the window itself.
@@ -24,12 +33,40 @@ export class Resizable {
         this.root = options.root;
         this.root.classList.add("modular");
         this.root.classList.add("resizable");
-        for(let i = 0; i < this.root.children.length; i++) {
-            if(this.root.children[i].classList.contains("container")) {
-                this.container = this.root.children[i];
-                break;
+        if(!this.root.children.length) {
+            this.container = document.createElement("div");
+            this.container.classList.add("container");
+            this.root.appendChild(this.container);
+        } else {
+            for(let i = 0; i < this.root.children.length; i++) {
+                if(this.root.children[i].classList.contains("container")) {
+                    this.container = this.root.children[i];
+                    break;
+                }
             }
         }
+        if(this.container) {
+            for(let i = 0; i < this.container.children.length; i++) {
+                if(!this.header && this.container.children[i].classList.contains("header")) {
+                    this.header = this.container.children[i];
+                    for(let j = 0; j < this.header.children.length; j++) {
+                        if(this.header.children[j].classList.contains("cross")) {
+                            this.cross = this.header.children[j];
+                            this.cross.addEventListener("click", this.hide.bind(this));
+                            break;
+                        }
+                    }
+                }
+                if(!this.content && this.container.children[i].classList.contains("content")) {
+                    this.content = this.container.children[i];
+                }
+                if(!this.footer && this.container.children[i].classList.contains("footer")) {
+                    this.footer = this.container.children[i];
+                }
+            }
+        }
+        this.container.onmousedown = this.focus.bind(this);
+
         this.uid = options.uid || undefined;
         if(options.uid && !options.forceDefault) {
             let coords = window.localStorage.getItem(options.uid + "-coords");
@@ -41,12 +78,11 @@ export class Resizable {
                 options.left = coords[3];
             }
         }
-        this.left = options.left;
-        this.top = options.top;
-        this.right = options.right;
-        this.bottom = options.bottom;
+        this.left = options.left || 0;
+        this.top = options.top || 0;
+        this.right = options.right || 0;
+        this.bottom = options.bottom || 0;
         this.redraw();
-        this.container.setAttribute("class", "container");
 
         // create 4 corner handles and 3 edge handles
         ["tl", "tr", "bl", "br", "mr", "bm", "ml"].forEach((direction, index) => {
@@ -94,16 +130,19 @@ export class Resizable {
         this.container.appendChild(el);
 
         // binds a .cross child to close window
-        let cross;
         for(let i = 0; i < this.container.children.length; i++) {
             if(this.container.children[i].classList.contains("cross")) {
-                cross = this.container.children[i];
+                this.closeButton = this.container.children[i];
                 break;
             }
         }
-        if(cross) {
-            cross.onclick = this.toggle.bind(this);
+        if(this.closeButton) {
+            this.closeButton.onclick = function(event) {
+                this.hide();
+                event.preventDefault();
+            }.bind(this);
         }
+        this.hide();
     }
 
     /**
@@ -182,9 +221,57 @@ export class Resizable {
     /** Shows window */
     hide() {
         if(!this.container) { return; }
-        if(!this.shown) { return; }
         this.shown = false;
         this.root.classList.remove("shown");
+        this.unfocus();
+    }
+
+    findChildWithClass(className, parent) {
+        if(!className || !className.length) { return null; }
+        if(parent) {
+            for(let i = 0; i < parent.children.length; i++) {
+                if(parent.children[i].classList.contains(className)) {
+                    return parent.children[i];
+                }
+            }
+            return null;
+        }
+        return this.findChildWithClass(className, this.header) || this.findChildWithClass(className, this.content) || this.findChildWithClass(className, this.footer);
+    }
+
+    findChildWithType(nodeName, parent) {
+        if(!nodeName || !nodeName.length) { return null; }
+        if(parent) {
+            for(let i = 0; i < parent.children.length; i++) {
+                if(parent.children[i].nodeName.toLowerCase() === nodeName.toLowerCase()) {
+                    return parent.children[i];
+                }
+            }
+            return null;
+        }
+        return this.findChildWithType(nodeName, this.header) || this.findChildWithType(nodeName, this.content) || this.findChildWithType(nodeName, this.footer);
+    }
+
+    /* Destructor */
+    destroy() {
+        if(this.root.parentNode) {
+            this.root.parentNode.removeChild(this.root);
+        }
+    }
+
+    focus() {
+        if(Resizable.focused) {
+            Resizable.focused.unfocus();
+        }
+        this.root.classList.add("selected");
+        Resizable.focused = this;
+    }
+
+    unfocus() {
+        this.root.classList.remove("selected");
+        if(Resizable.focused === this) {
+            Resizable.focused = null;
+        }
     }
 }
 
