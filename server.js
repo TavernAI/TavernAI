@@ -14,6 +14,15 @@ const encode = require('png-chunks-encode');
 const PNGtext = require('png-chunk-text');
 const ExifReader = require('exifreader');
 
+const url = require('url');
+function isUrl(str) {
+    try {
+        new URL(str);
+        return true;
+    } catch (err) {
+        return false;
+    }
+}
 const sharp = require('sharp');
 sharp.cache(false);
 const path = require('path');
@@ -27,7 +36,7 @@ const { TextEncoder, TextDecoder } = require('util');
 const utf8Encode = new TextEncoder();
 const utf8Decode = new TextDecoder('utf-8', { ignoreBOM: true });
 
-const config = require('./config.conf');
+const config = require(path.join(process.cwd(), './config.conf'));
 const server_port = config.port;
 const whitelist = config.whitelist;
 const whitelistMode = config.whitelistMode;
@@ -1450,9 +1459,14 @@ app.get("/gethordeinfo", jsonParser, function(request, response){
 app.post("/getstatus_openai", jsonParser, function(request, response_getstatus_openai = response){
     if(!request.body) return response_getstatus_openai.sendStatus(400);
     api_key_openai = request.body.key;
-    var args = {
-        headers: { "Authorization": "Bearer "+api_key_openai}
-    };
+    var args = {};
+    if(isUrl(api_key_openai)){
+        return response_getstatus_openai.status(200).send({});
+    }else{
+        args = {
+            headers: {"Authorization": "Bearer " + api_key_openai}
+        };
+    }
     client.get(api_openai+"/engines/text-davinci-003", args, function (data, response) {
         if(response.statusCode == 200){
             response_getstatus_openai.send(data);
@@ -1501,17 +1515,30 @@ app.post("/generate_openai", jsonParser, function(request, response_generate_ope
         data.prompt = request.body.prompt;
 
     }
-    var args = {
-        data: data,
-        headers: { "Content-Type": "application/json",  "Authorization": "Bearer "+api_key_openai},
-        requestConfig: {
-            timeout: connectionTimeoutMS
-        }
-    };
-    
-    client.post(api_openai+request_path,args, function (data, response) {
+    let args = {};
+    let api_url = "";
+    if(isUrl(api_key_openai)){
+        api_url = api_key_openai;
+        args = {
+            data: data,
+            headers: {"Content-Type": "application/json"},
+            requestConfig: {
+                timeout: connectionTimeoutMS
+            }
+        };
+    }else{
+        api_url = api_openai;
+        args = {
+            data: data,
+            headers: {"Content-Type": "application/json", "Authorization": "Bearer " + api_key_openai},
+            requestConfig: {
+                timeout: connectionTimeoutMS
+            }
+        };
+    }
+    client.post(api_url+request_path,args, function (data, response) {
         try {
-            if(request.body.model === 'gpt-3.5-turbo' || request.body.model === 'gpt-3.5-turbo-0301'){
+            if(request.body.model === 'gpt-3.5-turbo' || request.body.model === 'gpt-3.5-turbo-0301' || request.body.model === 'gpt-4' || request.body.model === 'gpt-4-32k'){
                 console.log(data);
                 if(data.choices[0].message !== undefined){
                     console.log(data.choices[0].message);
