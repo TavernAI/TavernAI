@@ -663,8 +663,17 @@
             
             <div id="rm_button_create" class="right_menu_title_button"><h2>+New Character</h2></div>
             <div id="rm_button_import" class="right_menu_title_button"><h2>+Import</h2></div>
+            <div id="rm_button_folder" class="right_menu_title_button"><h2>+New Folder</h2></div>
+            <select id="rm_folder_order" title="Sorting order">
+                <option value="NAME" selected="selected">A → Z</option>
+                <option value="NAME_DESC">Z → A</option>
+                <option value="DATE_ADD">Import ↓</option>
+                <option value="DATE_ADD_DESC">Import ↑</option>
+                <option value="DATE_ACTION">Chatted ↓</option>
+                <option value="DATE_ACTION_DESC">Chatted ↑</option>
+            </select>
             <input id="rm_search_bar" name="rm_search_bar" class="text_pole" type="text" size="35" value="" autocomplete="off" placeholder="search...">
-            <div id="rm_print_charaters_block"></div>
+            <ul id="rm_print_charaters_block"></ul>
         </div>
         <div id="rm_info_block" class="right_menu">
             <div id="rm_info_panel">

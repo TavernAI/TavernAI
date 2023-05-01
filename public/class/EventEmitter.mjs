@@ -45,4 +45,8 @@ export class EventEmitter {
         });
         delete this.eventListenersOnce[eventName];
     }
+
+    destroy() {
+
+    }
 }

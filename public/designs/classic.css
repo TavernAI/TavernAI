@@ -451,11 +451,6 @@ hr {
     /* background: green; */
     font-weight:bolder;
 }
-.ch_name_menu {
-    margin-left: 5px;
-    margin-top: 6px;
-    font-weight:bolder;
-}
 .name_select {
     display: none;
     grid-area: 1 / 1 / 2 / 4;
@@ -665,7 +660,7 @@ input[type=submit], input[type=button] {
 #rm_button_create h2 {
     font-size: 20px;
     color: rgba(188, 193, 200, 0.5);/*color: #bcc1c8;*/
-    
+    margin-bottom: 1ex;
 }
 
 #rm_button_create h2:hover {
@@ -675,21 +670,21 @@ input[type=submit], input[type=button] {
 #rm_button_back h2 {
     color: rgb(188, 193, 200, 0.5);
 }
-#rm_button_import {
+#rm_button_import, #rm_button_folder {
     cursor: pointer;
     display: inline-block;
-    margin-left: 5px;/* 274px; */
-    margin-top: 8px;/* 10px; */
+    margin-left: 0.5ex;
+    margin-top: 1.25em;
     
 }
-#rm_button_import h2 {
+#rm_button_import h2, #rm_button_folder h2 {
     margin-top: auto;
     margin-bottom: auto;
     font-size: 17px;
     color: rgb(188, 193, 200, 0.5);
 }
 
-#rm_button_import h2:hover {
+#rm_button_import h2:hover, #rm_button_folder h2:hover {
     color: #bcc1c8;
 }
 
@@ -725,15 +720,13 @@ input[type=submit], input[type=button] {
     display: block;
     /* visibility: hidden; */
 }
-.character_select {
+.character_select, .folder_select {
     padding: 0px;
     border-radius: 10px;
     cursor:pointer;
     display: grid;
     grid-template-columns: 67px auto;
 }
-
-
 
 .character_select:hover {
     background-color: #ffffff11;
@@ -991,10 +984,10 @@ input[type=submit], input[type=button] {
 
 /*Pop-ups in the right drop-down menu when a character is created or imported*/
 #rm_search_bar {
-    width: 140px;
-    margin-left: 10px;
-    margin-top: 22px;
-    position: absolute;
+    width: 99%;
+    margin-left: 0.5ex;
+    margin-bottom: 22px;
+    display: block;
 }
 
 #rm_charaters_block {
@@ -2625,7 +2618,103 @@ label.wpp_label {
     content: "Queue position: "
 }
 
+/* Character folders */
+#rm_folder_order {
+    float: right;
+    width: 6em;
+    height: 2em;
+    margin-top: 1.5em;
+    padding: 0.25em;
+    margin-bottom: 0;
+    text-align: center;
+}
+#rm_print_charaters_block, #rm_print_charaters_block ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+#rm_print_charaters_block > li > div, #rm_print_charaters_block ul > li > div {
+    display: flex;
+}
+.ch_name_menu {
+    margin-left: 0.5ex;
+    margin-top: 0.5ex;
+    font-weight: bold;
+    flex-grow: 2;
+}
+#rm_print_charaters_block > li, #rm_print_charaters_block ul > li {
+    display: flex;
+    flex-wrap: wrap;
+}
+.character_select > div:first-child, .folder_select > div:first-child {
+    width: 25.5em;
+}
+.folder_select.folder > div:first-child > .avatar {
+    background-size: cover;
+}
+.folder_select.folder.opened > div:first-child > .avatar {
+    background-image: url("../img/folder_active.png");
+}
+.folder_select.folder:not(.opened) > div:first-child > .avatar {
+    background-image: url("../img/folder.png");
+}
+.folder_select.folder.empty.opened > div:first-child > .avatar {
+    background-image: url("../img/folder_active_empty.png");
+}
+.folder_select.folder.empty:not(.opened) > div:first-child > .avatar {
+    background-image: url("../img/folder_empty.png");
+}
+.character_select.hidden, .folder_select.hidden, .hiddenParent > div, .folder_select.root > div, .filter-hide {
+    display: none !important;
+}
+.character_select, .folder_select {
+    position: relative;
+}
+#rm_print_charaters_block .flat .folder_select > div {
+    display: none;
+}
+#rm_print_charaters_block .flat .folder_select > .children {
+    display: block;
+}
 
+.character_select .delete, .folder_select .delete {
+    position: absolute;
+    top: 1ex;
+    right: 1em;
+    width: 1.5em;
+    height: 1.5em;
+    background-image: url("../img/del_mes.png");
+    background-size: cover;
+    cursor: pointer;
+    opacity: 0.5;
+}
+.folder_select .rename {
+    position: absolute;
+    top: 1ex;
+    right: 3em;
+    width: 1.5em;
+    height: 1.5em;
+    background-image: url("../img/quill.png");
+    background-size: cover;
+    cursor: pointer;
+    opacity: 0.5;
+}
+.character_select .delete:hover, .folder_select .delete:hover, .folder_select .rename:hover {
+    opacity: 1;
+}
+.folder_select > div:first-child, .character_select > div:first-child {
+    border-radius: 1ex;
+    background-color: transparent;
+}
+.folder_select > div:first-child:hover, .character_select > div:first-child:hover {
+    background-color: #ffffff11;
+}
+.folder_select:not(.root):not(.opened) > .children, .folder_select.hiddenParent > :not(.children) {
+    display: none;
+}
+.folder_select .children {
+    width: 25.5em;
+}
 
 
 /* Right nav */

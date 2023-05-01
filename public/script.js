@@ -2,15 +2,14 @@ import {encode, decode} from "../scripts/gpt-2-3-tokenizer/mod.js";
 import {Notes} from "./class/Notes.mjs";
 import {WPP} from "./class/WPP.mjs";
 import {WPPEditor} from "./class/WPPEditor.mjs";
-import { CharactersClass } from './class/Characters.js';
 import {UIWorldInfoMain} from "./class/UIWorldInfoMain.mjs";
-
-
+import {CharacterManager} from "./class/CharacterManager.mjs";
+import {UICharPerson} from "./class/UICharPerson.mjs";
 
 var token;
 var default_avatar = 'img/fluffy.png';
 function vl(text) { //Validation security function for html
-    return window.DOMPurify.sanitize(text);
+    return !text ? text : window.DOMPurify.sanitize(text);
 }
 export {token, default_avatar, vl};
 $(document).ready(function(){
@@ -44,7 +43,32 @@ $(document).ready(function(){
     observer.observe(document.body, config);
     */
    
-    var Characters = new CharactersClass();
+    var Characters = new CharacterManager({
+        container: document.getElementById("rm_print_charaters_block")
+    });
+    Characters.on(CharacterManager.WIPE_CHAT, function() {
+        clearChat();
+        chat.length = 0;
+        printMessages();
+    }.bind(this));
+    Characters.on(UICharPerson.CHARACTER_SELECT, function(event){
+        Characters.selectedID = Characters.getIDbyFilename(event.filename);
+        if (Characters.id[Characters.selectedID].online === true) {
+            document.getElementById("character_online_editor").innerHTML = "🢤 Online Editor";
+            document.getElementById("chat_header_char_info").innerHTML = ' designed by <a user_name="' + Characters.id[Characters.selectedID].user_name + '" class="chat_header_char_info_user_name">' + vl(Characters.id[Characters.selectedID].user_name_view) + '</a>';
+        } else {
+            document.getElementById("character_online_editor").innerHTML = "🢤 Publish Card";
+            $('#chat_header_char_info').text('designed by User');
+        }
+        $('#chat_header_char_name').text(Characters.id[Characters.selectedID].name);
+        this_edit_mes_id = undefined;
+        selected_button = 'character_edit';
+        $('#chat_header_back_button').css('display', 'block');
+        clearChat();
+        chat.length = 0;
+        getChat();
+        hideCharaCloud();
+    }.bind(this));
 
     //CharaCloud
     var charaCloud = charaCloudClient.getInstance();
@@ -1686,7 +1710,11 @@ $(document).ready(function(){
         jQuery.ajax({    
             type: 'POST', 
             url: '/getchat', 
-            data: JSON.stringify({ch_name: Characters.id[Characters.selectedID].name, file_name: Characters.id[Characters.selectedID].chat, card_filename: Characters.id[Characters.selectedID].filename}),
+            data: JSON.stringify({
+                ch_name: Characters.id[Characters.selectedID].name,
+                file_name: Characters.id[Characters.selectedID].chat,
+                card_filename: Characters.id[Characters.selectedID].filename
+            }),
             beforeSend: function(){
                 //$('#create_button').attr('value','Creating...'); 
             },
@@ -1735,7 +1763,6 @@ $(document).ready(function(){
     function getChatResult(){
         name2 = Characters.id[Characters.selectedID].name;
         if(chat.length > 1){
-
             chat.forEach(function(item, i) {
                 if(item['is_user']){
                     var str = item['mes'].replace(default_user_name+':', name1+':');
@@ -1743,20 +1770,15 @@ $(document).ready(function(){
                     chat[i]['name'] = name1;
                 }
             });
-
-
-        }else{
-            //console.log(characters[Characters.selectedID].first_mes);
-            chat[0] = {};
-            chat[0]['name'] = name2;
-            chat[0]['is_user'] = false;
-            chat[0]['is_name'] = true;
-            chat[0]['send_date'] = Date.now();
-            if(Characters.id[Characters.selectedID].first_mes != ""){
-                chat[0]['mes'] = Characters.id[Characters.selectedID].first_mes;
-            }else{
-                chat[0]['mes'] = default_ch_mes;
-            }
+        } else {
+            let first = Characters.id[Characters.selectedID].first_mes;
+            chat[0] = {
+                name: name2,
+                is_user: false,
+                is_name: true,
+                send_date: Date.now(),
+                mes: first && first.length ? first : default_ch_mes
+            };
         }
         printMessages();
         select_selected_character(Characters.selectedID);
@@ -1812,6 +1834,9 @@ $(document).ready(function(){
     $( "#rm_button_create" ).click(function() {
         selected_button = 'create';
         select_rm_create();
+    });
+    $( "#rm_button_folder" ).click(function() {
+        folder_create();
     });
     $( "#rm_button_selected_ch" ).click(function() {
         selected_button = 'character_edit';
@@ -1926,6 +1951,21 @@ $(document).ready(function(){
         
     }
 
+    function folder_create() {
+        if(!Characters) {
+            return;
+        }
+        let quickName = Characters.getFolderName("new folder");
+        let name = prompt("Enter new folder name", quickName);
+        if(!name) {
+            return;
+        }
+        let out = Characters.addFolder(name);
+        if(out) {
+            alert(out);
+        }
+    }
+
     function getTokenCount(text = "") {
         return encode(JSON.stringify(text)).length;
     }
@@ -1987,50 +2027,6 @@ $(document).ready(function(){
 
         $("#form_create").attr("actiontype", "editcharacter");
     }
-    $(document).on('click', '#rm_print_charaters_block .character_select', function(){
-        if (Characters.id[$(this).attr("chid")].online === true) {
-            if (Characters.id[$(this).attr("chid")].user_name === login) {
-                $('#character_online_editor').val('🢤 Online Editor');
-            } else {
-                $('#character_online_editor').val('🢤 Online Editor');
-            }
-            $('#chat_header_char_info').html(`designed by <a user_name="${Characters.id[$(this).attr("chid")].user_name}" class="chat_header_char_info_user_name">${vl(Characters.id[$(this).attr("chid")].user_name_view)}</a>`);
-        } else {
-            $('#character_online_editor').val('🢤 Publish Card');
-            $('#chat_header_char_info').text('designed by User');
-        }
-        $('#chat_header_char_name').text(Characters.id[$(this).attr("chid")]['name']);
-        if(Characters.selectedID !== $(this).attr("chid")){
-            if(!is_send_press){
-               
-                this_edit_mes_id = undefined;
-                selected_button = 'character_edit';
-                Characters.selectedID = $(this).attr("chid");
-                
-                
-
-                $('#chat_header_back_button').css('display', 'block');
-                clearChat();
-                chat.length = 0;
-                getChat();
-
-            }
-        }else{
-            selected_button = 'character_edit';
-            select_selected_character(Characters.selectedID);
-        }
-        $('#bg_chara_cloud').transition({  
-            opacity: 0.0,
-            duration: 1200,
-            easing: "",
-            complete: function() {  }
-        });
-        if($('#characloud_character_page').css('display') === 'none' && $('#characloud_user_profile_block').css('display') === 'none'){
-            $('#shell').css('display', 'grid');
-            $('#chara_cloud').css('display', 'none');
-        }
-
-    });
     $('#shell').on('click', '.chat_header_char_info_user_name', function(){
         showCharaCloud();
         showUserProfile($(this).attr("user_name"));
@@ -2286,36 +2282,7 @@ $(document).ready(function(){
             return;
         }
         if(popup_type == 'del_ch'){
-            let filename = Characters.id[Characters.selectedID].filename;
-            jQuery.ajax({    
-                method: 'POST', 
-                url: '/deletecharacter',
-                beforeSend: function(){
-                    select_rm_info("Character deleted");
-
-                    //$('#create_button').attr('value','Deleting...'); 
-                },
-                data: JSON.stringify({
-                            filename: filename
-                        }),
-                cache: false,
-                dataType: "json",
-                contentType: "application/json",
-                processData: false, 
-                timeout: requestTimeout,
-                success: function(html){
-                    Characters.id[Characters.selectedID] = {};
-                    $(`#rm_print_charaters_block .character_select[chid="${Characters.selectedID}"]`).remove();
-                    Characters.selectedID = undefined;
-                    $('#rm_button_selected_ch').css('display', 'none');
-                    $('#rm_button_characters').click();
-                    clearChat();
-                    chat.length = 0;
-                    printMessages();
-                    //getCharacters();
-                    //$('#create_button_div').html(html);  
-                }  
-            }); 
+            Characters.deleteCharacter({ filename: Characters.id[Characters.selectedID].filename })
             return;
         }
         if(popup_type == 'del_ch_characloud'){
@@ -2414,7 +2381,7 @@ $(document).ready(function(){
         popup_type = '';
     });
     function callPopup(text = '', type){
-        
+
         popup_type = type;
         $("#dialogue_popup_cancel").css("display", "inline-block");
         switch(popup_type){
@@ -5276,28 +5243,28 @@ $(document).ready(function(){
         });
         if(need_to_load){
             await charaCloud.loadCard(user_name, public_id_short)
-                    .then(async function (data) {
-                        Characters.loadAll().then(async function () {
-                            let filename = data.filename;
-                            let id = Characters.getIDbyFilename(filename);
-                            $(`#rm_print_charaters_block .character_select[chid="${id}"]`).click();
-                        }).catch(function (error) {
-                            switch (error.status) {
-                                default:
-                                    callPopup(`${error.msg}`, 'alert_error');
-                                    return;
-                            }
-                        });
-                    })
-                    .catch(function (error) {
+                    .then(data => {
+                        let id = Characters.getIDbyFilename(data.filename);
+                        if(id < 0) {
+                            Characters.addCharacter(data);
+                            Characters.sort();
+                            Characters.save();
+                            Characters.onCharacterSelect({
+                                filename: data.filename
+                            });
+                        } else {
+                            Characters.onCharacterSelect({
+                                filename: data.filename
+                            });
+                        }
+                    }, error => {
+                        console.error(error.status);
                         switch (error.status) {
                             default:
                                 callPopup(`${error.msg}`, 'alert_error');
                                 return;
                         }
                     });
-            
-            
             $('#shell').css('display', 'grid');
             $('#chara_cloud').css('display', 'none');
         }else{
@@ -6553,16 +6520,6 @@ function handleError(jqXHR) { // Need to make one handleError and in script.js a
     console.log(`Status: ${status}`);
     console.log(msg);
     return {'status': status, 'msg': msg};
-}
-document.getElementsByName("rm_search_bar")[0].addEventListener('keyup', search_chars);
-function search_chars(){
-    const character_list = document.querySelector('#rm_print_charaters_block').querySelectorAll('div.character_select');
-    for (let i = 0; i < character_list.length; i++) {
-        character_list[i].style.display = "";
-        if (character_list[i].textContent.toLowerCase().indexOf(this.value.toLowerCase())<0){
-            character_list[i].style.display = "none";
-        }
-    }
 }
 /*
 function auto_start(){

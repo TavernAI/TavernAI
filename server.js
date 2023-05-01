@@ -1165,6 +1165,23 @@ app.post('/getsettings', jsonParser, (request, response) => { //Wintermute's cod
     });
 });
 
+app.post("/savefolders", jsonParser, function(request, response){
+    fs.writeFile('public/characters/folders.json', JSON.stringify(request.body, null, 2), 'utf8', function(err) {
+        if(err) {
+            response.send(err);
+            return console.log(err);
+        }else{
+            response.send({result: "ok"});
+        }
+    });
+});
+app.post('/loadfolders', jsonParser, (request, response) => {
+    fs.readFile('public/characters/folders.json', 'utf8',  (err, data) => {
+        if (err) return response.sendStatus(500);
+        return response.send(data);
+    });
+});
+
 app.post("/savestyle", jsonParser, function(request, response){
     const this_style = request.body.style;
     let file_data = '@import "../designs/classic.css";';
