@@ -151,7 +151,12 @@ export class CharacterManager extends EventEmitter {
     }
 
     addCharacter(datum) {
-        let char = this.root.addCharacter(datum);
+        let char;
+        if(CharacterManager.activeFolder) {
+            char = CharacterManager.activeFolder.addCharacter(datum);
+        } else {
+            char = this.root.addCharacter(datum);
+        }
         if(char) {
             this.characters.push(char);
         }

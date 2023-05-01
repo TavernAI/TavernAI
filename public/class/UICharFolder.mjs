@@ -214,6 +214,7 @@ export class UICharFolder extends EventEmitter {
         instance.parent = this;
         this.children.push(instance);
         this.childContainer.appendChild(instance.container);
+        this.refreshEmpty();
         return instance;
     }
 
