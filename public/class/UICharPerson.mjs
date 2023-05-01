@@ -57,7 +57,6 @@ export class UICharPerson extends EventEmitter {
             main.appendChild(del);
 
         main.onclick = function(event) {
-            console.warn(event);
             event.preventDefault();
             event.stopPropagation();
             this.emit(UICharPerson.CHARACTER_SELECT, { filename: this.filename });
