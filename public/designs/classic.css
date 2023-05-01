@@ -2681,23 +2681,27 @@ label.wpp_label {
     position: absolute;
     top: 1ex;
     right: 1em;
-    width: 1.5em;
-    height: 1.5em;
+    width: 3.5em;
+    height: 2.5em;
     background-image: url("../img/del_mes.png");
-    background-size: cover;
+    background-size: 1.5em;
+    background-repeat: no-repeat;
     cursor: pointer;
     opacity: 0.5;
+    background-position-x: 1em;
 }
 .folder_select .rename {
     position: absolute;
     top: 1ex;
-    right: 3em;
-    width: 1.5em;
-    height: 1.5em;
+    right: 4em;
+    width: 2.5em;
+    height: 2.5em;
     background-image: url("../img/quill.png");
-    background-size: cover;
+    background-size: 1.5em;
+    background-repeat: no-repeat;
     cursor: pointer;
     opacity: 0.5;
+    background-position-x: 1em;
 }
 .character_select .delete:hover, .folder_select .delete:hover, .folder_select .rename:hover {
     opacity: 1;
