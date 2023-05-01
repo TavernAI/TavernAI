@@ -274,6 +274,7 @@ export class UICharFolder extends EventEmitter {
                 }
             });
             this.parent.sort();
+            this.onClick(false);
             this.destroy();
             this.emit(UICharFolder.SAVE_NEEDED, {});
         }
@@ -331,8 +332,10 @@ export class UICharFolder extends EventEmitter {
     }
 
     onClick(noEmit, event) {
-        event.preventDefault();
-        event.stopPropagation();
+        if(event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
         this.opened = !this.opened;
         if(this.opened) {
             this.parent.hide(true);
