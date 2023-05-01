@@ -1,7 +1,7 @@
 import {UICharFolder} from "./UICharFolder.mjs";
 import {UICharPerson} from "./UICharPerson.mjs";
 import {EventEmitter} from "./EventEmitter.mjs";
-import {token} from "../script.js";
+import {filterFiles, token, requestTimeout} from "../script.js";
 
 export class CharacterManager extends EventEmitter {
     static WIPE_CHAT = "clear_chat";
@@ -40,6 +40,9 @@ export class CharacterManager extends EventEmitter {
         ser.onkeyup = this.search.bind(this);
         ser.oncut = ser.onkeyup;
         ser.onpaste = ser.onkeyup;
+
+        this.container.ondrop = this.onDrop.bind(this);
+        this.container.ondragover = this.onDragover.bind(this);
     }
 
     get id() {
@@ -133,6 +136,23 @@ export class CharacterManager extends EventEmitter {
         });
     }
 
+    onDragover(event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+
+    onDrop(event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        if(event.dataTransfer.items) {
+            let filtered = filterFiles(event.dataTransfer.items, [ "image/webp", "image/png" ]);
+            if(filtered.length) {
+                this.importCharacters(filtered.map(item => item.getAsFile()));
+            }
+        }
+    }
+
     onFolderDeleted(event) {
         CharacterManager.activeFolder = event.active;
         CharacterManager.activeFolder.show();
@@ -160,6 +180,7 @@ export class CharacterManager extends EventEmitter {
         if(char) {
             this.characters.push(char);
         }
+        return char;
     }
 
     getFolderName(candidate) {
@@ -179,7 +200,7 @@ export class CharacterManager extends EventEmitter {
         });
     }
 
-    loadCharacters() {
+    loadCharacters(filename) {
         return new Promise((resolve, reject) => {
             jQuery.ajax({
                 type: 'POST', //
@@ -187,6 +208,7 @@ export class CharacterManager extends EventEmitter {
                 beforeSend: function () {},
                 cache: false,
                 dataType: "json",
+                data: filename ? JSON.stringify({ filename: filename }) : JSON.stringify({ }),
                 contentType: "application/json",
                 headers: {
                     "X-CSRF-Token": token
@@ -312,6 +334,79 @@ export class CharacterManager extends EventEmitter {
                 name: match
             });
         }
+    }
+
+    importCharacters(files, strict = false, successes = [], failures = []) {
+        return new Promise((resolve, reject) => {
+            this.importCharacter(files.shift())
+                .then(success => {
+                    successes.push(success);
+                    if(files.length) {
+                        this.importCharacters(files, strict, successes, failures).then(resolve, reject);
+                    } else {
+                        return resolve({ successes, failures });
+                    }
+                }, failure => {
+                    failures.push(failure);
+                    if(strict) {
+                        return reject({ successes, failures });
+                    }
+                    if(files.length) {
+                        this.importCharacters(files, strict, successes, failures).then(resolve, reject);
+                    } else {
+                        return resolve({ successes, failures });
+                    }
+                })
+        });
+    }
+
+    importCharacter(file) {
+        return new Promise((resolve, reject) => {
+            if(!file) { return reject("No file given."); }
+
+            let filename = file.name.replace(/\.[^\.]*/, "");
+            let filetype = file.type.replace(/.*\//, "");
+
+            if(this.characters.filter(char =>
+                char.filename.replace(/\.[^\.]*/, "").toLowerCase() === filename.toLowerCase()
+            ).length) {
+                return reject("File already exists");
+            }
+
+            var formData = new FormData();
+            formData.append("avatar", file, file.name);
+            formData.append("file_type", filetype);
+
+            jQuery.ajax({
+                type: 'POST',
+                url: '/importcharacter',
+                data: formData,
+                beforeSend: function() {},
+                cache: false,
+                timeout: requestTimeout,
+                contentType: false,
+                processData: false,
+                success: function(data){
+                    if(data.file_name !== undefined){
+                        this.loadCharacters(data.file_name.replace(/\.[^\.]*/, "")).then(data => {
+                            if(data && data[0]) {
+                                let char = this.addCharacter(data[0]);
+                                this.sort();
+                                this.save();
+                                resolve(char);
+                            } else {
+                                reject("Unknown error");
+                            }
+                        });
+                    }
+                }.bind(this),
+                error: function (jqXHR, exception) {
+                    console.error(jqXHR);
+                    console.error(exception);
+                    reject(jqXHR);
+                }
+            });
+        });
     }
 }
 

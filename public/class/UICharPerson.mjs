@@ -1,6 +1,6 @@
 import {EventEmitter} from "./EventEmitter.mjs";
 import {CharacterManager} from "./CharacterManager.mjs";
-import {vl} from "../script.js";
+import {filterFiles, vl} from "../script.js";
 
 export class UICharPerson extends EventEmitter {
     static CHARACTER_SELECT = "character_select";
@@ -82,6 +82,12 @@ export class UICharPerson extends EventEmitter {
 
     onDrop(event) {
         event.preventDefault();
+        if(event.dataTransfer.items) {
+            let filtered = filterFiles(event.dataTransfer.items, [ "image/webp", "image/png" ]);
+            if(filtered.length) {
+                return;
+            }
+        }
         event.stopPropagation();
     }
 

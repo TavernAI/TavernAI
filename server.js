@@ -779,38 +779,43 @@ async function charaRead(img_url, input_format){
 }
 
 app.post("/getcharacters", jsonParser, async function(request, response) {
-  try {
-    const files = await fs.promises.readdir(charactersPath);
-    const imgFiles = files.filter(file => file.endsWith(`.${characterFormat}`));
-    const characters = {};
-    let i = 0;
-
-    for (const item of imgFiles) {
-      const imgData = await charaRead(charactersPath + item);
-      let jsonObject;
-
-      try {
-        
-        jsonObject = json5.parse(imgData);
-        jsonObject.filename = item;
-        characters[i] = jsonObject;
-        i++;
-      } catch (error) {
-        if (error instanceof SyntaxError) {
-          console.error("Character info from index " +i+ " is not valid JSON!", error);
-        } else {
-          console.error("An unexpected error loading character index " +i+ " occurred.", error);
+    try {
+        const files = await fs.promises.readdir(charactersPath);
+        let imgFiles = files.filter(file => file.endsWith(`.${characterFormat}`));
+        if(request.body && request.body.filename) {
+            imgFiles = imgFiles
+                .filter(file => file
+                    .replace(/\.[^\.]*/, "").toLowerCase() === request.body.filename.toLowerCase()
+                );
         }
-        console.error("Pre-parsed character data:");
-        console.error(imgData);
-      }
-    }
+        const characters = {};
+        let i = 0;
 
-    response.send(JSON.stringify(characters));
-  } catch (error) {
-    console.error(error);
-    response.sendStatus(500);
-  }
+        for (const item of imgFiles) {
+            const imgData = await charaRead(charactersPath + item);
+            let jsonObject;
+            try {
+
+                jsonObject = json5.parse(imgData);
+                jsonObject.filename = item;
+                characters[i] = jsonObject;
+                i++;
+            } catch (error) {
+                if (error instanceof SyntaxError) {
+                    console.error("Character info from index " +i+ " is not valid JSON!", error);
+                } else {
+                    console.error("An unexpected error loading character index " +i+ " occurred.", error);
+                }
+                console.error("Pre-parsed character data:");
+                console.error(imgData);
+            }
+        }
+
+        response.send(JSON.stringify(characters));
+    } catch (error) {
+        console.error(error);
+        response.sendStatus(500);
+    }
 });
 
 app.post("/getworldnames", jsonParser, async function(request, response) {
@@ -1666,14 +1671,12 @@ app.post("/importcharacter", urlencodedParser, async function(request, response)
 
         let img_name = '';
         let filedata = request.file;
-        //console.log(filedata.filename);
         var format = request.body.file_type;
-        //console.log(format);
-        if(filedata){
+
+        if(filedata){
             if(format == 'json'){
                 fs.readFile('./uploads/'+filedata.filename, 'utf8', async (err, data) => {
                     if (err){
-                        console.log(err);
                         response.send({error:true});
                     }
                     const jsonData = json5.parse(data);
@@ -1700,6 +1703,8 @@ app.post("/importcharacter", urlencodedParser, async function(request, response)
             }else{
                 try{
                     var img_data = await charaRead('./uploads/'+filedata.filename, format);
+                    console.warn("         ");
+                    console.warn(img_data);
                     let jsonData = json5.parse(img_data);
                     img_name = setCardName(jsonData.name);
                     if(checkCharaProp(img_name).length > 0){

@@ -2628,6 +2628,9 @@ label.wpp_label {
     margin-bottom: 0;
     text-align: center;
 }
+#rm_print_charaters_block {
+    min-height: 72vh;
+}
 #rm_print_charaters_block, #rm_print_charaters_block ul {
     list-style: none;
     margin: 0;

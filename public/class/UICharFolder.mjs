@@ -1,6 +1,7 @@
 import {EventEmitter} from "./EventEmitter.mjs";
 import {UICharPerson} from "./UICharPerson.mjs";
 import {CharacterManager} from "./CharacterManager.mjs";
+import {filterFiles} from "../script.js";
 
 export class UICharFolder extends EventEmitter {
     static SORTERS = {
@@ -143,6 +144,12 @@ export class UICharFolder extends EventEmitter {
 
     onDrop(event) {
         event.preventDefault();
+        if(event.dataTransfer.items) {
+            let filtered = filterFiles(event.dataTransfer.items, [ "image/webp", "image/png" ]);
+            if(filtered.length) {
+                return;
+            }
+        }
         event.stopPropagation();
         let item;
         CharacterManager.activeFolder.children.every((child, i) => {

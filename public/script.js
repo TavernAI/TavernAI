@@ -8,10 +8,21 @@ import {UICharPerson} from "./class/UICharPerson.mjs";
 
 var token;
 var default_avatar = 'img/fluffy.png';
+var requestTimeout = 60*1000;
 function vl(text) { //Validation security function for html
     return !text ? text : window.DOMPurify.sanitize(text);
 }
-export {token, default_avatar, vl};
+function filterFiles(dataTransferItems, types = []) {
+    types = types.map(v => v.toString().toLowerCase());
+    let filtered = [];
+    for(let i = 0; i < dataTransferItems.length; i++) {
+        if(!types.length || types.indexOf(dataTransferItems[i].type.toLowerCase()) >= 0) {
+            filtered.push(dataTransferItems[i]);
+        }
+    }
+    return filtered;
+}
+export {token, default_avatar, vl, filterFiles, requestTimeout};
 $(document).ready(function(){
     /*
     const observer = new MutationObserver(function(mutations) {
@@ -252,15 +263,14 @@ $(document).ready(function(){
 
     var colab_ini_step = 1;
     
-    
-    var requestTimeout = 60*1000;
+
     jQuery.ajax({
         type: "GET",
         url: "/timeout",
         cache: false,
         contentType: "application/json",
         success: function(data) {
-            requestTimeout = data.timeout;
+            setTimeout(data.timeout);
         },
         error: function (jqXHR, exception) {
             console.error(jqXHR);
@@ -4822,45 +4832,32 @@ $(document).ready(function(){
         $("#character_import_file").click();
     });
     $("#character_import_file").on("change", function(e){
-        $('#rm_info_avatar').html('');
-        var file = e.target.files[0];
-        //console.log(1);
-        if (!file) {
-          return;
-        }
-        var ext = file.name.match(/\.(\w+)$/);
-        if(!ext || (ext[1].toLowerCase() != "json" && ext[1].toLowerCase() != "png" && ext[1].toLowerCase() != "webp")){
+        let fileInput = document.getElementById("character_import_file");
+        if(!fileInput.files.length) {
             return;
         }
-
-        var format = ext[1].toLowerCase();
-        $("#character_import_file_type").val(format);
-        //console.log(format);
-        var formData = new FormData($("#form_import").get(0));
-
-        jQuery.ajax({    
-            type: 'POST', 
-            url: '/importcharacter', 
-            data: formData,
-            beforeSend: function(){
-                //$('#create_button').attr('disabled',true);
-                //$('#create_button').attr('value','Creating...'); 
-            },
-            cache: false,
-            timeout: requestTimeout,
-            contentType: false,
-            processData: false, 
-            success: function(data){
-                if(data.file_name !== undefined){
-
-                    characterAddedSign(data.file_name, 'Character imported');
-
-                }
-            },
-            error: function (jqXHR, exception) {
-                $('#create_button').removeAttr("disabled");
+        if(fileInput.files.length === 1) {
+            Characters.importCharacter(fileInput.files[0]).then(char => {
+                characterAddedSign(char.name, 'Character imported');
+            }, error => {
+                document.getElementById("create_button").removeAttribute("disabled");
+            });
+        } else {
+            let files = [];
+            for(let i = 0; i < fileInput.files.length; i++) {
+                files.push(fileInput.files[i]);
             }
-        });  
+            Characters.importCharacters(files, false)
+                .then(resolve => {
+                    if(resolve.failures.length) {
+                        console.error("Failure to load " + resolve.failures.length + "/" + (resolve.successes.length+resolve.failures.length) + " files");
+                    } else {
+                        characterAddedSign(null, resolve.successes.length + " characters imported");
+                    }
+                }).finally(() => {
+                    document.getElementById("create_button").removeAttribute("disabled");
+                });
+        }
     });
     $('#export_button').click(function(){
         var link = document.createElement('a');
@@ -4873,22 +4870,15 @@ $(document).ready(function(){
     async function characterAddedSign(file_name, alert_text = 'Character created'){
         $('#rm_info_block').transition({opacity: 0, duration: 0});
         var $prev_img = $('#avatar_div_container').clone();
-        $prev_img.children('img').attr('src', 'characters/'+file_name+'.'+characterFormat);
+        if(file_name) {
+            $prev_img.children('img').attr('src', 'characters/'+file_name+'.'+characterFormat);
+        } else {
+            $prev_img.children('img').attr('src', 'User Avatars/legat.png');
+        }
         $('#rm_info_avatar').append($prev_img);
-        select_rm_info("Character created");
+        select_rm_info(alert_text);
 
         $('#rm_info_block').transition({opacity: 1.0, duration: 2000});
-        await Characters.loadAll()
-                .then(function(){
-                    
-                })
-                .catch(function (error) {
-                    switch (error.status) {
-                        default:
-                            callPopup(`${error.msg}`, 'alert_error');
-                            return;
-                    }
-                });
     }
 
 
