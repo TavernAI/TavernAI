@@ -5213,6 +5213,7 @@ $(document).ready(function(){
             row_i++;
         });
         $('.lazy').lazyLoadXT({edgeX:500, edgeY:500});
+        $('#characloud_bottom').css('display', 'flex');
     }
     var is_lazy_load = true;
     $('#chara_cloud').on('scroll', function(){
@@ -5894,6 +5895,7 @@ $(document).ready(function(){
     // Navigator
     function showMain() {
         hideAll();
+        $('#characloud_bottom').css('display', 'flex');
         $('#characloud_search_back_button').css('display', 'none');
         $('#characloud_search_block').css('display', 'none');
         $('#characloud_characters').css('display', 'block');
@@ -6257,7 +6259,7 @@ $(document).ready(function(){
     }
     
     function hideAll() {
-        characloud_bottom
+        $('#characloud_bottom').css('display', 'none');
         $('#user_profile_info_this_user').css('display', 'none');
         $('#user_profile_info_other_user').css('display', 'none');
         $('#characloud_category').css('display', 'none');
