@@ -3,12 +3,13 @@ import {Notes} from "./class/Notes.mjs";
 import {WPP} from "./class/WPP.mjs";
 import {WPPEditor} from "./class/WPPEditor.mjs";
 import {UIWorldInfoMain} from "./class/UIWorldInfoMain.mjs";
-import {CharacterManager} from "./class/CharacterManager.mjs";
-import {UICharPerson} from "./class/UICharPerson.mjs";
+import {CharacterModel} from "./class/CharacterModel.mjs";
+import {CharacterView} from "./class/CharacterView.mjs";
 
 var token;
 var default_avatar = 'img/fluffy.png';
 var requestTimeout = 60*1000;
+export var characterFormat = 'webp';
 function vl(text) { //Validation security function for html
     return !text ? text : window.DOMPurify.sanitize(text);
 }
@@ -22,6 +23,38 @@ function filterFiles(dataTransferItems, types = []) {
     }
     return filtered;
 }
+/* TODO: temporary; this should be handled by a general UI manager of some kind */
+export function characterAddedSign(file_name, alert_text = 'Character created'){
+    $('#rm_info_block').transition({opacity: 0, duration: 0});
+    var $prev_img = $('#avatar_div_container').clone();
+    if(file_name) {
+        $prev_img.children('img').attr('src', 'characters/'+file_name+'.'+characterFormat);
+    } else {
+        $prev_img.children('img').attr('src', 'User Avatars/legat.png');
+    }
+    $('#rm_info_avatar').append($prev_img);
+    select_rm_info(alert_text);
+
+    $('#rm_info_block').transition({opacity: 1.0, duration: 2000});
+}
+export function select_rm_info(text){
+    $( "#rm_charaters_block" ).css("display", "none");
+    $( "#rm_api_block" ).css("display", "none");
+    $( "#rm_ch_create_block" ).css("display", "none");
+    $( "#rm_info_block" ).css("display", "flex");
+
+    $("#rm_info_text").html('<h3>'+text+'</h3>');
+
+    $( "#rm_button_characters" ).children("h2").removeClass('seleced_button_style');
+    $( "#rm_button_characters" ).children("h2").addClass('deselected_button_style');
+
+    $( "#rm_button_settings" ).children("h2").removeClass('seleced_button_style');
+    $( "#rm_button_settings" ).children("h2").addClass('deselected_button_style');
+
+    $( "#rm_button_selected_ch" ).children("h2").removeClass('seleced_button_style');
+    $( "#rm_button_selected_ch" ).children("h2").addClass('deselected_button_style');
+}
+
 export {token, default_avatar, vl, filterFiles, requestTimeout};
 $(document).ready(function(){
     /*
@@ -54,16 +87,22 @@ $(document).ready(function(){
     observer.observe(document.body, config);
     */
    
-    var Characters = new CharacterManager({
-        container: document.getElementById("rm_print_charaters_block")
-    });
-    Characters.on(CharacterManager.WIPE_CHAT, function() {
+    var Characters = new CharacterModel({
+        container: document.getElementById("rm_print_charaters_block"),
+        input: {
+            addFolder: [ document.getElementById("character-button-new-folder") ],
+            importFiles: [ document.getElementById("character-button-import") ],
+            exportCharacter: [ document.getElementById("export_button") ],
+            sortSelect: document.getElementById("rm_folder_order"),
+            searchInput: document.getElementById("rm_search_bar"),
+        }
+    })
+    Characters.on(CharacterModel.EVENT_WIPE_CHAT, function() {
         clearChat();
         chat.length = 0;
         printMessages();
     }.bind(this));
-    Characters.on(UICharPerson.CHARACTER_SELECT, function(event){
-        Characters.selectedID = Characters.getIDbyFilename(event.filename);
+    Characters.on(CharacterView.EVENT_CHARACTER_SELECT, function(event){
         if (Characters.id[Characters.selectedID].online === true) {
             document.getElementById("character_online_editor").innerHTML = "🢤 Online Editor";
             document.getElementById("chat_header_char_info").innerHTML = ' designed by <a user_name="' + Characters.id[Characters.selectedID].user_name + '" class="chat_header_char_info_user_name">' + vl(Characters.id[Characters.selectedID].user_name_view) + '</a>';
@@ -116,7 +155,6 @@ $(document).ready(function(){
     var is_checked_colab = false;
     var is_mes_reload_avatar = false;
     var is_nav_toggle = false;
-    var characterFormat = 'webp';
     
     var is_advanced_char_open = false;
     var is_master_settings_open = false;
@@ -1845,9 +1883,6 @@ $(document).ready(function(){
         selected_button = 'create';
         select_rm_create();
     });
-    $( "#rm_button_folder" ).click(function() {
-        folder_create();
-    });
     $( "#rm_button_selected_ch" ).click(function() {
         selected_button = 'character_edit';
         select_selected_character(Characters.selectedID);
@@ -1940,40 +1975,6 @@ $(document).ready(function(){
         $( "#rm_button_selected_ch" ).children("h2").removeClass('seleced_button_style');
         $( "#rm_button_selected_ch" ).children("h2").addClass('deselected_button_style');
         
-    }
-    function select_rm_info(text){
-        $( "#rm_charaters_block" ).css("display", "none");
-        $( "#rm_api_block" ).css("display", "none");
-        $( "#rm_ch_create_block" ).css("display", "none");
-        $( "#rm_info_block" ).css("display", "flex");
-
-        $("#rm_info_text").html('<h3>'+text+'</h3>');
-
-        $( "#rm_button_characters" ).children("h2").removeClass('seleced_button_style');
-        $( "#rm_button_characters" ).children("h2").addClass('deselected_button_style');
-        
-        $( "#rm_button_settings" ).children("h2").removeClass('seleced_button_style');
-        $( "#rm_button_settings" ).children("h2").addClass('deselected_button_style');
-        
-        $( "#rm_button_selected_ch" ).children("h2").removeClass('seleced_button_style');
-        $( "#rm_button_selected_ch" ).children("h2").addClass('deselected_button_style');
-        
-        
-    }
-
-    function folder_create() {
-        if(!Characters) {
-            return;
-        }
-        let quickName = Characters.getFolderName("new folder");
-        let name = prompt("Enter new folder name", quickName);
-        if(!name) {
-            return;
-        }
-        let out = Characters.addFolder(name);
-        if(out) {
-            alert(out);
-        }
     }
 
     function getTokenCount(text = "") {
@@ -4826,62 +4827,6 @@ $(document).ready(function(){
     }
 
 
-
-    //**************************CHARACTER IMPORT EXPORT*************************//
-    $( "#rm_button_import" ).click(function() {
-        $("#character_import_file").click();
-    });
-    $("#character_import_file").on("change", function(e){
-        let fileInput = document.getElementById("character_import_file");
-        if(!fileInput.files.length) {
-            return;
-        }
-        if(fileInput.files.length === 1) {
-            Characters.importCharacter(fileInput.files[0]).then(char => {
-                characterAddedSign(char.name, 'Character imported');
-            }, error => {
-                document.getElementById("create_button").removeAttribute("disabled");
-            });
-        } else {
-            let files = [];
-            for(let i = 0; i < fileInput.files.length; i++) {
-                files.push(fileInput.files[i]);
-            }
-            Characters.importCharacters(files, false)
-                .then(resolve => {
-                    if(resolve.failures.length) {
-                        console.error("Failure to load " + resolve.failures.length + "/" + (resolve.successes.length+resolve.failures.length) + " files");
-                    } else {
-                        characterAddedSign(null, resolve.successes.length + " characters imported");
-                    }
-                }).finally(() => {
-                    document.getElementById("create_button").removeAttribute("disabled");
-                });
-        }
-    });
-    $('#export_button').click(function(){
-        var link = document.createElement('a');
-        link.href = 'characters/'+Characters.id[Characters.selectedID].filename;  
-        link.download = Characters.id[Characters.selectedID].filename;
-        document.body.appendChild(link);
-        link.click();
-   });
-
-    async function characterAddedSign(file_name, alert_text = 'Character created'){
-        $('#rm_info_block').transition({opacity: 0, duration: 0});
-        var $prev_img = $('#avatar_div_container').clone();
-        if(file_name) {
-            $prev_img.children('img').attr('src', 'characters/'+file_name+'.'+characterFormat);
-        } else {
-            $prev_img.children('img').attr('src', 'User Avatars/legat.png');
-        }
-        $('#rm_info_avatar').append($prev_img);
-        select_rm_info(alert_text);
-
-        $('#rm_info_block').transition({opacity: 1.0, duration: 2000});
-    }
-
-
 //**************************CHAT IMPORT EXPORT*************************//
     $( "#chat_import_button" ).click(function() {
         $("#chat_import_file").click();
@@ -5238,7 +5183,7 @@ $(document).ready(function(){
                         if(id < 0) {
                             Characters.addCharacter(data);
                             Characters.sort();
-                            Characters.save();
+                            Characters.saveFolders();
                             Characters.onCharacterSelect({
                                 filename: data.filename
                             });

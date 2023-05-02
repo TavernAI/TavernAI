@@ -1,10 +1,10 @@
-import {UICharFolder} from "./UICharFolder.mjs";
-import {UICharPerson} from "./UICharPerson.mjs";
 import {EventEmitter} from "./EventEmitter.mjs";
-import {filterFiles, token, requestTimeout} from "../script.js";
+import {token, requestTimeout, characterAddedSign} from "../script.js";
+import {CharacterView} from "./CharacterView.mjs";
 
-export class CharacterManager extends EventEmitter {
-    static WIPE_CHAT = "clear_chat";
+export class CharacterModel extends EventEmitter {
+    static EVENT_WIPE_CHAT = "clear_chat";
+    static EVENT_ERROR = "error";
 
     static dragged;
     static activeFolder;
@@ -19,180 +19,92 @@ export class CharacterManager extends EventEmitter {
     data = {};
     characters = [];
     selectedID;
-    root;
-    flat = false;
-
-    container;
+    view;
 
     constructor(options) {
         super();
-        this.container = options.container;
 
-        let sel = document.getElementById("rm_folder_order");
-        sel.onchange = function(event) {
-            if(UICharFolder.SORTERS[event.target.value.toUpperCase()]) {
-                this.root.sort(UICharFolder.SORTERS[event.target.value.toUpperCase()]);
-            }
-        }.bind(this);
-        sel.value = "NAME";
-
-        let ser = document.getElementById("rm_search_bar");
-        ser.onkeyup = this.search.bind(this);
-        ser.oncut = ser.onkeyup;
-        ser.onpaste = ser.onkeyup;
-
-        this.container.ondrop = this.onDrop.bind(this);
-        this.container.ondragover = this.onDragover.bind(this);
+        this.view = new CharacterView({
+            parent: this,
+            container: options.container,
+            input: options.input || {},
+        });
+        this.view.on(CharacterView.EVENT_CHARACTER_SELECT, this.onCharacterSelect.bind(this));
+        this.view.on(CharacterView.EVENT_CHARACTER_DELETE, this.onCharacterDelete.bind(this));
+        this.view.on(CharacterView.EVENT_FILES_IMPORT, this.onFilesImport.bind(this));
+        this.view.on(CharacterView.EVENT_SAVE_FOLDERS, this.onSaveFolders.bind(this));
     }
 
     get id() {
         return this.characters;
     }
 
-    refresh(chars) {
-        if(!this.container) {
-            return;
-        }
-        if(chars) {
-            this.characters = chars;
-        }
-        this.flat = false;
-
-        let i = 0;
-        this.container.innerHTML = null;
-
-        let characters = JSON.parse(JSON.stringify(this.characters));
-
-        this.root = new UICharFolder(this.data, characters);
-        this.root.container.classList.add("root");
-        this.root.on(UICharPerson.CHARACTER_SELECT, this.onCharacterSelect.bind(this));
-
-        for(let key in characters) {
-            this.root.addCharacter(characters[key]);
-        }
-
-        this.root.on(UICharPerson.CHARACTER_DELETE, this.deleteCharacter.bind(this));
-        this.root.on(UICharFolder.FOLDER_DELETED, this.onFolderDeleted.bind(this));
-        this.root.on(UICharFolder.SAVE_NEEDED, function(event) {
-            this.save();
-        }.bind(this));
-
-        this.root.sort();
-
-        CharacterManager.activeFolder = this.root;
-
-        this.container.appendChild(this.root.container);
-
-        this.save();
-    }
-
+    // event handlers
     onCharacterSelect(event) {
-        this.emit(UICharPerson.CHARACTER_SELECT, event);
+        this.selectedID = this.getIDbyFilename(event.target);
+        this.emit(CharacterView.EVENT_CHARACTER_SELECT, event);
     }
 
-    deleteCharacter(event) {
-        let id = this.getIDbyFilename(event.filename);
+    onCharacterDelete(event) {
+        let id = this.getIDbyFilename(event.target);
         jQuery.ajax({
             method: 'POST',
             url: '/deletecharacter',
             beforeSend: function(){},
             data: JSON.stringify({
-                filename: event.filename
+                filename: event.target
             }),
             cache: false,
             dataType: "json",
             contentType: "application/json",
             processData: false,
             success: function(html){
-                let char = this.characters[id];         // global
-                if(char) {
-                    let localChar = this.root.findCharacterNode({
-                        filename: char.filename
-                    });
-                    if(localChar && localChar.container.parentNode) {
-                        localChar.container.parentNode.removeChild(localChar.container);
-                    }
-                    if(localChar.parent) {
-                        localChar.parent.children.forEach((ch, i) => {
-                            if(ch.filename === event.filename) {
-                                localChar.parent.children.splice(i, 1);
-                                i--;
-                            }
-                        });
-                        localChar.parent.refreshEmpty();
-                    }
-                    localChar.parent = null;
-                }
                 this.characters = this.characters.filter(
-                    ch => ch.filename != event.filename
+                    ch => ch.filename != event.target
                 );
                 if(this.selectedID == id) {
+                    console.warn("!");
                     this.selectedID = null;
-                    this.emit(CharacterManager.WIPE_CHAT);
-                    $('#chat_header_back_button').click();
+                    this.emit(CharacterModel.EVENT_WIPE_CHAT);
+                    document.getElementById("chat_header_back_button").click();
                 }
-                this.save();
+                this.saveFolders();
             }.bind(this)
         });
     }
 
-    onDragover(event) {
-        event.preventDefault();
-        event.stopPropagation();
-    }
+    onFilesImport(event) {
+        if(event.files.length == 1) {
+            this.importCharacter(event.files[0]).then(char => {
+                characterAddedSign(char.name, 'Character imported');
+            }, error => {
+                document.getElementById("create_button").removeAttribute("disabled");
+            });
+            return;
+        }
 
-    onDrop(event) {
-        event.preventDefault();
-        event.stopPropagation();
-
-        if(event.dataTransfer.items) {
-            let filtered = filterFiles(event.dataTransfer.items, [ "image/webp", "image/png" ]);
-            if(filtered.length) {
-                this.importCharacters(filtered.map(item => item.getAsFile()));
+        this.importCharacters(event.files).then(resolve => {
+            if(event.type === CharacterView.EVENT_FILES_TYPE.FORM) {
+                if(resolve.failures.length) {
+                    console.error("Failure to load " + resolve.failures.length + "/" + (resolve.successes.length+resolve.failures.length) + " files");
+                    characterAddedSign(null, resolve.successes.length + "/" + (resolve.successes.length+resolve.failures.length) + " characters imported");
+                } else {
+                    characterAddedSign(null, resolve.successes.length + " characters imported");
+                }
             }
-        }
+        }, reject => {});
+    }
+    onSaveFolders(event) {
+        this.saveFolders();
     }
 
-    onFolderDeleted(event) {
-        CharacterManager.activeFolder = event.active;
-        CharacterManager.activeFolder.show();
-        this.emit(UICharFolder.FOLDER_DELETED, event);
-        this.save();
-    }
-
-    addFolder(name) {
-        let out = CharacterManager.activeFolder.addFolder({
-            name: name
-        });
-        if(!out) {
-            this.save();
-        }
-        return out;
-    }
-
-    addCharacter(datum) {
-        let char;
-        if(CharacterManager.activeFolder) {
-            char = CharacterManager.activeFolder.addCharacter(datum);
-        } else {
-            char = this.root.addCharacter(datum);
-        }
-        if(char) {
-            this.characters.push(char);
-        }
-        return char;
-    }
-
-    getFolderName(candidate) {
-        return CharacterManager.activeFolder.getFolderName(candidate);
-    }
-
+    // loading
     loadAll() {
         return new Promise((resolve, reject) => {
             this.loadCharacters().then(characters => {
                 this.loadFolders().then(folders => {
-                    this.data = folders || {};
-                    this.refresh(Object.values(characters));
+                    this.characters = Object.values(characters);
+                    this.view.refresh(folders, this.characters);
                 }, () => {});
             }, error => {
                 reject(error);
@@ -217,17 +129,40 @@ export class CharacterManager extends EventEmitter {
                     resolve(data);
                 }.bind(this),
                 error: function (jqXHR, exception) {
-                    console.error(jqXHR);
-                    console.error(exception);
                     reject(this.handleError(jqXHR));
                 }.bind(this)
             })
         });
     }
 
-    save() {
+    loadFolders() {
         return new Promise((resolve, reject) => {
-            let data = this.root.getSimple();
+            jQuery.ajax({
+                type: 'POST',
+                url: '/loadfolders',
+                data: null,
+                beforeSend: function(){},
+                cache: false,
+                dataType: "json",
+                contentType: "application/json",
+                headers: {
+                    "X-CSRF-Token": token
+                },
+                success: function(data){
+                    resolve(data);
+                }.bind(this),
+                error: function (jqXHR, exception) {
+                    console.warn("Could not load folders. Defaulting to none.");
+                    resolve();
+                }.bind(this)
+            });
+        });
+    }
+
+    // saving
+    saveFolders() {
+        return new Promise((resolve, reject) => {
+            let data = this.view.getSimple();
             jQuery.ajax({
                 type: 'POST',
                 url: '/savefolders',
@@ -251,31 +186,8 @@ export class CharacterManager extends EventEmitter {
         });
     }
 
-    loadFolders() {
-        return new Promise((resolve, reject) => {
-            jQuery.ajax({
-                type: 'POST',
-                url: '/loadfolders',
-                data: null,
-                beforeSend: function(){},
-                cache: false,
-                dataType: "json",
-                contentType: "application/json",
-                headers: {
-                    "X-CSRF-Token": token
-                },
-                success: function(data){
-                    resolve(data);
-                }.bind(this),
-                error: function (jqXHR, exception) {
-                    console.warn("Could not load folders. Defaulting to none.");
-                    resolve({});
-                }.bind(this)
-            });
-        });
-    }
-
-    handleError(jqXHR) { // Need to make one handleError and in script.js and in charaCloud.js
+    // error handler
+    handleError(jqXHR) {
         let msg;
         let status;
         try {
@@ -300,42 +212,19 @@ export class CharacterManager extends EventEmitter {
         }
         console.log(`Status: ${status}`);
         console.log(msg);
+        this.emit(CharacterModel.EVENT_ERROR, { status: status, message: msg });
         return {'status': status, 'msg':msg};
     }
 
+    // lookup
     getIDbyFilename(filename){
         return this.characters.findIndex(char => char.filename === filename);
     }
     getIDbyPublicID(public_id){
         return this.characters.findIndex(char => char.public_id === public_id);
     }
-    sort(key) {
-        if(!this.root) {
-            return;
-        }
-        let sorter;
-        if(!key || !UICharFolder.SORTERS[key.toUpperCase()]) {
-            sorter = UICharFolder.LAST_SORT
-        } else {
-            sorter = UICharFolder.SORTERS[key.toUpperCase()];
-        }
-        this.root.sort(sorter);
-    }
 
-    search(event) {
-        let match = event.target.value;
-        if(!match || !match.length) {
-            this.refresh();
-            this.root.filter();
-            this.root.container.classList.remove("flat");
-        } else {
-            this.root.container.classList.add("flat");
-            this.root.filter({
-                name: match
-            });
-        }
-    }
-
+    // import
     importCharacters(files, strict = false, successes = [], failures = []) {
         return new Promise((resolve, reject) => {
             this.importCharacter(files.shift())
@@ -390,9 +279,8 @@ export class CharacterManager extends EventEmitter {
                     if(data.file_name !== undefined){
                         this.loadCharacters(data.file_name.replace(/\.[^\.]*/, "")).then(data => {
                             if(data && data[0]) {
-                                let char = this.addCharacter(data[0]);
-                                this.sort();
-                                this.save();
+                                let char = this.view.addCharacter(data[0]);
+                                this.saveFolders();
                                 resolve(char);
                             } else {
                                 reject("Unknown error");

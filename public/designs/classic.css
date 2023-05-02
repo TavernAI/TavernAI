@@ -670,21 +670,21 @@ input[type=submit], input[type=button] {
 #rm_button_back h2 {
     color: rgb(188, 193, 200, 0.5);
 }
-#rm_button_import, #rm_button_folder {
+#rm_button_import, #character-button-new-folder {
     cursor: pointer;
     display: inline-block;
     margin-left: 0.5ex;
     margin-top: 1.25em;
     
 }
-#rm_button_import h2, #rm_button_folder h2 {
+#rm_button_import h2, #character-button-new-folder h2 {
     margin-top: auto;
     margin-bottom: auto;
     font-size: 17px;
     color: rgb(188, 193, 200, 0.5);
 }
 
-#rm_button_import h2:hover, #rm_button_folder h2:hover {
+#rm_button_import h2:hover, #character-button-new-folder h2:hover {
     color: #bcc1c8;
 }
 
@@ -719,17 +719,6 @@ input[type=submit], input[type=button] {
 #rm_characters_block {
     display: block;
     /* visibility: hidden; */
-}
-.character_select, .folder_select {
-    padding: 0px;
-    border-radius: 10px;
-    cursor:pointer;
-    display: grid;
-    grid-template-columns: 67px auto;
-}
-
-.character_select:hover {
-    background-color: #ffffff11;
 }
 #avatar_url_div, #selected_chat_div, #create_date_div, #last_mes_div {/*hidden text fields*/
     display: none;
@@ -2618,109 +2607,112 @@ label.wpp_label {
     content: "Queue position: "
 }
 
-/* Character folders */
+/* Folders */
+ul.folders, ul.folders ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+li.folder.hidden, li.folder-content.hidden,
+li.folder.opened > .children .children,
+li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
+    display: none;
+}
+
+/* Character screen */
 #rm_folder_order {
     float: right;
-    width: 6em;
+    width: 5.75em;
     height: 2em;
     margin-top: 1.5em;
     padding: 0.25em;
     margin-bottom: 0;
     text-align: center;
 }
-#rm_print_charaters_block {
+.character-screen {
     min-height: 72vh;
 }
-#rm_print_charaters_block, #rm_print_charaters_block ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
+.character-screen .folder-content, .character-screen .folder {
+    padding: 0px;
+    cursor: pointer;
 }
-#rm_print_charaters_block > li > div, #rm_print_charaters_block ul > li > div {
+.character-screen .folder-content > div, .character-screen .folder > div {
+    border-radius: 1ex;
+}
+.character-screen .avatar {
+    padding: 0ex;
+    margin: 1ex;
+    width: 4em;
+    height: 5.5em;
+}
+.character-screen .root > div, .character-screen .flat .folder {
+    display: none !important;
+}
+
+/* folder icon states */
+.character-screen .folder > div:first-child > .avatar {
+    background-size: cover;
+}
+.character-screen .folder.opened > div:first-child > .avatar {
+    background-image: url("../img/folder_active.png");
+}
+.character-screen .folder:not(.opened) > div:first-child > .avatar {
+    background-image: url("../img/folder.png");
+}
+.character-screen .folder.empty.opened > div:first-child > .avatar {
+    background-image: url("../img/folder_active_empty.png");
+}
+.character-screen .folder.empty:not(.opened) > div:first-child > .avatar {
+    background-image: url("../img/folder_empty.png");
+}
+
+/* "main" section of folders/content */
+.character-screen .folder-content > div, .character-screen .folder > div {
     display: flex;
+    position: relative;
 }
-.ch_name_menu {
+.folder .nameTag, .folder-content .nameTag {
     margin-left: 0.5ex;
-    margin-top: 0.5ex;
+    margin-top: 1ex;
     font-weight: bold;
     flex-grow: 2;
 }
-#rm_print_charaters_block > li, #rm_print_charaters_block ul > li {
-    display: flex;
-    flex-wrap: wrap;
-}
-.character_select > div:first-child, .folder_select > div:first-child {
-    width: 25.5em;
-}
-.folder_select.folder > div:first-child > .avatar {
-    background-size: cover;
-}
-.folder_select.folder.opened > div:first-child > .avatar {
-    background-image: url("../img/folder_active.png");
-}
-.folder_select.folder:not(.opened) > div:first-child > .avatar {
-    background-image: url("../img/folder.png");
-}
-.folder_select.folder.empty.opened > div:first-child > .avatar {
-    background-image: url("../img/folder_active_empty.png");
-}
-.folder_select.folder.empty:not(.opened) > div:first-child > .avatar {
-    background-image: url("../img/folder_empty.png");
-}
-.character_select.hidden, .folder_select.hidden, .hiddenParent > div, .folder_select.root > div, .filter-hide {
-    display: none !important;
-}
-.character_select, .folder_select {
-    position: relative;
-}
-#rm_print_charaters_block .flat .folder_select > div {
-    display: none;
-}
-#rm_print_charaters_block .flat .folder_select > .children {
-    display: block;
-}
-
-.character_select .delete, .folder_select .delete {
-    position: absolute;
-    top: 1ex;
-    right: 1em;
-    width: 3.5em;
-    height: 2.5em;
-    background-image: url("../img/del_mes.png");
-    background-size: 1.5em;
-    background-repeat: no-repeat;
-    cursor: pointer;
-    opacity: 0.5;
-    background-position-x: 1em;
-}
-.folder_select .rename {
-    position: absolute;
-    top: 1ex;
-    right: 4em;
-    width: 2.5em;
-    height: 2.5em;
-    background-image: url("../img/quill.png");
-    background-size: 1.5em;
-    background-repeat: no-repeat;
-    cursor: pointer;
-    opacity: 0.5;
-    background-position-x: 1em;
-}
-.character_select .delete:hover, .folder_select .delete:hover, .folder_select .rename:hover {
-    opacity: 1;
-}
-.folder_select > div:first-child, .character_select > div:first-child {
-    border-radius: 1ex;
-    background-color: transparent;
-}
-.folder_select > div:first-child:hover, .character_select > div:first-child:hover {
+.folder-content > div:first-child:hover, .character_select > div:first-child:hover {
     background-color: #ffffff11;
 }
-.folder_select:not(.root):not(.opened) > .children, .folder_select.hiddenParent > :not(.children) {
-    display: none;
+
+/* Buttons */
+.folder button {
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin: 0;
 }
-.folder_select .children {
-    width: 25.5em;
+.folder .delete, .folder .rename {
+    position: absolute;
+    top: 0;
+    width: 3em;
+    height: 3em;
+    background-size: 1.5em;
+    background-repeat: no-repeat;
+    cursor: pointer;
+    opacity: 0.5;
+    background-position-x: 1em;
+    background-position-y: 1ex;
+}
+.folder .delete:hover, .folder .rename:hover {
+    opacity: 1;
+}
+.folder .delete {
+    right: 0em;
+    background-position-x: 0em;
+    background-image: url("../img/del_mes.png");
+}
+.folder .rename {
+    right: 3em;
+    background-position-x: 1em;
+    background-image: url("../img/quill.png");
 }
 
 

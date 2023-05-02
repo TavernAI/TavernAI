@@ -653,24 +653,19 @@
             </div>
             
         </div>
-        <div id="rm_charater_import" class="right_menu" style="display: none;">
-            <form id="form_import"  action="javascript:void(null);" method="post" enctype="multipart/form-data">
-            <input type="file" id="character_import_file" accept=".json, image/png, image/webp" name="avatar" multiple="true">
-            <input id="character_import_file_type" name="file_type" class="text_pole" type="text" maxlength="999" size="2" value="" autocomplete="off">
-            </form>
-        </div>
         <div id="rm_charaters_block" class="right_menu">
             
             <div id="rm_button_create" class="right_menu_title_button"><h2>+New Character</h2></div>
-            <div id="rm_button_import" class="right_menu_title_button"><h2>+Import</h2></div>
-            <div id="rm_button_folder" class="right_menu_title_button"><h2>+New Folder</h2></div>
+            <div id="rm_button_import" class="right_menu_title_button"><h2>
+                <label id="character-button-import" class="right_menu">+Import
+                    <form id="form_import"  action="javascript:void(null);" method="post" enctype="multipart/form-data">
+                        <input type="file" id="character_import_file" accept=".json, image/png, image/webp" name="avatar" multiple="true">
+                        <input id="character_import_file_type" name="file_type" class="text_pole" type="text" maxlength="999" size="2" value="" autocomplete="off">
+                    </form>
+                </label>
+            </h2></div>
+            <div id="character-button-new-folder" class="right_menu_title_button"><h2>+New Folder</h2></div>
             <select id="rm_folder_order" title="Sorting order">
-                <option value="NAME" selected="selected">A → Z</option>
-                <option value="NAME_DESC">Z → A</option>
-                <option value="DATE_ADD">Import ↓</option>
-                <option value="DATE_ADD_DESC">Import ↑</option>
-                <option value="DATE_ACTION">Chatted ↓</option>
-                <option value="DATE_ACTION_DESC">Chatted ↑</option>
             </select>
             <input id="rm_search_bar" name="rm_search_bar" class="text_pole" type="text" size="35" value="" autocomplete="off" placeholder="search...">
             <ul id="rm_print_charaters_block"></ul>
