@@ -319,8 +319,12 @@ export class CharacterView extends EventEmitter {
     // folder events
     onSelected(event) {
         event.propagate = false;
-        if(event.target.folder) {
-            this.activeFolder = event.target;
+        if(event.target.children) {
+            if(event.target.opened) {
+                this.activeFolder = event.target;
+            } else if(event.target.parent) {
+                this.activeFolder = event.target.parent;
+            }
         } else {
             this.emit(CharacterView.EVENT_CHARACTER_SELECT, { target: event.target.uid });
         }
