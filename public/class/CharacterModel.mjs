@@ -279,6 +279,7 @@ export class CharacterModel extends EventEmitter {
                     if(data.file_name !== undefined){
                         this.loadCharacters(data.file_name.replace(/\.[^\.]*/, "")).then(data => {
                             if(data && data[0]) {
+                                this.characters.push(data[0]);
                                 let char = this.view.addCharacter(data[0]);
                                 this.saveFolders();
                                 resolve(char);

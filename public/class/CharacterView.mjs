@@ -241,6 +241,7 @@ export class CharacterView extends EventEmitter {
                 uid: characterData.filename
             }, [ characterData ])
         );
+        this.characters.push(characterData);
         let targetFolder = (this.activeFolder || this.controller);
         targetFolder.appendChild(char);
         targetFolder.sort();
