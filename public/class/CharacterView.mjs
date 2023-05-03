@@ -215,6 +215,13 @@ export class CharacterView extends EventEmitter {
         return item;
     }
 
+    findContent(terms) {
+        if(!this.controller) {
+            return null;
+        }
+        return this.controller.findContent(terms);
+    }
+
     search(event) {
         let match = event.target.value;
         if(!match || !match.length) {

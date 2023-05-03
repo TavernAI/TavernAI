@@ -2293,7 +2293,7 @@ $(document).ready(function(){
             return;
         }
         if(popup_type == 'del_ch'){
-            Characters.deleteCharacter({ filename: Characters.id[Characters.selectedID].filename })
+            Characters.deleteCharacter(Characters.id[Characters.selectedID].filename );
             return;
         }
         if(popup_type == 'del_ch_characloud'){

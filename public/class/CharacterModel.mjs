@@ -39,6 +39,13 @@ export class CharacterModel extends EventEmitter {
         return this.characters;
     }
 
+    deleteCharacter(filename) {
+        let candidate = this.view.findContent({ uid: filename });
+        if(candidate) {
+            candidate.delete();
+        }
+    }
+
     // event handlers
     onCharacterSelect(event) {
         this.selectedID = this.getIDbyFilename(event.target);

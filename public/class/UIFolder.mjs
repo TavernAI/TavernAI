@@ -172,6 +172,22 @@ export class UIFolder extends UIFolderContent {
         return instance;
     }
 
+    findContent(terms) {
+        let ret;
+        this.children.every(child => {
+            if(child.children) {
+                ret = child.findContent(terms);
+            } else if(
+                (terms.uid && terms.uid === child.uid) ||
+                (terms.name && terms.name === child.name)
+            ) {
+                ret = child;
+            }
+            return !ret;
+        });
+        return ret;
+    }
+
     sort(sorter) {
         if(!sorter) {
             sorter = this.lastSorter;
