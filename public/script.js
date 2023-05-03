@@ -229,7 +229,7 @@ $(document).ready(function(){
     var colab_ini_step = 1;
     
     
-    var requestTimeout = 60*1000;
+    var requestTimeout = 1*60*1000;
     jQuery.ajax({
         type: "GET",
         url: "/timeout",
@@ -547,6 +547,17 @@ $(document).ready(function(){
                     });
 
                     is_pygmalion = true;
+                    if(is_colab){
+                        let selectElement = $("#horde_model_select");
+                        let numOptions = selectElement.children("option").length;
+                        let randomIndex = Math.floor(Math.random() * numOptions);
+                        if(randomIndex === 0){
+                            randomIndex++;
+                        }
+                        selectElement.prop("selectedIndex", randomIndex);
+                        selectElement.trigger("change");
+                        $('#colab_shadow_popup').css('display', 'none');
+                    }
                     resultCheckStatusHorde();
                 },
                 error: function (jqXHR, exception) {
@@ -607,8 +618,8 @@ $(document).ready(function(){
         const response = await fetch("/iscolab", {
             method: "POST",
             headers: {
-                                        "Content-Type": "application/json",
-                                        "X-CSRF-Token": token
+                "Content-Type": "application/json",
+                "X-CSRF-Token": token
                                 },
             body: JSON.stringify({
                         "": ""
@@ -617,15 +628,42 @@ $(document).ready(function(){
         });
         if (response.ok === true) {
             const getData = await response.json();
-            if(getData.colaburl != false){
-                $('#colab_shadow_popup').css('display', 'none');
+            if(getData.colab_type !== undefined){
                 is_colab = true;
-                let url = String(getData.colaburl).split("flare.com")[0] + "flare.com";
-                url = String(url).split("loca.lt")[0] + "loca.lt";
-                $('#api_url_text').val(url);
-                setTimeout(function() {
-                    $('#api_button').click();
-                }, 2000);
+                let url;
+                if (getData.colab_type == "kobold_model") {
+                    $("#main_api").val("kobold");
+                    $("#main_api").change();
+                    url = String(getData.colaburl).split("flare.com")[0] + "flare.com";
+                    url = String(url).split("loca.lt")[0] + "loca.lt";
+                    $('#api_url_text').val(url);
+                    setTimeout(function () {
+                        $('#api_button').click();
+                        $('#colab_shadow_popup').css('display', 'none');
+                    }, 2000);
+                }
+                
+                if(getData.colab_type == "kobold_horde"){
+                    main_api = "horde";
+                    $("#main_api").val("horde");
+                    $("#main_api").change();
+                    setTimeout(function () {
+                        $('#api_button_horde').click();
+                        
+                    }, 2000);
+
+                }
+                if(getData.colab_type == "openai"){
+                    url = getData.colaburl;
+                    main_api = "openai";
+                    $("#main_api").val("openai");
+                    $("#main_api").change();
+                    $('#api_key_openai').val(url);
+                    setTimeout(function () {
+                        $('#api_button_openai').click();
+                        $('#colab_shadow_popup').css('display', 'none');
+                    }, 1000);
+                }
             }
 
 
@@ -1484,13 +1522,16 @@ $(document).ready(function(){
                 // HORDE
                 if(main_api == 'horde'){
                     generate_url = '/generate_horde';
-                    if(hordeCheck) {
-                        clearInterval(hordeCheck);
-                    }
-                    hordeCheck = setInterval(updateHordeStats.bind(this), 1000);
+
+                    hordeCheck = true;
+                    updateHordeStats();
                 }
                 if(main_api == 'openai'){
                     generate_url = '/generate_openai';
+                }
+                let timeout = requestTimeout;
+                if(main_api == 'horde'){
+                    timeout = 1*1000*1000;
                 }
                 jQuery.ajax({    
                     type: 'POST', // 
@@ -1500,7 +1541,7 @@ $(document).ready(function(){
                         //$('#create_button').attr('value','Creating...'); 
                     },
                     cache: false,
-                    timeout: (main_api == 'horde' && requestTimeout < 5*60*1000 ? 5*60*1000 : requestTimeout),
+                    timeout: timeout,
                     dataType: "json",
                     contentType: "application/json",
                     success: function(data){
@@ -1520,8 +1561,7 @@ $(document).ready(function(){
                             if(main_api == 'horde'){
                                 getMessage = data.generations[0].text;
                                 if(hordeCheck) {
-                                    clearInterval(hordeCheck);
-                                    hordeCheck = null;
+                                    hordeCheck = false;
                                     document.getElementById("hordeInfo").classList.remove("hidden");
                                     document.getElementById("hordeQueue").innerHTML = "-";
                                 }
@@ -1629,8 +1669,12 @@ $(document).ready(function(){
 
                         $("#send_textarea").removeAttr('disabled');
                         is_send_press = false;
+                        hordeCheck = false;
                         $( "#send_button" ).css("display", "block");
                         $( "#loading_mes" ).css("display", "none");
+
+                        callPopup(exception, 'alert_error');
+
                         console.log(exception);
                         console.log(jqXHR);
                     }
@@ -3401,8 +3445,12 @@ $(document).ready(function(){
                     document.getElementById("hordeInfo").classList.remove("hidden");
                     document.getElementById("hordeQueue").innerHTML = "-";
                 }
+                if(hordeCheck){
+                    setTimeout(updateHordeStats, 1000);
+                }
             },
             error: function (jqXHR, exception) {
+                hordeCheck = false;
                 console.error(jqXHR);
                 console.error(exception);
             }
