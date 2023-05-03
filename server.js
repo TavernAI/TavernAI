@@ -91,7 +91,7 @@ var response_getlastversion;
 var api_key_novel;
 var api_key_openai;
 
-var is_colab = true;
+var is_colab = false;
 var charactersPath = 'public/characters/';
 var worldPath = 'public/worlds/';
 var chatsPath = 'public/chats/';
