@@ -63,9 +63,8 @@ export class CharacterModel extends EventEmitter {
                     ch => ch.filename != event.target
                 );
                 if(this.selectedID == id) {
-                    console.warn("!");
                     this.selectedID = null;
-                    this.emit(CharacterModel.EVENT_WIPE_CHAT);
+                    this.emit(CharacterModel.EVENT_WIPE_CHAT, {});
                     document.getElementById("chat_header_back_button").click();
                 }
                 this.saveFolders();
