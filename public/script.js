@@ -1529,10 +1529,7 @@ $(document).ready(function(){
                 if(main_api == 'openai'){
                     generate_url = '/generate_openai';
                 }
-                let timeout = requestTimeout;
-                if(main_api == 'horde'){
-                    timeout = 1*1000*1000;
-                }
+
                 jQuery.ajax({    
                     type: 'POST', // 
                     url: generate_url, // 
@@ -1541,7 +1538,7 @@ $(document).ready(function(){
                         //$('#create_button').attr('value','Creating...'); 
                     },
                     cache: false,
-                    timeout: timeout,
+                    timeout: (main_api == 'horde' && requestTimeout < 5*60*1000 ? 5*60*1000 : requestTimeout),
                     dataType: "json",
                     contentType: "application/json",
                     success: function(data){
