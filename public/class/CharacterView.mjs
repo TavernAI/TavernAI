@@ -161,7 +161,7 @@ export class CharacterView extends EventEmitter {
         item.content = [
             {
                 nodeName: "div",
-                class: "nameTag",
+                class: [ "nameTag", "name" ],
                 children: data.name ? [ data.name ] : []
             }
         ];

@@ -185,10 +185,16 @@ export class UIFolderContent extends EventEmitter {
 
     rename(candidate) {
         let oldName = this.name;
-        if(oldName === this.name) {
+        if(candidate === this.name) {
             return;
         }
         this.name = this.parent.getValidName(candidate, true);
+        for(let key = 0; key < this.main.children.length; key++) {
+            const child = this.main.children[key];
+            if(child.classList.contains("name")) {
+                child.innerHTML = this.name;
+            }
+        }
         this.emit(UIFolderContent.EVENT_RENAMED, { oldName: oldName, propagate: true });
     }
 
