@@ -1,5 +1,5 @@
 const { express, path, fs, jsonParser, charaCloudServer, client, json5, https, http, crypto, updateSettings, urlencodedParser, sharp, charaRead, charaWrite, uuid, 
-    characterFormat, charaFormatData, setCardName, utf8Encode, utf8Decode, extract, encode, PNGtext, ExifReader } = require('../server');
+    characterFormat, charaFormatData, setCardName, utf8Encode, utf8Decode, extract, encode, PNGtext, ExifReader, charactersPath } = require('../server');
 
 const needle  = require("needle");
 var ALPHA_KEY;
@@ -26,7 +26,8 @@ router.get("/characters", function(request, response_characloud_getallcharacters
 });
 router.get("/board", function(request, response_characloud_getallcharacters){
     try {
-        client.get(charaCloudServer + "/api/characters/board", function (data, response) {
+        const { nsfw } = request.query;
+        client.get(charaCloudServer + `/api/characters/board?nsfw=${nsfw}`, function (data, response) {
             if (response.statusCode === 200) {
                 response_characloud_getallcharacters.send(data);
             } else {
@@ -64,7 +65,7 @@ router.post("/characters/load", jsonParser, function(request, response_characlou
                     let char = json5.parse(char_json);
                     let card_name = setCardName(char.name);
                     let character_data = charaFormatData(char);
-                    await charaWrite(filename, JSON.stringify(character_data), path.join('public', 'characters', card_name), characterFormat);
+                    await charaWrite(filename, JSON.stringify(character_data), `${charactersPath}${card_name}`, characterFormat);
                     character_data.filename = `${card_name}.${characterFormat}`;
                     return response_characloud_loadcard.status(200).json(character_data);
                 } catch (error) {
@@ -91,9 +92,10 @@ router.post("/characters/load", jsonParser, function(request, response_characlou
 
 router.post("/characters/search", jsonParser, function(request, response_characloud_search){
     let search_string = request.body.q;
+    const { nsfw } = request.query;
     try {
         const encoded_search_string = encodeURIComponent(search_string);
-        client.get(charaCloudServer + "/api/characters?q="+encoded_search_string, function (data, response) {
+        client.get(charaCloudServer + `/api/characters?q=${encoded_search_string}&nsfw=${nsfw}`, function (data, response) {
             if (response.statusCode === 200) {
                 response_characloud_search.send(data);
             } else {
@@ -247,7 +249,7 @@ router.post("/characters/prepublish", urlencodedParser, async function(request, 
             type = 'select';
             filename = request.body.filename_local;
             filename = filename.replace(`.${characterFormat}`, '');
-            sourcePath = `./public/characters/${filename}.${characterFormat}`;
+            sourcePath = `./${charactersPath}${filename}.${characterFormat}`;
         }
         const stats = fs.statSync(sourcePath);
         const fileSizeInBytes = stats.size;
@@ -370,11 +372,11 @@ router.post("/characters/publish", jsonParser, async function (request, response
             });
         }else if(type === 'add_locally'){
             new_file = setCardName(character_data.name);
-            await charaWrite(`./public/cardeditor/${character_img}`, character_data_json, `./public/characters/${new_file}`, characterFormat);
+            await charaWrite(`./public/cardeditor/${character_img}`, character_data_json, `./${charactersPath}${new_file}`, characterFormat);
             return response_characloud_publish.status(200).json({file_name: new_file});
         }else if(type === 'update_locally'){
             target_filename = target_filename.replace(`.${characterFormat}`,'');
-            await charaWrite(`./public/cardeditor/${character_img}`, character_data_json, `./public/characters/${target_filename}`, characterFormat);
+            await charaWrite(`./public/cardeditor/${character_img}`, character_data_json, `./${charactersPath}${target_filename}`, characterFormat);
             return response_characloud_publish.status(200).json({file_name: target_filename});
         }
     } catch (err) {
@@ -385,6 +387,7 @@ router.post("/characters/publish", jsonParser, async function (request, response
 
 router.post("/user/characters", jsonParser, function (request, response_characloud_user_characters) {
     try {
+        const { nsfw } = request.query;
         let {name, page, perpage} = request.body;
 
         let this_master_token = MASTER_TOKEN;
@@ -396,7 +399,7 @@ router.post("/user/characters", jsonParser, function (request, response_characlo
                 'Authorization': 'Bearer ' + this_master_token
             }
         };
-        client.get(charaCloudServer + `/api/users/${name}/characters?perpage=${perpage}&page=${page}`, options, function (data, response) {
+        client.get(charaCloudServer + `/api/users/${name}/characters?perpage=${perpage}&page=${page}&nsfw=${nsfw}`, options, function (data, response) {
             try {
                 if (response.statusCode === 200) {
                     return response_characloud_user_characters.status(200).json(data);
@@ -629,8 +632,9 @@ router.post("/users/avatar", urlencodedParser, async function (request, response
 
 router.post("/category/characters", jsonParser, function (request, response_characloud_category) {
     try {
+        const { nsfw } = request.query;
         let {category} = request.body;
-        client.get(charaCloudServer + `/api/categories/${category}/characters`, function (data, response) {
+        client.get(charaCloudServer + `/api/categories/${category}/characters?nsfw=${nsfw}`, function (data, response) {
             try {
                 if (response.statusCode === 200) {
                     return response_characloud_category.status(200).json(data);

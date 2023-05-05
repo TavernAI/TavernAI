@@ -229,7 +229,7 @@ $(document).ready(function(){
     var colab_ini_step = 1;
     
     
-    var requestTimeout = 60*1000;
+    var requestTimeout = 1*60*1000;
     jQuery.ajax({
         type: "GET",
         url: "/timeout",
@@ -547,6 +547,17 @@ $(document).ready(function(){
                     });
 
                     is_pygmalion = true;
+                    if(is_colab){
+                        let selectElement = $("#horde_model_select");
+                        let numOptions = selectElement.children("option").length;
+                        let randomIndex = Math.floor(Math.random() * numOptions);
+                        if(randomIndex === 0){
+                            randomIndex++;
+                        }
+                        selectElement.prop("selectedIndex", randomIndex);
+                        selectElement.trigger("change");
+                        $('#colab_shadow_popup').css('display', 'none');
+                    }
                     resultCheckStatusHorde();
                 },
                 error: function (jqXHR, exception) {
@@ -607,8 +618,8 @@ $(document).ready(function(){
         const response = await fetch("/iscolab", {
             method: "POST",
             headers: {
-                                        "Content-Type": "application/json",
-                                        "X-CSRF-Token": token
+                "Content-Type": "application/json",
+                "X-CSRF-Token": token
                                 },
             body: JSON.stringify({
                         "": ""
@@ -617,15 +628,42 @@ $(document).ready(function(){
         });
         if (response.ok === true) {
             const getData = await response.json();
-            if(getData.colaburl != false){
-                $('#colab_shadow_popup').css('display', 'none');
+            if(getData.colab_type !== undefined){
                 is_colab = true;
-                let url = String(getData.colaburl).split("flare.com")[0] + "flare.com";
-                url = String(url).split("loca.lt")[0] + "loca.lt";
-                $('#api_url_text').val(url);
-                setTimeout(function() {
-                    $('#api_button').click();
-                }, 2000);
+                let url;
+                if (getData.colab_type == "kobold_model") {
+                    $("#main_api").val("kobold");
+                    $("#main_api").change();
+                    url = String(getData.colaburl).split("flare.com")[0] + "flare.com";
+                    url = String(url).split("loca.lt")[0] + "loca.lt";
+                    $('#api_url_text').val(url);
+                    setTimeout(function () {
+                        $('#api_button').click();
+                        $('#colab_shadow_popup').css('display', 'none');
+                    }, 2000);
+                }
+                
+                if(getData.colab_type == "kobold_horde"){
+                    main_api = "horde";
+                    $("#main_api").val("horde");
+                    $("#main_api").change();
+                    setTimeout(function () {
+                        $('#api_button_horde').click();
+                        
+                    }, 2000);
+
+                }
+                if(getData.colab_type == "openai"){
+                    url = getData.colaburl;
+                    main_api = "openai";
+                    $("#main_api").val("openai");
+                    $("#main_api").change();
+                    $('#api_key_openai').val(url);
+                    setTimeout(function () {
+                        $('#api_button_openai').click();
+                        $('#colab_shadow_popup').css('display', 'none');
+                    }, 1000);
+                }
             }
 
 
@@ -1484,14 +1522,14 @@ $(document).ready(function(){
                 // HORDE
                 if(main_api == 'horde'){
                     generate_url = '/generate_horde';
-                    if(hordeCheck) {
-                        clearInterval(hordeCheck);
-                    }
-                    hordeCheck = setInterval(updateHordeStats.bind(this), 1000);
+
+                    hordeCheck = true;
+                    updateHordeStats();
                 }
                 if(main_api == 'openai'){
                     generate_url = '/generate_openai';
                 }
+
                 jQuery.ajax({    
                     type: 'POST', // 
                     url: generate_url, // 
@@ -1520,8 +1558,7 @@ $(document).ready(function(){
                             if(main_api == 'horde'){
                                 getMessage = data.generations[0].text;
                                 if(hordeCheck) {
-                                    clearInterval(hordeCheck);
-                                    hordeCheck = null;
+                                    hordeCheck = false;
                                     document.getElementById("hordeInfo").classList.remove("hidden");
                                     document.getElementById("hordeQueue").innerHTML = "-";
                                 }
@@ -1629,8 +1666,12 @@ $(document).ready(function(){
 
                         $("#send_textarea").removeAttr('disabled');
                         is_send_press = false;
+                        hordeCheck = false;
                         $( "#send_button" ).css("display", "block");
                         $( "#loading_mes" ).css("display", "none");
+
+                        callPopup(exception, 'alert_error');
+
                         console.log(exception);
                         console.log(jqXHR);
                     }
@@ -2396,7 +2437,7 @@ $(document).ready(function(){
                 $('.characloud_content').css('display', 'none');
                 $('#characloud_user_profile_block').css('display', 'none');
                 $('#characloud_characters').css('display', 'block');
-                
+                $('#characloud_board').css('display', 'block');
                 $('#profile_button_is_not_login').css('display', 'block');
                 $('#profile_button_is_login').css('display', 'none');
                 is_login = false;
@@ -3257,6 +3298,11 @@ $(document).ready(function(){
         settings.auto_connect = !!$('#autoconnect').prop('checked');
         saveSettings();
     });
+    $('#show_nsfw').change(function() {
+        charaCloud.show_nsfw = !!$('#show_nsfw').prop('checked');
+        charaCloudInit();
+        saveSettings();
+    });
     $('#characloud').change(function() {
         settings.characloud = !!$('#characloud').prop('checked');
         saveSettings();
@@ -3401,8 +3447,12 @@ $(document).ready(function(){
                     document.getElementById("hordeInfo").classList.remove("hidden");
                     document.getElementById("hordeQueue").innerHTML = "-";
                 }
+                if(hordeCheck){
+                    setTimeout(updateHordeStats, 1000);
+                }
             },
             error: function (jqXHR, exception) {
+                hordeCheck = false;
                 console.error(jqXHR);
                 console.error(exception);
             }
@@ -3767,6 +3817,9 @@ $(document).ready(function(){
                     free_char_name_mode = !!settings.free_char_name_mode;
                     settings.auto_connect = settings.auto_connect === false ? false : true;
                     settings.characloud = settings.characloud === false ? false : true;
+                    if(settings.show_nsfw !== undefined){
+                        charaCloud.show_nsfw = Boolean(settings.show_nsfw);
+                    }
                     settings.notes = settings.notes === false ? false : true;
 
                     if(!winNotes) {
@@ -3802,6 +3855,8 @@ $(document).ready(function(){
                     $('#multigen').prop('checked', multigen);
                     $('#singleline').prop('checked', singleline);
                     $('#autoconnect').prop('checked', settings.auto_connect);
+                    $('#show_nsfw').prop('checked', charaCloud.show_nsfw);
+                    
                     $('#characloud').prop('checked', settings.characloud);
                     $('#notes_checkbox').prop('checked', settings.notes);
                     $('#swipes').prop('checked', swipes);
@@ -3949,6 +4004,7 @@ $(document).ready(function(){
                     world_budget: settings.world_budget || 100,
                     auto_connect: settings.auto_connect || false,
                     characloud: settings.characloud === false ? false : true,
+                    show_nsfw: charaCloud.show_nsfw,
                     swipes: swipes,
                     notes: settings.notes || false,
                     keep_dialog_examples: keep_dialog_examples,
@@ -5159,6 +5215,7 @@ $(document).ready(function(){
         
         let char_i = 0;
         let row_i = 0;
+        $('#characloud_characters').html('');
         characloud_characters_board.forEach(function (category, i) {
             if (category.characters.length === 0)
                 return;
@@ -5213,6 +5270,7 @@ $(document).ready(function(){
             row_i++;
         });
         $('.lazy').lazyLoadXT({edgeX:500, edgeY:500});
+        $('#characloud_bottom').css('display', 'flex');
     }
     var is_lazy_load = true;
     $('#chara_cloud').on('scroll', function(){
@@ -5327,6 +5385,7 @@ $(document).ready(function(){
         $('#characloud_search_block').css('display', 'block');
         $('#characloud_search_back_button').css('display', 'block');
         $('#characloud_characters').css('display', 'none');
+        $('#characloud_board').css('display', 'none');
         $('#characloud_search_result').html('');
         characloud_found_characters.sort(function(a, b) {
             var nameA = a.name.toUpperCase(); // ignore upper and lowercase
@@ -5894,9 +5953,12 @@ $(document).ready(function(){
     // Navigator
     function showMain() {
         hideAll();
+        $('#characloud_bottom').css('display', 'flex');
         $('#characloud_search_back_button').css('display', 'none');
         $('#characloud_search_block').css('display', 'none');
         $('#characloud_characters').css('display', 'block');
+        $('#characloud_board').css('display', 'block');
+
     }
     $('.characloud_user_profile_avatar_img').on('error', function () { // Set default avatar
         
@@ -6257,7 +6319,7 @@ $(document).ready(function(){
     }
     
     function hideAll() {
-        characloud_bottom
+        $('#characloud_bottom').css('display', 'none');
         $('#user_profile_info_this_user').css('display', 'none');
         $('#user_profile_info_other_user').css('display', 'none');
         $('#characloud_category').css('display', 'none');
@@ -6269,6 +6331,7 @@ $(document).ready(function(){
         $('#reg_login_popup_shadow').css('display', 'none');
         $('#characloud_user_profile_block').css('display', 'none');
         $('#characloud_characters').css('display', 'none');
+        $('#characloud_board').css('display', 'none');
         $('#characloud_search_back_button').css('display', 'none');
         $('#characloud_search_block').css('display', 'none');
         

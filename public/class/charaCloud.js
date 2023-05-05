@@ -7,6 +7,7 @@ class charaCloudClient {
         this.is_online = false;
         this.is_toggle = false;
         this.is_init = false;
+        this.show_nsfw = true;
         this.max_user_page_characters_count = 16;
         this.user_page_characters_count = 0;
         this.user_profile_page = 1;
@@ -60,10 +61,12 @@ class charaCloudClient {
     }
     getBoard(){
         const self = this;
+        let nsfw = 'on';
+        if(!self.show_nsfw) nsfw = 'off';
         return new Promise((resolve, reject) => {
             jQuery.ajax({    
                 type: 'GET', // 
-                url: '/api/characloud/board',
+                url: `/api/characloud/board?nsfw=${nsfw}`,
                 beforeSend: function(){
 
 
@@ -150,10 +153,12 @@ class charaCloudClient {
     }
     searchCharacter(q){
         const self = this;
+        let nsfw = 'on';
+        if(!self.show_nsfw) nsfw = 'off';
         return new Promise((resolve, reject) => {
             jQuery.ajax({    
                 type: 'POST', // 
-                url: 'api/characloud/characters/search', // 
+                url: `api/characloud/characters/search?nsfw=${nsfw}`, // 
                 data: JSON.stringify({
                             'q': q
                         }),
@@ -389,6 +394,8 @@ class charaCloudClient {
     }
     getUserCharacters(user_name,page){
         const self = this;
+        let nsfw = 'on';
+        if(!self.show_nsfw) nsfw = 'off';
         return new Promise((resolve, reject) => {
             if(!self.validateUsername(user_name)){
                 let jqXHR = {responseText: JSON.stringify({error: 'Name validation error'}), status: 422};
@@ -396,7 +403,7 @@ class charaCloudClient {
             }
             jQuery.ajax({    
                 type: 'POST', // 
-                url: '/api/characloud/user/characters', // 
+                url: `/api/characloud/user/characters?nsfw=${nsfw}`, // 
                 data: JSON.stringify({
                             'name': user_name,
                             'perpage': self.max_user_page_characters_count,
@@ -518,10 +525,12 @@ class charaCloudClient {
     }
     getCharactersByCategory(category){
         const self = this;
+        let nsfw = 'on';
+        if(!self.show_nsfw) nsfw = 'off';
         return new Promise((resolve, reject) => {
             jQuery.ajax({    
                 type: 'POST', // 
-                url: `/api/characloud/category/characters`, // 
+                url: `/api/characloud/category/characters?nsfw=${nsfw}`, // 
                 data: JSON.stringify({
                             category: category
                         }),

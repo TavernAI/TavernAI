@@ -762,8 +762,19 @@
             <button id="characloud_search_back_button" type="button"></button>
             <div id="characloud_search_result"></div>       
         </div>
-        <div id="characloud_characters"></div>
 
+        <div id="characloud_board">
+            <div>
+                <div class="menu_toggle nsfw_toggle_block" id="nsfw_toggle_block_board">
+                    <div class="toggle_label">NSFW</div>
+                    <input id="show_nsfw" type="checkbox" class="toggle_checkbox">
+                </div>
+                <div style="display: none;">
+                    Categories
+                </div>
+            </div>
+            <div id="characloud_characters"></div>
+        </div>
         <div class="characloud_content">
             <div class="characloud_header">
                 <div id="characloud_header_navigator"><h2 id="characloud_header_navigator_p1">TavernAI</h2><h2 id="characloud_header_navigator_c1">&nbsp;&gt;&nbsp;</h2><h2 id="characloud_header_navigator_p2"></h2><h2 id="characloud_header_navigator_c2">&nbsp;&gt;&nbsp;</h2><h2 id="characloud_header_navigator_p3"></h2> <!--&gt; Publishing Character--></div>
@@ -806,7 +817,7 @@
                             <input type="text" id="name-input" placeholder="The character's name" />
                         </div>
                         <div class="category-form">
-                            <div id="nsfw_toggle_block" class="menu_toggle">
+                            <div class="menu_toggle nsfw_toggle_block" id="nsfw_toggle_block_editor">
                                 <div class="toggle_label">NSFW</div>
                                 <input id="editor_nsfw" type="checkbox" class="toggle_checkbox">
                             </div>

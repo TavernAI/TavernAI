@@ -70,6 +70,7 @@ const api_horde = "https://stablehorde.net/api";
 
 var hordeActive = false;
 var hordeQueue;
+var hordeData = {};
 
 var response_get_story;
 var response_generate;
@@ -94,9 +95,11 @@ var is_colab = false;
 var charactersPath = 'public/characters/';
 var worldPath = 'public/worlds/';
 var chatsPath = 'public/chats/';
+var UserAvatarsPath = 'public/User Avatars/';
 if (is_colab && process.env.googledrive == 2){
     charactersPath = '/content/drive/MyDrive/TavernAI/characters/';
     chatsPath = '/content/drive/MyDrive/TavernAI/chats/';
+    UserAvatarsPath = '/content/drive/MyDrive/TavernAI/User Avatars/';
 }
 const jsonParser = express.json({limit: '100mb'});
 const urlencodedParser = express.urlencoded({extended: true, limit: '100mb'});
@@ -164,20 +167,36 @@ app.use(function (req, res, next) { //Security
 });
 
 app.use((req, res, next) => {
-  if (req.url.startsWith('/characters/') && is_colab && process.env.googledrive == 2) {
-      
-    const filePath = path.join(charactersPath, decodeURIComponent(req.url.substr('/characters'.length)));
-    fs.access(filePath, fs.constants.R_OK, (err) => {
-      if (!err) {
-        res.sendFile(filePath);
-      } else {
-        res.send('Character not found: '+filePath);
-        //next();
-      }
-    });
-  } else {
-    next();
-  }
+    if (req.url.startsWith('/characters/') && is_colab && process.env.googledrive == 2) {
+        let requestUrl = url.parse(req.url);
+        const filePath = path.join(charactersPath, decodeURIComponent(requestUrl.pathname.substr('/characters'.length)));
+        fs.access(filePath, fs.constants.R_OK, (err) => {
+            if (!err) {
+                res.sendFile(filePath);
+            } else {
+                res.send('Character not found: ' + filePath);
+                //next();
+            }
+        });
+    } else {
+        next();
+    }
+});
+app.use((req, res, next) => {
+    if (req.url.startsWith('/User%20Avatars/') && is_colab && process.env.googledrive == 2) {
+        let requestUrl = url.parse(req.url);
+        const filePath = path.join(UserAvatarsPath, decodeURIComponent(requestUrl.pathname.substr('/User%20Avatars'.length)));
+        fs.access(filePath, fs.constants.R_OK, (err) => {
+            if (!err) {
+                res.sendFile(filePath);
+            } else {
+                res.send('Avatar not found: ' + filePath);
+                //next();
+            }
+        });
+    } else {
+        next();
+    }
 });
 app.use(express.static(__dirname + "/public", { refresh: true }));
 
@@ -209,27 +228,30 @@ app.use('/characters', (req, res) => {
   });
 });
 app.use('/cardeditor', (req, res) => {
-  const filePath = decodeURIComponent(path.join(process.cwd(), 'public/cardeditor', req.url.replace(/%20/g, ' ')));
-  fs.readFile(filePath, (err, data) => {
-    if (err) {
-      res.status(404).send('File not found');
-      return;
-    }
-    //res.contentType('image/jpeg');
-    res.send(data);
-  });
+    const requestUrl = url.parse(req.url);
+    const filePath = decodeURIComponent(path.join(process.cwd(), 'public/cardeditor', requestUrl.pathname.replace(/%20/g, ' ')));
+    fs.readFile(filePath, (err, data) => {
+        if (err) {
+            res.status(404).send('File not found');
+            return;
+        }
+        //res.contentType('image/jpeg');
+        res.send(data);
+    });
 });
 app.use('/User%20Avatars', (req, res) => {
-  const filePath = decodeURIComponent(path.join(process.cwd(), 'public/User Avatars', req.url.replace(/%20/g, ' ')));
-  fs.readFile(filePath, (err, data) => {
-    if (err) {
-      res.status(404).send('File not found');
-      return;
-    }
-    //res.contentType('image/jpeg');
-    res.send(data);
-  });
+    const requestUrl = url.parse(req.url);
+    const filePath = decodeURIComponent(path.join(process.cwd(), UserAvatarsPath, requestUrl.pathname.replace(/%20/g, ' ')));
+    fs.readFile(filePath, (err, data) => {
+        if (err) {
+            res.status(404).send('File not found ');
+            return;
+        }
+        //res.contentType('image/jpeg');
+        res.send(data);
+    });
 });
+
 app.use(multer({dest:"uploads"}).single("avatar"));
 app.get("/", function(request, response){
     response.sendFile(__dirname + "/public/index.html"); 
@@ -934,15 +956,26 @@ app.post("/getbackgrounds", jsonParser, function(request, response){
     
 });
 app.post("/iscolab", jsonParser, function(request, response){
-    let send_data = false;
+    let url;
     if(process.env.colaburl !== undefined){
-        send_data = String(process.env.colaburl).trim();
+        url = String(process.env.colaburl).trim();
     }
-    response.send({colaburl:send_data});
+    let type = undefined;
+
+    if(process.env.colab == 2){
+        type = 'kobold_model';
+    }
+    if(process.env.colab == 3){
+        type = 'kobold_horde';
+    }
+    if(process.env.colab == 4){
+        type = 'openai';
+    }
+    response.send({colaburl: url, colab_type: type});
     
 });
 app.post("/getuseravatars", jsonParser, function(request, response){
-    var images = getImages("public/User Avatars");
+    var images = getImages(UserAvatarsPath);
     response.send(JSON.stringify(images));
     
 });
@@ -961,7 +994,7 @@ app.post("/adduseravatar", urlencodedParser, function(request, response){
         sharp(img_path+img_file)
             .resize(400, 600)
             .toFormat('webp')
-            .toFile('public/User Avatars/'+img_file+fileType, (err) => {
+            .toFile(`${UserAvatarsPath}${img_file}${fileType}`, (err) => {
                 if(err) {
                     console.log(err);
                     return response.status(400).send(err); 
@@ -979,7 +1012,7 @@ app.post("/adduseravatar", urlencodedParser, function(request, response){
 app.post("/deleteuseravatar", jsonParser, function (request, response) {
     try {
         let filename = request.body.filename;
-        let filePath = path.join(__dirname, 'public', 'User Avatars', filename);
+        let filePath = `${UserAvatarsPath}${filename}`;
         fs.unlinkSync(filePath);
         return response.status(200).json({});
     } catch (err) {
@@ -1332,7 +1365,7 @@ app.post("/generate_novelai", jsonParser, function(request, response_generate_no
 });
 
 //***********Horde API
-app.post("/generate_horde", jsonParser, function(request, response_generate_horde = response){
+app.post("/generate_horde", jsonParser, function(request, response_generate_horde){
 
     hordeActive = true;
     hordeQueue = 0;
@@ -1371,7 +1404,10 @@ app.post("/generate_horde", jsonParser, function(request, response_generate_hord
 
     var args = {
         data: this_settings,
-        headers: {"Content-Type": "application/json", "apikey": request.body.horde_api_key}
+        headers: {"Content-Type": "application/json", "apikey": request.body.horde_api_key},
+        requestConfig: {
+            timeout: 10 * 600 * 1000
+        }
     };
 
     console.log(this_settings);
@@ -1379,23 +1415,8 @@ app.post("/generate_horde", jsonParser, function(request, response_generate_hord
     client.post(api_horde+"/v2/generate/text/async", args, function (data, response) {
         if(response.statusCode == 202){
             console.log(data);
-            var waiting = setInterval(function(){
-                client.get(api_horde+"/v2/generate/text/status/"+data.id, args, function (gen, response) {
-
-                    hordeWaitProgress(gen);
-
-                    if (gen.done && gen.generations != undefined){
-                        hordeActive = false;
-                        hordeQueue = 0;
-                        console.log({ Kudos: gen.kudos })
-                        console.log(gen.generations)
-                        response_generate_horde.send(gen);
-                        clearInterval(waiting);
-                    }
-                });
-            }, 5000);
+            pollHordeStatus(data.id, args, response_generate_horde);
         }
-
         if(response.statusCode == 401){
             console.log('Validation error');
             response_generate_horde.send({error: true});
@@ -1405,19 +1426,49 @@ app.post("/generate_horde", jsonParser, function(request, response_generate_hord
             response_generate_horde.send({error: true});
         }
     }).on('error', function (err) {
+        hordeActive = false;
         console.log(err);
         //console.log('something went wrong on the request', err.request.options);
-        response_generate.send({error: true});
+        response_generate_horde.send({error: true});
     });
 });
 
+function pollHordeStatus(id, args, response_generate_horde) {
+
+
+    client.get(api_horde + "/v2/generate/text/status/" + id, args, function (gen, response) {
+
+        hordeData = gen;
+        hordeWaitProgress(gen);
+
+        if (gen.done && gen.generations != undefined) {
+            hordeActive = false;
+            hordeQueue = 0;
+            console.log({Kudos: gen.kudos});
+            console.log(gen.generations);
+            return response_generate_horde.send(gen);
+        }
+        setTimeout(() => pollHordeStatus(id, args, response_generate_horde), 3000);
+    }).on('error', function (err) {
+        hordeActive = false;
+        console.log(err);
+        //console.log('something went wrong on the request', err.request.options);
+        response_generate_horde.send({error: true});
+    });
+
+
+}
+
 function hordeWaitProgress(data){
+    if(data.queue_position !== undefined){
+        hordeQueue = data.queue_position
+    }
     try {
         process.stdout.clearLine();
         process.stdout.cursorTo(0);
         var progress = "";
 
-        hordeQueue = data.queue_position;
+        
 
         if (data.queue_position > 0) {
             process.stdout.write("Queue position: " + data.queue_position);
@@ -1429,7 +1480,7 @@ function hordeWaitProgress(data){
     }
 }
 
-app.post("/getstatus_horde", jsonParser, function(request, response_getstatus_horde = response){
+app.post("/getstatus_horde", jsonParser, function(request, response_getstatus_horde){
     if(!request.body) return response_getstatus_horde.sendStatus(400);
     horde_api_key = request.body.horde_api_key;
     var args = { "type": "text" };
@@ -1449,7 +1500,8 @@ app.post("/getstatus_horde", jsonParser, function(request, response_getstatus_ho
 app.get("/gethordeinfo", jsonParser, function(request, response){
     response.send({
         running: hordeActive,
-        queue: hordeQueue
+        queue: hordeQueue,
+        hordeData: hordeData
     });
 });
 
@@ -1926,6 +1978,7 @@ module.exports.extract = extract;
 module.exports.encode = encode;
 module.exports.PNGtext = PNGtext;
 module.exports.ExifReader = ExifReader;
+module.exports.charactersPath = charactersPath;
 
 
 const charaCloudRoute = require('./routes/characloud');

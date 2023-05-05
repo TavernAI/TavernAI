@@ -122,7 +122,7 @@
 
 #characloud_characters {
     
-    margin-top: 20px;
+    margin-top: 0px;
 }
 
 .characloud_characters_category_title {
@@ -492,6 +492,7 @@
     opacity: 0.82;
     /*color: #94bf8d; */
     font-weight: 600;
+    white-space: nowrap;
 }
 
 #chara_cloud #characloud_upload_character_button:hover {
@@ -938,7 +939,7 @@
 }
 
 #profile_button_is_not_login {
-
+    white-space: nowrap;
 }
 #profile_button_is_login {
     display: none;
@@ -1059,30 +1060,36 @@
 
 
 /* Categories */
-#nsfw_toggle_block {
-    position: absolute;
+#nsfw_toggle_block_board {
+    display: inline-grid;
+    grid-template-columns: min-content 55px !important;
+}
+#nsfw_toggle_block_editor {
+    position: absolute !important;
+    right: 10px !important;
+    top: 1px !important;
+}
+.nsfw_toggle_block {
     grid-template-columns: 60px 55px !important;
-    right: 10px;
-    top: 1px;
 }
 
-#nsfw_toggle_block .toggle_label {
+.nsfw_toggle_block .toggle_label {
     display: flex;
     align-items: center;
     justify-content: right;
-    opacity: 0.5;
-    font-weight: 600;
+    opacity: 0.5 !important;
+    font-weight: 600 !important;
 }
-#nsfw_toggle_block .toggle_checkbox {
-    border-radius: 20px;
-    height: 24px;
-    width: 48px;
-    background-color: #3a3e51f7;
+.nsfw_toggle_block .toggle_checkbox {
+    border-radius: 20px !important;
+    height: 24px !important;
+    width: 48px !important;
+    background-color: #3a3e51f7 !important;
 }
-#nsfw_toggle_block .toggle_checkbox:before {
-    border-radius: 20px;
-    height: 18px;
-    width: 18px;
+.nsfw_toggle_block .toggle_checkbox:before {
+    border-radius: 20px !important;
+    height: 18px !important;
+    width: 18px !important;
 }
 .category-form {
   background-color: #282b40;
