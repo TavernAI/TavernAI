@@ -2437,7 +2437,7 @@ $(document).ready(function(){
                 $('.characloud_content').css('display', 'none');
                 $('#characloud_user_profile_block').css('display', 'none');
                 $('#characloud_characters').css('display', 'block');
-                
+                $('#characloud_board').css('display', 'block');
                 $('#profile_button_is_not_login').css('display', 'block');
                 $('#profile_button_is_login').css('display', 'none');
                 is_login = false;
@@ -3298,6 +3298,11 @@ $(document).ready(function(){
         settings.auto_connect = !!$('#autoconnect').prop('checked');
         saveSettings();
     });
+    $('#show_nsfw').change(function() {
+        charaCloud.show_nsfw = !!$('#show_nsfw').prop('checked');
+        charaCloudInit();
+        saveSettings();
+    });
     $('#characloud').change(function() {
         settings.characloud = !!$('#characloud').prop('checked');
         saveSettings();
@@ -3812,6 +3817,9 @@ $(document).ready(function(){
                     free_char_name_mode = !!settings.free_char_name_mode;
                     settings.auto_connect = settings.auto_connect === false ? false : true;
                     settings.characloud = settings.characloud === false ? false : true;
+                    if(settings.show_nsfw !== undefined){
+                        charaCloud.show_nsfw = Boolean(settings.show_nsfw);
+                    }
                     settings.notes = settings.notes === false ? false : true;
 
                     if(!winNotes) {
@@ -3847,6 +3855,8 @@ $(document).ready(function(){
                     $('#multigen').prop('checked', multigen);
                     $('#singleline').prop('checked', singleline);
                     $('#autoconnect').prop('checked', settings.auto_connect);
+                    $('#show_nsfw').prop('checked', charaCloud.show_nsfw);
+                    
                     $('#characloud').prop('checked', settings.characloud);
                     $('#notes_checkbox').prop('checked', settings.notes);
                     $('#swipes').prop('checked', swipes);
@@ -3994,6 +4004,7 @@ $(document).ready(function(){
                     world_budget: settings.world_budget || 100,
                     auto_connect: settings.auto_connect || false,
                     characloud: settings.characloud === false ? false : true,
+                    show_nsfw: charaCloud.show_nsfw,
                     swipes: swipes,
                     notes: settings.notes || false,
                     keep_dialog_examples: keep_dialog_examples,
@@ -5204,6 +5215,7 @@ $(document).ready(function(){
         
         let char_i = 0;
         let row_i = 0;
+        $('#characloud_characters').html('');
         characloud_characters_board.forEach(function (category, i) {
             if (category.characters.length === 0)
                 return;
@@ -5373,6 +5385,7 @@ $(document).ready(function(){
         $('#characloud_search_block').css('display', 'block');
         $('#characloud_search_back_button').css('display', 'block');
         $('#characloud_characters').css('display', 'none');
+        $('#characloud_board').css('display', 'none');
         $('#characloud_search_result').html('');
         characloud_found_characters.sort(function(a, b) {
             var nameA = a.name.toUpperCase(); // ignore upper and lowercase
@@ -5944,6 +5957,8 @@ $(document).ready(function(){
         $('#characloud_search_back_button').css('display', 'none');
         $('#characloud_search_block').css('display', 'none');
         $('#characloud_characters').css('display', 'block');
+        $('#characloud_board').css('display', 'block');
+
     }
     $('.characloud_user_profile_avatar_img').on('error', function () { // Set default avatar
         
@@ -6316,6 +6331,7 @@ $(document).ready(function(){
         $('#reg_login_popup_shadow').css('display', 'none');
         $('#characloud_user_profile_block').css('display', 'none');
         $('#characloud_characters').css('display', 'none');
+        $('#characloud_board').css('display', 'none');
         $('#characloud_search_back_button').css('display', 'none');
         $('#characloud_search_block').css('display', 'none');
         

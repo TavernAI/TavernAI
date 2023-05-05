@@ -26,7 +26,8 @@ router.get("/characters", function(request, response_characloud_getallcharacters
 });
 router.get("/board", function(request, response_characloud_getallcharacters){
     try {
-        client.get(charaCloudServer + "/api/characters/board", function (data, response) {
+        const { nsfw } = request.query;
+        client.get(charaCloudServer + `/api/characters/board?nsfw=${nsfw}`, function (data, response) {
             if (response.statusCode === 200) {
                 response_characloud_getallcharacters.send(data);
             } else {
@@ -91,9 +92,10 @@ router.post("/characters/load", jsonParser, function(request, response_characlou
 
 router.post("/characters/search", jsonParser, function(request, response_characloud_search){
     let search_string = request.body.q;
+    const { nsfw } = request.query;
     try {
         const encoded_search_string = encodeURIComponent(search_string);
-        client.get(charaCloudServer + "/api/characters?q="+encoded_search_string, function (data, response) {
+        client.get(charaCloudServer + `/api/characters?q=${encoded_search_string}&nsfw=${nsfw}`, function (data, response) {
             if (response.statusCode === 200) {
                 response_characloud_search.send(data);
             } else {
@@ -385,6 +387,7 @@ router.post("/characters/publish", jsonParser, async function (request, response
 
 router.post("/user/characters", jsonParser, function (request, response_characloud_user_characters) {
     try {
+        const { nsfw } = request.query;
         let {name, page, perpage} = request.body;
 
         let this_master_token = MASTER_TOKEN;
@@ -396,7 +399,7 @@ router.post("/user/characters", jsonParser, function (request, response_characlo
                 'Authorization': 'Bearer ' + this_master_token
             }
         };
-        client.get(charaCloudServer + `/api/users/${name}/characters?perpage=${perpage}&page=${page}`, options, function (data, response) {
+        client.get(charaCloudServer + `/api/users/${name}/characters?perpage=${perpage}&page=${page}&nsfw=${nsfw}`, options, function (data, response) {
             try {
                 if (response.statusCode === 200) {
                     return response_characloud_user_characters.status(200).json(data);
@@ -629,8 +632,9 @@ router.post("/users/avatar", urlencodedParser, async function (request, response
 
 router.post("/category/characters", jsonParser, function (request, response_characloud_category) {
     try {
+        const { nsfw } = request.query;
         let {category} = request.body;
-        client.get(charaCloudServer + `/api/categories/${category}/characters`, function (data, response) {
+        client.get(charaCloudServer + `/api/categories/${category}/characters?nsfw=${nsfw}`, function (data, response) {
             try {
                 if (response.statusCode === 200) {
                     return response_characloud_category.status(200).json(data);
