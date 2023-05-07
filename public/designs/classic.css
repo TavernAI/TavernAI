@@ -2445,7 +2445,7 @@ label.wpp_label {
     margin-right: 1ex;
 }
 
-#additional_menu_settings input {
+#world_info_settings input {
     display: block;
     background-color: #13152c;
     box-shadow: 0 0 2px rgba(200,200,200,0.5);
