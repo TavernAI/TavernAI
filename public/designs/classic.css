@@ -2783,6 +2783,68 @@ label.wpp_label {
     }
     .nav {
       width: 100%;
+      min-width: 0px;
       box-shadow: none
+    }
+
+    #chara_cloud {
+        margin-left: 10px;
+        margin-right: 0px;
+        width: 100%;
+    }
+
+    #characloud_search_form {
+        overflow-x: scroll;
+    }
+
+    #bg_menu {
+        position: relative;
+    }
+
+    #logo_block {
+        width: 40%;
+    }
+
+    #api_button {
+        margin-top: 5px;
+        display: block;
+    }
+
+    #master_settings_popup {
+        height: 95vh;
+    }
+
+    #master_settings_koboldai_block {
+        display: flex;
+        flex-direction: column;
+    }
+
+    #master_settings_novelai_block {
+        display: flex;
+        flex-direction: column;
+    }
+
+    #master_settings_openai_block .master_settings_range_block {
+        display: flex;
+        flex-direction: column;
+    }
+
+    #master_settings_toggle_block {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .mes {
+        margin-bottom: 5px;;
+    }
+
+    .style_button {
+        width: 30px;
+        height: 30px;
+    }
+
+    .style_button img {
+        width: 100%;
+        height: 100%;
     }
 }
