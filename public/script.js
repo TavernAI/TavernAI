@@ -989,7 +989,7 @@ $(document).ready(function(){
             /* World info */
             let prepend = [];
             let append = [];
-            if(main_api == 'kobold' && winWorldInfo.worldName && winWorldInfo.worldName.length) {
+            if(winWorldInfo.worldName && winWorldInfo.worldName.length) {
                 let depth = parseInt(document.getElementById("input_worldinfo_depth").value);
                 let budget = parseInt(document.getElementById("input_worldinfo_budget").value);
 

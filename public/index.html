@@ -539,22 +539,6 @@
                     <h4 class="h4_menu_title">Repetition Penalty </h4><h5 id="rep_pen_counter" class="range_counter">select</h5>
                     <input type="range" id="rep_pen" name="volume" min="1" max="1.5" step="0.01">
                 </div>
-                
-                <h4 class="h4_menu_title" style="margin-top: 22px;">World info</h4><h5 class="h5_menu_help">Select world info (<a href="/notes/22" target="_blank">?</a>)</h5>
-                <select id="worldinfo_select" class="menu_select">
-                    <option value="none">None</option>
-                </select><button class="inline double" id="option_toggle_worldinfo">Editor</button>
-                <button class="inline double worldinfo-import" id="worldinfo-import">&nbsp;</button>
-
-                    <form action="javascript:void(null);" method="post" enctype="multipart/form-data" style="display: none;">
-                        <input type="file" id="world_import_file" accept=".json" name="avatar">
-                        <input name="filename" type="hidden" autocomplete="off">
-                    </form>
-
-                <h5 class="h5_menu_help">Evaluation depth</h5>
-                <input type="number" id="input_worldinfo_depth" min="1" step="1" title="How many latest chat messages will be evaluated for World Info">
-                <h5 class="h5_menu_help">Token budget</h5>
-                <input type="number" id="input_worldinfo_budget" min="1" step="1" value="100" title="How many tokens at maximum will be used for World Info">
             </div>
             
             <!-- HORDE -->
@@ -637,6 +621,23 @@
                 </div>
             </div>
             <div id="additional_menu_settings">
+                <h4 class="h4_menu_title" style="margin-top: 22px;">World info</h4><h5 class="h5_menu_help">Select world info (<a href="/notes/22" target="_blank">?</a>)</h5>
+                <select id="worldinfo_select" class="menu_select">
+                    <option value="none">None</option>
+                </select><button class="inline double" id="option_toggle_worldinfo">Editor</button>
+                <button class="inline double worldinfo-import" id="worldinfo-import">&nbsp;</button>
+
+                <form action="javascript:void(null);" method="post" enctype="multipart/form-data" style="display: none;">
+                    <input type="file" id="world_import_file" accept=".json" name="avatar">
+                    <input name="filename" type="hidden" autocomplete="off">
+                </form>
+
+                <h5 class="h5_menu_help">Evaluation depth</h5>
+                <input type="number" id="input_worldinfo_depth" min="1" step="1" title="How many latest chat messages will be evaluated for World Info">
+                <h5 class="h5_menu_help">Token budget</h5>
+                <input type="number" id="input_worldinfo_budget" min="1" step="1" value="100" title="How many tokens at maximum will be used for World Info">
+
+
                 <input id="master_settings_button" type="button" value="✧ Master Settings ✧">
                 <hr>
 

@@ -2444,6 +2444,23 @@ label.wpp_label {
     border-radius: 1ex;
     margin-right: 1ex;
 }
+
+#additional_menu_settings input {
+    display: block;
+    background-color: #13152c;
+    box-shadow: 0 0 2px rgba(200,200,200,0.5);
+    border: 0px solid grey;
+    color: #ffffffaa;
+    padding: 0.5ex;
+    padding-left: 0.5ex;
+    margin-left: 3px;
+    margin-bottom: 1em;
+    width: 284px;
+    height: 30px;
+    padding-left: 10px;
+    margin-right: auto;
+}
+
 .keys-editor > input.empty, .secondary-keys-editor > input.empty {
     opacity: 0.5;
 }
