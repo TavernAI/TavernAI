@@ -227,6 +227,9 @@ $(document).ready(function(){
     var css_send_form_display = $('<div id=send_form></div>').css('display');
 
     var colab_ini_step = 1;
+
+    // Mobile
+    var is_mobile_user = navigator.userAgent.match(/Android/i) || navigator.userAgent.match(/iPhone/i);
     
     
     var requestTimeout = 1*60*1000;
@@ -518,7 +521,8 @@ $(document).ready(function(){
         is_api_button_press = false;  
         checkOnlineStatus();
         $("#api_loading").css("display", 'none');
-        $("#api_button").css('display', 'inline-block');
+        if(is_mobile_user){$("#api_button").css('display', 'block');}
+        else{$("#api_button").css('display', 'inline-block');}
     }
 
 
@@ -2118,12 +2122,21 @@ $(document).ready(function(){
     });
     $('#logo_block').click(function(event) {  
         if(!bg_menu_toggle){
-            $('#chara_cloud').transition({  
-                marginLeft: "170px",
-                duration: 300,
-                easing: "",
-                complete: function() {  }
-            });
+            if(is_mobile_user){
+                $('#chara_cloud').transition({  
+                    marginLeft: "10px",
+                    duration: 300,
+                    easing: "",
+                    complete: function() {  }
+                });
+            }else{
+                $('#chara_cloud').transition({  
+                    marginLeft: "170px",
+                    duration: 300,
+                    easing: "",
+                    complete: function() {  }
+                });
+            }
             designs.forEach(function(item, i){
                 $('#style_button'+i).css('opacity', 0.0);
                 $('#style_button'+i).transition({ y: '-10px', opacity: 0.0, duration: 0});
@@ -2141,12 +2154,21 @@ $(document).ready(function(){
                 complete: function() { bg_menu_toggle = true; $('#bg_menu_content').css("overflow-y", "auto");}
               });
         }else{
-            $('#chara_cloud').transition({  
-                marginLeft: "130px",
-                duration: 300,
-                easing: "",
-                complete: function() {  }
-            });
+            if(is_mobile_user){
+                $('#chara_cloud').transition({  
+                    marginLeft: "10px",
+                    duration: 300,
+                    easing: "",
+                    complete: function() {  }
+                });
+            }else{
+                $('#chara_cloud').transition({  
+                    marginLeft: "130px",
+                    duration: 300,
+                    easing: "",
+                    complete: function() {  }
+                });
+            }
             designs.forEach(function(item, i){
                 setTimeout(() => {
                     $('#style_button'+i).transition({ y: '-15px',opacity: 0.0, duration: 100});
@@ -3107,7 +3129,7 @@ $(document).ready(function(){
             $('#horde_api').css("display", "none");
             document.getElementById("hordeInfo").classList.add("hidden");
             
-            $('#master_settings_koboldai_block').css("display", "grid");
+            if(!is_mobile_user){$('#master_settings_koboldai_block').css("display", "grid");}
             $('#master_settings_novelai_block').css("display", "none");
             $('#master_settings_openai_block').css("display", "none");
             $('#singleline_toggle').css("display", "grid");
@@ -3121,7 +3143,7 @@ $(document).ready(function(){
             $('#openai_api').css("display","none");
             $('#horde_api').css("display", "none");
             $('#master_settings_koboldai_block').css("display", "none");
-            $('#master_settings_novelai_block').css("display", "grid");
+            if(!is_mobile_user){$('#master_settings_novelai_block').css("display", "grid");}
             $('#master_settings_openai_block').css("display", "none");
             $('#singleline_toggle').css("display", "none");
             $('#multigen_toggle').css("display", "grid");
@@ -3136,7 +3158,7 @@ $(document).ready(function(){
             $('#horde_api').css("display", "none");
             $('#master_settings_koboldai_block').css("display", "none");
             $('#master_settings_novelai_block').css("display", "none");
-            $('#master_settings_openai_block').css("display", "grid");
+            if(!is_mobile_user){$('#master_settings_openai_block').css("display", "grid");}
             $('#singleline_toggle').css("display", "none");
             $('#multigen_toggle').css("display", "grid");
             document.getElementById("hordeInfo").classList.add("hidden");
@@ -3148,7 +3170,7 @@ $(document).ready(function(){
             $('#novel_api').css("display", "none");
             $('#openai_api').css("display","none");
             $('#horde_api').css("display", "block");
-            $('#master_settings_koboldai_block').css("display", "grid");
+            if(!is_mobile_user){$('#master_settings_koboldai_block').css("display", "grid");}
             $('#master_settings_novelai_block').css("display", "none");
             $('#master_settings_openai_block').css("display", "none");
             $('#singleline_toggle').css("display", "grid");
@@ -5103,6 +5125,9 @@ $(document).ready(function(){
         const this_row_id = $(this).parent().attr('characloud_row_id');
         const this_width = parseInt($(this).parent().children('.characloud_characters_row_scroll').css('width'))-parseInt($('#characloud_characters_row'+this_row_id).css('width'));
         let move_x = 820;
+        if(is_mobile_user){
+            move_x = 305;
+        }
         $(this).parent().lazyLoadXT({edgeX:1000, edgeY:500});
         if(characloud_characters_rows[this_row_id] != 0){
             if($(this).parent().children('.characloud_swipe_rigth').css('display') == 'none'){
@@ -5148,6 +5173,9 @@ $(document).ready(function(){
         const this_width = parseInt($(this).parent().children('.characloud_characters_row_scroll').css('width'))-parseInt($('#characloud_characters_row'+this_row_id).css('width'));
 
         let move_x = 820;
+        if(is_mobile_user){
+            move_x = 305;
+        }
         $(this).parent().lazyLoadXT({edgeX:1000, edgeY:500});
         if(characloud_characters_rows[this_row_id] != this_width*-1 && parseInt($(this).parent().css('width')) < parseInt($(this).parent().children('.characloud_characters_row_scroll').css('width'))){
             if($(this).parent().children('.characloud_swipe_left').css('display') == 'none'){
@@ -5456,7 +5484,37 @@ $(document).ready(function(){
                 easing: "ease-in-out",
                 complete: function() {  }
             });
-        }else{
+
+            if(is_mobile_user){
+                $('#bg_menu').transition({
+                    display: "none",
+                    duration: 140,
+                    delay: 20,
+                    easing: "ease-in-out",
+                    complete: function() {  }
+                });
+            }
+        }else if (is_mobile_user){
+            is_nav_toggle = false;
+            $('#chara_cloud').transition({  
+                width: "100%",
+                duration: 140,
+                delay: 20,
+                easing: "ease-in-out",
+                complete: function() {  }
+            });
+
+            if(is_mobile_user){
+                $('#bg_menu').transition({
+                    display: "block",
+                    duration: 140,
+                    delay: 20,
+                    easing: "ease-in-out",
+                    complete: function() {  }
+                });
+            }
+        }
+        else{
             is_nav_toggle = false;
             $('#chara_cloud').transition({  
                 width: "calc(100vw - 180px)",
