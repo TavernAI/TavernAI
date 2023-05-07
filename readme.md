@@ -43,8 +43,8 @@ Use this button to edit the message<br><br>
 If the message is not finished, you can simply send the request again, TavernAI will understand that this is a continuation. <br>(Works with KoboldAI and NovelAI models, not with Pygmalion)<br>
 <br><img src="readme/2.png" width="600" />
 ## Additional materials
-[FAQ](https://github.com/TavernAI/TavernAI/blob/main/faq.md)
-https://www.reddit.com/user/Crataco/comments/zuowi9/opensource_chatbot_companions/
+* [FAQ](https://github.com/TavernAI/TavernAI/blob/main/faq.md)
+* [https://www.reddit.com/user/Crataco/comments/zuowi9/opensource_chatbot_companions/](https://github.com/TavernAI/TavernAI/blob/main/faq.md)
 ## For contacts
 * Discord: Humi#5044
 <br><br><br>
