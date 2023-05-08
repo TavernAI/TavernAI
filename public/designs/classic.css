@@ -544,16 +544,16 @@ textarea {
 #form_create {
     margin-left: 10px;
 }
-#form_create textarea, #form_create .text_pole{
-    width: 92%;
+.chareditor .text_pole{
+    margin-bottom: 1ex;
 }
-#form_create .text_pole{
-    margin-top: 10px;
+.chareditor h4 {
+    margin-top: 1ex;
 }
 #character_file_div {
     opacity: 0.8;
 }
-#description_textarea{
+#description_div > textarea {
     height: 200px;
     margin-top: 0px;
 }
@@ -567,12 +567,10 @@ textarea {
     background: #13152c;
 }
 #character_name_pole{
-    width: 92%;
+    width: 100%;
 }
 #firstmessage_textarea{
-    width: 92%;
     height: 140px;
-    margin-top: 0px;
 }
 
 .right_menu{
@@ -893,13 +891,7 @@ input[type=submit], input[type=button] {
     opacity: 0.7;
 }
 /*   */
-
-.avatar_div {
-    margin-top: 16px;
-}
-
 .avatar_div .avatar {
-    margin-left: 4px;
     display: inline-block;
 }
 
@@ -907,6 +899,7 @@ input[type=submit], input[type=button] {
     vertical-align: top;
     display: inline-block;
     margin-top: 52px;
+    max-width: 24em;
 }
 #description_div {
     margin-top: 6px;
@@ -914,7 +907,6 @@ input[type=submit], input[type=button] {
 }
 #description_div > input {
     float: right;
-    margin-right: 2em;
 }
 #description_div > label {
     float: right;
@@ -923,8 +915,17 @@ input[type=submit], input[type=button] {
 #first_message_div {
     margin-top: 20px;
 }
+.chareditor {
+    margin: 0 1em;
+}
+.chareditor-avatar-filename {
+    float: right;
+    max-width: 19em;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
 
-#character_advanced_button,#master_settings_button {
+#character_advanced_button, #master_settings_button {
     margin-top: 20px;
     font-size: 14px;
     background-repeat: no-repeat;
@@ -941,9 +942,11 @@ input[type=submit], input[type=button] {
     background-color: #191b3133;
     opacity: 1.0;
 }
+#character_advanced_button {
+    width: 100%;
+}
 
 #character_online_editor {
-    margin-top: 20px;
     font-size: 14px;
     background-repeat: no-repeat;
     background-size: 28px;
@@ -959,17 +962,26 @@ input[type=submit], input[type=button] {
     background-color: #191b3133;
     opacity: 1.0;
 }
+#character_advanced_button {
+    margin-bottom: 1em;
+}
 
 #character_online_editor {
-    margin-top: 10px;
+    float: left;
 }
-#create_button {
+.chareditor input[type=submit] {
     opacity: 0.8;
-    margin-left: -1px;
-    margin-top: 8px;
-    margin-bottom: 10px;
-    font-size: 14px;
 }
+.chareditor input[type=submit][disabled=true] {
+    opacity: 0.4;
+    cursor: auto;
+}
+.chareditor.create input[type=submit] {
+    display: block;
+    width: 100%;
+    margin: 0;
+}
+
 
 /*Pop-ups in the right drop-down menu when a character is created or imported*/
 #rm_search_bar {
@@ -1012,14 +1024,6 @@ input[type=submit], input[type=button] {
     margin-right: auto;
 }
 
-#delete_button {
-    opacity: 0.51;/* 0.5 */
-    display: block;
-    float:right;
-    margin-top: 25px;
-    margin-right: 10px; 
-    color: #c47373;/*#ffaaaa68;/* 66 */
-}
 #export_button {
     opacity: 0.51;
     display: block;
@@ -1239,15 +1243,89 @@ input[type=submit], input[type=button] {
 
 /* Buttons */
 label.button.inline,
-button.inline {
-    height: 2em;
+button.inline,
+.chareditor button,
+.chareditor input[type=submit] {
+    height: 3em;
     border: thin solid rgba(200,200,200,0.2);
     border-radius: 3px;
     background-color: #191b3133;
-    padding: 0.5ex;
-    margin: 2px;
+    padding: 1ex;
+    margin-left: 1ex;
     cursor: pointer;
+    font-weight: bold;
+    font-size: 1em
 }
+.chareditor button,
+.chareditor input[type=submit] {
+    opacity: 0.8;
+}
+.chareditor button:not[disabled=true]:hover,
+.chareditor input[type=submit]:not[disabled=true]:hover {
+    opacity: 1;
+}
+.chareditor button.chareditor-button-close {
+    font-size: 2em;
+    font-weight: bold;
+    border: none;
+    background: transparent;
+    margin: 0;
+    padding: 0;
+    height: 55%;
+}
+
+.chareditor-button-delete {
+    color: #c47373;
+    margin-rght: 1em;
+}
+.chareditor-button-delete,
+.chareditor-button-export {
+    float: right;
+}
+chareditor-button-close {
+    display: none;
+}
+.edit .chareditor-button-submit,
+.edit .chareditor-name-block {
+    display: none;
+}
+.create .chareditor-button-delete,
+.create .chareditor-button-export {
+    display: none;
+}
+.chareditor-token-counter {
+    position: relative;
+    top: 1em;
+    text-align: center;
+    float: right;
+    min-width: 2em;
+}
+.chareditor-token-counter:after {
+    position: absolute;
+    width: 100%;
+    content: "TOK";
+    top: 2em;
+    left: 0px;
+    font-size: 60%;
+    text-align: center;
+}
+.create .chareditor-button-online {
+    display: none;
+}
+.chareditor .chareditor-token-warning-count,
+.chareditor .chareditor-token-warning-left {
+    text-align: center;
+    font-variant: small-caps;
+}
+.chareditor .error .chareditor-token-warning-count,
+.chareditor .error .chareditor-token-warning-left {
+    color: #b9052f;
+}
+.chareditor .warning .chareditor-token-warning-count,
+.chareditor .warning .chareditor-token-warning-left {
+    color: #d5a433;
+}
+
 label.button > img,
 button > img {
     opacity: 0.75;
@@ -1990,7 +2068,7 @@ label.checkbox :checked + span:after {
     margin-top: 20px;
 }
 #personality_textarea {
-    width: 92%;
+    width: 100%;
     /* height: 65px; */
     margin-top: 0px;
     margin-left: 0px;
@@ -2004,13 +2082,11 @@ label.checkbox :checked + span:after {
     max-height: 100%;
 }
 #scenario_pole {
-    width: 92%;
+    width: 100%;
     margin-left: 0px;
 }
 #mes_example_textarea{
-    margin-left: 36px;
-    width: 88%;
-    height: 100%;
+    height: calc(100% - 13em);
     margin-top: 4px;
 }
 
@@ -2126,6 +2202,10 @@ label.checkbox :checked + span:after {
     height: 1.5em;
     cursor: pointer;
     margin-left: 1ex;
+}
+.modular .header h3 {
+    text-align: left;
+    flex-grow: 2;
 }
 .modular .content {
     flex: 1;
@@ -2643,7 +2723,7 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
 .character-screen .avatar {
     padding: 0ex;
     margin: 1ex;
-    width: 4em;
+    width: 3.75em;
     height: 5.5em;
 }
 .character-screen .root > div, .character-screen .flat .folder {

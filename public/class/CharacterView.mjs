@@ -71,9 +71,6 @@ export class CharacterView extends EventEmitter {
             (options.input.addFolder || []).forEach(item => {
                 item.onclick = this.dialogueAddFolder.bind(this);
             });
-            (options.input.exportCharacter || []).forEach(item => {
-                item.onclick = this.onExportCurrent.bind(this);
-            });
             (options.input.importFiles || []).forEach(item => {
                 item.onchange = this.onFilesFromForm.bind(this);
             });
@@ -152,6 +149,10 @@ export class CharacterView extends EventEmitter {
         // finalization
         this.controller.sort();
         this.emit(CharacterView.EVENT_SAVE_FOLDERS, {});
+    }
+
+    refreshImages() {
+        this.controller.refreshImages();
     }
 
     static createBuildData = function(data, characters) {
@@ -310,19 +311,6 @@ export class CharacterView extends EventEmitter {
         }
         this.emit(CharacterView.EVENT_FILES_IMPORT, { files: filtered, type: CharacterView.EVENT_FILES_TYPE.FORM });
     }
-
-    onExportCurrent(event) {
-        if(this.selectedID === null || this.selectedID === undefined || !this.id[this.selectedID]) {
-            return;
-        }
-        var link = document.createElement('a');
-        link.href = 'characters/'+this.id[this.selectedID].filename;
-        link.download = this.id[this.selectedID].filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    }
-
 
     // folder events
     onSelected(event) {

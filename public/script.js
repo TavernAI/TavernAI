@@ -1,7 +1,6 @@
 import {encode, decode} from "../scripts/gpt-2-3-tokenizer/mod.js";
 import {Notes} from "./class/Notes.mjs";
 import {WPP} from "./class/WPP.mjs";
-import {WPPEditor} from "./class/WPPEditor.mjs";
 import {UIWorldInfoMain} from "./class/UIWorldInfoMain.mjs";
 import {CharacterModel} from "./class/CharacterModel.mjs";
 import {CharacterView} from "./class/CharacterView.mjs";
@@ -9,6 +8,7 @@ import {CharacterView} from "./class/CharacterView.mjs";
 var token;
 var default_avatar = 'img/fluffy.png';
 var requestTimeout = 60*1000;
+var max_context = 2048;//2048;
 export var characterFormat = 'webp';
 function vl(text) { //Validation security function for html
     return !text ? text : window.DOMPurify.sanitize(text);
@@ -55,7 +55,7 @@ export function select_rm_info(text){
     $( "#rm_button_selected_ch" ).children("h2").addClass('deselected_button_style');
 }
 
-export {token, default_avatar, vl, filterFiles, requestTimeout};
+export {token, default_avatar, vl, filterFiles, requestTimeout, max_context};
 $(document).ready(function(){
     /*
     const observer = new MutationObserver(function(mutations) {
@@ -90,20 +90,22 @@ $(document).ready(function(){
     var Characters = new CharacterModel({
         container: document.getElementById("rm_print_charaters_block"),
         input: {
+            newCharacter: document.getElementById("rm_button_create"),
             addFolder: [ document.getElementById("character-button-new-folder") ],
             importFiles: [ document.getElementById("character-button-import") ],
-            exportCharacter: [ document.getElementById("export_button") ],
             sortSelect: document.getElementById("rm_folder_order"),
             searchInput: document.getElementById("rm_search_bar"),
-        }
-    })
+        },
+        containerEditor: document.getElementById("form_create"),
+        containerEditorAdvanced: document.getElementById("shadow_charedit_advanced_popup"),
+    });
     Characters.on(CharacterModel.EVENT_WIPE_CHAT, function() {
         clearChat();
         chat.length = 0;
         printMessages();
     }.bind(this));
     Characters.on(CharacterView.EVENT_CHARACTER_SELECT, function(event){
-        if (Characters.id[Characters.selectedID].online === true) {
+        if (Characters.selectedID >= 0 && Characters.id[Characters.selectedID].online === true) {
             document.getElementById("character_online_editor").innerHTML = "🢤 Online Editor";
             document.getElementById("chat_header_char_info").innerHTML = ' designed by <a user_name="' + Characters.id[Characters.selectedID].user_name + '" class="chat_header_char_info_user_name">' + vl(Characters.id[Characters.selectedID].user_name_view) + '</a>';
         } else {
@@ -118,6 +120,15 @@ $(document).ready(function(){
         chat.length = 0;
         getChat();
         hideCharaCloud();
+    }.bind(this));
+    Characters.on(CharacterModel.EVENT_EDITOR_CLOSED, function(event) {
+        selected_button = 'characters';
+        select_rm_characters();
+    }.bind(this));
+    Characters.on(CharacterModel.EVENT_CHARACTER_UPDATED, function(event) {
+        clearChat();
+        chat.length = 0;
+        getChat();
     }.bind(this));
 
     //CharaCloud
@@ -217,7 +228,6 @@ $(document).ready(function(){
     var typical = 1.0;
     var tfs = 1.0;
     var amount_gen = 80;
-    var max_context = 2048;//2048;
     var rep_pen = 1;
     var rep_pen_size = 100;
     var rep_pen_slope = 0.9;
@@ -245,7 +255,6 @@ $(document).ready(function(){
 
     var winNotes;
     var winWorldInfo;
-    var editorDescriptionWPP;
 
     var main_api = 'kobold';
     //Profile
@@ -315,20 +324,6 @@ $(document).ready(function(){
             console.error(exception);
         }
     });
-    
-    editorDescriptionWPP = new WPPEditor({
-        container: $('#description_wppeditor')[0],
-    });
-    editorDescriptionWPP.on("change", function(event) {
-        $("#description_textarea").val(event.target.text);
-
-        if(menu_type == 'create'){
-            create_save_description = $('#description_textarea').val();
-        }else{
-            if(timerSaveEdit) { clearTimeout(timerSaveEdit) };
-            timerSaveEdit = setTimeout(() => {$("#create_button").click();},durationSaveEdit);
-        }
-    }.bind(this));
 
 
     $('#send_textarea').on('input', function () {
@@ -1875,10 +1870,12 @@ $(document).ready(function(){
         selected_button = 'characters';
         select_rm_characters();
     });
+    /*
     $( "#rm_button_back" ).click(function() {
         selected_button = 'characters';
         select_rm_characters();
     });
+     */
     $( "#rm_button_create" ).click(function() {
         selected_button = 'create';
         select_rm_create();
@@ -1888,14 +1885,8 @@ $(document).ready(function(){
         select_selected_character(Characters.selectedID);
     });
     function select_rm_create(){
+        // menu buttons
         menu_type = 'create';
-        if(selected_button == 'create'){
-            if(create_save_avatar != ''){
-                $("#add_avatar_button").get(0).files = create_save_avatar;
-                read_avatar_load($("#add_avatar_button").get(0));
-            }
-
-        }
         $( "#rm_charaters_block" ).css("display", "none");
         $( "#rm_api_block" ).css("display", "none");
         $( "#rm_ch_create_block" ).css("display", "block");
@@ -1908,10 +1899,6 @@ $(document).ready(function(){
                 complete: function() {  }
         });
         $( "#rm_info_block" ).css("display", "none");
-
-        $( "#delete_button_div" ).css("display", "none");
-        $("#create_button").css("display", "block");
-        $("#create_button").attr("value", "Create");
         $('#result_info').html('&nbsp;');
         
         $( "#rm_button_characters" ).children("h2").removeClass('seleced_button_style');
@@ -1923,35 +1910,12 @@ $(document).ready(function(){
         $( "#rm_button_selected_ch" ).children("h2").removeClass('seleced_button_style');
         $( "#rm_button_selected_ch" ).children("h2").addClass('deselected_button_style');
 
-        // Reset W++ editor
-        document.getElementById("description_wpp_checkbox").checked = false;
-        document.getElementById("description_textarea").style.display = null;
-        document.getElementById("description_wppeditor").style.display = "none";
-        editorDescriptionWPP.clear();
-        editorDescriptionWPP.text = "";
-
-        //create text poles
-        $("#rm_button_back").css("display", "inline-block");
-        $("#rm_button_import").css("display", "inline-block");
-        $("#character_popup_text_h3").text('Create character');
-        $("#character_name_pole").val(create_save_name);
-        $("#description_textarea").val(create_save_description);
-        $("#personality_textarea").val(create_save_personality);
-        $("#firstmessage_textarea").val(create_save_first_message);
-        $("#scenario_pole").val(create_save_scenario);
-        if($.trim(create_save_mes_example).length == 0){
-            $("#mes_example_textarea").val('<START>');
-        }else{
-            $("#mes_example_textarea").val(create_save_mes_example);
-        }
-        $("#avatar_div").css("display", "block");
-        $("#avatar_load_preview").attr('src',default_avatar);
-        $("#name_div").css("display", "block");
-
-        $("#form_create").attr("actiontype", "createcharacter");
+        // set editor to empty data, create mode
+        Characters.editor.chardata = {};
+        Characters.editor.editMode = false;
+        Characters.editor.show();
     }
     function select_rm_characters(){
-
         menu_type = 'characters';
         $( "#rm_charaters_block" ).css("display", "block");
         $('#rm_charaters_block').css('opacity',0.0);
@@ -1982,11 +1946,8 @@ $(document).ready(function(){
     }
 
     function select_selected_character(chid){ //character select
-
         select_rm_create();
         menu_type = 'character_edit';
-        
-        
         
         $( "#delete_button_div" ).css("display", "block");
         $( "#rm_button_selected_ch" ).children("h2").removeClass('deselected_button_style');
@@ -1995,48 +1956,10 @@ $(document).ready(function(){
         $( "#rm_button_selected_ch" ).css('display', 'inline-block');
         $( "#rm_button_selected_ch" ).children("h2").text(display_name);
 
-        //create text poles
-        $("#rm_button_back").css("display", "none");
-        //$("#rm_button_import").css("display", "none");
-        $("#create_button").attr("value", "Save");
-        $("#create_button").css("display", "none");
-        var i = 0;
-
-        while(parseInt($( "#rm_button_selected_ch" ).css('width').replace('px', '')) > 170 && i < 100){
-            
-            display_name = display_name.slice(0,display_name.length-2);
-            $( "#rm_button_selected_ch" ).children("h2").text($.trim(display_name)+'...');
-            i++;
-        }
-
-        $("#add_avatar_button").val('');
-
-        $('#character_popup_text_h3').text(Characters.id[chid].name);
-        $("#character_name_pole").val(Characters.id[chid].name);
-        $("#description_textarea").val(Characters.id[chid].description);
-        $("#personality_textarea").val(Characters.id[chid].personality);
-        $("#firstmessage_textarea").val(Characters.id[chid].first_mes);
-        $("#scenario_pole").val(Characters.id[chid].scenario);
-        $("#mes_example_textarea").val(Characters.id[chid].mes_example);
-        $("#selected_chat_pole").val(Characters.id[chid].chat);
-        $("#create_date_pole").val(Characters.id[chid].create_date_local);
-        $("#chat_import_avatar_url").val(Characters.id[chid].filename);
-        $("#chat_import_character_name").val(Characters.id[chid].name);
-        
-        $("#character_file_div").text(Characters.id[chid].filename);
-
-        editorDescriptionWPP.clear();
-        editorDescriptionWPP.text = Characters.id[chid].description;
-
-        //$("#avatar_div").css("display", "none");
-        var this_avatar = default_avatar;
-        if(Characters.id[chid].filename != 'none'){
-                this_avatar = "characters/"+Characters.id[chid].filename;
-        }
-        $("#avatar_load_preview").attr('src',this_avatar+"?v="+Date.now());
-        $("#name_div").css("display", "none");
-
-        $("#form_create").attr("actiontype", "editcharacter");
+        // set editor to edit mode
+        Characters.editor.chardata = Characters.id[chid];
+        Characters.editor.editMode = true;
+        Characters.editor.show();
     }
     $('#shell').on('click', '.chat_header_char_info_user_name', function(){
         showCharaCloud();
@@ -2503,214 +2426,12 @@ $(document).ready(function(){
         read_bg_load(this);
 
     });
-    function read_avatar_load(input) {
-        if (input.files && input.files[0]) {
-            var reader = new FileReader();
-            if(selected_button == 'create'){
-                create_save_avatar = input.files;
-            }
-            reader.onload = function (e) {
-
-                if(selected_button == 'character_edit'){
-
-                    timerSaveEdit = setTimeout(() => {$("#create_button").click();},durationSaveEdit);
-                }
-                $('#avatar_load_preview')
-                    .attr('src', e.target.result);
-                    //.width(103)
-                    //.height(83);
-            //console.log(e.target.result.name);   
-
-            };
-
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
-    $("#add_avatar_button").change(function(){
-        is_mes_reload_avatar = Date.now();
-        read_avatar_load(this);
-    });
-    $( "#form_create" ).submit(function(e) {
-        $('#rm_info_avatar').html('');
-        var formData = new FormData($("#form_create").get(0));
-        if($("#form_create").attr("actiontype") == "createcharacter"){
-
-            if($("#character_name_pole").val().length > 0){
-                jQuery.ajax({    
-                    type: 'POST', 
-                    url: '/createcharacter', 
-                    data: formData,
-                    beforeSend: function(){
-                        $('#create_button').attr('disabled',true);
-                        $('#create_button').attr('value','Creating...'); 
-                    },
-                    cache: false,
-                    timeout: requestTimeout,
-                    contentType: false,
-                    processData: false, 
-                    success: function(data){
-                        $('#character_cross').click();
-                        $("#character_name_pole").val('');
-                        create_save_name = '';
-                        $("#description_textarea").val('');
-                        create_save_description = '';
-                        $("#personality_textarea").val('');
-                        create_save_personality = '';
-                        $("#firstmessage_textarea").val('');
-                        create_save_first_message = '';
-
-                        $("#character_popup_text_h3").text('Create character');
-
-                        $("#scenario_pole").val('');
-                        create_save_scenario = '';
-                        $("#mes_example_textarea").val('');
-                        create_save_mes_example = '';
-
-                        create_save_avatar = '';
-
-                        $('#create_button').removeAttr("disabled");
-                        $("#add_avatar_button").replaceWith($("#add_avatar_button").val('').clone(true));
-                        $('#create_button').attr('value','Create');
-
-                        characterAddedSign(data.file_name, 'Character created');
-
-                    },
-                    error: function (jqXHR, exception) {
-                        $('#create_button').removeAttr("disabled");
-                    }
-                });  
-            }else{
-                $('#result_info').html("Name not entered");
-            }
-        }else{
-            //console.log($("#add_avatar_button").val());
-            formData.append("filename", Characters.id[Characters.selectedID].filename);
-            jQuery.ajax({    
-                type: 'POST', 
-                url: '/editcharacter', 
-                data: formData,
-                beforeSend: function(){
-                    $('#create_button').attr('disabled',true);
-                    $('#create_button').attr('value','Save'); 
-                },
-                cache: false,
-                timeout: requestTimeout,
-                contentType: false,
-                processData: false, 
-                success: function(html){
-
-                    $('.mes').each(function(){
-                        if($(this).attr('ch_name') != name1){
-                            $(this).children('.avatar').children('img').attr('src', $('#avatar_load_preview').attr('src'));
-                        }
-                    });
-                    if(chat.length === 1 ){
-
-                        var this_ch_mes = default_ch_mes;
-                        if($('#firstmessage_textarea').val() != ""){
-                            this_ch_mes = $('#firstmessage_textarea').val();
-                        }
-                        if(this_ch_mes != $.trim($("#chat").children('.mes').children('.mes_block').children('.mes_text').text())){
-                            clearChat();
-                            chat.length = 0;
-                            chat[0] = {};
-                            chat[0]['name'] = name2;
-                            chat[0]['is_user'] = false;
-                            chat[0]['is_name'] = true;
-                            chat[0]['mes'] = this_ch_mes;
-                            add_mes_without_animation = true;
-                            addOneMessage(chat[0]);
-                        }
-                    }
-                    $('#create_button').removeAttr("disabled");
-                    Characters.loadAll();
-
-
-                    $("#add_avatar_button").replaceWith($("#add_avatar_button").val('').clone(true));
-                    $('#create_button').attr('value','Save');
-
-                    var count_tokens = getTokenCount(Characters.id[Characters.selectedID].description+Characters.id[Characters.selectedID].personality+Characters.id[Characters.selectedID].scenario+Characters.id[Characters.selectedID].mes_example);
-                    const alert_context_size_gap = 400;
-                    if((count_tokens < (max_context-alert_context_size_gap) && main_api === 'kobold') || (count_tokens < (2048-alert_context_size_gap) && main_api === 'novel') || (count_tokens < (max_context_openai-alert_context_size_gap) && main_api === 'openai')){
-                        $('#result_info').html(count_tokens+" Tokens");
-                    }else{
-                        $('#result_info').html("<font color=red>"+count_tokens+" Tokens(TOO MANY TOKENS)</font>");
-                    }
-
-                    //$('#result_info').transition({ opacity: 0.0 ,delay: 500,duration: 1000,easing: 'in-out',complete: function() { 
-                            //$('#result_info').transition({ opacity: 1.0,duration: 0}); 
-                            //$('#result_info').html('&nbsp;');
-                    //}});
-                },
-                error: function (jqXHR, exception) {
-                    $('#create_button').removeAttr("disabled");
-                    //$('#result_info').html("<font color=red>Error: no connection</font>");
-                    callPopup(exception, 'alert_error');
-                }
-            }); 
-        }
-
-    });
-
-    $( "#delete_button" ).click(function() {
-        callPopup('<h3>Delete the character?</h3>', 'del_ch');
-    });
     $( "#rm_info_button" ).click(function() {
         $('#rm_info_avatar').html('');
         select_rm_characters();
     });
     //@@@@@@@@@@@@@@@@@@@@@@@@
     //character text poles creating and editing save
-    $('#character_name_pole').on('change keyup paste', function(){
-        if(menu_type == 'create'){
-            create_save_name = $('#character_name_pole').val();
-        }
-
-    });
-    $('#description_textarea').on('keyup paste cut', function(){
-        if(menu_type === 'create'){
-            create_save_description = $('#description_textarea').val();
-        }else{
-            editorDescriptionWPP.text = $('#description_textarea').val();
-            if(timerSaveEdit) { clearTimeout(timerSaveEdit) };
-            timerSaveEdit = setTimeout(() => {$("#create_button").click();},durationSaveEdit);
-        }
-    });
-    $('#notes_textarea').on('keyup paste cut', function(){
-        
-    });
-    $('#personality_textarea').on('keyup paste cut', function(){
-        if(menu_type == 'create'){
-
-            create_save_personality = $('#personality_textarea').val();
-        }else{
-            timerSaveEdit = setTimeout(() => {$("#create_button").click();},durationSaveEdit);
-        }
-    });
-    $('#scenario_pole').on('keyup paste cut', function(){
-        if(menu_type == 'create'){
-
-            create_save_scenario = $('#scenario_pole').val();
-        }else{
-            timerSaveEdit = setTimeout(() => {$("#create_button").click();},durationSaveEdit);
-        }
-    });
-    $('#mes_example_textarea').on('keyup paste cut', function(){
-        if(menu_type == 'create'){
-
-            create_save_mes_example = $('#mes_example_textarea').val();
-        }else{
-            timerSaveEdit = setTimeout(() => {$("#create_button").click();},durationSaveEdit);
-        }
-    });
-    $('#firstmessage_textarea').on('keyup paste cut', function(){
-
-        if(menu_type == 'create'){
-            create_save_first_message = $('#firstmessage_textarea').val();
-        }else{
-            timerSaveEdit = setTimeout(() => {$("#create_button").click();},durationSaveEdit);
-        }
-    });
     $( "#api_button" ).click(function() {
         if($('#api_url_text').val() != ''){
             $("#api_loading").css("display", 'inline-block');
@@ -3257,36 +2978,6 @@ $(document).ready(function(){
         saveSettings();
     });
 
-    document.getElementById("description_wppeditor").style.display = "none";
-    document.getElementById("description_wpp_checkbox").checked = false;
-    $('#description_wpp_checkbox').change(function() {
-        if($('#description_wpp_checkbox').prop('checked')) {
-            document.getElementById("description_wppeditor").style.display = null;
-            document.getElementById("description_textarea").style.display = "none";
-            $('#description_wppeditor').css('opacity', 0.0);
-            $('#description_wppeditor').transition({ opacity: 1.0 ,duration: 410, easing:animation_rm_easing});
-            
-        } else {
-            document.getElementById("description_textarea").style.display = null;
-            document.getElementById("description_wppeditor").style.display = "none";
-            $('#description_textarea').css('opacity', 0.0);
-            $('#description_textarea').transition({ opacity: 1.0 ,duration: 410, easing:animation_rm_easing});
-        }
-    });
-    $('#notes_wpp_checkbox').change(function() {
-        if($('#notes_wpp_checkbox').prop('checked')) {
-            document.getElementById("notes_wpp_editor").style.display = null;
-            document.getElementById("notes_textarea").style.display = "none";
-            $('#notes_wpp_editor').css('opacity', 0.0);
-            $('#notes_wpp_editor').transition({ opacity: 1.0 ,duration: 410, easing:animation_rm_easing});
-            
-        } else {
-            document.getElementById("notes_textarea").style.display = null;
-            document.getElementById("notes_wpp_editor").style.display = "none";
-            $('#notes_textarea').css('opacity', 0.0);
-            $('#notes_textarea').transition({ opacity: 1.0 ,duration: 410, easing:animation_rm_easing});
-        }
-    });
 
     //Novel
     $(document).on('input', '#temp_novel', function() {
@@ -5182,14 +4873,12 @@ $(document).ready(function(){
                         let id = Characters.getIDbyFilename(data.filename);
                         if(id < 0) {
                             Characters.addCharacter(data);
-                            Characters.sort();
-                            Characters.saveFolders();
                             Characters.onCharacterSelect({
-                                filename: data.filename
+                                target: data.filename
                             });
                         } else {
                             Characters.onCharacterSelect({
-                                filename: data.filename
+                                target: data.filename
                             });
                         }
                     }, error => {
@@ -5620,7 +5309,6 @@ $(document).ready(function(){
         formData.append('filename_local', Characters.id[Characters.selectedID].filename);
         showCharaCloud();
         prepublishCard(formData);
-        
     });
     function prepublishCard(formData){
         jQuery.ajax({    
@@ -5735,7 +5423,12 @@ $(document).ready(function(){
                 }
                 await characterAddedSign(data.file_name, 'Character added');
                 charaCloud.cardeditor_id_local = Characters.getIDbyFilename(`${data.file_name}.${characterFormat}`);
-                charaCloud.cardeditor_filename_local = Characters.id[charaCloud.cardeditor_id_local].filename;
+                console.warn(charaCloud.cardeditor_id_local);
+                if(charaCloud.cardeditor_id_local < 0) {
+                    console.warn(data);
+                } else {
+                    charaCloud.cardeditor_filename_local = Characters.id[charaCloud.cardeditor_id_local].filename;
+                }
                 printCharacterPageLocalButtons();
             })
             .catch(function (error) {

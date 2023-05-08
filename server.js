@@ -570,14 +570,13 @@ app.post("/createcharacter", urlencodedParser, async function(request, response)
         if(!fs.existsSync(chatsPath+target_img) )fs.mkdirSync(chatsPath+target_img);
 
         let filedata = request.file;
-        //console.log(filedata.mimetype);
         var fileType = ".png";
         var img_file = "ai";
         var img_path = "public/img/";
         
         var char = charaFormatData(request.body);//{"name": target_img, "description": request.body.description, "personality": request.body.personality, "first_mes": request.body.first_mes, "avatar": 'none', "chat": Date.now(), "last_mes": '', "mes_example": ''};
         char = JSON.stringify(char);
-        if(!filedata){
+        if(!filedata){
             
             await charaWrite('./public/img/fluffy.png', char, charactersPath + target_img, characterFormat, response);
             
@@ -611,11 +610,10 @@ app.post("/editcharacter", urlencodedParser, async function(request, response){
     try {
         if (!request.body)
             return response.sendStatus(400);
-        
+
         let card_filename = request.body.filename;
         
         let filedata = request.file;
-            //console.log(filedata.mimetype);
         var fileType = ".png";
         var img_file = "ai";
         var img_path = charactersPath;
@@ -759,19 +757,15 @@ async function charaRead(img_url, input_format){
             return false;
         }
         case 'png':
-            const buffer = fs.readFileSync(img_url);
-            const chunks = extract(buffer);
-             
-            const textChunks = chunks.filter(function (chunk) {
-              return chunk.name === 'tEXt';
-            }).map(function (chunk) {
-                //console.log(text.decode(chunk.data));
-              return PNGtext.decode(chunk.data);
+            const buffer = fs.readFileSync(img_url);
+            const chunks = extract(buffer);
+            const textChunks = chunks.filter(function(chunk) {
+                return chunk.name === 'tEXt';
+            }).map(function (chunk) {
+                return PNGtext.decode(chunk.data);
             });
             var base64DecodedData = Buffer.from(textChunks[0].text, 'base64').toString('utf8');
-            return base64DecodedData;//textChunks[0].text;
-            //console.log(textChunks[0].keyword); // 'hello'
-            //console.log(textChunks[0].text);    // 'world'
+            return base64DecodedData;
         default:
             break;
     }                   

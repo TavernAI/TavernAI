@@ -1,10 +1,13 @@
 import {EventEmitter} from "./EventEmitter.mjs";
 import {token, requestTimeout, characterAddedSign} from "../script.js";
 import {CharacterView} from "./CharacterView.mjs";
+import {CharacterEditor} from "./CharacterEditor.mjs";
 
 export class CharacterModel extends EventEmitter {
     static EVENT_WIPE_CHAT = "clear_chat";
     static EVENT_ERROR = "error";
+    static EVENT_EDITOR_CLOSED = "characters_editor_closed";
+    static EVENT_CHARACTER_UPDATED = "character_update";
 
     static dragged;
     static activeFolder;
@@ -20,6 +23,7 @@ export class CharacterModel extends EventEmitter {
     characters = [];
     selectedID;
     view;
+    editor;
 
     constructor(options) {
         super();
@@ -33,6 +37,20 @@ export class CharacterModel extends EventEmitter {
         this.view.on(CharacterView.EVENT_CHARACTER_DELETE, this.onCharacterDelete.bind(this));
         this.view.on(CharacterView.EVENT_FILES_IMPORT, this.onFilesImport.bind(this));
         this.view.on(CharacterView.EVENT_SAVE_FOLDERS, this.onSaveFolders.bind(this));
+
+        this.editor = new CharacterEditor({
+            parent: this,
+            container: options.containerEditor,
+            containerAdvanced: options.containerEditorAdvanced
+        });
+        this.editor.on(CharacterEditor.EVENT_SAVE, this.onCharacterSave.bind(this));
+        this.editor.on(CharacterEditor.EVENT_CREATE, this.onCharacterCreate.bind(this));
+        this.editor.on(CharacterEditor.EVENT_DELETE, this.onCharacterDelete.bind(this));
+        this.editor.on(CharacterEditor.EVENT_SHOWN, function() {}.bind(this));
+        this.editor.on(CharacterEditor.EVENT_HIDDEN, function() {
+            this.view.refreshImages();
+            this.emit(CharacterModel.EVENT_EDITOR_CLOSED, {});
+        }.bind(this));
     }
 
     get id() {
@@ -49,6 +67,7 @@ export class CharacterModel extends EventEmitter {
     // event handlers
     onCharacterSelect(event) {
         this.selectedID = this.getIDbyFilename(event.target);
+        this.editor.chardata = this.id[this.selectedID];
         this.emit(CharacterView.EVENT_CHARACTER_SELECT, event);
     }
 
@@ -69,6 +88,7 @@ export class CharacterModel extends EventEmitter {
                 this.characters = this.characters.filter(
                     ch => ch.filename != event.target
                 );
+                this.view.characters = this.characters;
                 if(this.selectedID == id) {
                     this.selectedID = null;
                     this.emit(CharacterModel.EVENT_WIPE_CHAT, {});
@@ -76,6 +96,73 @@ export class CharacterModel extends EventEmitter {
                 }
                 this.saveFolders();
             }.bind(this)
+        });
+    }
+
+    onCharacterSave(event) {
+        let newname = event.data.get("avatar").name;
+        let filename = event.data.get("filename");
+        let id = this.getIDbyFilename(filename);
+        jQuery.ajax({
+            type: 'POST',
+            url: '/editcharacter',
+            beforeSend: function(){},
+            data: event.data,
+            cache: false,
+            contentType: false,
+            processData: false,
+            success: function(data){
+                this.characters = this.characters.filter(
+                    ch => ch.filename != event.target
+                );
+                if(this.selectedID == id && newname) {
+                    this.emit(CharacterModel.EVENT_CHARACTER_UPDATED, {});
+                }
+                this.saveFolders();
+                if(event.resolve) {
+                    event.resolve(data);
+                }
+            }.bind(this),
+            error: event.reject || function (jqXHR, exception) {
+                console.error("Error editing character");
+                console.error(jqXHR);
+                console.error(exception);
+            }
+        });
+    }
+
+    onCharacterCreate(event) {
+        jQuery.ajax({
+            type: 'POST',
+            url: '/createcharacter',
+            beforeSend: function(){},
+            data: event.data,
+            cache: false,
+            contentType: false,
+            processData: false,
+            success: function(data){
+                if(data.file_name !== undefined){
+                    this.loadCharacters(data.file_name.replace(/\.[^\.]*/, "")).then(data => {
+                        if(data && data[0]) {
+                            this.characters.push(data[0]);
+                            let char = this.view.addCharacter(data[0]);
+                            this.saveFolders();
+                            if(event.resolve) {
+                                event.resolve(char);
+                            }
+                        } else {
+                            if(event.reject) {
+                                reject("Unknown error");
+                            }
+                        }
+                    });
+                }
+            }.bind(this),
+            error: event.reject || function (jqXHR, exception) {
+                console.error("Error editing character");
+                console.error(jqXHR);
+                console.error(exception);
+            }
         });
     }
 
@@ -259,11 +346,11 @@ export class CharacterModel extends EventEmitter {
         return new Promise((resolve, reject) => {
             if(!file) { return reject("No file given."); }
 
-            let filename = file.name.replace(/\.[^\.]*/, "");
+            let filename = file.name.replace(/\.[^\.]*/, "").trim().replace(/ /g, "_");
             let filetype = file.type.replace(/.*\//, "");
 
             if(this.characters.filter(char =>
-                char.filename.replace(/\.[^\.]*/, "").toLowerCase() === filename.toLowerCase()
+                char.filename.replace(/\.[^\.]*/, "").trim().replace(/ /g, "_").toLowerCase() === filename.toLowerCase()
             ).length) {
                 return reject("File already exists");
             }
@@ -302,6 +389,13 @@ export class CharacterModel extends EventEmitter {
                 }
             });
         });
+    }
+
+    addCharacter(data) {
+        this.characters.push(data);
+        let char = this.view.addCharacter(data);
+        this.saveFolders();
+        return char;
     }
 }
 

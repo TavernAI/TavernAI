@@ -198,6 +198,16 @@ export class UIFolderContent extends EventEmitter {
         this.emit(UIFolderContent.EVENT_RENAMED, { oldName: oldName, propagate: true });
     }
 
+    refreshImages() {
+        let els = this.container.getElementsByTagName("img");
+        for(let i = 0; i < els.length; i++) {
+            let src = els[i].getAttribute("src");
+            if(src) {
+                els[i].setAttribute("src", src.replace(/\?.*/, "?t=" + Date.now()));
+            }
+        }
+    }
+
     getSimple() {
         return {
             name: this.name,

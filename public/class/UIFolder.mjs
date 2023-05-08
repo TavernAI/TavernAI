@@ -271,6 +271,7 @@ export class UIFolder extends UIFolderContent {
             if(item.folder) {
                 result = item.findCharacterNode(compareFn);
             } else {
+                console.warn(item.name);
                 if(compareFn(item)) {
                     result = item;
                 }
@@ -309,6 +310,13 @@ export class UIFolder extends UIFolderContent {
             this.sort();
         }
         return valid;
+    }
+
+    refreshImages() {
+        super.refreshImages();
+        this.children.forEach(child => {
+            child.refreshImages();
+        });
     }
 
     dialogueDelete(event) {

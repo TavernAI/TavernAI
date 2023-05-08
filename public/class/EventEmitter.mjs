@@ -50,6 +50,7 @@ export class EventEmitter {
     }
 
     emit(eventName, event) {
+        event = event || {};
         if(!event.target) {
             event.target = this;
             event.emitter = this;
