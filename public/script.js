@@ -673,6 +673,17 @@ $(document).ready(function(){
                         $('#colab_shadow_popup').css('display', 'none');
                     }, 1000);
                 }
+                if(getData.colab_type == "free_launch"){
+                    //url = getData.colaburl;
+                    main_api = "openai";
+                    $("#main_api").val("openai");
+                    $("#main_api").change();
+                    //$('#api_key_openai').val(url);
+                    setTimeout(function () {
+                        //$('#api_button_openai').click();
+                        $('#colab_shadow_popup').css('display', 'none');
+                    }, 1000);
+                }
             }
 
 

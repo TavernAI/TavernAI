@@ -973,6 +973,9 @@ app.post("/iscolab", jsonParser, function(request, response){
     if(process.env.colab == 4){
         type = 'openai';
     }
+    if(process.env.colab == 5){
+        type = 'free_launch';
+    }
     response.send({colaburl: url, colab_type: type});
     
 });
