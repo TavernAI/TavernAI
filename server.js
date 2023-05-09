@@ -71,6 +71,8 @@ const api_horde = "https://stablehorde.net/api";
 var hordeActive = false;
 var hordeQueue;
 var hordeData = {};
+var hordeError = null;
+var hordeTicker = 0;
 
 var response_get_story;
 var response_generate;
@@ -1366,10 +1368,10 @@ app.post("/generate_novelai", jsonParser, function(request, response_generate_no
 
 //***********Horde API
 app.post("/generate_horde", jsonParser, function(request, response_generate_horde){
-
     hordeActive = true;
+    hordeData = null;
+    hordeError = null;
     hordeQueue = 0;
-
     // Throw validation error if nothing sent/fails?
     if(!request.body) return response_generate_horde.sendStatus(400);
     //console.log(request.body.prompt); // debug
@@ -1415,7 +1417,11 @@ app.post("/generate_horde", jsonParser, function(request, response_generate_hord
     client.post(api_horde+"/v2/generate/text/async", args, function (data, response) {
         if(response.statusCode == 202){
             console.log(data);
-            pollHordeStatus(data.id, args, response_generate_horde);
+            pollHordeStatus(data.id, args).then(resolve => {
+                response_generate_horde.send({ started: true });
+            }, reject => {
+                response_generate_horde.send({error: true, message: reject});
+            });
         }
         if(response.statusCode == 401){
             console.log('Validation error');
@@ -1433,30 +1439,38 @@ app.post("/generate_horde", jsonParser, function(request, response_generate_hord
     });
 });
 
-function pollHordeStatus(id, args, response_generate_horde) {
-
-
-    client.get(api_horde + "/v2/generate/text/status/" + id, args, function (gen, response) {
-
-        hordeData = gen;
-        hordeWaitProgress(gen);
-
-        if (gen.done && gen.generations != undefined) {
+function pollHordeStatus(id, args, callback) {
+    return new Promise((resolve, reject) => {
+        client.get(api_horde + "/v2/generate/text/status/" + id, args, function (gen, response) {
+            hordeData = gen;
+            hordeWaitProgress(gen);
+            if ((gen.done || gen.finished) && gen.generations != undefined) {
+                hordeActive = false;
+                hordeQueue = 0;
+                hordeError = null;
+                console.log({Kudos: gen.kudos});
+                console.log(gen.generations);
+                resolve();
+                return;
+            } else if(gen.faulted || (!gen.processing && !gen.waiting && !gen.is_possible)) {
+                hordeActive = false;
+                hordeQueue = 0;
+                hordeError = gen.message;
+                console.log(hordeData);
+                console.error("Horde error", gen.message);
+                reject(gen.message);
+                return;
+            }
+            setTimeout(() => pollHordeStatus(id, args), 3000);
+            resolve();
+        }).on('error', function (err) {
             hordeActive = false;
-            hordeQueue = 0;
-            console.log({Kudos: gen.kudos});
-            console.log(gen.generations);
-            return response_generate_horde.send(gen);
-        }
-        setTimeout(() => pollHordeStatus(id, args, response_generate_horde), 3000);
-    }).on('error', function (err) {
-        hordeActive = false;
-        console.log(err);
-        //console.log('something went wrong on the request', err.request.options);
-        response_generate_horde.send({error: true});
+            hordeData = null;
+            hordeError = err;
+            console.log(err);
+            reject(err);
+        });
     });
-
-
 }
 
 function hordeWaitProgress(data){
@@ -1466,14 +1480,12 @@ function hordeWaitProgress(data){
     try {
         process.stdout.clearLine();
         process.stdout.cursorTo(0);
-        var progress = "";
-
-        
-
+        hordeTicker = hordeTicker > 2 ? 0 : hordeTicker+1;
+        let ticker = ["/", "-", "\\", "|" ][hordeTicker];
         if (data.queue_position > 0) {
-            process.stdout.write("Queue position: " + data.queue_position);
+            process.stdout.write(ticker + " Queue position: " + data.queue_position);
         } else if (data.wait_time > 0) {
-            process.stdout.write("Wait time: " + data.wait_time);
+            process.stdout.write(ticker + " Wait time: " + data.wait_time);
         }
     } catch (error) {
         return;
@@ -1501,7 +1513,8 @@ app.get("/gethordeinfo", jsonParser, function(request, response){
     response.send({
         running: hordeActive,
         queue: hordeQueue,
-        hordeData: hordeData
+        hordeData: hordeData,
+        error: hordeError,
     });
 });
 
