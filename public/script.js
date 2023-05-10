@@ -128,6 +128,7 @@ $(document).ready(function(){
     var this_edit_mes_chname = '';
     var this_edit_mes_id;
     var this_edit_target_id = undefined;
+    var this_max_gen = 0;
 
     const delay = ms => new Promise(res => setTimeout(res, ms));
     //settings
@@ -204,6 +205,8 @@ $(document).ready(function(){
     var horde_api_key = "0000000000";
     var horde_model = "";
     var hordeCheck;
+
+    var runGenerate;
 
     //openai settings
     var temp_openai = 0.9;
@@ -1181,57 +1184,8 @@ $(document).ready(function(){
             if(type == 'swipe'){
                 chat2.shift();
             }
-            for (var item of chat2) {//console.log(encode("dsfs").length);
-                chatString = item+chatString;
-                if(getTokenCount(storyString+mesExmString+chatString+anchorTop+anchorBottom+charPersonality)+gap_holder < this_max_context){ //(The number of tokens in the entire prompt) need fix, it must count correctly (added +120, so that the description of the character does not hide)
-                    arrMes[arrMes.length] = item;
-                }else{
-                    i = chat2.length-1;
-                }
-                await delay(1); //For disable slow down (encode gpt-2 need fix)
-                //console.log(i+' '+chat.length);
-                
-                
-                
-                if(i == chat2.length-1){
-                    //arrMes[arrMes.length-1] = '<START>\n'+arrMes[arrMes.length-1];
-                    if(!keep_dialog_examples){
-                        for(let iii = 0; iii < mesExamplesArray.length; iii++){//mesExamplesArray It need to make from end to start
 
-                            mesExmString = mesExmString+mesExamplesArray[iii];
-                            if(getTokenCount(storyString+mesExmString+chatString+anchorTop+anchorBottom+charPersonality)+gap_holder < this_max_context){ //example of dialogs
-                                if(!is_pygmalion){
-                                    mesExamplesArray[iii] = mesExamplesArray[iii].replace(/<START>/i, 'This is how '+name2+' should talk');//An example of how '+name2+' responds
-                                }
-                                count_exm_add++;
-                                await delay(1);
-
-                                //arrMes[arrMes.length] = item;
-                            }else{
-
-                                iii = mesExamplesArray.length;
-                            }
-
-                        }
-                    }
-
-                    if(!is_pygmalion){
-                        if(Scenario !== undefined){
-                            if(Scenario.length > 0){
-                                storyString+= 'Circumstances and context of the dialogue: '+Scenario+'\n';
-                            }
-                        }
-                        //storyString+='\nThen the roleplay chat between '+name1+' and '+name2+' begins.\n';
-                    }
-                    runGenerate();
-                    return;
-                }
-                i++;
-
-
-            }
-
-            function runGenerate(cycleGenerationPromt = ''){
+            runGenerate = function(cycleGenerationPromt = ''){
                 generatedPromtCache+=cycleGenerationPromt;
                 if(generatedPromtCache.length == 0){
                     chatString = "";
@@ -1246,7 +1200,7 @@ $(document).ready(function(){
                             //arrMes.splice(-1, 0, openai_jailbreak_prompt);
                             arrMes.push(openai_jailbreak_prompt);
                         }
-                        
+
                     }
 
 
@@ -1277,7 +1231,7 @@ $(document).ready(function(){
                             //chatString+=postAnchor+"\n";//"[Writing style: very long messages]\n";
                             item =item+ anchorBottom+"\n";
                         }
-                        
+
 
                         if(!free_char_name_mode && !(main_api === 'openai' && (model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-0301' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k'))){
                             if(i >= arrMes.length-1 && $.trim(item).substr(0, (name1+":").length) == name1+":"){//for add name2 when user sent
@@ -1289,7 +1243,7 @@ $(document).ready(function(){
                                 }
                             }
                         }
-                        
+
                         if(is_pygmalion){
                             if($.trim(item).indexOf(name1) === 0){
                                 item = item.replace(name1+':', 'You:');
@@ -1304,7 +1258,7 @@ $(document).ready(function(){
 
                 //console.log(encode(characters[Characters.selectedID].description+chatString).length);
                 //console.log(encode(JSON.stringify(characters[Characters.selectedID].description+chatString)).length);
-                
+
                 //console.log(JSON.stringify(storyString));
                 //Send story string
                 var mesSendString = '';
@@ -1355,8 +1309,8 @@ $(document).ready(function(){
                 if(main_api === 'openai' && (model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-0301' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k')){
                     finalPromt = {};
                     finalPromt = [];
-                    
-                    
+
+
                     finalPromt[0] = {"role": "system", "content": storyString+mesExmString};
                     mesSend.forEach(function(item,i){
                         if (openai_jailbreak_prompt.length > 0 && i === mesSend.length-1) {
@@ -1370,7 +1324,7 @@ $(document).ready(function(){
                         }
 
                     });
- 
+
                 }else{
                     finalPromt = storyString+mesExmString+mesSendString+generatedPromtCache;
                 }
@@ -1387,9 +1341,9 @@ $(document).ready(function(){
                             var this_amount_gen = parseInt(amount_gen_openai);
                             break;
                 }
-                var this_max_gen = this_amount_gen;
+                this_max_gen = this_amount_gen;
                 if(multigen && (main_api === 'kobold' || main_api === 'novel')){ //Multigen is not necessary for OpenAI (Uses stop tokens)
-                    
+
                     let this_set_context_size;
                     if(main_api === 'kobold') this_set_context_size = parseInt(amount_gen);
                     if(main_api === 'novel') this_set_context_size = parseInt(amount_gen_novel);
@@ -1413,59 +1367,59 @@ $(document).ready(function(){
                     if(preset_settings != 'gui'){
 
                         var this_settings = koboldai_settings[koboldai_setting_names[preset_settings]];
-                        
-                        
-                        generate_data = {prompt: finalPromt, 
-                                        gui_settings: false, 
-                                        max_context_length: parseInt(this_max_context),//this_settings.max_length,
-                                        max_length: this_amount_gen,//parseInt(amount_gen),
-                                        rep_pen: parseFloat(rep_pen),
-                                        rep_pen_range: parseInt(rep_pen_size),
-                                        rep_pen_slope: parseFloat(rep_pen_slope),
-                                        temperature: parseFloat(temp),
-                                        tfs: parseFloat(tfs),
-                                        top_a: parseFloat(top_a),
-                                        top_k: parseInt(top_k),
-                                        top_p: parseFloat(top_p),
-                                        typical: parseFloat(typical),
-                                        singleline: singleline,
-                                        s1:this_settings.sampler_order[0],
-                                        s2:this_settings.sampler_order[1],
-                                        s3:this_settings.sampler_order[2],
-                                        s4:this_settings.sampler_order[3],
-                                        s5:this_settings.sampler_order[4],
-                                        s6:this_settings.sampler_order[5],
-                                        s7:this_settings.sampler_order[6]
-                                        };
+
+
+                        generate_data = {prompt: finalPromt,
+                            gui_settings: false,
+                            max_context_length: parseInt(this_max_context),//this_settings.max_length,
+                            max_length: this_amount_gen,//parseInt(amount_gen),
+                            rep_pen: parseFloat(rep_pen),
+                            rep_pen_range: parseInt(rep_pen_size),
+                            rep_pen_slope: parseFloat(rep_pen_slope),
+                            temperature: parseFloat(temp),
+                            tfs: parseFloat(tfs),
+                            top_a: parseFloat(top_a),
+                            top_k: parseInt(top_k),
+                            top_p: parseFloat(top_p),
+                            typical: parseFloat(typical),
+                            singleline: singleline,
+                            s1:this_settings.sampler_order[0],
+                            s2:this_settings.sampler_order[1],
+                            s3:this_settings.sampler_order[2],
+                            s4:this_settings.sampler_order[3],
+                            s5:this_settings.sampler_order[4],
+                            s6:this_settings.sampler_order[5],
+                            s7:this_settings.sampler_order[6]
+                        };
                     }
                 }
                 if(main_api == 'novel'){
                     var this_settings = novelai_settings[novelai_setting_names[preset_settings_novel]];
                     generate_data = {"input": finalPromt,
-                                    "model": model_novel,
-                                    "use_string": true,
-                                    "temperature": parseFloat(temp_novel),
-                                    "max_length": this_amount_gen,
-                                    "min_length": this_settings.min_length,
-                                    "tail_free_sampling": parseFloat(tfs_novel),
-                                    "top_a": parseFloat(top_a_novel),
-                                    "top_k": parseInt(top_k_novel),
-                                    "top_p": parseFloat(top_p_novel),
-                                    "typical_p": parseFloat(typical_novel),
-                                    "repetition_penalty": parseFloat(rep_pen_novel),
-                                    "repetition_penalty_range": parseInt(rep_pen_size_novel),
-                                    "repetition_penalty_slope": parseFloat(rep_pen_slope_novel),
-                                    "repetition_penalty_frequency": this_settings.repetition_penalty_frequency,
-                                    "repetition_penalty_presence": this_settings.repetition_penalty_presence,
-                                    //"stop_sequences": {{187}},
-                                    //bad_words_ids = {{50256}, {0}, {1}};
-                                    //generate_until_sentence = true;
-                                    "use_cache": false,
-                                    //use_string = true;
-                                    "return_full_text": false,
-                                    "prefix": "vanilla",
-                                    "order": this_settings.order
-                                        };
+                        "model": model_novel,
+                        "use_string": true,
+                        "temperature": parseFloat(temp_novel),
+                        "max_length": this_amount_gen,
+                        "min_length": this_settings.min_length,
+                        "tail_free_sampling": parseFloat(tfs_novel),
+                        "top_a": parseFloat(top_a_novel),
+                        "top_k": parseInt(top_k_novel),
+                        "top_p": parseFloat(top_p_novel),
+                        "typical_p": parseFloat(typical_novel),
+                        "repetition_penalty": parseFloat(rep_pen_novel),
+                        "repetition_penalty_range": parseInt(rep_pen_size_novel),
+                        "repetition_penalty_slope": parseFloat(rep_pen_slope_novel),
+                        "repetition_penalty_frequency": this_settings.repetition_penalty_frequency,
+                        "repetition_penalty_presence": this_settings.repetition_penalty_presence,
+                        //"stop_sequences": {{187}},
+                        //bad_words_ids = {{50256}, {0}, {1}};
+                        //generate_until_sentence = true;
+                        "use_cache": false,
+                        //use_string = true;
+                        "return_full_text": false,
+                        "prefix": "vanilla",
+                        "order": this_settings.order
+                    };
                 }
 
                 // HORDE
@@ -1519,13 +1473,13 @@ $(document).ready(function(){
                         "stop": [ name1+':', '<|endoftext|>'],
                         "max_tokens": this_amount_gen
                     };
-                    
+
                     if((model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-0301' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k')){
                         generate_data.messages = finalPromt;
                     }else{
                         generate_data.prompt = finalPromt;
                     }
-                   
+
                 }
                 var generate_url = '';
                 if(main_api == 'kobold'){
@@ -1545,12 +1499,12 @@ $(document).ready(function(){
                     generate_url = '/generate_openai';
                 }
 
-                jQuery.ajax({    
-                    type: 'POST', // 
-                    url: generate_url, // 
+                jQuery.ajax({
+                    type: 'POST', //
+                    url: generate_url, //
                     data: JSON.stringify(generate_data),
                     beforeSend: function(){
-                        //$('#create_button').attr('value','Creating...'); 
+                        //$('#create_button').attr('value','Creating...');
                     },
                     cache: false,
                     timeout: (main_api == 'horde' && requestTimeout < 5*60*1000 ? 5*60*1000 : requestTimeout),
@@ -1692,6 +1646,57 @@ $(document).ready(function(){
                     }
                 });
             }
+
+            for (var item of chat2) {//console.log(encode("dsfs").length);
+                chatString = item+chatString;
+                if(getTokenCount(storyString+mesExmString+chatString+anchorTop+anchorBottom+charPersonality)+gap_holder < this_max_context){ //(The number of tokens in the entire prompt) need fix, it must count correctly (added +120, so that the description of the character does not hide)
+                    arrMes[arrMes.length] = item;
+                }else{
+                    i = chat2.length-1;
+                }
+                await delay(1); //For disable slow down (encode gpt-2 need fix)
+                //console.log(i+' '+chat.length);
+                
+                
+                
+                if(i == chat2.length-1){
+                    //arrMes[arrMes.length-1] = '<START>\n'+arrMes[arrMes.length-1];
+                    if(!keep_dialog_examples){
+                        for(let iii = 0; iii < mesExamplesArray.length; iii++){//mesExamplesArray It need to make from end to start
+
+                            mesExmString = mesExmString+mesExamplesArray[iii];
+                            if(getTokenCount(storyString+mesExmString+chatString+anchorTop+anchorBottom+charPersonality)+gap_holder < this_max_context){ //example of dialogs
+                                if(!is_pygmalion){
+                                    mesExamplesArray[iii] = mesExamplesArray[iii].replace(/<START>/i, 'This is how '+name2+' should talk');//An example of how '+name2+' responds
+                                }
+                                count_exm_add++;
+                                await delay(1);
+
+                                //arrMes[arrMes.length] = item;
+                            }else{
+
+                                iii = mesExamplesArray.length;
+                            }
+
+                        }
+                    }
+
+                    if(!is_pygmalion){
+                        if(Scenario !== undefined){
+                            if(Scenario.length > 0){
+                                storyString+= 'Circumstances and context of the dialogue: '+Scenario+'\n';
+                            }
+                        }
+                        //storyString+='\nThen the roleplay chat between '+name1+' and '+name2+' begins.\n';
+                    }
+                    runGenerate();
+                    return;
+                }
+                i++;
+
+
+            }
+
         }else{
             if(Characters.selectedID == undefined){
                 //send ch sel
