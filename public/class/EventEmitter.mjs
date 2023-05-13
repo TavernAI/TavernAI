@@ -1,6 +1,13 @@
 export class EventEmitter {
+    parent;
+
     eventListeners = {};
     eventListenersOnce = {};
+
+    constructor(options) {
+        if(!options) { return this; }
+        this.parent = options.parent;
+    }
 
     on(eventName, callback) {
         this.eventListeners[eventName] = this.eventListeners[eventName] || [];
@@ -14,7 +21,16 @@ export class EventEmitter {
 
     off(eventName, callback) {
         if(!callback) {
-            delete this.eventListeners[eventName];
+            if(!eventName) {
+                for(let key in this.eventListeners) {
+                    delete this.eventListeners[key];
+                }
+                for(let key in this.eventListenersOnce) {
+                    delete this.eventListenersOnce[key];
+                }
+            } else {
+                delete this.eventListeners[eventName];
+            }
         } else {
             this.eventListeners[eventName] = this.eventListeners[eventName] || [];
             this.eventListenersOnce[eventName] = this.eventListenersOnce[eventName] || [];
@@ -34,6 +50,12 @@ export class EventEmitter {
     }
 
     emit(eventName, event) {
+        event = event || {};
+        if(!event.target) {
+            event.target = this;
+            event.emitter = this;
+        }
+
         this.eventListeners[eventName] = this.eventListeners[eventName] || [];
         this.eventListenersOnce[eventName] = this.eventListenersOnce[eventName] || [];
 
@@ -44,5 +66,14 @@ export class EventEmitter {
             if(event) { callback(event); } else { callback(); }
         });
         delete this.eventListenersOnce[eventName];
+
+        if(this.parent instanceof EventEmitter && event.propagate) {
+            event.emitter = this;
+            this.parent.emit(eventName, event);
+        }
+    }
+
+    destroy() {
+
     }
 }

@@ -312,11 +312,11 @@ class charaCloudClient {
                 type: 'POST', // 
                 url: '/api/characloud/characters/publish', // 
                 data: JSON.stringify({
-                            'character_img': self.cardeditor_image,
-                            'character_data': character_data,
-                            'type': type,
-                            'target_filename': target_filename
-                        }),
+                    'character_img': self.cardeditor_image,
+                    'character_data': character_data,
+                    'type': type,
+                    'target_filename': target_filename
+                }),
                 beforeSend: function(){
                     switch(type){
                         case 'create_online':

@@ -226,30 +226,56 @@ export class Resizable {
         this.unfocus();
     }
 
-    findChildWithClass(className, parent) {
+    findChildWithClass(className, parent, recursive) {
         if(!className || !className.length) { return null; }
         if(parent) {
+            let classes = [];
+            parent.classList.forEach(c => classes.push(c));
+            let res = null;
             for(let i = 0; i < parent.children.length; i++) {
                 if(parent.children[i].classList.contains(className)) {
-                    return parent.children[i];
+                    res = parent.children[i];
+                    break;
+                }
+                if(recursive) {
+                    res = this.findChildWithClass(className, parent.children[i], recursive);
+                    if(res) {
+                        break;
+                    }
                 }
             }
-            return null;
+            return res;
         }
-        return this.findChildWithClass(className, this.header) || this.findChildWithClass(className, this.content) || this.findChildWithClass(className, this.footer);
+        return (
+            (this.header ? this.findChildWithClass(className, this.header) : null) ||
+            (this.content ? this.findChildWithClass(className, this.content) : null) ||
+            (this.footer ? this.findChildWithClass(className, this.footer) : null)
+        );
     }
 
-    findChildWithType(nodeName, parent) {
+    findChildWithType(nodeName, parent, recursive) {
         if(!nodeName || !nodeName.length) { return null; }
         if(parent) {
+            let res = null;
             for(let i = 0; i < parent.children.length; i++) {
                 if(parent.children[i].nodeName.toLowerCase() === nodeName.toLowerCase()) {
-                    return parent.children[i];
+                    res = parent.children[i];
+                    break;
+                }
+                if(recursive) {
+                    res = this.findChildWithType(nodeName, parent.children[i], recursive);
+                    if(res) {
+                        break;
+                    }
                 }
             }
-            return null;
+            return res;
         }
-        return this.findChildWithType(nodeName, this.header) || this.findChildWithType(nodeName, this.content) || this.findChildWithType(nodeName, this.footer);
+        return (
+            (this.header ? this.findChildWithType(nodeName, this.header) : null) ||
+            (this.content ? this.findChildWithType(nodeName, this.content) : null) ||
+            (this.footer ? this.findChildWithType(nodeName, this.footer) : null)
+        );
     }
 
     /* Destructor */

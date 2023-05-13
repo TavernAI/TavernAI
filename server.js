@@ -594,14 +594,13 @@ app.post("/createcharacter", urlencodedParser, async function(request, response)
         if(!fs.existsSync(chatsPath+target_img) )fs.mkdirSync(chatsPath+target_img);
 
         let filedata = request.file;
-        //console.log(filedata.mimetype);
         var fileType = ".png";
         var img_file = "ai";
         var img_path = "public/img/";
         
         var char = charaFormatData(request.body);//{"name": target_img, "description": request.body.description, "personality": request.body.personality, "first_mes": request.body.first_mes, "avatar": 'none', "chat": Date.now(), "last_mes": '', "mes_example": ''};
         char = JSON.stringify(char);
-        if(!filedata){
+        if(!filedata){
             
             await charaWrite('./public/img/fluffy.png', char, charactersPath + target_img, characterFormat, response);
             
@@ -635,11 +634,10 @@ app.post("/editcharacter", urlencodedParser, async function(request, response){
     try {
         if (!request.body)
             return response.sendStatus(400);
-        
+
         let card_filename = request.body.filename;
         
         let filedata = request.file;
-            //console.log(filedata.mimetype);
         var fileType = ".png";
         var img_file = "ai";
         var img_path = charactersPath;
@@ -783,19 +781,15 @@ async function charaRead(img_url, input_format){
             return false;
         }
         case 'png':
-            const buffer = fs.readFileSync(img_url);
-            const chunks = extract(buffer);
-             
-            const textChunks = chunks.filter(function (chunk) {
-              return chunk.name === 'tEXt';
-            }).map(function (chunk) {
-                //console.log(text.decode(chunk.data));
-              return PNGtext.decode(chunk.data);
+            const buffer = fs.readFileSync(img_url);
+            const chunks = extract(buffer);
+            const textChunks = chunks.filter(function(chunk) {
+                return chunk.name === 'tEXt';
+            }).map(function (chunk) {
+                return PNGtext.decode(chunk.data);
             });
             var base64DecodedData = Buffer.from(textChunks[0].text, 'base64').toString('utf8');
-            return base64DecodedData;//textChunks[0].text;
-            //console.log(textChunks[0].keyword); // 'hello'
-            //console.log(textChunks[0].text);    // 'world'
+            return base64DecodedData;
         default:
             break;
     }                   
@@ -803,38 +797,43 @@ async function charaRead(img_url, input_format){
 }
 
 app.post("/getcharacters", jsonParser, async function(request, response) {
-  try {
-    const files = await fs.promises.readdir(charactersPath);
-    const imgFiles = files.filter(file => file.endsWith(`.${characterFormat}`));
-    const characters = {};
-    let i = 0;
-
-    for (const item of imgFiles) {
-      const imgData = await charaRead(charactersPath + item);
-      let jsonObject;
-
-      try {
-        
-        jsonObject = json5.parse(imgData);
-        jsonObject.filename = item;
-        characters[i] = jsonObject;
-        i++;
-      } catch (error) {
-        if (error instanceof SyntaxError) {
-          console.error("Character info from index " +i+ " is not valid JSON!", error);
-        } else {
-          console.error("An unexpected error loading character index " +i+ " occurred.", error);
+    try {
+        const files = await fs.promises.readdir(charactersPath);
+        let imgFiles = files.filter(file => file.endsWith(`.${characterFormat}`));
+        if(request.body && request.body.filename) {
+            imgFiles = imgFiles
+                .filter(file => file
+                    .replace(/\.[^\.]*/, "").toLowerCase() === request.body.filename.toLowerCase()
+                );
         }
-        console.error("Pre-parsed character data:");
-        console.error(imgData);
-      }
-    }
+        const characters = {};
+        let i = 0;
 
-    response.send(JSON.stringify(characters));
-  } catch (error) {
-    console.error(error);
-    response.sendStatus(500);
-  }
+        for (const item of imgFiles) {
+            const imgData = await charaRead(charactersPath + item);
+            let jsonObject;
+            try {
+
+                jsonObject = json5.parse(imgData);
+                jsonObject.filename = item;
+                characters[i] = jsonObject;
+                i++;
+            } catch (error) {
+                if (error instanceof SyntaxError) {
+                    console.error("Character info from index " +i+ " is not valid JSON!", error);
+                } else {
+                    console.error("An unexpected error loading character index " +i+ " occurred.", error);
+                }
+                console.error("Pre-parsed character data:");
+                console.error(imgData);
+            }
+        }
+
+        response.send(JSON.stringify(characters));
+    } catch (error) {
+        console.error(error);
+        response.sendStatus(500);
+    }
 });
 
 app.post("/getworldnames", jsonParser, async function(request, response) {
@@ -1200,6 +1199,23 @@ app.post('/getsettings', jsonParser, (request, response) => { //Wintermute's cod
         koboldai_setting_names,
         novelai_settings,
         novelai_setting_names
+    });
+});
+
+app.post("/savefolders", jsonParser, function(request, response){
+    fs.writeFile('public/characters/folders.json', JSON.stringify(request.body, null, 2), 'utf8', function(err) {
+        if(err) {
+            response.send(err);
+            return console.log(err);
+        }else{
+            response.send({result: "ok"});
+        }
+    });
+});
+app.post('/loadfolders', jsonParser, (request, response) => {
+    fs.readFile('public/characters/folders.json', 'utf8',  (err, data) => {
+        if (err) return response.sendStatus(500);
+        return response.send(data);
     });
 });
 
@@ -1717,14 +1733,12 @@ app.post("/importcharacter", urlencodedParser, async function(request, response)
 
         let img_name = '';
         let filedata = request.file;
-        //console.log(filedata.filename);
         var format = request.body.file_type;
-        //console.log(format);
-        if(filedata){
+
+        if(filedata){
             if(format == 'json'){
                 fs.readFile('./uploads/'+filedata.filename, 'utf8', async (err, data) => {
                     if (err){
-                        console.log(err);
                         response.send({error:true});
                     }
                     const jsonData = json5.parse(data);
@@ -1751,6 +1765,8 @@ app.post("/importcharacter", urlencodedParser, async function(request, response)
             }else{
                 try{
                     var img_data = await charaRead('./uploads/'+filedata.filename, format);
+                    console.warn("         ");
+                    console.warn(img_data);
                     let jsonData = json5.parse(img_data);
                     img_name = setCardName(jsonData.name);
                     if(checkCharaProp(img_name).length > 0){

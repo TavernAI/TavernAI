@@ -68,4 +68,57 @@ export class UIFactory {
         }
         return item;
     }
+
+    static create(options) {
+        let item = document.createElement(options.nodeName);
+        if(options.class) {
+            if(!Array.isArray(options.class)) { options.class = options.class.split(" "); }
+            options.class.forEach(c => item.classList.add(c));
+        }
+        if(options.onall) {
+            item.onchange = function(event) {
+                UIFactory.updateEmpty(event);
+                options.onall(event);
+            };
+            item.onkeyup = item.onchange;
+            item.oncut = item.onchange;
+            item.onpaste = item.onchange;
+            item.oninput = item.onchange;
+        }
+        if(options.onchange) {
+            item.onchange = function(event) { UIFactory.updateEmpty(event); options.onchange(event); };
+        }
+        if(options.onkeyup) {
+            item.onkeyup = function(event) { UIFactory.updateEmpty(event); options.onkeyup(event); };
+        }
+        if(options.oncut) {
+            item.oncut = function(event) { UIFactory.updateEmpty(event); options.oncut(event); };
+        }
+        if(options.onpaste) {
+            item.onpaste = function(event) { UIFactory.updateEmpty(event); options.onpaste(event); };
+        }
+        if(options.oninput) {
+            item.oninput = function(event) { UIFactory.updateEmpty(event); options.oninput(event); };
+        }
+        if(options.onclick) {
+            item.onclick = function(event) { options.onclick(event); };
+        }
+
+        if(options.attributes) {
+            for(let name in options.attributes) {
+                item.setAttribute(name, options.attributes[name]);
+            }
+        }
+
+        if(options.children) {
+            options.children.forEach(c => {
+                if(typeof c === "string") {
+                    item.appendChild(document.createTextNode(c));
+                } else {
+                    item.appendChild(UIFactory.create(c));
+                }
+            });
+        }
+        return item;
+    }
 }
