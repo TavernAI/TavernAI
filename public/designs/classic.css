@@ -985,7 +985,7 @@ input[type=submit], input[type=button] {
 
 /*Pop-ups in the right drop-down menu when a character is created or imported*/
 #rm_search_bar {
-    width: 99%;
+    width: 96%;
     margin-left: 0.5ex;
     margin-bottom: 22px;
     display: block;
@@ -2705,10 +2705,12 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
     float: right;
     width: 5.75em;
     height: 2em;
-    margin-top: 1.5em;
+    margin-top: 1.3em;
+    margin-right: 3%;
     padding: 0.25em;
     margin-bottom: 0;
     text-align: center;
+    background-color: rgb(45,46,67);
 }
 .character-screen {
     min-height: 72vh;
@@ -2721,10 +2723,11 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
     border-radius: 1ex;
 }
 .character-screen .avatar {
-    padding: 0ex;
-    margin: 1ex;
-    width: 3.75em;
-    height: 5.5em;
+    /*padding: 0ex;*/
+    /*margin: 1ex;*/
+    /*margin-left: 3px;*/
+    /*width: 53px;/*3.75em;*/
+    /*height: 77px;/* 5.5em;*/
 }
 .character-screen .root > div, .character-screen .flat .folder {
     display: none !important;
