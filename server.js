@@ -515,6 +515,7 @@ function charaFormatData(data){
         name = 'null';
     }
     let categories;
+    let last_action_date;
     let create_date_online;
     let edit_date_online;
     if(data.create_date_online === undefined){
@@ -526,6 +527,11 @@ function charaFormatData(data){
         edit_date_online = Date.now();
     }else{
         edit_date_online = data.edit_date_online;
+    }
+    if (data.last_action_date === undefined) {
+        last_action_date = Date.now();
+    } else {
+        last_action_date = data.last_action_date;
     }
 
     let create_date_local;
@@ -563,7 +569,7 @@ function charaFormatData(data){
     }else{
         short_description = data.short_description;
     }
-    let char = {public_id: checkCharaProp(data.public_id), public_id_short: checkCharaProp(data.public_id_short), user_name: checkCharaProp(data.user_name), user_name_view: checkCharaProp(data.user_name_view), name: name, description: checkCharaProp(data.description), short_description: checkCharaProp(short_description), personality: checkCharaProp(data.personality), first_mes: checkCharaProp(data.first_mes), chat: Date.now(), mes_example: checkCharaProp(data.mes_example), scenario: checkCharaProp(data.scenario), categories: categories, create_date_online: create_date_online, edit_date_online: edit_date_online, create_date_local: create_date_local, edit_date_local: edit_date_local, add_date_local: add_date_local, last_action_date: Date.now(), online: data.online, nsfw: data.nsfw};
+    let char = {public_id: checkCharaProp(data.public_id), public_id_short: checkCharaProp(data.public_id_short), user_name: checkCharaProp(data.user_name), user_name_view: checkCharaProp(data.user_name_view), name: name, description: checkCharaProp(data.description), short_description: checkCharaProp(short_description), personality: checkCharaProp(data.personality), first_mes: checkCharaProp(data.first_mes), chat: Date.now(), mes_example: checkCharaProp(data.mes_example), scenario: checkCharaProp(data.scenario), categories: categories, create_date_online: create_date_online, edit_date_online: edit_date_online, create_date_local: create_date_local, edit_date_local: edit_date_local, add_date_local: add_date_local, last_action_date: last_action_date, online: data.online, nsfw: data.nsfw};
     // Filtration
     if(data.public_id === undefined){ 
         char.public_id = uuid.v4().replace(/-/g, '');
@@ -1765,12 +1771,12 @@ app.post("/importcharacter", urlencodedParser, async function(request, response)
             }else{
                 try{
                     var img_data = await charaRead('./uploads/'+filedata.filename, format);
-                    console.warn("         ");
-                    console.warn(img_data);
                     let jsonData = json5.parse(img_data);
                     img_name = setCardName(jsonData.name);
                     if(checkCharaProp(img_name).length > 0){
                         let char = charaFormatData(jsonData);
+                        char.add_date_local = Date.now();
+                        char.last_action_date = Date.now();
                         char = JSON.stringify(char);
                         await charaWrite('./uploads/'+filedata.filename, char, charactersPath + img_name, characterFormat, response, {file_name: img_name});
                         response.status(200).send({file_name: img_name});

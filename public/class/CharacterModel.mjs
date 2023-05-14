@@ -130,6 +130,28 @@ export class CharacterModel extends EventEmitter {
             }
         });
     }
+    thisCharacterSave() {
+        var formData = new FormData($("#form_create").get(0));
+        formData.append('last_action_date', Date.now());
+        jQuery.ajax({
+            
+            type: 'POST',
+            url: '/editcharacter',
+            beforeSend: function(){},
+            data: formData,
+            cache: false,
+            contentType: false,
+            processData: false,
+            success: function(data){
+
+            },
+            error: function (jqXHR, exception) {
+                console.error("Error editing character");
+                console.error(jqXHR);
+                console.error(exception);
+            }
+        });
+    }
 
     onCharacterCreate(event) {
         jQuery.ajax({
@@ -143,6 +165,7 @@ export class CharacterModel extends EventEmitter {
             success: function(data){
                 if(data.file_name !== undefined){
                     this.loadCharacters(data.file_name.replace(/\.[^\.]*/, "")).then(data => {
+                        characterAddedSign(data[0].filename.replace(/\.[^\.]*/, ""), 'Character created');
                         if(data && data[0]) {
                             this.characters.push(data[0]);
                             let char = this.view.addCharacter(data[0]);
@@ -198,8 +221,11 @@ export class CharacterModel extends EventEmitter {
                 this.loadFolders().then(folders => {
                     this.characters = Object.values(characters);
                     this.view.refresh(folders, this.characters);
+                    $('#rm_folder_order').change();
+                    resolve();
                 }, () => {});
             }, error => {
+                
                 reject(error);
             });
         });

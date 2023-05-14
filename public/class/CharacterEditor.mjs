@@ -281,7 +281,6 @@ export class CharacterEditor extends EventEmitter {
 
     onSubmit(event) {
         let formData = new FormData(this.container);
-        console.trace();
         if(!this.chardata.name || !this.chardata.name.length) {
             document.getElementById("result_info").innerHTML = "Name not entered";
             return;
@@ -295,7 +294,8 @@ export class CharacterEditor extends EventEmitter {
                 resolve: function(data){
                     this.editMode = true;
                     this.enabled = true;
-                    this.emit(CharacterEditor.EVENT_HIDDEN);
+                    //this.emit(CharacterEditor.EVENT_HIDDEN);
+                    
                 }.bind(this),
                 reject: function (jqXHR, exception) {
                     this.enabled = true;

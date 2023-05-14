@@ -43,6 +43,7 @@
     
     <div id="bg1"></div>
     <div id="bg2"></div>
+    <div id="drag_drop_shadow"><img src="../img/import_big.png"></div>
     <div id="bg_chara_cloud"></div>
     <div id="reg_login_popup_shadow">
         <div id="reg_login_popup">
@@ -451,19 +452,24 @@
             <form id="form_create" class="chareditor" action="javascript:void(null);" method="post" enctype="multipart/form-data">
                 <button class="chareditor-button-close" title="Back">&#8656;</button>
 
-                <div class="chareditor-token-counter" title="Number of tokens necessary for the character. If two values are shown, the higher value includes conversation examples, which are dynamically left out as actual conversation grows."></div>
+                
                 <div>
                     <div class="chareditor-token-warning-count">Warning: character definition exceeds <span></span> tokens!</div>
                     <div class="chareditor-token-warning-left">Warning: <span></span> tokens will be left for conversation!</div>
                 </div>
-
+                <div style="float: right; display: inline-block; opacity: 0.2;">(<div class="chareditor-token-counter" title="Number of tokens necessary for the character. If two values are shown, the higher value includes conversation examples, which are dynamically left out as actual conversation grows."></div>)</div>
                 <div id="name_div" class="chareditor-name-block">
                     <h4 class="h4_menu_title">Name</h4><h5 class="h5_menu_help">Character name</h5>
                 <input id="character_name_pole" name="ch_name" class="text_pole chareditor-name-input" type="text" maxlength="120" size="35" value="" autocomplete="off">
                 </div>
+                
                 <div id="avatar_div" class="avatar_div">
-                    <div class="chareditor-avatar-filename"></div>
+                    
                     <div id="avatar_div_container" class="avatar"><img src="img/fluffy.png" alt="avatar" class="chareditor-avatar-preview"></div><input type="file" id="add_avatar_button" class="chareditor-avatar" name="avatar" accept="image/png, image/jpeg, image/jpg, image/gif, image/bmp, image/webp">
+                    
+                    <div>
+                        <div class="chareditor-avatar-filename"></div> 
+                    </div>
                     <input name="filename" type="hidden" autocomplete="off" class="chareditor-avatar-filename-input">
                 </div>
 
@@ -487,6 +493,7 @@
                     <input id="create_button" class="chareditor-button-submit" type="submit" value="Create">
                     <button class="chareditor-button-export">Export</button>
                 </div>
+                
             </form>
         </div>
         <div id="rm_api_block" class="right_menu" >
@@ -652,8 +659,8 @@
             </h2></div>
             <div id="character-button-new-folder" class="right_menu_title_button"><h2>+New Folder</h2></div>
             <div>
-                <input style="display: inline-block; width: 75%; margin-top: 6px;" id="rm_search_bar" name="rm_search_bar" class="text_pole" type="text" size="35" value="" autocomplete="off" placeholder="search...">
-                <select id="rm_folder_order" title="Sorting order" style="display: inline-block; margin: 0px; float: unset">
+                <input id="rm_search_bar" name="rm_search_bar" class="text_pole" type="text" size="35" value="" autocomplete="off" placeholder="search...">
+                <select id="rm_folder_order" title="Sorting order">
                 </select>
                 
             </div>

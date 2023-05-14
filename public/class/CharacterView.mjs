@@ -22,23 +22,25 @@ export class CharacterView extends EventEmitter {
             return a.children ? -1 : 1;
         },
         DATE_ADD: (a, b) => {
+            if(a.children && b.children) return b.name.localeCompare(a.name);
+            if(!a.children && !b.children) return b.payload.add_date_local - a.payload.add_date_local;
+            return a.children ? -1 : 1;
+            
+        },
+        DATE_ADD_DESC: (a, b) => {
             if(a.children && b.children) return a.name.localeCompare(b.name);
             if(!a.children && !b.children) return a.payload.add_date_local - b.payload.add_date_local;
             return a.children ? -1 : 1;
         },
-        DATE_ADD_DESC: (a, b) => {
-            if(a.children && b.children) return b.name.localeCompare(a.name);
-            if(!a.children && !b.children) return b.payload.add_date_local - a.payload.add_date_local;
-            return a.children ? -1 : 1;
-        },
         DATE_ACTION: (a, b) => {
             if(a.children && b.children) return a.name.localeCompare(b.name);
-            if(!a.children && !b.children) return a.payload.last_action_date - b.payload.last_action_date;
+            if(!a.children && !b.children) return b.payload.last_action_date - a.payload.last_action_date;
             return a.children ? -1 : 1;
+            
         },
         DATE_ACTION_DESC: (a, b) => {
             if(a.children && b.children) return a.name.localeCompare(b.name);
-            if(!a.children && !b.children) return b.payload.last_action_date - a.payload.last_action_date;
+            if(!a.children && !b.children) return a.payload.last_action_date - b.payload.last_action_date;
             return a.children ? -1 : 1;
         }
     }
@@ -101,7 +103,7 @@ export class CharacterView extends EventEmitter {
             }
         }
 
-        this.container.ondrop = this.onDrop.bind(this);
+        window.addEventListener('drop', this.onDrop.bind(this));
         this.container.ondragover = this.onDragover.bind(this);
     }
 
@@ -226,9 +228,11 @@ export class CharacterView extends EventEmitter {
     search(event) {
         let match = event.target.value;
         if(!match || !match.length) {
-            this.refresh();
-            this.controller.filter();
+            //this.refresh();
+            //this.controller.filter();
             this.controller.container.classList.remove("flat");
+            $('#rm_folder_order').change();
+            
         } else {
             this.controller.container.classList.add("flat");
             this.controller.filter({

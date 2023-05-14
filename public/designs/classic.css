@@ -548,7 +548,7 @@ textarea {
     margin-bottom: 1ex;
 }
 .chareditor h4 {
-    margin-top: 1ex;
+    margin-top: 2ex;
 }
 #character_file_div {
     opacity: 0.8;
@@ -596,6 +596,35 @@ textarea {
 .modular .h5_menu_help {
     margin-bottom: 0px;
 }
+#shadow_charedit_advanced_popup .cross {
+
+    right: 15px;
+    top: 15px;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    opacity: 0.6;
+}
+
+#shadow_charedit_advanced_popup .header {
+    padding-left: 35px;
+    padding-bottom: 0px;
+}
+#shadow_charedit_advanced_popup .content {
+    padding: 20px;
+    padding-top: 0px;
+    padding-left: 35px;
+    padding-right: 35px;
+}
+
+#shadow_charedit_advanced_popup .h4_menu_title {
+    margin-top: 14px;
+}
+
+#shadow_charedit_advanced_popup  .h5_menu_help {
+    margin-bottom: 5px;
+}
+
 .h4_menu_title {
     margin: 0px;
     padding: 0px;
@@ -891,7 +920,11 @@ input[type=submit], input[type=button] {
     opacity: 0.7;
 }
 /*   */
+.avatar_div {
+    margin-top: 16px;
+}
 .avatar_div .avatar {
+    margin-left: 4px;
     display: inline-block;
 }
 
@@ -916,13 +949,13 @@ input[type=submit], input[type=button] {
     margin-top: 20px;
 }
 .chareditor {
-    margin: 0 1em;
+    /*margin: 0 1em;*/
+    width: 89%;
+
 }
 .chareditor-avatar-filename {
-    float: right;
-    max-width: 19em;
-    text-overflow: ellipsis;
-    overflow: hidden;
+    opacity: 0.8;
+    display: inline-block;
 }
 
 #character_advanced_button, #master_settings_button {
@@ -961,6 +994,7 @@ input[type=submit], input[type=button] {
     border-radius: 3px;
     background-color: #191b3133;
     opacity: 1.0;
+    margin-bottom: 8px;
 }
 #character_advanced_button {
     margin-bottom: 1em;
@@ -978,17 +1012,22 @@ input[type=submit], input[type=button] {
 }
 .chareditor.create input[type=submit] {
     display: block;
-    width: 100%;
+    width: 31%;
+    padding: 5px;
     margin: 0;
+    margin-bottom: 8px;
 }
-
+#character-button-import {
+    cursor: pointer;
+}
 
 /*Pop-ups in the right drop-down menu when a character is created or imported*/
 #rm_search_bar {
-    width: 96%;
     margin-left: 0.5ex;
     margin-bottom: 22px;
-    display: block;
+    display: inline-block; 
+    width: 74%; 
+    margin-top: 6px;
 }
 
 #rm_charaters_block {
@@ -1254,7 +1293,7 @@ button.inline,
     margin-left: 1ex;
     cursor: pointer;
     font-weight: bold;
-    font-size: 1em
+    /*font-size: 1em*/
 }
 .chareditor button,
 .chareditor input[type=submit] {
@@ -1295,18 +1334,17 @@ chareditor-button-close {
 }
 .chareditor-token-counter {
     position: relative;
-    top: 1em;
+
     text-align: center;
-    float: right;
+    /*float: right;*/
     min-width: 2em;
+    opacity: 1.0;
+    display: inline-block;
 }
 .chareditor-token-counter:after {
-    position: absolute;
+    margin-left: 1px;
     width: 100%;
-    content: "TOK";
-    top: 2em;
-    left: 0px;
-    font-size: 60%;
+    content: "Tokens";
     text-align: center;
 }
 .create .chareditor-button-online {
@@ -1314,6 +1352,7 @@ chareditor-button-close {
 }
 .chareditor .chareditor-token-warning-count,
 .chareditor .chareditor-token-warning-left {
+    display: none;
     text-align: center;
     font-variant: small-caps;
 }
@@ -1408,7 +1447,22 @@ label form {
 #select_chat_cross{
     top: 14px; 
 }
-
+#drag_drop_shadow {
+    background-color: #00000066;
+    opacity: 1.0;
+    position: absolute;
+    width: 100%;
+    height: 100vh;
+    z-index: 2595;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+#drag_drop_shadow img {
+    opacity: 0.25;
+    width: 200px;
+    height: 200px;
+}
 .shadow_popup {
     background-color: #00000066;
     display: none;
@@ -2086,7 +2140,7 @@ label.checkbox :checked + span:after {
     margin-left: 0px;
 }
 #mes_example_textarea{
-    height: calc(100% - 13em);
+    height: calc(100% - 17em);
     margin-top: 4px;
 }
 
@@ -2161,7 +2215,7 @@ label.checkbox :checked + span:after {
     box-shadow: 0 0 2px rgba(200,200,200,0.3);
     padding: 1.8ex;
     padding-top: 1.25ex;
-    background: #191b31F0;
+    background: #191b31F9;
     border-radius: 5px;
 }
 .snappable {
@@ -2193,9 +2247,9 @@ label.checkbox :checked + span:after {
 }
 .modular .header .icon {
     pointer-events: none;
-    width: 1.5em;
-    height: 1.5em;
-    margin-right: 1ex;
+    width: 2.3em;
+    height: 2.3em;
+    margin-right: 0.4ex;
 }
 .modular .header .cross {
     width: 1.5em;
@@ -2272,7 +2326,7 @@ label.checkbox :checked + span:after {
 .modular .move {
     position: absolute;
     top: 0ex;
-    height: 2ex;
+    height: 2.7ex;
     left: calc(25% + 1em);
     right: calc(25% + 1em);
     border-radius: 1ex;
@@ -2715,7 +2769,7 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
 
 /* Character screen */
 #rm_folder_order {
-    float: right;
+    float: unset;
     width: 5.75em;
     height: 2em;
     margin-top: 1.3em;
@@ -2724,6 +2778,8 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
     margin-bottom: 0;
     text-align: center;
     background-color: rgb(45,46,67);
+    display: inline-block; 
+    margin: 0px; 
 }
 .character-screen {
     min-height: 72vh;
@@ -2769,7 +2825,7 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
     position: relative;
 }
 .folder .nameTag, .folder-content .nameTag {
-    margin-left: 0.5ex;
+    margin-left: 5px;/*0.5ex;*/
     margin-top: 1ex;
     font-weight: bold;
     flex-grow: 2;
@@ -2793,7 +2849,7 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
     background-size: 1.5em;
     background-repeat: no-repeat;
     cursor: pointer;
-    opacity: 0.5;
+    opacity: 0.3;
     background-position-x: 1em;
     background-position-y: 1ex;
 }
