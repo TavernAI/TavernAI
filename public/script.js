@@ -137,18 +137,28 @@ $(document).ready(function(){
     
     //Drag drop import characters
     $("body").on('dragenter', function (e) {
+        if (is_mobile_user) {
+            return;
+        }
         e.preventDefault();
         if (e.originalEvent.dataTransfer.types) {
-            if(e.originalEvent.dataTransfer.types[1] === "Files" || e.originalEvent.dataTransfer.types[0] === "Files"){
+            if (e.originalEvent.dataTransfer.types[1] === "Files" || e.originalEvent.dataTransfer.types[0] === "Files") {
                 $('#drag_drop_shadow').css('display', 'flex');
             }
         }
+
     });
 
     $("body").on('dragover', function (e) {
+        if (is_mobile_user) {
+            return;
+        }
         e.preventDefault();
     });
     $("body").on('dragleave', function (e) {
+        if (is_mobile_user) {
+            return;
+        }
         e.preventDefault();
         if (e.relatedTarget !== this && !$.contains(this, e.relatedTarget)) {
             $('#drag_drop_shadow').css('display', 'none');
@@ -156,6 +166,9 @@ $(document).ready(function(){
     });
 
     $("body").on('drop', function (e) {
+        if (is_mobile_user) {
+            return;
+        }
         e.preventDefault();
         $('#drag_drop_shadow').css('display', 'none');
     });
