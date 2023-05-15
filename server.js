@@ -1794,10 +1794,9 @@ app.post("/importcharacter", urlencodedParser, async function(request, response)
 
 app.post("/importchat", urlencodedParser, function(request, response){
     if(!request.body) return response.sendStatus(400);
-
         var format = request.body.file_type;
         let filedata = request.file;
-        let avatar_url = (request.body.avatar_url).replace(`.${characterFormat}`, '');
+        let avatar_url = (request.body.filename).replace(`.${characterFormat}`, '');
         let ch_name = request.body.character_name;
         //console.log(filedata.filename);
         //var format = request.body.file_type;
@@ -1965,6 +1964,7 @@ app.post("/importchat", urlencodedParser, function(request, response){
                     let jsonData = json5.parse(line);
                     
                     if(jsonData.user_name !== undefined){
+                        
                         fs.copyFile('./uploads/'+filedata.filename, chatsPath+avatar_url+'/'+Date.now()+'.jsonl', (err) => {
                             if(err) {
                                 response.send({error:true});

@@ -4717,10 +4717,8 @@ $(document).ready(function(){
 
         var format = ext[1].toLowerCase();
         $("#chat_import_file_type").val(format);
-        //console.log(format);
-        console.warn($("#form_import_chat").get(0));
         var formData = new FormData($("#form_import_chat").get(0));
-
+        formData.append('filename', Characters.id[Characters.selectedID].filename);
         jQuery.ajax({    
             type: 'POST', 
             url: '/importchat', 
