@@ -760,8 +760,13 @@ $(document).ready(function(){
                 if (getData.colab_type == "kobold_model") {
                     $("#main_api").val("kobold");
                     $("#main_api").change();
-                    url = String(getData.colaburl).split("flare.com")[0] + "flare.com";
-                    url = String(url).split("loca.lt")[0] + "loca.lt";
+                    if(String(getData.colaburl).indexOf('cloudflare')){
+                        url = String(getData.colaburl).split("flare.com")[0] + "flare.com";
+                    }else{
+                        url = String(getData.colaburl).split("loca.lt")[0] + "loca.lt";
+                    }
+                    
+                    
                     $('#api_url_text').val(url);
                     setTimeout(function () {
                         $('#api_button').click();
