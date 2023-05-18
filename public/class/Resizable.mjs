@@ -1,6 +1,7 @@
 /**
  * Resizeable and draggable window with optional close button
  */
+import {animation_rm_duration, animation_rm_easing} from "../script.js";
 export class Resizable {
     static focused;
 
@@ -210,20 +211,37 @@ export class Resizable {
         }
     }
 
-    /** Hides window */
+    /** Shows window */
     show() {
-        if(!this.container) { return; }
-        if(this.shown) { return; }
+        let this_shadow_container = `#${this.root.id}`;
+        if (!this.container) {
+            return;
+        }
+        if (this.shown) {
+            return;
+        }
+        $(this_shadow_container).css('opacity', 0.0);
+        $(this_shadow_container).css('display', 'block');
+        $(this_shadow_container).transition({opacity: 1.0, duration: animation_rm_duration, easing: animation_rm_easing, complete: function () {
+
+        }});
         this.shown = true;
-        this.root.classList.add("shown");
     }
 
-    /** Shows window */
+    
+    /** Hides window */
     hide() {
-        if(!this.container) { return; }
+        let this_shadow_container = `#${this.root.id}`;
+        if (!this.container) {
+            return;
+        }
+        $(this_shadow_container).transition({opacity: 0.0, duration: animation_rm_duration, easing: animation_rm_easing, complete: function () {
+            $(this_shadow_container).css('display', 'none');
+        }});
         this.shown = false;
-        this.root.classList.remove("shown");
         this.unfocus();
+        
+        
     }
 
     findChildWithClass(className, parent, recursive) {
