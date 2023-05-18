@@ -120,9 +120,10 @@ $(document).ready(function(){
         clearChat();
         chat.length = 0;
         getChat();
-        if($('#characloud_character_page').css('display') === 'none' && $('#characloud_user_profile_block').css('display') === 'none'){
+        if($('#characloud_character_page').css('display') === 'none' && $('#characloud_user_profile_block').css('display') === 'none' || $('#chara_cloud').css('display') === 'none'){
             hideCharaCloud();
         }
+        
 
     }.bind(this));
     Characters.on(CharacterModel.EVENT_EDITOR_CLOSED, function(event) {
