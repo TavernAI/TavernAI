@@ -624,14 +624,14 @@ textarea {
 }
 
 #shadow_charedit_advanced_popup .header {
-    padding-left: 35px;
+    padding-left: 31px;
     padding-bottom: 0px;
 }
 #shadow_charedit_advanced_popup .content {
     padding: 20px;
     padding-top: 0px;
-    padding-left: 35px;
-    padding-right: 35px;
+    padding-left: 31px;
+    padding-right: 31px;
 }
 
 #shadow_charedit_advanced_popup .h4_menu_title {
@@ -2264,6 +2264,16 @@ label.checkbox :checked + span:after {
     height: 2.3em;
     margin-right: 0.4ex;
 }
+.note_icon {
+    width: 1.5em !important;
+    height: 1.5em !important;
+    margin-right: 1ex;
+}
+
+.h4_menu_title.person_summary {
+    margin-top: 0px !important;
+}
+
 .modular .header .cross {
     width: 1.5em;
     height: 1.5em;
