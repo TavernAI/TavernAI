@@ -22,8 +22,24 @@ class charaCloudClient {
         this.handleError = this.handleError.bind(this);
         this.validateUsername = this.validateUsername.bind(this);
         this.getEditorFields = this.getEditorFields.bind(this);
+        this.categories = [];
+        const self = this;
         
-        
+        //search categories in online character editor (autocomplete)
+        $('#category-input-field').on('input paste', function (event) {
+            $('.popular-categories-title').text('Search');
+            $('.popular-categories-list').html('');
+            const filteredCategories = self.categories.filter(item => item.name_view.toLowerCase().match($('#category-input-field').val().toLowerCase()));
+            filteredCategories.every(function(item, i){
+                $('.popular-categories-list').append(`<div class="category popular-category">+ ${item.name} (${item.count})</div>`);
+                if(i === 6){
+                    return false;
+                }
+
+                return true;
+            });
+            
+        });
 
         
     }
@@ -574,6 +590,7 @@ class charaCloudClient {
                 contentType: "application/json",
                 processData: false, 
                 success: function(data){
+                    self.categories = data;
                     resolve(data);
                 },
                 error: function (jqXHR, exception) {
