@@ -592,7 +592,7 @@ textarea {
 
 .right_menu{
     /* padding: 15px 20px; */
-    max-height: 86%;
+    max-height: 87%;
     overflow: hidden;
     overflow-y: auto;
     scrollbar-width: thin;
@@ -734,6 +734,7 @@ input[type=submit], input[type=button] {
 
 .seleced_button_style {
     color: #bcc1c8;
+    margin-bottom: 13px;
 }
 
 .deselected_button_style {
