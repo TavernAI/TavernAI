@@ -3785,7 +3785,7 @@ $(document).ready(function(){
 
     }
 
-    async function saveSettings(type){
+    async function saveSettings(){
 
         jQuery.ajax({    
             type: 'POST', 
@@ -3861,9 +3861,7 @@ $(document).ready(function(){
             //processData: false, 
             success: function(data){
                 //online_status = data.result;
-                if(type === 'change_name'){
-                    location.reload();
-                }
+
 
             },
             error: function (jqXHR, exception) {
@@ -4401,9 +4399,13 @@ $(document).ready(function(){
         if(!is_send_press){
             name1 = $("#your_name").val();
             if(name1 === undefined || name1 == '') name1 = default_user_name;
-            console.log(name1);
-            saveSettings('change_name');
-
+            $('.mes').each(function () {
+                if ($(this).attr('is_user') === 'true') {
+                    $(this).find('.ch_name').text(name1);
+                }
+            });
+            saveSettings();
+            
         }
     });
     $("#your_avatar_add_button").click(function() {
