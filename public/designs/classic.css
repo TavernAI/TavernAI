@@ -697,6 +697,10 @@ input[type=submit], input[type=button] {
     background-color: rgba(0,0,0,0.05);
 }
 
+.right_menu_title_button h2 {
+    margin-bottom: 13px;
+}
+
 #rm_button_create {
     margin-top: 9px;
 }
@@ -734,7 +738,6 @@ input[type=submit], input[type=button] {
 
 .seleced_button_style {
     color: #bcc1c8;
-    margin-bottom: 13px;
 }
 
 .deselected_button_style {

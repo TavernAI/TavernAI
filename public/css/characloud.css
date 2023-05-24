@@ -1139,6 +1139,15 @@
   background-color: #6c757d;
 }
 
+#header_categories {
+    display: inline-block;
+}
+
+#header_categories .header-category {
+    display: inline-block;
+    background-color: #56687b;
+}
+
 .category-remove {
   margin-left: 5px;
   cursor: pointer;
