@@ -1987,9 +1987,21 @@ app.post("/importchat", urlencodedParser, function(request, response){
 });
 
 
+app.post("/deletechat", jsonParser, function(request, response){
+    try {
+        if (!request.body)
+            return response.sendStatus(400);
 
+        let {chat_file, character_filename} = request.body;
+        fs.unlinkSync(`${chatsPath}${character_filename}/${chat_file}`);
+        return response.status(200).send({res:true});
+        
+    } catch (err) {
+        console.error(err);
+        return response.sendStatus(400).send({error: err});
+    }
 
-
+});
 //Server start
 module.exports.express = express;
 module.exports.path = path;

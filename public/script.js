@@ -6,6 +6,7 @@ import {CharacterModel} from "./class/CharacterModel.mjs";
 import {CharacterView} from "./class/CharacterView.mjs";
 
 var token;
+var data_delete_chat = {};
 var default_avatar = 'img/fluffy.png';
 var requestTimeout = 60*1000;
 var max_context = 2048;//2048;
@@ -182,7 +183,7 @@ $(document).ready(function(){
     var characloud_characters_rows;
     var charaCloudServer = 'http://127.0.0.1:80';
     ///////////
-    const VERSION = '1.4.0';
+    const VERSION = '1.4.1';
     var converter = new showdown.Converter({ extensions: ['xssfilter'] })
     var bg_menu_toggle = false;
     var default_user_name = "You";
@@ -2472,6 +2473,29 @@ $(document).ready(function(){
                 return;
             });
         }
+        if(popup_type === 'delete_chat'){
+            jQuery.ajax({
+                type: 'POST', // 
+                url: '/deletechat', // 
+                data: JSON.stringify(data_delete_chat),
+                beforeSend: function () {
+                    //$('#create_button').attr('value','Creating...'); 
+                },
+                cache: false,
+                timeout: requestTimeout,
+                dataType: "json",
+                contentType: "application/json",
+                success: function (data) {
+                    $('div.select_chat_block[file_name="'+data_delete_chat.chat_file+'"]').remove();
+
+                },
+                error: function (jqXHR, exception) {
+                    console.log(exception);
+                    console.log(jqXHR);
+                    callPopup(exception, 'alert_error');
+                }
+            });
+        }
     });
     $("#dialogue_popup_cancel").click(function(){
         $("#shadow_popup").css('display', 'none');
@@ -4481,7 +4505,12 @@ $(document).ready(function(){
                     if(mes.length > strlen){
                         mes = '...'+mes.substring(mes.length - strlen);
                     }
-                    $('#select_chat_div').append('<div class="select_chat_block" file_name="'+data[key]['file_name']+'"><div class=avatar><img src="characters/'+Characters.id[Characters.selectedID].filename+'"></div><div class="select_chat_block_filename">'+data[key]['file_name']+'</div><div class="select_chat_block_mes">'+vl(mes)+'</div></div>');
+                    let delete_chat_div = `<div class="chat_delete"><a href="#">Delete</a></div>`;
+                    if(Characters.id[Characters.selectedID].chat === data[key]['file_name'].split(".")[0]){
+                        delete_chat_div = '';
+                    }
+
+                    $('#select_chat_div').append('<div class="select_chat_block" file_name="'+data[key]['file_name']+'"><div class=avatar><img src="characters/'+Characters.id[Characters.selectedID].filename+'"></div><div class="select_chat_block_filename">'+data[key]['file_name']+'</div><div class="select_chat_block_mes">'+vl(mes)+'</div><div class="chat_export"><a href="#">Export</a></div>'+delete_chat_div+'</div>');
                     if(Characters.id[Characters.selectedID]['chat'] == data[key]['file_name'].replace('.jsonl', '')){
                         //children().last()
                         $('#select_chat_div').children(':nth-last-child(1)').attr('highlight', true);
@@ -4504,6 +4533,34 @@ $(document).ready(function(){
             }
         });
     }
+    $('#select_chat_popup').on('click', '.chat_export', function(e){
+        e.stopPropagation();
+        let chat_file = $(this).parent().attr('file_name');
+        console.log();
+        $.get(`../chats/${Characters.id[Characters.selectedID].filename.replace(`.${characterFormat}`, '')}/${chat_file}`, function (data) {
+            let blob = new Blob([data], {type: "application/json"});
+            let url = URL.createObjectURL(blob);
+            let $a = $("<a>").attr("href", url).attr("download", `${Characters.id[Characters.selectedID].name}_${chat_file}`);
+            $("body").append($a);
+            $a[0].click();
+            $a.remove();
+        });
+    });
+    $('#select_chat_popup').on('click', '.chat_delete', function(e){
+        e.stopPropagation();
+        let $patent = $(this).parent()
+        let chat_file = $(this).parent().attr('file_name');
+        data_delete_chat = {
+            chat_file:chat_file,
+            character_filename: Characters.id[Characters.selectedID].filename.replace(`.${characterFormat}`, '')
+        
+        };
+        callPopup('<h3>Delete this chat?</h3>', 'delete_chat');
+
+        
+    });
+    
+
     //************************************************************
     //************************Novel.AI****************************
     //************************************************************
