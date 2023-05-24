@@ -4966,6 +4966,9 @@ $(document).ready(function(){
         charaCloud.getCategories() // autocomplete
             .then(function (data) {
                 const top_categories = data.sort((a, b) => b.count - a.count).slice(0, 10);
+                $('#header_categories').append(`<div class="category header-category" data-category="$categories">Categories</div>`);
+                $('#header_categories').append(`<div class="category header-category" data-category="$recent">Recent</div>`);
+                $('#header_categories').append(`<div class="category header-category" data-category="$random">Random</div>`);
                 top_categories.forEach(function (item, i) {
                     $('#header_categories').append(`<div class="category header-category" data-category="${item.name}">${item.name} (${item.count})</div>`);
                 });
@@ -6252,7 +6255,13 @@ $(document).ready(function(){
     ///////////////////////////
     //********* Categories ********//
     $('#header_categories').on('click', '.header-category', function () {
-        showCategory($(this).data('category'));
+        let this_category = $(this).data('category');
+        if(this_category === '$categories'){
+            showCategories();
+            return;
+        }else{
+            showCategory($(this).data('category'));
+        }
     });
     var is_character_page_categories_show = false;
     $('#category-input-field').on('focus', function () {
@@ -6320,7 +6329,11 @@ $(document).ready(function(){
             .then(function (data) {
                 let count_char_in_row = 10; 
                 let characters_board = [];
+                if(category === '$random' || category === '$recent'){
+                    category = category.substring(0, 2).toUpperCase() + category.substring(2); 
+                }
                 let category_show = category.replace('$', '');
+                
                 let end = 0;
                 if (false) {
                     for (let i = 0; end < data.length; i++) {
@@ -6381,7 +6394,8 @@ $(document).ready(function(){
                 let categories = [{name: '$recent', name_view: '$Recent'},{name: '$random', name_view: '$Random'}];
 
                 categories = categories.concat(data);
-
+                let categories_sort = categories;
+                categories = categories_sort.sort((a, b) => b.count - a.count).slice(0, 10);
                 // loop through the categories array and create a category element for each one
                 for (let i = 0; i < categories.length; i++) {
                     let name_view = categories[i].name_view;
