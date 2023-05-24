@@ -1297,8 +1297,12 @@ $(document).ready(function(){
                     this_max_context = 1024;
                 }else{
                     this_max_context = 2048-60;//fix for fat tokens 
-                    if(model_novel == 'krake-v2'){
+                    if(model_novel === 'krake-v2'){
                         this_max_context-=160;
+                    }
+                    if(model_novel === 'clio-v1'){
+                        this_max_context = 8192;
+                        this_max_context-=160;//fix for fat tokens 
                     }
                 }
             }
