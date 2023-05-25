@@ -4506,7 +4506,7 @@ $(document).ready(function(){
                         mes = '...'+mes.substring(mes.length - strlen);
                     }
                     let delete_chat_div = `<div class="chat_delete"><a href="#">Delete</a></div>`;
-                    if(Characters.id[Characters.selectedID].chat === data[key]['file_name'].split(".")[0]){
+                    if(Number(Characters.id[Characters.selectedID].chat) === Number(data[key]['file_name'].split(".")[0])){
                         delete_chat_div = '';
                     }
 
