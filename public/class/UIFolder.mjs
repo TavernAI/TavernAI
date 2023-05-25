@@ -86,10 +86,12 @@ export class UIFolder extends UIFolderContent {
 
     onDrop(event) {
         event.preventDefault();
+        /*
         if(event.dataTransfer.items.length) {
             UIFolderContent.dragged = null;
             return;
         }
+        */
         event.stopPropagation();
         if(!UIFolderContent.dragged || UIFolderContent.dragged === this) {
             UIFolderContent.dragged = null;

@@ -184,7 +184,7 @@ $(document).ready(function(){
     var charaCloudServer = 'http://127.0.0.1:80';
     ///////////
     const VERSION = '1.4.1';
-    var converter = new showdown.Converter({ extensions: ['xssfilter'] })
+    var converter = new showdown.Converter({ extensions: ['xssfilter'] });
     var bg_menu_toggle = false;
     var default_user_name = "You";
     var name1 = default_user_name;
