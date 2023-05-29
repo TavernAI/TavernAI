@@ -1209,7 +1209,7 @@ app.post('/getsettings', jsonParser, (request, response) => { //Wintermute's cod
 });
 
 app.post("/savefolders", jsonParser, function(request, response){
-    fs.writeFile('public/characters/folders.json', JSON.stringify(request.body, null, 2), 'utf8', function(err) {
+    fs.writeFile(`${charactersPath}folders.json`, JSON.stringify(request.body, null, 2), 'utf8', function(err) {
         if(err) {
             response.send(err);
             return console.log(err);
@@ -1219,7 +1219,7 @@ app.post("/savefolders", jsonParser, function(request, response){
     });
 });
 app.post('/loadfolders', jsonParser, (request, response) => {
-    fs.readFile('public/characters/folders.json', 'utf8',  (err, data) => {
+    fs.readFile(`${charactersPath}folders.json`, 'utf8',  (err, data) => {
         if (err) return response.sendStatus(500);
         return response.send(data);
     });
