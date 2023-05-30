@@ -92,6 +92,7 @@ var response_getstatus_openai;
 var response_getlastversion;
 var api_key_novel;
 var api_key_openai;
+var api_url_openai;
 
 var is_colab = false;
 var charactersPath = 'public/characters/';
@@ -353,16 +354,20 @@ app.post("/generate", jsonParser, function(request, response_generate = response
         }
         if(response.statusCode == 422){
             console.log('Validation error');
-            response_generate.send({error: true});
+            response_generate.send({error: true, error_message: "Validation error"});
         }
         if(response.statusCode == 501 || response.statusCode == 503 || response.statusCode == 507){
             console.log(data);
-            response_generate.send({error: true});
+            if(data.detail && data.detail.msg) {
+                response_generate.send({error: true, error_message: data.detail.msg});
+            } else {
+                response_generate.send({error: true, error_message: "Error. Status code: " + response.statusCode});
+            }
         }
     }).on('error', function (err) {
         console.log(err);
 	//console.log('something went wrong on the request', err.request.options);
-        response_generate.send({error: true});
+        response_generate.send({error: true, error_message: "Unspecified error while sending the request.\n" + err});
     });
 });
 app.post("/savechat", jsonParser, function(request, response){
@@ -1308,16 +1313,16 @@ app.post("/getstatus_novelai", jsonParser, function(request, response_getstatus_
         }
         if(response.statusCode == 401){
             console.log('Access Token is incorrect.');
-            response_getstatus_novel.send({error: true});
+            response_getstatus_novel.send({error: true, error_message: "Access token is incorrect."});
         }
         if(response.statusCode == 500 || response.statusCode == 501 || response.statusCode == 501 || response.statusCode == 503 || response.statusCode == 507){
             console.log(data);
-            response_getstatus_novel.send({error: true});
+            response_getstatus_novel.send({error: true, error_message: "Error. Status code: " + response.statusCode});
         }
     }).on('error', function (err) {
         //console.log('');
 	//console.log('something went wrong on the request', err.request.options);
-        response_getstatus_novel.send({error: true});
+        response_getstatus_novel.send({error: true, error_message: "Unspecified error while sending the request.\n" + err});
     });
 });
 
@@ -1370,24 +1375,24 @@ app.post("/generate_novelai", jsonParser, function(request, response_generate_no
         }
         if(response.statusCode == 400){
             console.log('Validation error');
-            response_generate_novel.send({error: true});
+            response_generate_novel.send({error: true, error_message: "Validation error"});
         }
         if(response.statusCode == 401){
             console.log('Access Token is incorrect');
-            response_generate_novel.send({error: true});
+            response_generate_novel.send({error: true, error_message: "Access token is incorrect."});
         }
         if(response.statusCode == 402){
             console.log('An active subscription is required to access this endpoint');
-            response_generate_novel.send({error: true});
+            response_generate_novel.send({error: true, error_message: "An active subscription is required to access this endpoint"});
         }
         if(response.statusCode == 500 || response.statusCode == 409){
             console.log(data);
-            response_generate_novel.send({error: true});
+            response_generate_novel.send({error: true, error_message: "Error. Status code: " + response.statusCode});
         }
     }).on('error', function (err) {
         //console.log('');
 	//console.log('something went wrong on the request', err.request.options);
-        response_generate_novel.send({error: true});
+        response_generate_novel.send({error: true, error_message: "Unspecified error while sending the request.\n" + err});
     });
 });
 
@@ -1450,17 +1455,21 @@ app.post("/generate_horde", jsonParser, function(request, response_generate_hord
         }
         if(response.statusCode == 401){
             console.log('Validation error');
-            response_generate_horde.send({error: true});
+            response_generate_horde.send({error: true, error_message: "Validation error."});
         }
         if(response.statusCode == 429 || response.statusCode == 503 || response.statusCode == 507){
             console.log(data);
-            response_generate_horde.send({error: true});
+            if(data.detail && data.detail.msg) {
+                response_generate.send({error: true, error_message: data.detail.msg});
+            } else {
+                response_generate.send({error: true, error_message: "Error. Status code: " + response.statusCode});
+            }
         }
     }).on('error', function (err) {
         hordeActive = false;
         console.log(err);
         //console.log('something went wrong on the request', err.request.options);
-        response_generate_horde.send({error: true});
+        response_generate_horde.send({error: true, error_message: "Unspecified error while sending the request.\n" + err});
     });
 });
 
@@ -1527,10 +1536,10 @@ app.post("/getstatus_horde", jsonParser, function(request, response_getstatus_ho
             response_getstatus_horde.send(data);//data);
         } else {
             console.log(data);
-            response_getstatus_horde.send({error: true});
+            response_getstatus_horde.send({error: true, error_message: "Could not fetch model list."});
         }
     }).on('error', function (err) {
-        response_getstatus_horde.send({error: true});
+        response_getstatus_horde.send({error: true, error_message: "Unspecified error while sending the request.\n" + err});
     });
 });
 
@@ -1549,10 +1558,9 @@ app.get("/gethordeinfo", jsonParser, function(request, response){
 app.post("/getstatus_openai", jsonParser, function(request, response_getstatus_openai = response){
     if(!request.body) return response_getstatus_openai.sendStatus(400);
     api_key_openai = request.body.key;
+    api_url_openai = request.body.url || api_openai;
     var args = {};
-    if(isUrl(api_key_openai)){
-        return response_getstatus_openai.status(200).send({});
-    }else{
+    if(api_key_openai && api_key_openai.length) {
         args = {
             headers: {"Authorization": "Bearer " + api_key_openai}
         };
@@ -1563,20 +1571,20 @@ app.post("/getstatus_openai", jsonParser, function(request, response_getstatus_o
         }
         if(response.statusCode == 401){
             console.log('Invalid Authentication');
-            response_getstatus_openai.send({error: true});
+            response_getstatus_openai.send({error: true, error_message: "Invalid Authentication."});
         }
         if(response.statusCode == 429){
             console.log('Rate limit reached for requests');
-            response_getstatus_openai.send({error: true});
+            response_getstatus_openai.send({error: true, error_message: "Rate limit reached for requests."});
         }
         if(response.statusCode == 500){
             console.log('The server had an error while processing your request');
-            response_getstatus_openai.send({error: true});
+            response_getstatus_openai.send({error: true, error_message: "The server had an error while processing your request."});
         }
     }).on('error', function (err) {
         //console.log('');
 	//console.log('something went wrong on the request', err.request.options);
-        response_getstatus_openai.send({error: true});
+        response_getstatus_openai.send({error: true, error_message: "Unspecified error while sending the request.\n" + err});
     });
 });
 
@@ -1606,21 +1614,20 @@ app.post("/generate_openai", jsonParser, function(request, response_generate_ope
 
     }
     let args = {};
-    let api_url = "";
-    if(isUrl(api_key_openai)){
-        api_url = api_key_openai;
+    let api_url = api_url_openai;
+    if(api_key_openai && api_key_openai.length){
+        api_url = api_openai;
         args = {
             data: data,
-            headers: {"Content-Type": "application/json"},
+            headers: {"Content-Type": "application/json", "Authorization": "Bearer " + api_key_openai},
             requestConfig: {
                 timeout: connectionTimeoutMS
             }
         };
     }else{
-        api_url = api_openai;
         args = {
             data: data,
-            headers: {"Content-Type": "application/json", "Authorization": "Bearer " + api_key_openai},
+            headers: {"Content-Type": "application/json"},
             requestConfig: {
                 timeout: connectionTimeoutMS
             }
@@ -1630,11 +1637,22 @@ app.post("/generate_openai", jsonParser, function(request, response_generate_ope
         try {
             if(request.body.model === 'gpt-3.5-turbo' || request.body.model === 'gpt-3.5-turbo-0301' || request.body.model === 'gpt-4' || request.body.model === 'gpt-4-32k'){
                 console.log(data);
-                if(data.choices[0].message !== undefined){
-                    console.log(data.choices[0].message);
+
+                if(!data.choices || !data.choices[0]) {
+                    let message = null;
+                    let code = null;
+                    if(data.error) {
+                        message = data.error.message;
+                        code = data.error.type;
+                    }
+                    response_generate_openai.send({ error: true, error_message: message, error_code: code });
+                    return;
                 }
 
 
+                if(data.choices[0].message !== undefined){
+                    console.log(data.choices[0].message);
+                }
             }else{
                 console.log(data);
             }
@@ -1644,24 +1662,24 @@ app.post("/generate_openai", jsonParser, function(request, response_generate_ope
             }
             if(response.statusCode == 401){
                 console.log('Invalid Authentication');
-                response_generate_openai.send({error: true});
+                response_generate_openai.send({error: true, error_code: 401, error_message: "Invalid Authentication"});
             }
             if(response.statusCode == 429){
                 console.log('Rate limit reached for requests');
-                response_generate_openai.send({error: true});
+                response_generate_openai.send({error: true, error_code: 429, error_message: "Rate limit reached for requests"});
             }
             if(response.statusCode == 500){
                 console.log('The server had an error while processing your request');
-                response_generate_openai.send({error: true});
+                response_generate_openai.send({error: true, error_code: 500, error_message: "The server had an error while processing your request"});
             }
         }catch (error) {
             console.log("An error occurred: " + error);
-            response_generate_openai.send({error: true});
+            response_generate_openai.send({error: true, error_message: error});
         }
     }).on('error', function (err) {
         //console.log('');
 	//console.log('something went wrong on the request', err.request.options);
-        response_generate_openai.send({error: true});
+        response_generate_openai.send({error: true, error_message: "Unspecified error while sending the request.\n" + err});
     });
 });
 
