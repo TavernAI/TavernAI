@@ -98,6 +98,7 @@ var charactersPath = 'public/characters/';
 var worldPath = 'public/worlds/';
 var chatsPath = 'public/chats/';
 var UserAvatarsPath = 'public/User Avatars/';
+var roomsPath = 'public/rooms/';
 if (is_colab && process.env.googledrive == 2){
     charactersPath = '/content/drive/MyDrive/TavernAI/characters/';
     chatsPath = '/content/drive/MyDrive/TavernAI/chats/';
@@ -445,6 +446,88 @@ app.post("/getchat", jsonParser, function(request, response){
     });
 
     
+
+    
+});
+app.post("/savechatroom", jsonParser, function(request, response){
+    //console.log(request.data);
+    //console.log(request.body.bg);
+     //const data = request.body;
+    //console.log(request);
+    //console.log(request.body.chat);
+    //var bg = "body {background-image: linear-gradient(rgba(19,21,44,0.75), rgba(19,21,44,0.75)), url(../backgrounds/"+request.body.bg+");}";
+    var dir_name = String(request.body.filename);
+    let chat_data = request.body.chat;
+    let jsonlData = chat_data.map(JSON.stringify).join('\n');
+    fs.writeFile(roomsPath+"/"+request.body.filename+'.jsonl', jsonlData, 'utf8', function(err) {
+        if(err) {
+            response.send(err);
+            return console.log(err);
+            //response.send(err);
+        }else{
+            //response.redirect("/");
+            response.send({result: "ok"});
+        }
+    });
+    
+});
+app.post("/getchatroom", jsonParser, function(request, response){
+    
+    // Expected: request.body.room_filename is the .jsonl file name (WITHOUT the extension) representing the room referred
+
+    var dir_name = String(request.body.room_filename);
+
+    fs.stat(roomsPath+dir_name+".jsonl", function(err, stat) {
+            
+        if(stat === undefined){
+
+            fs.mkdirSync(roomsPath+dir_name+".jsonl");
+            response.send({});
+            return;
+        }else{
+            
+            if(err === null){
+                
+                fs.stat(roomsPath+request.body.room_filename+".jsonl", function(err, stat) {
+                    
+                    if (err === null) {
+                        
+                        if(stat !== undefined){
+                            fs.readFile(roomsPath+request.body.room_filename+".jsonl", 'utf8', (err, data) => {
+                                if (err) {
+                                  console.error(err);
+                                  response.send(err);
+                                  return;
+                                }
+                                //console.log(data);
+                                const lines = data.split('\n');
+
+                                // Iterate through the array of strings and parse each line as JSON
+                                const jsonData = lines.map(json5.parse);
+                                response.send(jsonData);
+
+
+                            });
+                        }
+                    }else{
+                        response.send({});
+                        //return console.log(err);
+                        return;
+                    }
+                });
+            }else{
+                console.error(err);
+                response.send({});
+                return;
+            }
+        }
+        
+
+    });
+
+    
+
+    
 });
 app.post("/getstatus", jsonParser, function(request, response_getstatus = response){
     if(!request.body) return response_getstatus.sendStatus(400);
@@ -594,6 +677,8 @@ function charaFormatData(data){
 }
 app.post("/createcharacter", urlencodedParser, async function(request, response){
     let target_img = setCardName(request.body.ch_name);
+
+    console.log(request.body.character_names);
     
     if(!request.body) return response.sendStatus(400);
     if (!fs.existsSync(charactersPath+target_img+`.${characterFormat}`)){
@@ -634,7 +719,36 @@ app.post("/createcharacter", urlencodedParser, async function(request, response)
     //response.redirect("https://metanit.com")
 });
 
+app.post("/createroom", urlencodedParser, async function(request, response){
+    // let target_img = setCardName(request.body.ch_name);
 
+    // since we are planning to re-use existing code, ch_name == filename (jsonl filename), since changing vvariables means we need
+    // to also change the html file's form's input "name" attributes
+    let target_file = request.body.ch_name; 
+    let characterNames = request.body.room_characters;
+    let scenario = request.body.room_scenario;
+    const fileExtension = ".jsonl";
+    
+    if(!request.body) return response.sendStatus(400);
+    if(!request.body.room_characters) return response.sendStatus(400); // A room needs to have at least one character
+    if (!fs.existsSync(roomsPath+target_file+fileExtension)){
+
+        if(!scenario)
+            await roomWrite(target_file, characterNames);
+        else
+            await roomWrite(target_file, characterNames, "You", Date.now(), "", "discr", scenario, []);
+
+        response.status(200).send({file_name: target_file});
+        //console.log("The file was saved.");
+
+    }else{
+        response.send("Error: A room with that name already exists.");
+    }
+    //console.log(request.body);
+    //response.send(target_img);
+
+    //response.redirect("https://metanit.com")
+});
 
 app.post("/editcharacter", urlencodedParser, async function(request, response){
     try {
@@ -699,6 +813,42 @@ app.post("/deletecharacter", jsonParser, function(request, response){
         return response.status(400).json({error: err.toString()});
     }
 });
+
+app.post("/editroom", urlencodedParser, async function(request, response){
+    try {
+        if (!request.body)
+            return response.sendStatus(400);
+
+        let filename = request.body.filename;
+        
+        // let filedata = request.file; // No file data for rooms, since rooms do not have any avatar/image associated with them
+        var fileExtension = ".jsonl";
+        var img_file = "ai";
+        var img_path = roomsPath;
+        
+        let old_room_data = await roomRead(filename + fileExtension);
+        let old_room_metadata = old_room_data[0];
+        let room_data_array = Object.values(old_room_data); // Convert JSON object (of JSON objects) into an array (of JSON objects)
+        room_data_array.shift(); // The first line is metadata, so need to remove it first
+        let room_chat_data = room_data_array;
+        // let old_char_data = JSON.parse(old_char_data_json); // No need for this line, since roomRead() already returns a JSON object (not as string)
+        let new_room_metadata = request.body;
+        
+        let merged_room_metadata = Object.assign({}, old_room_metadata, new_room_metadata);
+
+        console.log(merged_room_metadata);
+        
+        await roomWrite(filename, merged_room_metadata.character_names, merged_room_metadata.user_name, merged_room_metadata.create_date,
+            merged_room_metadata.notes, merged_room_metadata.notes_types, merged_room_metadata.scenario, room_chat_data);
+
+        return response.status(200).send('Room saved');
+    } catch (err) {
+        console.log(err);
+        return response.status(400).json({error: err.toString()});
+    }
+});
+
+
 
 async function charaWrite(source_img, data, target_img, format = 'webp') {
     try {
@@ -802,6 +952,28 @@ async function charaRead(img_url, input_format){
 
 }
 
+// The function already appends the roomsPath before filedir (filename), and the .jsonl extension after the filedir
+async function roomWrite(filedir, characterNames, user_name="You", create_date="", notes="", notes_type="discr", scenario="", chat=[]) {
+    try {
+        const fileExtension = ".jsonl"; 
+        let fileContent = ''; // In string form
+        let createDate = create_date ? create_date : Date.now();
+        let firstLine = '{"user_name":"'+user_name+'","character_names":'+JSON.stringify(characterNames)+',"create_date":'+createDate+',"notes":"'+notes+'","notes_type":"'+notes_type+'","scenario":"'+scenario+'"}';
+        fileContent += firstLine;
+        fileContent += chat.length ? "\n" : "";
+        chat.forEach(function(chat_msg, i) {
+            if(i < chat.length-1) // If the current chat message is not the last message
+                fileContent += JSON.stringify(chat_msg) + "\n";
+            else
+                fileContent += JSON.stringify(chat_msg);
+        });
+        fs.writeFileSync(roomsPath+filedir+fileExtension, fileContent);
+        // console.log(firstLine);
+    } catch (err) {
+        throw err;
+    }
+}
+
 app.post("/getcharacters", jsonParser, async function(request, response) {
     try {
         const files = await fs.promises.readdir(charactersPath);
@@ -836,6 +1008,77 @@ app.post("/getcharacters", jsonParser, async function(request, response) {
         }
 
         response.send(JSON.stringify(characters));
+    } catch (error) {
+        console.error(error);
+        response.sendStatus(500);
+    }
+});
+
+// The function already appends the roomsPath before the roomFile value, expected with extension
+async function roomRead(roomFile) {
+    // console.log(roomsPath+roomFile);
+    return fs.readFileSync(roomsPath+roomFile, {encoding: 'utf8'}).split('\n').map(json5.parse);
+}
+
+app.post("/getrooms", jsonParser, async function(request, response) {
+    try {
+        // const files = fs.readdirSync(roomsPath, {encoding: 'utf8'});
+        const files = await fs.promises.readdir(roomsPath);
+        let roomFiles = files.filter(file => file.endsWith('.jsonl'));
+        if(request.body && request.body.filename) {
+            roomFiles = roomFiles
+                .filter(file => file
+                    .replace(/\.[^\.]*/, "").toLowerCase() === request.body.filename.toLowerCase()
+                );
+        }
+        const rooms = {};
+        let i = 0;
+
+        for (const item of roomFiles) {
+            let jsonObject = {};
+            
+            // fs.readFileSync(roomsPath+item, 'utf8', (err, data) => {
+            //     if (err) {
+            //         response.send(err);
+            //         return;
+            //     }
+            //     //console.log(data);
+            //     const lines = data.split('\n');
+
+            //     // Iterate through the array of strings and parse each line as JSON
+            //     jsonObject.chat = lines.map(json5.parse);
+            //     try {
+            //         jsonObject.filename = item;
+            //         rooms[i] = jsonObject;
+            //         i++;
+            //     } catch (error) {
+            //         if (error instanceof SyntaxError) {
+            //             console.error("Room info from index " +i+ " is not valid JSON!", error);
+            //         } else {
+            //             console.error("An unexpected error loading room index " +i+ " occurred.", error);
+            //         }
+            //         console.error("Pre-parsed room data:");
+            //         console.error(jsonObject);
+            //     }
+
+            //     console.log(rooms);
+            // });
+
+            const stats = await fs.promises.stat(roomsPath+item);
+            if(!stats.isDirectory())
+            {
+                jsonObject.chat = await roomRead(item);
+                // jsonObject = (await fs.promises.readFile(roomsPath+item, {encoding: 'utf8'})).split('\n').map(json5.parse);
+                jsonObject.filename = item;
+                rooms[i] = jsonObject;
+                // console.log(rooms);
+                i++;
+                // console.log(rooms);
+            }
+        }
+
+        // console.log(rooms);
+        response.send(JSON.stringify(rooms));
     } catch (error) {
         console.error(error);
         response.sendStatus(500);
@@ -2032,6 +2275,7 @@ module.exports.charactersPath = charactersPath;
 
 
 const charaCloudRoute = require('./routes/characloud');
+const e = require('express');
 
 app.use('/api/characloud', charaCloudRoute);
 
