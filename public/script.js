@@ -341,7 +341,8 @@ $(document).ready(function(){
     var top_p_openai = 1.0;
     var pres_pen_openai = 0.7;
     var freq_pen_openai = 0.7;
-    
+
+    var api_url_openai = "https://api.openai.com/v1";
     var api_key_openai = "";
     var openai_system_prompt = "";
     var openai_jailbreak_prompt = "";
@@ -791,7 +792,7 @@ $(document).ready(function(){
                     main_api = "openai";
                     $("#main_api").val("openai");
                     $("#main_api").change();
-                    $('#api_key_openai').val(url);
+                    $('#api_url_openai').val(url);
                     setTimeout(function () {
                         $('#api_button_openai').click();
                         $('#colab_shadow_popup').css('display', 'none');
@@ -1649,6 +1650,7 @@ $(document).ready(function(){
                     contentType: "application/json",
                     success: generateCallback.bind(this),
                     error: function (jqXHR, exception) {
+                        console.error(jqXHR, exception);
 
                         $("#send_textarea").removeAttr('disabled');
                         is_send_press = false;
@@ -1841,6 +1843,10 @@ $(document).ready(function(){
                 }
             }
         }else{
+            console.error(data);
+            if(data.error_message) {
+                callPopup(data.error_message, 'alert_error');
+            }
             is_send_press = false;
             $( "#send_button" ).css("display", "block");
             $( "#loading_mes" ).css("display", "none");
@@ -3059,6 +3065,16 @@ $(document).ready(function(){
         $('#amount_gen_counter').html( $(this).val()+' Tokens' );
         var amountTimer = setTimeout(saveSettings, 500);
     });
+    document.getElementById("lock_url_openai").onchange = function(event) {
+        const el = document.getElementById("api_url_openai");
+        if(event.target.checked) {
+            el.setAttribute("disabled", "disabled");
+        } else {
+            el.removeAttribute("disabled");
+        }
+    }
+    document.getElementById("lock_url_openai").setAttribute("checked", "checked");
+    document.getElementById("lock_url_openai").checked = true;
     $(document).on('input', '#top_p', function() {
         top_p = $(this).val();
         if(isInt(top_p)){
@@ -3438,6 +3454,10 @@ $(document).ready(function(){
                     if(settings.api_key_openai != undefined){
                         api_key_openai = settings.api_key_openai;
                         $("#api_key_openai").val(api_key_openai);
+                    }
+                    if(settings.api_url_openai != undefined){
+                        api_url_openai = settings.api_url_openai;
+                        $("#api_url_openai").val(api_url_openai);
                     }
                     if(settings.openai_system_prompt != undefined){
                         openai_system_prompt = settings.openai_system_prompt;
@@ -3868,6 +3888,7 @@ $(document).ready(function(){
                     main_api: main_api,
                     api_key_novel: api_key_novel,
                     api_key_openai: api_key_openai,
+                    api_url_openai: api_url_openai,
                     openai_system_prompt: openai_system_prompt,
                     openai_jailbreak_prompt: openai_jailbreak_prompt,
                     openai_jailbreak2_prompt: openai_jailbreak2_prompt,
@@ -4704,8 +4725,9 @@ $(document).ready(function(){
                 type: 'POST', // 
                 url: '/getstatus_openai', // 
                 data: JSON.stringify({
-                        key: api_key_openai
-                    }),
+                    key: api_key_openai,
+                    url: lock_url_openai,
+                }),
                 beforeSend: function(){
                     if(is_api_button_press_openai){
                         //$("#api_loading").css("display", 'inline-block');
@@ -4751,17 +4773,19 @@ $(document).ready(function(){
         }
     }
     $( "#api_button_openai" ).click(function() {
-        if($('#api_key_openai').val() != ''){
-            $("#api_loading_openai").css("display", 'inline-block');
-            $("#api_button_openai").css("display", 'none');
-            api_key_openai = $('#api_key_openai').val();
-            api_key_openai = $.trim(api_key_openai);
-            //console.log("1: "+api_server);
-            saveSettings();
-            is_get_status_openai = true;
-            is_api_button_press_openai = true;
-            getStatusOpenAI();
+        api_key_openai = $('#api_key_openai').val();
+        api_key_openai = $.trim(api_key_openai);
+        if($('#api_url_openai').val() != ''){
+            api_url_openai = $.trim($('#api_url_openai').val());
+        } else {
+            api_url_openai = null;
         }
+        $("#api_loading_openai").css("display", 'inline-block');
+        $("#api_button_openai").css("display", 'none');
+        saveSettings();
+        is_get_status_openai = true;
+        is_api_button_press_openai = true;
+        getStatusOpenAI();
     });
     function resultCheckStatusOpen(){
         is_api_button_press_openai = false;  

@@ -1907,8 +1907,8 @@ input[type="range"]::-ms-thumb {
     outline: none;
     transition: 0.3s;
     display: inline-block;
-    
-    
+
+
 }
 .toggle_lock[type="checkbox"]:before {
     content: "";
@@ -1951,6 +1951,65 @@ input[type="range"]::-ms-thumb {
     margin-left: 8px;
     color: #19d28f;
     
+}
+
+
+.toggle_lock.reverse[type="checkbox"] {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 30px;
+    width: 54px;
+    background-color: #34384b99;
+    border-radius: 10px;
+    cursor: pointer;
+    outline: none;
+    transition: 0.3s;
+    display: inline-block;
+
+
+}
+.toggle_lock.reverse[type="checkbox"]:before {
+    content: "";
+    display: block;
+    transition: 0.3s;
+    /*background-color: #5b9541;/*#19d28f;*/
+    background-image: url(../img/padlock_unlock.png);
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: 0 3px;
+    width: 27px;
+    height: 27px;
+    margin-left: auto;
+    margin-right: 2px;
+}
+.toggle_lock.reverse[type="checkbox"]:after {
+    content: "";
+    margin-top: 8px;
+    margin-left: auto;
+    margin-right: 6px;
+    transition: 0.3s;
+
+}
+.toggle_lock.reverse[type="checkbox"]:checked {
+    background-color: #34384b;/*#19d28f;*/
+    margin-left: auto;
+    margin-right: 24px;
+    width: 32px;
+}
+.toggle_lock.reverse[type="checkbox"]:checked:before {
+    margin-left: auto;
+    margin-right: 3px;
+    background-image: url(../img/padlock.png);
+    background-repeat: no-repeat;
+    background-size: contain;
+    width: 27px;
+    height: 27px;
+}
+.toggle_lock.reverse[type="checkbox"]:checked:after {
+    content: "";
+    margin-left: auto;
+    margin-right: 8px;
+    color: #19d28f;
 }
 
 #max_context_grid {
@@ -2178,6 +2237,15 @@ label.checkbox :checked + span:after {
 #openai_jailbreak2_prompt_textarea {
     height: 60px;
     margin-bottom: 28px;
+}
+#lock_url_openai {
+    float: right;
+    position: relative;
+    right: 2.5em;
+    top: -0.25ex;
+}
+#api_url_openai:disabled {
+    color: #ffffff66;
 }
 #character_popup_ok {
     cursor: pointer;
