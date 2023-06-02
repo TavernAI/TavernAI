@@ -1555,17 +1555,17 @@ app.get("/gethordeinfo", jsonParser, function(request, response){
 
 //***********Open.ai API
 
-app.post("/getstatus_openai", jsonParser, function(request, response_getstatus_openai = response){
+app.post("/getstatus_openai", jsonParser, function(request, response_getstatus_openai){
     if(!request.body) return response_getstatus_openai.sendStatus(400);
     api_key_openai = request.body.key;
-    api_url_openai = request.body.url || api_openai;
+    api_url_openai = request.body.url;
     var args = {};
     if(api_key_openai && api_key_openai.length) {
         args = {
             headers: {"Authorization": "Bearer " + api_key_openai}
         };
     }
-    client.get(api_openai+"/engines/text-davinci-003", args, function (data, response) {
+    client.get(api_url_openai+"/models", args, function (data, response) {
         if(response.statusCode == 200){
             response_getstatus_openai.send(data);
         }
@@ -1614,9 +1614,8 @@ app.post("/generate_openai", jsonParser, function(request, response_generate_ope
 
     }
     let args = {};
-    let api_url = api_url_openai;
+
     if(api_key_openai && api_key_openai.length){
-        api_url = api_openai;
         args = {
             data: data,
             headers: {"Content-Type": "application/json", "Authorization": "Bearer " + api_key_openai},
@@ -1633,7 +1632,7 @@ app.post("/generate_openai", jsonParser, function(request, response_generate_ope
             }
         };
     }
-    client.post(api_url+request_path,args, function (data, response) {
+    client.post(api_url_openai+request_path,args, function (data, response) {
         try {
             if(request.body.model === 'gpt-3.5-turbo' || request.body.model === 'gpt-3.5-turbo-0301' || request.body.model === 'gpt-4' || request.body.model === 'gpt-4-32k'){
                 console.log(data);

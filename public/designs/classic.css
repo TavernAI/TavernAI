@@ -1703,7 +1703,7 @@ select {
 #openai_api_logo {
     position: absolute; 
     right:164px; 
-    top:-27px; 
+    top:-33px; 
     opacity:0.25;
 }
 #openai_api_logo img {
@@ -2238,12 +2238,18 @@ label.checkbox :checked + span:after {
     height: 60px;
     margin-bottom: 28px;
 }
-#lock_url_openai {
-    float: right;
-    position: relative;
-    right: 2.5em;
-    top: -0.25ex;
+
+#default_openai_url_button {
+    position: absolute;
+    display: inline-block;
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+    opacity: 0.35;
+    margin-top: 5px;
+    margin-left: 7px;
 }
+
 #api_url_openai:disabled {
     color: #ffffff66;
 }

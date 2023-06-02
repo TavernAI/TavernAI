@@ -341,8 +341,9 @@ $(document).ready(function(){
     var top_p_openai = 1.0;
     var pres_pen_openai = 0.7;
     var freq_pen_openai = 0.7;
-
-    var api_url_openai = "https://api.openai.com/v1";
+    
+    const default_api_url_openai = "https://api.openai.com/v1"
+    var api_url_openai = default_api_url_openai;
     var api_key_openai = "";
     var openai_system_prompt = "";
     var openai_jailbreak_prompt = "";
@@ -3065,16 +3066,16 @@ $(document).ready(function(){
         $('#amount_gen_counter').html( $(this).val()+' Tokens' );
         var amountTimer = setTimeout(saveSettings, 500);
     });
-    document.getElementById("lock_url_openai").onchange = function(event) {
-        const el = document.getElementById("api_url_openai");
-        if(event.target.checked) {
-            el.setAttribute("disabled", "disabled");
-        } else {
-            el.removeAttribute("disabled");
-        }
-    }
-    document.getElementById("lock_url_openai").setAttribute("checked", "checked");
-    document.getElementById("lock_url_openai").checked = true;
+
+    $('#api_url_openai').on('input', function () {
+        $('#api_key_openai').val('');
+    });
+    $('#default_openai_url_button').click(function(){
+        $('#api_key_openai').val('');
+        $('#api_url_openai').val(default_api_url_openai);
+        api_url_openai = default_api_url_openai;
+        saveSettings();
+    });
     $(document).on('input', '#top_p', function() {
         top_p = $(this).val();
         if(isInt(top_p)){
@@ -4637,6 +4638,8 @@ $(document).ready(function(){
                         if(novel_tier === 3){
                             online_status = "Opus";
                         }
+                    }else{
+                        callPopup(data.error_message, 'alert_error');
                     }
                     setPygmalionFormating();
                     resultCheckStatusNovel();
@@ -4726,7 +4729,7 @@ $(document).ready(function(){
                 url: '/getstatus_openai', // 
                 data: JSON.stringify({
                     key: api_key_openai,
-                    url: lock_url_openai,
+                    url: $('#api_url_openai').val()
                 }),
                 beforeSend: function(){
                     if(is_api_button_press_openai){
@@ -4743,8 +4746,9 @@ $(document).ready(function(){
                 //processData: false, 
                 success: function(data){
                     online_status = data;
-                    if(online_status == undefined || online_status.error == true){
+                    if(data == undefined || data.error == true){
                         online_status = 'no_connection';
+                        callPopup(data.error_message, 'alert_error');
                     }else{
                         online_status = 'Connected';
                     }

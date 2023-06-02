@@ -586,12 +586,12 @@
             </div>
             <div id="openai_api">
                 <div id="openai_api_logo"><a href="https://openai.com" target="_blank"><img src="img/openai.png"></a></div>
-                <form  action="javascript:void(null);" method="post" enctype="multipart/form-data">
+                <form  action="javascript:void(null);" method="post" enctype="multipart/form-data" id="openai_auth">
                     <h4 class="h4_menu_title">API address and key</h4><h5 class="h5_menu_help">Where to get (<a href="/notes/19" target="_blank">?</a>)</h5>
-                    <input id="api_url_openai" name="api_url_openai" class="text_pole" value="https://api.openai.com/v1" placeholder="https://api.openai.com/v1" disabled="disabled" type="text" maxlength="500" size="35" autocomplete="off">
-                    <input id="lock_url_openai" type="checkbox" checked="checked" class="toggle_lock reverse" title="(Un)lock API URL">
+                    <input id="api_url_openai" name="api_url_openai" class="text_pole" value="https://api.openai.com/v1" placeholder="https://api.openai.com/v1" type="text" maxlength="500" size="35" autocomplete="off">
+                    <img src="../img/revert.png" id="default_openai_url_button">
                     <br>
-                    <input id="api_key_openai" name="api_key_openai" class="text_pole" type="password" maxlength="500" size="35" value="" autocomplete="off" placeholder="API key">
+                    <input id="api_key_openai" name="api_key_openai" class="text_pole" maxlength="500" size="35" value="" autocomplete="off" placeholder="API key or Prpxy password">
                     <input id="api_button_openai" type="submit" value="Connect">
                     <img id="api_loading_openai" src="img/load.svg" >
                 </form>
