@@ -2091,9 +2091,22 @@ $(document).ready(function(){
         $( "#delete_button_div" ).css("display", "block");
         $( "#rm_button_selected_ch" ).children("h2").removeClass('deselected_button_style');
         $( "#rm_button_selected_ch" ).children("h2").addClass('seleced_button_style');
-        var display_name = Characters.id[chid].name;
+        
         $( "#rm_button_selected_ch" ).css('display', 'inline-block');
-        $( "#rm_button_selected_ch" ).children("h2").text(display_name);
+        let display_name = Characters.id[chid].name;
+        let display_name_text = '';
+        for (var i = 0; i < display_name.length; i++) {
+            // add a symbol to the h2 element
+            display_name_text += display_name[i];
+            $( "#rm_button_selected_ch" ).children("h2").text(display_name_text);
+
+            // check if the length exceeds the maximum length
+            if ($( "#rm_button_selected_ch" ).children("h2").width() > 136) {
+                $( "#rm_button_selected_ch" ).children("h2").text(display_name_text+'...');
+                break; // stop adding symbols
+            }
+        }
+
         
         $(".chareditor-button-close").css('display', 'none');
 
