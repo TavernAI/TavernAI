@@ -1953,65 +1953,6 @@ input[type="range"]::-ms-thumb {
     
 }
 
-
-.toggle_lock.reverse[type="checkbox"] {
-    -webkit-appearance: none;
-    appearance: none;
-    height: 30px;
-    width: 54px;
-    background-color: #34384b99;
-    border-radius: 10px;
-    cursor: pointer;
-    outline: none;
-    transition: 0.3s;
-    display: inline-block;
-
-
-}
-.toggle_lock.reverse[type="checkbox"]:before {
-    content: "";
-    display: block;
-    transition: 0.3s;
-    /*background-color: #5b9541;/*#19d28f;*/
-    background-image: url(../img/padlock_unlock.png);
-    background-repeat: no-repeat;
-    background-size: contain;
-    background-position: 0 3px;
-    width: 27px;
-    height: 27px;
-    margin-left: auto;
-    margin-right: 2px;
-}
-.toggle_lock.reverse[type="checkbox"]:after {
-    content: "";
-    margin-top: 8px;
-    margin-left: auto;
-    margin-right: 6px;
-    transition: 0.3s;
-
-}
-.toggle_lock.reverse[type="checkbox"]:checked {
-    background-color: #34384b;/*#19d28f;*/
-    margin-left: auto;
-    margin-right: 24px;
-    width: 32px;
-}
-.toggle_lock.reverse[type="checkbox"]:checked:before {
-    margin-left: auto;
-    margin-right: 3px;
-    background-image: url(../img/padlock.png);
-    background-repeat: no-repeat;
-    background-size: contain;
-    width: 27px;
-    height: 27px;
-}
-.toggle_lock.reverse[type="checkbox"]:checked:after {
-    content: "";
-    margin-left: auto;
-    margin-right: 8px;
-    color: #19d28f;
-}
-
 #max_context_grid {
     display: grid;
     grid-template-rows: auto;
