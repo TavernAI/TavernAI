@@ -25,7 +25,7 @@ export class CharacterEditor extends EventEmitter {
         input: null,
         block: null,
         title: null,
-        help: null,
+        help: null
     }
 
     avatar = {
@@ -305,12 +305,10 @@ export class CharacterEditor extends EventEmitter {
             // console.log(charactersSelected);
             for (var i = 0; i < charactersSelected.length; i++) {
                 charactersSelected[i].removeAttribute("disabled");
-                console.log(charactersSelected[i]);
             }
         }
 
         let formData = new FormData(this.container);
-        console.log(formData);
         
         if(!this.chardata.name || !this.chardata.name.length) {
             document.getElementById("result_info").innerHTML = "Name not entered";
@@ -323,7 +321,6 @@ export class CharacterEditor extends EventEmitter {
             {
                 this.enabled = false;
                 this.button.submit.setAttribute("value", "Creating...");
-                console.log(getRoomsInstance());
                 getRoomsInstance().editor.emit(RoomEditor.EVENT_CREATE, {
                     data: formData,
                     resolve: function(data){
@@ -344,7 +341,6 @@ export class CharacterEditor extends EventEmitter {
             {
                 this.enabled = false;
                 this.button.submit.setAttribute("value", "Saving...");
-                console.log(getRoomsInstance());
                 // Needs to be done since room scenario is saved as "scenario" in the .jsonl file
                 // formData.scenario = this.other.roomScenarioInput.value || "";
                 formData.set("scenario", this.other.roomScenarioInput.value || "");
@@ -434,8 +430,7 @@ export class CharacterEditor extends EventEmitter {
     set editMode(value) {
         this._editMode = value;
         this.name.block.style.visible = this._editMode ? null : "none";
-        if(getIsRoom())
-        {
+        if(getIsRoom()) {
             // this.avatar.filenameInput.style.display = "none";
             // this.avatar.previewImg.style.display = "none";
             // this.avatar.input.style.display = "none";
@@ -450,9 +445,7 @@ export class CharacterEditor extends EventEmitter {
             this.button.delete.style.display = "none";
             this.button.export.style.display = "none";
             this.button.online.style.display = "none";
-        }
-        else
-        {
+        } else {
             // this.avatar.filenameInput.style.display = null;
             // this.avatar.previewImg.style.display = null;
             // this.avatar.input.style.display = null;
@@ -468,6 +461,7 @@ export class CharacterEditor extends EventEmitter {
             this.button.export.style.display = null;
             this.button.online.style.display = null;
         }
+        
         if(this._editMode) {
             this.button.submit.setAttribute("value", "Save");
             this.button.delete.removeAttribute("disabled");
@@ -482,8 +476,10 @@ export class CharacterEditor extends EventEmitter {
             this.button.export.setAttribute("disabled", "true");
             this.container.classList.remove("edit");
             this.container.classList.add("create");
-            if(getIsRoom())
+            if(getIsRoom()){
+                $('#room_scenario').val('');
                 this.other.roomAvailableCharactersDiv.style.display = null;
+            }
         }
         //this.button.online.style.visible = !this._editMode ? null : "none";
     }
@@ -564,9 +560,9 @@ export class CharacterEditor extends EventEmitter {
         this.other.personalityInput.value = this._chardata.personality || "";
         this.other.scenarioInput.value = this._chardata.scenario || "";
         this.other.exampleDialogueTextarea.value = this._chardata.mes_example || "";
-
-        if(getIsRoom() && this._editMode)
+        if(getIsRoom() && this._editMode){
             this.other.roomScenarioInput.value = getRoomsInstance().id[getRoomsInstance().selectedRoomId].chat[0].scenario || "";
+        }
 
         this.updateTokenCount();
     }

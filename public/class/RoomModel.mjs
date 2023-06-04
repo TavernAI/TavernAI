@@ -54,8 +54,6 @@ export class RoomModel extends EventEmitter {
 
     get selectedRoomId() {
         let id = -1;
-        console.log(this.rooms);
-        console.log(this.selectedRoom);
         this.rooms.forEach(function(room, i) {
             if(room.filename == this.selectedRoom+".jsonl")
             {
@@ -190,7 +188,6 @@ export class RoomModel extends EventEmitter {
                     //         }
                     //     }
                     // });
-                    console.log(data);
                     this.loadRooms(data.file_name.replace(/\.[^\.]*/, "")).then(data => {
                         characterAddedSign(null, 'Room created'); // null since a room doesn't have an image
                         if(data && data[0]) {
@@ -221,7 +218,6 @@ export class RoomModel extends EventEmitter {
         // let newname = event.data.get("avatar").name;
         // let filename = event.data.get("filename");
         // let id = this.getIDbyFilename(filename);
-        console.log(event.data);
         jQuery.ajax({
             type: 'POST',
             url: '/editroom',
@@ -240,7 +236,7 @@ export class RoomModel extends EventEmitter {
                 // }
                 // this.saveFolders();
                 // this.rooms.length = 0;
-                // this.loadAll();
+                this.loadAll();
                 if(event.resolve) {
                     event.resolve(data);
                 }

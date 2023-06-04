@@ -153,7 +153,6 @@ $(document).ready(function(){
     });
     Rooms.on(RoomModel.EVENT_ROOM_SELECT, function(event) {
         let a = Rooms.loadAll();
-        console.log(Rooms.id);
 
         // if(!is_room)
         // {
@@ -175,7 +174,6 @@ $(document).ready(function(){
         });
 
         $("#rm_print_rooms_block li").on("click", function(event) {
-            console.log(event.currentTarget.firstChild.lastChild.textContent);
             let filename = event.currentTarget.firstChild.lastChild.textContent;
             Rooms.selectedRoom = filename;
             getChatRoom(filename);
@@ -1251,7 +1249,6 @@ $(document).ready(function(){
             var charPersonality = $.trim(Characters.id[Characters.selectedID].personality);
             var inject = "";
 
-            console.log(charDescription);
 
 
             let wDesc = WPP.parseExtended(charDescription);
@@ -2106,12 +2103,9 @@ $(document).ready(function(){
                     Rooms.selectedCharacterNames = chat[0]['character_names'];
                     Rooms.selectedCharacters = getIDsByNames(chat[0]['character_names']);
                     Rooms.activeCharacterIdInit(chat[chat.length-1]);
-                    console.log(Rooms.activeId);
-                    console.log(Characters.selectedID);
                     chat_create_date = chat[0]['create_date'];
                     winNotes.text = chat[0].notes || "";
                     winNotes.strategy = chat[0].notes_type || "discr";
-                    console.log(Characters.selectedID);
                     if(!winNotes.text || !winNotes.text.length) {
                         let defaultWpp = '[Character("'+Characters.id[Characters.selectedID].name+'"){}]';
                         try {
@@ -2124,7 +2118,6 @@ $(document).ready(function(){
                     }
                     chat.shift();
                     assignIDsByNames();
-                    console.log(chat);
 
                 }else{
                     chat_create_date = Date.now();
@@ -2156,7 +2149,6 @@ $(document).ready(function(){
                 }
             }
         });
-        console.log(Rooms.id[Rooms.selectedRoomId]);
         var save_chat = [{user_name:default_user_name, character_names:Rooms.selectedCharacterNames,create_date: chat_create_date, notes: winNotes.text, notes_type: winNotes.strategy, scenario: Rooms.id[Rooms.selectedRoomId].chat[0].scenario}, ...chat];
 
         jQuery.ajax({    
@@ -2196,7 +2188,6 @@ $(document).ready(function(){
         });
         var save_chat = [{user_name:default_user_name, character_name:name2,create_date: chat_create_date, notes: winNotes.text, notes_type: winNotes.strategy}, ...chat];
 
-        console.log(Characters.id[Characters.selectedID]);
 
         jQuery.ajax({    
             type: 'POST', 
@@ -2247,7 +2238,6 @@ $(document).ready(function(){
                     chat_create_date = chat[0]['create_date'];
                     winNotes.text = chat[0].notes || "";
                     winNotes.strategy = chat[0].notes_type || "discr";
-                    console.log(Characters.selectedID);
                     if(!winNotes.text || !winNotes.text.length) {
                         let defaultWpp = '[Character("'+Characters.id[Characters.selectedID].name+'"){}]';
                         try {
@@ -2363,7 +2353,6 @@ $(document).ready(function(){
                 '<img src="characters/'+Characters.id[characterId].filename+'">'+
                 '</div>');
         });
-        console.log(Characters.id);
     }
 
     //menu buttons
@@ -2413,6 +2402,9 @@ $(document).ready(function(){
     $( "#rm_button_selected_ch" ).click(function() {
         selected_button = 'character_edit';
         select_selected_character(Characters.selectedID);
+        if(getIsRoom()){
+            loadRoomSelectedCharacters();
+        }
     });
     $( "#rm_button_create_room" ).click(function() {
         selected_button = 'create_room';

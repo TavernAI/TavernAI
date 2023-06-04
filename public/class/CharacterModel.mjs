@@ -112,7 +112,6 @@ export class CharacterModel extends EventEmitter {
             contentType: false,
             processData: false,
             success: function(data){
-                console.log(event.target);
                 this.characters = this.characters.filter(
                     ch => ch.filename != event.target
                 );
@@ -221,7 +220,6 @@ export class CharacterModel extends EventEmitter {
             this.loadCharacters().then(characters => {
                 this.loadFolders().then(folders => {
                     this.characters = Object.values(characters);
-                    console.log(this.characters);
                     this.view.refresh(folders, this.characters);
                     $('#rm_folder_order').change();
                     resolve();

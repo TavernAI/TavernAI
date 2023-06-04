@@ -683,7 +683,6 @@ function charaFormatData(data){
 app.post("/createcharacter", urlencodedParser, async function(request, response){
     let target_img = setCardName(request.body.ch_name);
 
-    console.log(request.body.character_names);
     
     if(!request.body) return response.sendStatus(400);
     if (!fs.existsSync(charactersPath+target_img+`.${characterFormat}`)){
@@ -841,7 +840,6 @@ app.post("/editroom", urlencodedParser, async function(request, response){
         
         let merged_room_metadata = Object.assign({}, old_room_metadata, new_room_metadata);
 
-        console.log(merged_room_metadata);
         
         await roomWrite(filename, merged_room_metadata.character_names, merged_room_metadata.user_name, merged_room_metadata.create_date,
             merged_room_metadata.notes, merged_room_metadata.notes_types, merged_room_metadata.scenario, room_chat_data);
