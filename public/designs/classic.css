@@ -1370,6 +1370,12 @@ chareditor-button-close {
 }
 .create .chareditor-button-online {
     display: none;
+    
+}
+#view_rooms {
+    width: 97%; 
+    color: #936f4a;
+    margin-left: 3px;
 }
 .chareditor .chareditor-token-warning-count,
 .chareditor .chareditor-token-warning-left {
@@ -2835,8 +2841,16 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
 }
 .character-screen .folder-content, .character-screen .folder {
     padding: 0px;
+}
+
+.folder-content {
     cursor: pointer;
 }
+
+#room_character_select_items .avatar img, #room_character_selected_items .avatar img {
+    cursor: pointer;
+}
+
 .character-screen .folder-content > div, .character-screen .folder > div {
     border-radius: 1ex;
 }
