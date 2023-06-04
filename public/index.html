@@ -34,6 +34,13 @@
 
     <script src="class/charaCloud.js"></script>
     <script type=module src="script.js"></script>
+
+    <style>
+        #view_rooms:hover {
+            background-color: #fff1;
+            transition: background-color 0.2s;
+        }
+    </style>
     
         
 <title>Tavern.AI</title>
@@ -255,6 +262,11 @@
                     </div>
                     <textarea id="openai_system_prompt_textarea" placeholder=""></textarea>
                     <div>
+                        <h4 class="h4_menu_title">OpenAI System prompt for rooms</h4>
+                        <h5 class="h5_menu_help">Defines how the model will behave for rooms (<a href="/notes/20" target="_blank">?</a>)</h5>
+                    </div>
+                    <textarea id="openai_system_prompt_room_textarea" placeholder=""></textarea>
+                    <div>
                         <h4 class="h4_menu_title">OpenAI Jailbreak</h4>
                         <h5 class="h5_menu_help">Jailbreak for OpenAI (<a href="/notes/23" target="_blank">?</a>)</h5>
                     </div>
@@ -463,6 +475,24 @@
                 <input id="character_name_pole" name="ch_name" class="text_pole chareditor-name-input" type="text" maxlength="120" size="35" value="" autocomplete="off">
                 </div>
                 
+                <div id="room_character_select_div" class="room-character-select-div" style="display: none;">
+                    <h4 class="h4_menu_title">Characters</h4>
+                    <br>
+                    <div class="room-character-selected-items-div">
+                        <h5 class="h5_menu_help">Characters selected</h5>
+                        <div id="room_character_selected_items" class="room-character-selected-items text_pole" style="min-height: 5em; display: flex; flex-wrap: wrap;">
+                            
+                        </div>
+                    </div>
+                    <br>
+                    <div class="room-character-select-items-div">
+                        <h5 class="h5_menu_help">Characters available</h5>
+                        <div id="room_character_select_items" class="room-character-select-items text_pole" style="display: flex; flex-wrap: wrap;">
+                            
+                        </div>
+                    </div>
+                </div>
+
                 <div id="avatar_div" class="avatar_div">
                     
                     <div id="avatar_div_container" class="avatar"><img src="img/fluffy.png" alt="avatar" class="chareditor-avatar-preview"></div><input type="file" id="add_avatar_button" class="chareditor-avatar" name="avatar" accept="image/png, image/jpeg, image/jpg, image/gif, image/bmp, image/webp">
@@ -479,8 +509,16 @@
                     <textarea class="chareditor-description-text" name="description" placeholder=""></textarea>
                 </div>
 
-                <h4 class="h4_menu_title">First message</h4><h5 class="h5_menu_help">First message from the character (<a href="/notes/3" target="_blank">?</a>)</h5>
-                <textarea id="firstmessage_textarea" name="first_mes" class="chareditor-firstmessage-text" placeholder=""></textarea>
+                <div>
+                    <h4 class="h4_menu_title">First message</h4><h5 class="h5_menu_help">First message from the character (<a href="/notes/3" target="_blank">?</a>)</h5>
+                    <textarea id="firstmessage_textarea" name="first_mes" class="chareditor-firstmessage-text" placeholder=""></textarea>
+                </div>
+
+                <div id="room_scenario_div" style="display: none;">
+                    <h4 class="h4_menu_title">Scenario</h4>
+                    <h5 class="h5_menu_help">Circumstances and context of the room (<a href="/notes/12" target="_blank">?</a>)</h5>
+                    <input id="room_scenario" name="room_scenario" class="text_pole room-scenario" type="text" maxlength="9999" size="40" value="" autocomplete="off">
+                </div>
 
                 <input id="selected_chat_pole" name="chat" class="text_pole" type="hidden" maxlength="999" size="2" value="" autocomplete="off">
                 <input name="create_date" class="text_pole" type="hidden" maxlength="999" size="2" value="" autocomplete="off">
@@ -651,24 +689,31 @@
             
         </div>
         <div id="rm_charaters_block" class="right_menu">
-            
-            <div id="rm_button_create" class="right_menu_title_button"><h2>+New Character</h2></div>
-            <div id="rm_button_import" class="right_menu_title_button"><h2>
-                <label id="character-button-import" class="right_menu">+Import
-                    <form id="form_import"  action="javascript:void(null);" method="post" enctype="multipart/form-data">
-                        <input type="file" id="character_import_file" accept=".json, image/png, image/webp" name="avatar" multiple="true">
-                        <input id="character_import_file_type" name="file_type" class="text_pole" type="text" maxlength="999" size="2" value="" autocomplete="off">
-                    </form>
-                </label>
-            </h2></div>
-            <div id="character-button-new-folder" class="right_menu_title_button"><h2>+New Folder</h2></div>
-            <div>
-                <input id="rm_search_bar" name="rm_search_bar" class="text_pole" type="text" size="35" value="" autocomplete="off" placeholder="search...">
-                <select id="rm_folder_order" title="Sorting order">
-                </select>
-                
+
+            <div><input id="view_rooms" type="button" class="chareditor-button-online" value="View Rooms" style="width: 99%; color: #936f4a;"></div>
+            <div id="character_list">
+                <div id="rm_button_create" class="right_menu_title_button"><h2>+New Character</h2></div>
+                <div id="rm_button_import" class="right_menu_title_button"><h2>
+                    <label id="character-button-import" class="right_menu">+Import
+                        <form id="form_import"  action="javascript:void(null);" method="post" enctype="multipart/form-data">
+                            <input type="file" id="character_import_file" accept=".json, image/png, image/webp" name="avatar" multiple="true">
+                            <input id="character_import_file_type" name="file_type" class="text_pole" type="text" maxlength="999" size="2" value="" autocomplete="off">
+                        </form>
+                    </label>
+                </h2></div>
+                <div id="character-button-new-folder" class="right_menu_title_button"><h2>+New Folder</h2></div>
+                <div>
+                    <input id="rm_search_bar" name="rm_search_bar" class="text_pole" type="text" size="35" value="" autocomplete="off" placeholder="search...">
+                    <select id="rm_folder_order" title="Sorting order">
+                    </select>
+                    
+                </div>
+                <ul id="rm_print_charaters_block"></ul>
             </div>
-            <ul id="rm_print_charaters_block"></ul>
+            <div id="room_list" style="display: none;">
+                <div id="rm_button_create_room" class="right_menu_title_button"><h2>+Create Room</h2></div>
+                <ul id="rm_print_rooms_block" style="list-style: none; padding-left: 0;"></ul>
+            </div>
         </div>
         <div id="rm_info_block" class="right_menu">
             <div id="rm_info_panel">

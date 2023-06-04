@@ -2165,7 +2165,7 @@ label.checkbox :checked + span:after {
     margin-top: 4px;
 }
 
-#openai_system_prompt_textarea, #openai_jailbreak_prompt_textarea, #openai_jailbreak2_prompt_textarea {
+#openai_system_prompt_textarea, #openai_system_prompt_room_textarea, #openai_jailbreak_prompt_textarea, #openai_jailbreak2_prompt_textarea {
     margin-left: 2px;
     width: 94%;
     height: 180px;
