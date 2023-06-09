@@ -117,23 +117,26 @@ $(document).ready(function(){
         printMessages();
     }.bind(this));
     Characters.on(CharacterView.EVENT_CHARACTER_SELECT, function(event){
-
-        if (Characters.selectedID >= 0 && Characters.id[Characters.selectedID].online === true) {
-            $('#character_online_editor').attr('value', '🢤 Online Editor');
-            document.getElementById("chat_header_char_info").innerHTML = ' designed by <a user_name="' + Characters.id[Characters.selectedID].user_name + '" class="chat_header_char_info_user_name">' + vl(Characters.id[Characters.selectedID].user_name_view) + '</a>';
-        } else {
-            $('#character_online_editor').attr('value', '🢤 Publish Card');
-            $('#chat_header_char_info').text('designed by User');
-        }
-        $('#chat_header_char_name').text(Characters.id[Characters.selectedID].name);
-        this_edit_mes_id = undefined;
-        selected_button = 'character_edit';
-        $('#chat_header_back_button').css('display', 'block');
-        clearChat();
-        chat.length = 0;
-        getChat();
-        if($('#characloud_character_page').css('display') === 'none' && $('#characloud_user_profile_block').css('display') === 'none' || $('#chara_cloud').css('display') === 'none'){
-            hideCharaCloud();
+        if(event.is_need_character_select){
+            if (Characters.selectedID >= 0 && Characters.id[Characters.selectedID].online === true) {
+                $('#character_online_editor').attr('value', '🢤 Online Editor');
+                document.getElementById("chat_header_char_info").innerHTML = ' designed by <a user_name="' + Characters.id[Characters.selectedID].user_name + '" class="chat_header_char_info_user_name">' + vl(Characters.id[Characters.selectedID].user_name_view) + '</a>';
+            } else {
+                $('#character_online_editor').attr('value', '🢤 Publish Card');
+                $('#chat_header_char_info').text('designed by User');
+            }
+            $('#chat_header_char_name').text(Characters.id[Characters.selectedID].name);
+            this_edit_mes_id = undefined;
+            selected_button = 'character_edit';
+            $('#chat_header_back_button').css('display', 'block');
+            clearChat();
+            chat.length = 0;
+            getChat();
+            if($('#characloud_character_page').css('display') === 'none' && $('#characloud_user_profile_block').css('display') === 'none' || $('#chara_cloud').css('display') === 'none'){
+                hideCharaCloud();
+            }
+        }else{
+            $('#rm_button_selected_ch').click();
         }
         
 
