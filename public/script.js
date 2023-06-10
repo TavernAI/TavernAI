@@ -201,9 +201,8 @@ $(document).ready(function(){
     $("#characters_rooms_switch_button").on("click", function() {
         Rooms.emit(RoomModel.EVENT_ROOM_SELECT, {});
         if(!is_room){
-            
-            $('#openai_system_promt').css('display', 'block');
-            $('#openai_system_promt_room').css('display', 'none');
+            $('#openai_system_promt').css('display', 'none');
+            $('#openai_system_promt_room').css('display', 'block');
             $("#characters_rooms_switch_button_characters_text").css('opacity', 0.5);
             $("#characters_rooms_switch_button_rooms_text").css('opacity', 1.0);
             $("#character_list").css("display", "none");
@@ -212,8 +211,8 @@ $(document).ready(function(){
             $("#option_select_chat").css("display", "none");
             $( "#rm_button_characters" ).children("h2").html("Rooms");
         }else{
-            $('#openai_system_promt').css('display', 'none');
-            $('#openai_system_promt_room').css('display', 'block');
+            $('#openai_system_promt').css('display', 'block');
+            $('#openai_system_promt_room').css('display', 'none');
             $("#characters_rooms_switch_button_characters_text").css('opacity', 1.0);
             $("#characters_rooms_switch_button_rooms_text").css('opacity', 0.5);
             $("#character_list").css("display", "block");
