@@ -5230,7 +5230,7 @@ $(document).ready(function(){
 
                 },
                 cache: false,
-                timeout: requestTimeout,
+                timeout: 5500,
                 dataType: "json",
                 crossDomain: true,
                 contentType: "application/json",
@@ -5257,8 +5257,8 @@ $(document).ready(function(){
                     console.log(exception);
                     console.log(jqXHR);
                     online_status = 'no_connection';
-
-                    resultCheckStatus();
+                    callPopup(exception, 'alert_error');
+                    resultCheckStatusOpen();
                 }
             });
         }else{
