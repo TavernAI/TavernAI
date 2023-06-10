@@ -36,7 +36,7 @@
     <script type=module src="script.js"></script>
 
     <style>
-        #view_rooms:hover {
+        #characters_rooms_switch_button:hover {
             background-color: #fff1;
             transition: background-color 0.2s;
         }
@@ -255,17 +255,20 @@
                             <input type="range" class="range_bar" id="max_context_openai" name="volume" min="1024" max="4096" step="1">
                         </div>
                     </div>
-
-                    <div>
-                        <h4 class="h4_menu_title">OpenAI System prompt</h4>
-                        <h5 class="h5_menu_help">Defines how the model will behave (<a href="/notes/20" target="_blank">?</a>)</h5>
+                    <div id="openai_system_promt">
+                        <div>
+                            <h4 class="h4_menu_title">OpenAI System prompt</h4>
+                            <h5 class="h5_menu_help">Defines how the model will behave (<a href="/notes/20" target="_blank">?</a>)</h5>
+                        </div>
+                        <textarea id="openai_system_prompt_textarea" placeholder=""></textarea>
                     </div>
-                    <textarea id="openai_system_prompt_textarea" placeholder=""></textarea>
-                    <div>
-                        <h4 class="h4_menu_title">OpenAI System prompt for rooms</h4>
-                        <h5 class="h5_menu_help">Defines how the model will behave for rooms (<a href="/notes/20" target="_blank">?</a>)</h5>
+                    <div id="openai_system_promt_room" style="display: none">
+                        <div>
+                            <h4 class="h4_menu_title">OpenAI System prompt for rooms</h4>
+                            <h5 class="h5_menu_help">Defines how the model will behave for rooms (<a href="/notes/20" target="_blank">?</a>)</h5>
+                        </div>
+                        <textarea id="openai_system_prompt_room_textarea" placeholder=""></textarea>
                     </div>
-                    <textarea id="openai_system_prompt_room_textarea" placeholder=""></textarea>
                     <div>
                         <h4 class="h4_menu_title">OpenAI Jailbreak</h4>
                         <h5 class="h5_menu_help">Jailbreak for OpenAI (<a href="/notes/23" target="_blank">?</a>)</h5>
@@ -690,7 +693,7 @@
         </div>
         <div id="rm_charaters_block" class="right_menu">
 
-            <div><input id="view_rooms" type="button" class="chareditor-button-online" value="View Rooms"></div>
+            <div><button id="characters_rooms_switch_button" type="submit" class="chareditor-button-online"><span id='characters_rooms_switch_button_characters_text'>Characters</span>/<span id='characters_rooms_switch_button_rooms_text'>Rooms</span></button></div>
             <div id="character_list">
                 <div id="rm_button_create" class="right_menu_title_button"><h2>+New Character</h2></div>
                 <div id="rm_button_import" class="right_menu_title_button"><h2>

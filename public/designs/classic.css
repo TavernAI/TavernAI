@@ -1372,11 +1372,22 @@ chareditor-button-close {
     display: none;
     
 }
-#view_rooms {
+#characters_rooms_switch_button {
     width: 97%; 
-    color: #936f4a;
     margin-left: 3px;
+    font-weight: bold;
+    color: #ffffff99;
+    padding: 0.5em;
+    border: thin solid rgba(200,200,200,0.2);
+    border-radius: 3px;
+    background-color: #191b31;
+    cursor: pointer;
 }
+
+#characters_rooms_switch_button_rooms_text {
+    opacity: 0.5;
+}
+
 .chareditor .chareditor-token-warning-count,
 .chareditor .chareditor-token-warning-left {
     display: none;

@@ -198,20 +198,24 @@ $(document).ready(function(){
     // Rooms.id[0].name = "sample";
     // Rooms.loadAll();
 
-    $("#view_rooms").on("click", function() {
+    $("#characters_rooms_switch_button").on("click", function() {
         Rooms.emit(RoomModel.EVENT_ROOM_SELECT, {});
-        if(!is_room)
-        {
-            $("#view_rooms").attr("value", "View Characters");
+        if(!is_room){
+            
+            $('#openai_system_promt').css('display', 'block');
+            $('#openai_system_promt_room').css('display', 'none');
+            $("#characters_rooms_switch_button_characters_text").css('opacity', 0.5);
+            $("#characters_rooms_switch_button_rooms_text").css('opacity', 1.0);
             $("#character_list").css("display", "none");
             $("#room_list").css("display", "block");
             is_room = true;
             $("#option_select_chat").css("display", "none");
             $( "#rm_button_characters" ).children("h2").html("Rooms");
-        }
-        else
-        {
-            $("#view_rooms").attr("value", "View Rooms");;
+        }else{
+            $('#openai_system_promt').css('display', 'none');
+            $('#openai_system_promt_room').css('display', 'block');
+            $("#characters_rooms_switch_button_characters_text").css('opacity', 1.0);
+            $("#characters_rooms_switch_button_rooms_text").css('opacity', 0.5);
             $("#character_list").css("display", "block");
             $("#room_list").css("display", "none");
             is_room = false;
