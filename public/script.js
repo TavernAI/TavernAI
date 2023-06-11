@@ -1921,7 +1921,7 @@ $(document).ready(function(){
                 getMessage = getMessage.replace(/\n+$/, "");
 
                 message_already_generated +=getMessage;
-                if(message_already_generated.indexOf('You:') === -1 && message_already_generated.indexOf(name1) === -1 && message_already_generated.indexOf('<|endoftext|>') === -1 && message_already_generated.indexOf('\\end') === -1 && tokens_already_generated < parseInt(this_max_gen) && getMessage.length > 0){
+                if(message_already_generated.indexOf('You:') === -1 && message_already_generated.indexOf(name1+':') === -1 && message_already_generated.indexOf('<|endoftext|>') === -1 && message_already_generated.indexOf('\\end') === -1 && tokens_already_generated < parseInt(this_max_gen) && getMessage.length > 0){
                     runGenerate(getMessage);
                     return;
                 }
