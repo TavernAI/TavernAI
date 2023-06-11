@@ -1483,11 +1483,17 @@ $(document).ready(function(){
 
                     if (main_api === 'openai' && (model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-0301' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k')) { // Jailbreak
                         if (openai_jailbreak2_prompt.length > 0) {
-                            arrMes[arrMes.length-1] = arrMes[arrMes.length-1]+'\n'+openai_jailbreak2_prompt;
+                            arrMes[arrMes.length-1] = arrMes[arrMes.length-1]+'\n'+openai_jailbreak2_prompt.replace(/{{user}}/gi, name1)
+                                    .replace(/{{char}}/gi, name2)
+                                    .replace(/<USER>/gi, name1)
+                                    .replace(/<BOT>/gi, name2);
                         }
                         if (openai_jailbreak_prompt.length > 0) {
                             //arrMes.splice(-1, 0, openai_jailbreak_prompt);
-                            arrMes.push(openai_jailbreak_prompt);
+                            arrMes.push(openai_jailbreak_prompt).replace(/{{user}}/gi, name1)
+                                    .replace(/{{char}}/gi, name2)
+                                    .replace(/<USER>/gi, name1)
+                                    .replace(/<BOT>/gi, name2);
                         }
 
                     }
