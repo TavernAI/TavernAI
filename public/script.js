@@ -1490,10 +1490,10 @@ $(document).ready(function(){
                         }
                         if (openai_jailbreak_prompt.length > 0) {
                             //arrMes.splice(-1, 0, openai_jailbreak_prompt);
-                            arrMes.push(openai_jailbreak_prompt).replace(/{{user}}/gi, name1)
+                            arrMes.push(openai_jailbreak_prompt.replace(/{{user}}/gi, name1)
                                     .replace(/{{char}}/gi, name2)
                                     .replace(/<USER>/gi, name1)
-                                    .replace(/<BOT>/gi, name2);
+                                    .replace(/<BOT>/gi, name2));
                         }
 
                     }
