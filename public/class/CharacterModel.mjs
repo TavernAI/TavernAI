@@ -66,10 +66,11 @@ export class CharacterModel extends EventEmitter {
 
     // event handlers
     onCharacterSelect(event) {
-        event.is_need_character_select = true;
+        event.is_this_character_selected = true;
+        console.log(this.selectedID, this.getIDbyFilename(event.target));
         if(this.selectedID !== undefined){
             if(this.selectedID === this.getIDbyFilename(event.target)){
-                event.need_character_select = false;
+                event.is_this_character_selected = false;
             }
         }
         this.selectedID = this.getIDbyFilename(event.target);

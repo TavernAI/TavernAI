@@ -117,7 +117,8 @@ $(document).ready(function(){
         printMessages();
     }.bind(this));
     Characters.on(CharacterView.EVENT_CHARACTER_SELECT, function(event){
-        if(event.is_need_character_select){
+
+        if(event.is_this_character_selected){
             if (Characters.selectedID >= 0 && Characters.id[Characters.selectedID].online === true) {
                 $('#character_online_editor').attr('value', '🢤 Online Editor');
                 document.getElementById("chat_header_char_info").innerHTML = ' designed by <a user_name="' + Characters.id[Characters.selectedID].user_name + '" class="chat_header_char_info_user_name">' + vl(Characters.id[Characters.selectedID].user_name_view) + '</a>';
