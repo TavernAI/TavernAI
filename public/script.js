@@ -5588,6 +5588,7 @@ $(document).ready(function(){
         charaCloud.getCategories() // autocomplete
             .then(function (data) {
                 const top_categories = data.sort((a, b) => b.count - a.count).slice(0, 10);
+                $('#header_categories').html('');
                 $('#header_categories').append(`<div class="category header-category" data-category="$categories">Categories</div>`);
                 $('#header_categories').append(`<div class="category header-category" data-category="$recent">Recent</div>`);
                 $('#header_categories').append(`<div class="category header-category" data-category="$random">Random</div>`);
