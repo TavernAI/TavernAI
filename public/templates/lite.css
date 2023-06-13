@@ -428,15 +428,35 @@ input[type=button] {
 }
 
 #rm_button_create {
-    margin-top: 0px;
+    margin-top: 16px;
+    margin-bottom: 16px;
 }
 
 #rm_button_import {
-    margin-top: 0px;
+    margin-top: 16px;
     margin-left: 5px;
+    margin-bottom: 16px;
 }
 
 #rm_button_create h2{
+    margin-top: auto;
+    margin-bottom: auto;
+    font-size: 17px;
+    color: rgb(188, 193, 200, 1);
+    border: 1px solid rgba(36,115,174,1.0);
+    background-color: rgba(0,0,0,0.3);
+    padding:6px;
+    border-radius: 4px;
+    background-color: rgba(36,115,174,0.9);
+}
+
+#character-button-new-folder {
+    margin-top: 16px;
+    margin-left: 5px;
+    margin-bottom: 16px;
+}
+
+#character-button-new-folder h2{
     margin-top: auto;
     margin-bottom: auto;
     font-size: 17px;
@@ -1025,4 +1045,33 @@ a {
 
 #description_wppeditor {
       background-color: #ffffff00;
+}
+
+#characters_rooms_switch_button {
+    background-color: #191b3100;
+}
+
+#characters_rooms_switch_button {
+    background-color: #13152c00;
+}
+
+#world_info_settings input {
+    background-color: #13152c00;
+}
+
+.folder-content {
+    margin-bottom: 7px;
+}
+
+#user_avatar_block .avatar .user_avatar_img {
+    width: 80px;
+    height: 80px;
+}
+
+.user_avatar_cross {
+    right: -9px;
+}
+
+.world_info .content, .modular > div > textarea {
+    background-color: #16161680;
 }

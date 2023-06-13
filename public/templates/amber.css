@@ -410,3 +410,27 @@ label.checkbox :checked + span {
 #notes_popup div.wpp-editor {
     background-color: #161616dd;
 }
+
+#rm_button_create {
+    margin-top: 16px;
+}
+
+#rm_button_import {
+    margin-top: 16px;
+}
+
+#character-button-new-folder {
+    margin-top: 16px;
+}
+
+#characters_rooms_switch_button {
+    background-color: #131313;
+}
+
+#world_info_settings input {
+    background-color: #181717;
+}
+
+.world_info .content {
+    background-color: #16161680;
+}
