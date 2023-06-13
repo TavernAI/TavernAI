@@ -2,7 +2,7 @@ import {Resizable} from "./Resizable.mjs";
 import {EventEmitter} from "./EventEmitter.mjs";
 import {WPPEditor} from "./WPPEditor.mjs";
 import {encode, decode} from "../scripts/gpt-2-3-tokenizer/mod.js";
-import {max_context, getIsRoom, getRoomsInstance} from "../script.js";
+import {max_context, getIsRoom, getIsRoomList, getRoomsInstance} from "../script.js";
 import {RoomEditor} from "./RoomEditor.mjs";
 
 export class CharacterEditor extends EventEmitter {
@@ -430,7 +430,7 @@ export class CharacterEditor extends EventEmitter {
     set editMode(value) {
         this._editMode = value;
         this.name.block.style.visible = this._editMode ? null : "none";
-        if(getIsRoom()) {
+        if(getIsRoomList()) {
             // this.avatar.filenameInput.style.display = "none";
             // this.avatar.previewImg.style.display = "none";
             // this.avatar.input.style.display = "none";

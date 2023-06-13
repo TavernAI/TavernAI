@@ -21,6 +21,9 @@ function vl(text) { //Validation security function for html
 function getIsRoom() {
     return is_room;
 }
+function getIsRoomList() {
+    return is_room_list;
+}
 export function getRoomsInstance() {
     return Rooms;
 }
@@ -66,7 +69,7 @@ export function select_rm_info(text){
     $( "#rm_button_selected_ch" ).children("h2").addClass('deselected_button_style');
 }
 
-export {token, default_avatar, vl, filterFiles, requestTimeout, max_context, getIsRoom};
+export {token, default_avatar, vl, filterFiles, requestTimeout, max_context, getIsRoom, getIsRoomList};
 export var animation_rm_duration = 200;
 export var animation_rm_easing = "";
 $(document).ready(function(){
