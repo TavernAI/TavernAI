@@ -1437,7 +1437,7 @@ app.post('/getsettings', jsonParser, (request, response) => { //Wintermute's cod
     });
     
     //Styles
-    const designs = fs.readdirSync('public/designs')
+    const templates = fs.readdirSync('public/templates')
         .filter(file => file.endsWith('.css'))
         .sort();
     
@@ -1446,7 +1446,7 @@ app.post('/getsettings', jsonParser, (request, response) => { //Wintermute's cod
         charaCloudServer: charaCloudServer,
         characterFormat: characterFormat,
         settings,
-        designs,
+        templates,
         koboldai_settings,
         koboldai_setting_names,
         novelai_settings,
@@ -1473,12 +1473,12 @@ app.post('/loadfolders', jsonParser, (request, response) => {
 
 app.post("/savestyle", jsonParser, function(request, response){
     const this_style = request.body.style;
-    let file_data = '@import "../designs/classic.css";';
+    let file_data = '@import "../templates/classic.css";';
     if(this_style != 'classic.css'){
-        file_data = '@import "../designs/classic.css";@import "../designs/'+this_style+'";';
+        file_data = '@import "../templates/classic.css";@import "../templates/'+this_style+'";';
     }
 
-    fs.writeFile('public/css/designs.css', file_data, 'utf8', function(err) {
+    fs.writeFile('public/css/templates.css', file_data, 'utf8', function(err) {
         if(err) {
             response.send(err);
             return console.log(err);

@@ -361,7 +361,7 @@ $(document).ready(function(){
     const delay = ms => new Promise(res => setTimeout(res, ms));
     //settings
     var settings;
-    var designs;
+    var templates;
     var koboldai_settings;
     var koboldai_setting_names;
     var preset_settings = 'gui';
@@ -2630,12 +2630,12 @@ $(document).ready(function(){
                     complete: function() {  }
                 });
             }
-            designs.forEach(function(item, i){
+            templates.forEach(function(item, i){
                 $('#style_button'+i).css('opacity', 0.0);
                 $('#style_button'+i).transition({ y: '-10px', opacity: 0.0, duration: 0});
                 setTimeout(() => {
                     $('#style_button'+i).transition({ y: '0px',opacity: 1.0, duration: 200});
-                    }, (designs.length - i)*100);
+                    }, (templates.length - i)*100);
             });
             $('#bg_menu_button').transition({ perspective: '100px',rotate3d: '1,1,0,180deg'});
             //$('#bg_menu_content1').css('display', 'block');
@@ -2662,7 +2662,7 @@ $(document).ready(function(){
                     complete: function() {  }
                 });
             }
-            designs.forEach(function(item, i){
+            templates.forEach(function(item, i){
                 setTimeout(() => {
                     $('#style_button'+i).transition({ y: '-15px',opacity: 0.0, duration: 100});
                     }, i*20);
@@ -2719,14 +2719,14 @@ $(document).ready(function(){
     });
     $(document).on('click', '.style_button', function() {
         const this_style_id = $(this).attr('style_id');
-        const this_style_name = designs[this_style_id];
+        const this_style_name = templates[this_style_id];
         //
         //console.log('old '+$('#chat')[0].scrollHeight); //$textchat.scrollTop($textchat[0].scrollHeight
         let oldScrollTop = $('#chat').scrollTop();
         let oldHeight = $('#chat')[0].scrollHeight - $('#chat').height();
         
         let oldProportion = oldScrollTop/oldHeight;
-        $('#base_theme').attr('href', 'designs/classic.css');
+        $('#base_theme').attr('href', 'templates/classic.css');
         $('#send_textarea').attr('style', '');
         if (this_style_name === 'classic.css') {
             // Remove the existing theme link element if it exists
@@ -2738,7 +2738,7 @@ $(document).ready(function(){
                 cssLink = $('<link id="theme" rel="stylesheet" type="text/css">');
                 $("head").append(cssLink);
             }
-            cssLink.attr('href', 'designs/' + this_style_name);
+            cssLink.attr('href', 'templates/' + this_style_name);
         }
         
         let newHeight = $('#chat')[0].scrollHeight - $('#chat').height();
@@ -3883,18 +3883,18 @@ $(document).ready(function(){
                     charaCloudServer = data.charaCloudServer;
                     characterFormat = data.characterFormat;
                     
-                    designs = data.designs;
+                    templates = data.templates;
                     let classic_style_id;
-                    designs.forEach(function(item, i) {
+                    templates.forEach(function(item, i) {
                         if(item == 'classic.css') classic_style_id = i;
                     });
                     if(classic_style_id !== undefined){
-                        designs.splice(classic_style_id, 1);
-                        designs.unshift('classic.css');
+                        templates.splice(classic_style_id, 1);
+                        templates.unshift('classic.css');
                     }
-                    designs.forEach(function(item, i) {
+                    templates.forEach(function(item, i) {
 
-                        $('#style_menu').append('<div class="style_button" style_id="'+i+'" id="style_button'+i+'" alt="'+item+'"><img src="../designs/'+item.replace('.css', '.png')+'"></div>');
+                        $('#style_menu').append('<div class="style_button" style_id="'+i+'" id="style_button'+i+'" alt="'+item+'"><img src="../templates/'+item.replace('.css', '.png')+'"></div>');
                     });
                     
                     if(settings.main_api != undefined){
