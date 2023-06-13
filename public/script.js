@@ -12,6 +12,7 @@ var default_avatar = 'img/fluffy.png';
 var requestTimeout = 60*1000;
 var max_context = 2048;//2048;
 var is_room = false;
+var is_room_list = false;
 var Rooms = null;
 export var characterFormat = 'webp';
 function vl(text) { //Validation security function for html
@@ -98,6 +99,39 @@ $(document).ready(function(){
     const config = { childList: true, subtree: true, attributes: true, attributeFilter: ['src'] };
     observer.observe(document.body, config);
     */
+
+    /**
+     * Function to change the context/mode from/to "room" or "character", given parameter value.
+     * This function does not affect the character/room list, which should be handled separately.
+     * Will update the is_room variable.
+     * @param {*} room Switch to "room" mode if true
+     */
+    function setRoomMode(room) {
+        if(room){
+            $('#openai_system_promt').css('display', 'none');
+            $('#openai_system_promt_room').css('display', 'block');
+            is_room = true;
+            $("#option_select_chat").css("display", "none");
+        }else{
+            $('#openai_system_promt').css('display', 'block');
+            $('#openai_system_promt_room').css('display', 'none');
+            is_room = false;
+            $("#option_select_chat").css("display", "block");
+        }
+
+        // Needed since we need to update the winNotes (Notes on chat or room, switcing whether saveChat() or saveChatRoom() is used)
+        // getSettings();
+        if(!is_room)
+            winNotes = new Notes({
+                root: document.getElementById("shadow_notes_popup"),
+                save: saveChat.bind(this)
+            });
+        else
+            winNotes = new Notes({
+                root: document.getElementById("shadow_notes_popup"),
+                save: saveChatRoom.bind(this)
+            });
+    }
     
     var Characters = new CharacterModel({
         container: document.getElementById("rm_print_charaters_block"),
@@ -117,8 +151,11 @@ $(document).ready(function(){
         printMessages();
     }.bind(this));
     Characters.on(CharacterView.EVENT_CHARACTER_SELECT, function(event){
+        let was_room = is_room; // Needed so that the chat interface is updated when switching from room to character
 
-        if(event.is_this_character_selected){
+        setRoomMode(false);
+
+        if(event.is_this_character_selected || was_room){
             if (Characters.selectedID >= 0 && Characters.id[Characters.selectedID].online === true) {
                 $('#character_online_editor').attr('value', '🢤 Online Editor');
                 document.getElementById("chat_header_char_info").innerHTML = ' designed by <a user_name="' + Characters.id[Characters.selectedID].user_name + '" class="chat_header_char_info_user_name">' + vl(Characters.id[Characters.selectedID].user_name_view) + '</a>';
@@ -178,6 +215,7 @@ $(document).ready(function(){
         });
 
         $("#rm_print_rooms_block li").on("click", function(event) {
+            setRoomMode(true);
             let filename = event.currentTarget.firstChild.lastChild.textContent;
             Rooms.selectedRoom = filename;
             getChatRoom(filename);
@@ -201,41 +239,21 @@ $(document).ready(function(){
 
     $("#characters_rooms_switch_button").on("click", function() {
         Rooms.emit(RoomModel.EVENT_ROOM_SELECT, {});
-        if(!is_room){
-            $('#openai_system_promt').css('display', 'none');
-            $('#openai_system_promt_room').css('display', 'block');
-            $("#characters_rooms_switch_button_characters_text").css('opacity', 0.5);
-            $("#characters_rooms_switch_button_rooms_text").css('opacity', 1.0);
+        if(!is_room_list){
             $("#character_list").css("display", "none");
             $("#room_list").css("display", "block");
-            is_room = true;
-            $("#option_select_chat").css("display", "none");
+            $("#characters_rooms_switch_button_characters_text").css('opacity', 0.5);
+            $("#characters_rooms_switch_button_rooms_text").css('opacity', 1.0);
             $( "#rm_button_characters" ).children("h2").html("Rooms");
+            is_room_list = true;
         }else{
-            $('#openai_system_promt').css('display', 'block');
-            $('#openai_system_promt_room').css('display', 'none');
-            $("#characters_rooms_switch_button_characters_text").css('opacity', 1.0);
-            $("#characters_rooms_switch_button_rooms_text").css('opacity', 0.5);
             $("#character_list").css("display", "block");
             $("#room_list").css("display", "none");
-            is_room = false;
-            $("#option_select_chat").css("display", "block");
+            $("#characters_rooms_switch_button_characters_text").css('opacity', 1.0);
+            $("#characters_rooms_switch_button_rooms_text").css('opacity', 0.5);
             $( "#rm_button_characters" ).children("h2").html("Characters");
+            is_room_list = false;
         }
-
-        // Needed since we need to update the winNotes (Notes on chat or room, switcing whether saveChat() or saveChatRoom() is used)
-        // getSettings();
-        if(!is_room)
-            winNotes = new Notes({
-                root: document.getElementById("shadow_notes_popup"),
-                save: saveChat.bind(this)
-            });
-        else
-            winNotes = new Notes({
-                root: document.getElementById("shadow_notes_popup"),
-                save: saveChatRoom.bind(this)
-            });
-
     });
 
     //Drag drop import characters
