@@ -645,9 +645,12 @@
                         <option value="gpt-4">gpt-4</option>
                         <option value="gpt-4-32k">gpt-4-32k</option>
                         <option value="gpt-3.5-turbo">gpt-3.5-turbo</option>
-                        <option value="gpt-3.5-turbo-0301">gpt-3.5-turbo-0301</option>
+                        <option value="gpt-3.5-turbo-16k">gpt-3.5-turbo-16k</option>
                         <option value="text-davinci-003">text-davinci-003</option>
                         <option value="text-davinci-002">text-davinci-002</option>
+                        <option value="text-curie-001">text-curie-001</option>
+                        <option value="text-babbage-001">text-babbage-001</option>
+                        <option value="text-ada-001">text-ada-001</option>
                         <option value="code-davinci-002">code-davinci-002</option>
                     </select>
                 </div>
@@ -737,8 +740,14 @@
                 <div id="chat_header_char_name"></div>
                 <div id="chat_header_char_info">Wellcome to Tavern</div>
             </div>
+            <div id="chat_story_button">
+                <span id="chat_story_button_chat_text">Chat</span>/<span id="chat_story_button_story_text">Story</span>
+            </div>
         </div>
         <div id="chat"></div>
+        <div id="story">
+            <textarea id="story_textarea" placeholder="Story text..."></textarea>
+        </div>
         <div id="form_shell">
             
             <div id="dialogue_del_mes">
@@ -770,6 +779,7 @@
             <div id="hordeInfo" class="hidden">
                 <span id="hordeQueue"></span>
             </div>
+            
         </div>
     </div>
     

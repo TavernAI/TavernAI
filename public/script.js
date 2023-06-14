@@ -1,19 +1,88 @@
 import {encode, decode} from "../scripts/gpt-2-3-tokenizer/mod.js";
+export function getTokenCount(text = "") {
+    return encode(JSON.stringify(text)).length;
+}
 import {Notes} from "./class/Notes.mjs";
 import {WPP} from "./class/WPP.mjs";
 import {UIWorldInfoMain} from "./class/UIWorldInfoMain.mjs";
 import {CharacterModel} from "./class/CharacterModel.mjs";
 import {CharacterView} from "./class/CharacterView.mjs";
 import {RoomModel} from "./class/RoomModel.mjs";
-
+import {StoryModule} from "./class/Story.js";
+import {Tavern} from "./class/Tavern.js";
 var token;
 var data_delete_chat = {};
 var default_avatar = 'img/fluffy.png';
+var user_avatar = 'you.png';
 var requestTimeout = 60*1000;
 var max_context = 2048;//2048;
 var is_room = false;
 var is_room_list = false;
 var Rooms = null;
+
+export var templates;
+export var main_api = 'kobold';
+export var lock_context_size = false;
+export var multigen = false;
+export var singleline = false;
+export var swipes = false;
+export var keep_dialog_examples = false;
+export var free_char_name_mode = false;
+export var anchor_order = 0;
+export var pygmalion_formating = 0;
+export var style_anchor = true;
+export var character_anchor = true;
+export const gap_holder = 120;
+export var online_status = 'no_connection';
+    //KoboldAI settings
+    export var settings;
+    export var koboldai_settings;
+    export var koboldai_setting_names;
+    export var preset_settings = 'gui';
+    export var temp = 0.5;
+    export var top_p = 1.0;
+    export var top_k = 0;
+    export var top_a = 0.0;
+    export var typical = 1.0;
+    export var tfs = 1.0;
+    export var amount_gen = 80;
+    export var rep_pen = 1;
+    export var rep_pen_size = 100;
+    export var rep_pen_slope = 0.9;
+    //NovelAI settings
+        //NovelAI
+    export var api_key_novel = "";
+    export var novel_tier;
+    export var model_novel = "euterpe-v2";
+    export var novelai_settings;
+    export var novelai_setting_names;
+    export var preset_settings_novel = 'Classic-Krake';
+    export var temp_novel = 0.5;
+    export var rep_pen_novel = 1;
+    export var rep_pen_size_novel = 100;
+    export var rep_pen_slope_novel = 0.9;
+    export var top_p_novel = 1.0;
+    export var top_k_novel = 0;
+    export var top_a_novel = 0.0;
+    export var typical_novel = 1.0;
+    export var tfs_novel = 1.0;
+    export var amount_gen_novel = 80;
+    //OpenAI settings
+    export var temp_openai = 0.9;
+    export var top_p_openai = 1.0;
+    export var pres_pen_openai = 0.7;
+    export var freq_pen_openai = 0.7;
+    export var amount_gen_openai = 220;
+    export var max_context_openai = 2048;
+    export var model_openai = 'gpt-3.5-turbo';
+    // HORDE
+    export var horde_api_key = "0000000000";
+    export var horde_model = "";
+    Tavern.hordeCheck = false;
+    
+Tavern.is_send_press = false; //Send generation
+
+
 export var characterFormat = 'webp';
 function vl(text) { //Validation security function for html
     return !text ? text : window.DOMPurify.sanitize(text);
@@ -72,6 +141,19 @@ export function select_rm_info(text){
 export {token, default_avatar, vl, filterFiles, requestTimeout, max_context, getIsRoom, getIsRoomList};
 export var animation_rm_duration = 200;
 export var animation_rm_easing = "";
+
+export var Characters = new CharacterModel({
+    container: document.getElementById("rm_print_charaters_block"),
+    input: {
+        newCharacter: document.getElementById("rm_button_create"),
+        addFolder: [ document.getElementById("character-button-new-folder") ],
+        importFiles: [ document.getElementById("character-button-import") ],
+        sortSelect: document.getElementById("rm_folder_order"),
+        searchInput: document.getElementById("rm_search_bar"),
+    },
+    containerEditor: document.getElementById("form_create"),
+    containerEditorAdvanced: document.getElementById("shadow_charedit_advanced_popup"),
+});
 $(document).ready(function(){
     /*
     const observer = new MutationObserver(function(mutations) {
@@ -136,18 +218,6 @@ $(document).ready(function(){
             });
     }
     
-    var Characters = new CharacterModel({
-        container: document.getElementById("rm_print_charaters_block"),
-        input: {
-            newCharacter: document.getElementById("rm_button_create"),
-            addFolder: [ document.getElementById("character-button-new-folder") ],
-            importFiles: [ document.getElementById("character-button-import") ],
-            sortSelect: document.getElementById("rm_folder_order"),
-            searchInput: document.getElementById("rm_search_bar"),
-        },
-        containerEditor: document.getElementById("form_create"),
-        containerEditorAdvanced: document.getElementById("shadow_charedit_advanced_popup"),
-    });
     Characters.on(CharacterModel.EVENT_WIPE_CHAT, function() {
         clearChat();
         chat.length = 0;
@@ -158,7 +228,8 @@ $(document).ready(function(){
 
         setRoomMode(false);
 
-        if(event.is_this_character_selected || was_room){
+        if(!event.is_this_character_selected || was_room){
+            Tavern.mode = 'chat';
             if (Characters.selectedID >= 0 && Characters.id[Characters.selectedID].online === true) {
                 $('#character_online_editor').attr('value', '🢤 Online Editor');
                 document.getElementById("chat_header_char_info").innerHTML = ' designed by <a user_name="' + Characters.id[Characters.selectedID].user_name + '" class="chat_header_char_info_user_name">' + vl(Characters.id[Characters.selectedID].user_name_view) + '</a>';
@@ -296,7 +367,88 @@ $(document).ready(function(){
         e.preventDefault();
         $('#drag_drop_shadow').css('display', 'none');
     });
-    
+    //Story
+    var Story = new StoryModule();
+    Story.on(StoryModule.SAVE_CHAT, function(event) {
+        chat = [];
+        chat[0] = {
+            name: name2,
+            is_user: false,
+            is_name: true,
+            send_date: Date.now(),
+            mes: $('#story_textarea').val()
+        };
+        saveChat();
+    }.bind(this));
+    Story.on(StoryModule.CONVERT_CHAT, function(event) {
+        if(Tavern.mode === 'story'){
+            if(chat.length === 0){
+                $('#story_textarea').val(chat[0].mes);
+            }else{
+                let story_text = '';
+                chat.forEach(function(item, i){
+                    if(item.is_user){
+                        story_text += `${name1}: ${item.mes}\n`;
+                    }else{
+                        story_text += `${item.name}: ${item.mes}\n`;
+                    }
+                });
+                chat = [];
+                chat[0] = {
+                    name: name2,
+                    is_user: false,
+                    is_name: true,
+                    send_date: Date.now(),
+                    mes: story_text
+                };
+                $('#story_textarea').val(story_text);
+            }
+            saveChat();
+            return;
+        }
+        if(Tavern.mode === 'chat'){
+            let story_text = $('#story_textarea').val();
+            const chat_messages = story_text.split(new RegExp(`(${name1}|${name2}): `));
+
+            chat_messages.shift();
+
+
+            chat = [];
+            for (let i = 0; i < chat_messages.length; i++) {
+                let name = chat_messages[i];
+                let message = '';
+                let is_user = false;
+                let is_name = true;
+                if (chat_messages[i + 1] !== undefined) {
+                    message = chat_messages[i + 1];
+                }
+                
+                if(name === name1){
+                    is_user = true;
+                }
+                const chat_message = {
+                    name,
+                    is_user,
+                    is_name,
+                    send_date: Date.now(),
+                    mes: $.trim(message)
+                };
+                chat.push(chat_message);
+                i++;
+
+            }
+            
+            saveChat();
+            clearChat();
+            printMessages();
+            return;
+
+        }
+    }.bind(this));
+    Story.on(StoryModule.UPDATE_HORDE_STATUS, function(event) {
+        updateHordeStats();
+    }.bind(this));
+
     //CharaCloud
     var charaCloud = charaCloudClient.getInstance();
     var characloud_characters = [];
@@ -355,7 +507,6 @@ $(document).ready(function(){
 
     var popup_type = "";
     var bg_file_for_del = '';
-    var online_status = 'no_connection';
 
     var api_server = "";
     var horde_api_server = "";
@@ -368,7 +519,6 @@ $(document).ready(function(){
     var is_api_button_press_novel = false;
     var is_api_button_press_openai = false;
 
-    var is_send_press = false;//Send generation
     var add_mes_without_animation = false;
 
     var this_del_mes = 0;
@@ -380,23 +530,7 @@ $(document).ready(function(){
     var this_max_gen = 0;
 
     const delay = ms => new Promise(res => setTimeout(res, ms));
-    //settings
-    var settings;
-    var templates;
-    var koboldai_settings;
-    var koboldai_setting_names;
-    var preset_settings = 'gui';
-    var user_avatar = 'you.png';
-    var temp = 0.5;
-    var top_p = 1.0;
-    var top_k = 0;
-    var top_a = 0.0;
-    var typical = 1.0;
-    var tfs = 1.0;
-    var amount_gen = 80;
-    var rep_pen = 1;
-    var rep_pen_size = 100;
-    var rep_pen_slope = 0.9;
+
     
     var is_pygmalion = false;
     const pygmalion_formatng_string_indicator = " (Pyg. formatting on)";
@@ -409,21 +543,11 @@ $(document).ready(function(){
     var cycle_count_generation = 0;
 
     
-    var lock_context_size = false;
-    var multigen = false;
-    var singleline = false;
-    var swipes = false;
-    var keep_dialog_examples = false;
-    var free_char_name_mode = false;
-    var anchor_order = 0;
-    var pygmalion_formating = 0;
-    var style_anchor = true;
-    var character_anchor = true;
+
 
     var winNotes;
     var winWorldInfo;
 
-    var main_api = 'kobold';
     var generateType;
     //Profile
     var is_login = false;
@@ -431,37 +555,13 @@ $(document).ready(function(){
     var BETA_KEY;
     var login = getCookie('login');
     var login_view = getCookie('login_view');
-    //novel settings
-    var temp_novel = 0.5;
-    var rep_pen_novel = 1;
-    var rep_pen_size_novel = 100;
-    var rep_pen_slope_novel = 0.9;
-    var top_p_novel = 1.0;
-    var top_k_novel = 0;
-    var top_a_novel = 0.0;
-    var typical_novel = 1.0;
-    var tfs_novel = 1.0;
-    var amount_gen_novel = 80;
 
-    var api_key_novel = "";
-    var novel_tier;
-    var model_novel = "euterpe-v2";
-    var novelai_settings;
-    var novelai_setting_names;
-    var preset_settings_novel = 'Classic-Krake';
 
-    // HORDE
-    var horde_api_key = "0000000000";
-    var horde_model = "";
-    var hordeCheck;
+
+
 
     var runGenerate;
 
-    //openai settings
-    var temp_openai = 0.9;
-    var top_p_openai = 1.0;
-    var pres_pen_openai = 0.7;
-    var freq_pen_openai = 0.7;
     
     const default_api_url_openai = "https://api.openai.com/v1"
     var api_url_openai = default_api_url_openai;
@@ -470,9 +570,7 @@ $(document).ready(function(){
     var openai_system_prompt_room = "";
     var openai_jailbreak_prompt = "";
     var openai_jailbreak2_prompt = "";
-    var amount_gen_openai = 220;
-    var max_context_openai = 2048;
-    var model_openai = 'gpt-3.5-turbo';
+
 
 
     var switch_log_reg = 'login';
@@ -985,13 +1083,20 @@ $(document).ready(function(){
         }
     }
     function printMessages(){
-        chat.forEach(function(item, i, arr) {
-            addOneMessage(item);
-        });
+        if(Tavern.mode === 'chat'){
+            chat.forEach(function(item, i, arr) {
+                addOneMessage(item);
+            });
+        }
+        if(Tavern.mode === 'story'){
+            $('#story_textarea').val(chat[0].mes);
+        }
     }
     function clearChat(){
         count_view_mes = 0;
+        Story.showHide();
         $('#chat').html('');
+        $('#story_textarea').val('');
     }
     function messageFormating(mes, ch_name){
         //if(Characters.selectedID != undefined) mes = mes.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
@@ -1158,14 +1263,18 @@ $(document).ready(function(){
 
     $( "#send_button" ).click(function() {
         //$( "#send_button" ).css({"background": "url('img/load.gif')","background-size": "100%, 100%", "background-position": "center center"});
-        if(is_send_press == false){
+        if(Tavern.is_send_press == false){
             hideSwipeButtons();
-            is_send_press = true;
-
-            Generate();
+            Tavern.is_send_press = true;
+            if(Tavern.mode === 'story'){
+                Story.Generate();
+            }else{
+               Generate(); 
+            }
         }
     });
     async function Generate(type) {
+        let this_gap_holder = gap_holder;
         let originalName2 = name2;
         // console.log((type === 'swipe' || (type === 'regenerate' && !chat[chat.length-1]['is_user'])) && is_room);
         // if((type === 'swipe' || (type === 'regenerate' && !chat[chat.length-1]['is_user'])) && is_room)
@@ -1190,9 +1299,9 @@ $(document).ready(function(){
             document.getElementById("hordeInfo").classList.add("hidden");
         }
 
-        let gap_holder = 120;
-        if(main_api === 'openai' && (model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-0301' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k')) 
-            gap_holder = parseInt(amount_gen_openai)+gap_holder;
+
+        if(main_api === 'openai' && (model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-16k' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k')) 
+            this_gap_holder = parseInt(amount_gen_openai)+this_gap_holder;
         var textareaText = '';
         tokens_already_generated = 0;
         if(!free_char_name_mode){
@@ -1418,7 +1527,7 @@ $(document).ready(function(){
                 storyString = storyString.replace(/\n+/g, "\n");
             }
 
-            if(main_api === 'openai' && (model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-0301' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k')){
+            if(main_api === 'openai' && (model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-16k' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k')){
                 let osp_string = "";
                 if(!is_room)
                     osp_string = openai_system_prompt.replace(/{{user}}/gi, name1) //System prompt for OpenAI
@@ -1502,7 +1611,7 @@ $(document).ready(function(){
                     arrMes = arrMes.reverse();
                     var is_add_personality = false;
 
-                    if (main_api === 'openai' && (model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-0301' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k')) { // Jailbreak
+                    if (main_api === 'openai' && (model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-16k' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k')) { // Jailbreak
                         if (openai_jailbreak2_prompt.length > 0) {
                             arrMes[arrMes.length-1] = arrMes[arrMes.length-1]+'\n'+openai_jailbreak2_prompt.replace(/{{user}}/gi, name1)
                                     .replace(/{{char}}/gi, name2)
@@ -1549,7 +1658,7 @@ $(document).ready(function(){
                         }
 
 
-                        if(!free_char_name_mode && !(main_api === 'openai' && (model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-0301' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k'))){
+                        if(!free_char_name_mode && !(main_api === 'openai' && (model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-16k' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k'))){
                             if(i >= arrMes.length-1 && $.trim(item).substr(0, (name1+":").length) == name1+":"){//for add name2 when user sent
                                 item =item+name2+":";
                             }
@@ -1594,7 +1703,7 @@ $(document).ready(function(){
                 }
                 function checkPromtSize(){
                     setPromtString();
-                    let thisPromtContextSize = getTokenCount(storyString+mesExmString+mesSendString+anchorTop+anchorBottom+charPersonality+generatedPromtCache)+gap_holder;
+                    let thisPromtContextSize = getTokenCount(storyString+mesExmString+mesSendString+anchorTop+anchorBottom+charPersonality+generatedPromtCache)+this_gap_holder;
                     if(thisPromtContextSize > this_max_context){
                         if(count_exm_add > 0 && !keep_dialog_examples){
                             //mesExamplesArray.length = mesExamplesArray.length-1;
@@ -1625,7 +1734,7 @@ $(document).ready(function(){
                 }else{
                     mesSendString = '<START>\n'+mesSendString;
                 }
-                if(main_api === 'openai' && (model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-0301' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k')){
+                if(main_api === 'openai' && (model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-16k' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k')){
                     finalPromt = {};
                     finalPromt = [];
 
@@ -1743,7 +1852,7 @@ $(document).ready(function(){
 
                 // HORDE
                 if(main_api == 'horde'){
-                    // Same settings as Kobold?
+                    // Same settings as Kobold? Yep
                     var this_settings = koboldai_settings[koboldai_setting_names[preset_settings]];
                     this_amount_gen = parseInt(amount_gen);
 
@@ -1793,7 +1902,7 @@ $(document).ready(function(){
                         "max_tokens": this_amount_gen
                     };
 
-                    if((model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-0301' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k')){
+                    if((model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-16k' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k')){
                         generate_data.messages = finalPromt;
                     }else{
                         generate_data.prompt = finalPromt;
@@ -1831,8 +1940,8 @@ $(document).ready(function(){
                         console.error(jqXHR, exception);
 
                         $("#send_textarea").removeAttr('disabled');
-                        is_send_press = false;
-                        hordeCheck = false;
+                        Tavern.is_send_press = false;
+                        Tavern.hordeCheck = false;
                         $( "#send_button" ).css("display", "block");
                         $( "#loading_mes" ).css("display", "none");
 
@@ -1846,7 +1955,7 @@ $(document).ready(function(){
 
             for (var item of chat2) {//console.log(encode("dsfs").length);
                 chatString = item+chatString;
-                if(getTokenCount(storyString+mesExmString+chatString+anchorTop+anchorBottom+charPersonality)+gap_holder < this_max_context){ //(The number of tokens in the entire prompt) need fix, it must count correctly (added +120, so that the description of the character does not hide)
+                if(getTokenCount(storyString+mesExmString+chatString+anchorTop+anchorBottom+charPersonality)+this_gap_holder < this_max_context){ //(The number of tokens in the entire prompt) need fix, it must count correctly (added +120, so that the description of the character does not hide)
                     arrMes[arrMes.length] = item;
                 }else{
                     i = chat2.length-1;
@@ -1862,7 +1971,7 @@ $(document).ready(function(){
                         for(let iii = 0; iii < mesExamplesArray.length; iii++){//mesExamplesArray It need to make from end to start
 
                             mesExmString = mesExmString+mesExamplesArray[iii];
-                            if(getTokenCount(storyString+mesExmString+chatString+anchorTop+anchorBottom+charPersonality)+gap_holder < this_max_context){ //example of dialogs
+                            if(getTokenCount(storyString+mesExmString+chatString+anchorTop+anchorBottom+charPersonality)+this_gap_holder < this_max_context){ //example of dialogs
                                 if(!is_pygmalion){
                                     mesExamplesArray[iii] = mesExamplesArray[iii].replace(/<START>/i, 'This is how '+name2+' should talk');//An example of how '+name2+' responds
                                 }
@@ -1899,7 +2008,7 @@ $(document).ready(function(){
                 //send ch sel
                 callPopup('Сharacter is not selected', 'alert');
             }
-            is_send_press = false;
+            Tavern.is_send_press = false;
         }
 
         name2 = originalName2;
@@ -1922,7 +2031,7 @@ $(document).ready(function(){
             if(main_api == 'horde') {
                 if(!data.generations || !data.generations.length) {
                     console.log("Horde generation request started.");
-                    hordeCheck = true;
+                    Tavern.hordeCheck = true;
                     updateHordeStats();
                     return;
                 } else {
@@ -1931,7 +2040,7 @@ $(document).ready(function(){
                 }
             }
             if(main_api == 'openai'){
-                if(model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-0301' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k'){
+                if(model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-16k' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k'){
                     getMessage = data.choices[0].message.content;
                 }else{
                     getMessage = data.choices[0].text;
@@ -1999,7 +2108,7 @@ $(document).ready(function(){
                     }else{
                         chat[chat.length-1]['mes'] = getMessage;
                     }
-                    is_send_press = false;
+                    Tavern.is_send_press = false;
                 }else{
                     chat[chat.length] = {}; //adds one mes in array but then increases length by 1
                     chat[chat.length-1]['name'] = name2;
@@ -2009,7 +2118,7 @@ $(document).ready(function(){
                     getMessage = $.trim(getMessage);
                     chat[chat.length-1]['mes'] = getMessage;
                     addOneMessage(chat[chat.length-1]);
-                    is_send_press = false;
+                    Tavern.is_send_press = false;
                 }
                 $( "#send_button" ).css("display", "block");
                 $( "#loading_mes" ).css("display", "none");
@@ -2028,7 +2137,7 @@ $(document).ready(function(){
                 {
                     $( "#send_button" ).css("display", "block");
                     $( "#loading_mes" ).css("display", "none");
-                    is_send_press = false;
+                    Tavern.is_send_press = false;
                     callPopup('The model returned empty message', 'alert');
                 }
             }
@@ -2042,7 +2151,7 @@ $(document).ready(function(){
             if(data.error_message) {
                 callPopup(data.error_message, 'alert_error');
             }
-            is_send_press = false;
+            Tavern.is_send_press = false;
             $( "#send_button" ).css("display", "block");
             $( "#loading_mes" ).css("display", "none");
         }
@@ -2223,7 +2332,7 @@ $(document).ready(function(){
                 }
             }
         });
-        var save_chat = [{user_name:default_user_name, character_name:name2,create_date: chat_create_date, notes: winNotes.text, notes_type: winNotes.strategy}, ...chat];
+        var save_chat = [{user_name:default_user_name, character_name:name2,create_date: chat_create_date, notes: winNotes.text, notes_type: winNotes.strategy, mode: Tavern.mode}, ...chat];
 
 
         jQuery.ajax({    
@@ -2265,13 +2374,16 @@ $(document).ready(function(){
             dataType: "json",
             contentType: "application/json",
             success: function(data){
-                //console.log(data);
                 //chat.length = 0;
+                Tavern.mode = 'chat';
                 if(data[0] !== undefined){
                     for (let key in data) {
                         chat.push(data[key]);
                     }
+                    
                     //chat =  data;
+                    Tavern.mode = chat[0].mode || 'chat';
+                    Story.showHide();
                     chat_create_date = chat[0]['create_date'];
                     winNotes.text = chat[0].notes || "";
                     winNotes.strategy = chat[0].notes_type || "discr";
@@ -2285,12 +2397,13 @@ $(document).ready(function(){
                         } catch(e) { /* ignore error */ }
                         winNotes.wppText = defaultWpp;
                     }
+                    
                     chat.shift();
 
                 }else{
                     chat_create_date = Date.now();
                 }
-                //console.log(chat);
+                
                 getChatResult();
                 saveChat();
             },
@@ -2312,7 +2425,7 @@ $(document).ready(function(){
                     chat[i]['name'] = name1;
                 }
             });
-        } else {
+        } else if(Tavern.mode === 'chat'){
             if(!is_room) {
                 let first = Characters.id[Characters.selectedID].first_mes;
                 chat[0] = {
@@ -2341,11 +2454,16 @@ $(document).ready(function(){
         select_selected_character(Characters.selectedID);
     }
     $("#send_textarea").keypress(function (e) {
-        if(e.which === 13 && !e.shiftKey && is_send_press == false) {
+        if(e.which === 13 && !e.shiftKey && Tavern.is_send_press == false) {
             hideSwipeButtons();
-            is_send_press = true;
+            Tavern.is_send_press = true;
             e.preventDefault();
-            Generate();
+            if(Tavern.mode === 'story'){
+                Story.Generate();
+            }else{
+                Generate();
+            }
+            
             //$(this).closest("form").submit();
         }
     });
@@ -2545,9 +2663,6 @@ $(document).ready(function(){
         
     }
 
-    function getTokenCount(text = "") {
-        return encode(JSON.stringify(text)).length;
-    }
 
     function select_selected_character(chid){ //character select
         select_rm_create();
@@ -3164,7 +3279,7 @@ $(document).ready(function(){
         }
     });
     $( "#option_select_chat" ).click(function() {
-        if(Characters.selectedID != undefined && !is_send_press){
+        if(Characters.selectedID != undefined && !Tavern.is_send_press){
             getAllCharaChats();
             $('#shadow_select_chat_popup').css('display', 'block');
             $('#shadow_select_chat_popup').css('opacity', 0.0);
@@ -3172,14 +3287,14 @@ $(document).ready(function(){
         }
     });
     $( "#option_start_new_chat" ).click(function() {
-        if(Characters.selectedID != undefined && !is_send_press){
+        if(Characters.selectedID != undefined && !Tavern.is_send_press){
             callPopup('<h3>Start new chat?</h3>', 'new_chat');
         }
     });
     $( "#option_regenerate" ).click(function() {
-        if(is_send_press == false && count_view_mes > 1){
+        if(Tavern.is_send_press == false && count_view_mes > 1){
             hideSwipeButtons();
-            is_send_press = true;
+            Tavern.is_send_press = true;
             if(this_edit_mes_id === chat.length-1) {
                 this_edit_target_id = undefined;
                 this_edit_mes_id = undefined;
@@ -3763,7 +3878,7 @@ $(document).ready(function(){
             contentType: "application/json",
             success: function(data) {
                 if(data.hordeData && data.hordeData.finished) {
-                    hordeCheck = false;
+                    Tavern.hordeCheck = false;
                     document.getElementById("hordeInfo").classList.remove("hidden");
                     document.getElementById("hordeQueue").innerHTML = "Finished" + (data.hordeData.kudos ? " (" + data.hordeData.kudos + " kudos)" : "");
                     generateCallback(data.hordeData);
@@ -3781,19 +3896,19 @@ $(document).ready(function(){
                     }
                     document.getElementById("hordeInfo").classList.remove("hidden");
                     document.getElementById("hordeQueue").innerHTML = "Request failed";
-                    hordeCheck = false;
+                    Tavern.hordeCheck = false;
                     console.log("Horde generation error");
                     return;
                 } else  {
                     document.getElementById("hordeInfo").classList.remove("hidden");
                     document.getElementById("hordeQueue").innerHTML = "Queueing...";
                 }
-                if(hordeCheck){
+                if(Tavern.hordeCheck){
                     setTimeout(updateHordeStats, 1000);
                 }
             },
             error: function (jqXHR, exception) {
-                hordeCheck = false;
+                Tavern.hordeCheck = false;
                 console.error(jqXHR);
                 console.error(exception);
             }
@@ -4842,8 +4957,8 @@ $(document).ready(function(){
                                             easing: animation_rm_easing,
                                             queue:false,
                                             complete: function() {  
-                                                if(run_generate && !is_send_press && parseInt(chat[chat.length-1]['swipe_id']) === chat[chat.length-1]['swipes'].length){
-                                                    is_send_press = true;
+                                                if(run_generate && !Tavern.is_send_press && parseInt(chat[chat.length-1]['swipe_id']) === chat[chat.length-1]['swipes'].length){
+                                                    Tavern.is_send_press = true;
                                                     Generate('swipe');
                                                 }else{
                                                     if(parseInt(chat[chat.length-1]['swipe_id']) !== chat[chat.length-1]['swipes'].length){
@@ -4984,7 +5099,7 @@ $(document).ready(function(){
     });
 
     $("#your_name_button").click(function() {
-        if(!is_send_press){
+        if(!Tavern.is_send_press){
             name1 = $("#your_name").val();
             if(name1 === undefined || name1 == '') name1 = default_user_name;
             $('.mes').each(function () {
@@ -5219,8 +5334,20 @@ $(document).ready(function(){
             case 'gpt-4-32k':
                 this_openai_max_context = 32768;
                 break;
+            case 'gpt-3.5-turbo-16k':
+                this_openai_max_context = 16384;
+                break;
             case 'code-davinci-002':
                 this_openai_max_context = 8000;
+                break;
+            case 'text-curie-001':
+                this_openai_max_context = 2049;
+                break;
+            case 'text-babbage-001':
+                this_openai_max_context = 2049;
+                break;
+            case 'text-ada-001':
+                this_openai_max_context = 2049;
                 break;
             default:
                 this_openai_max_context = 4096;

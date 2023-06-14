@@ -188,6 +188,7 @@ pre {
     margin-right: auto;
 }
 #chat_header {
+    position: relative;
     background: #191b31;
     height: 100%;
     border-radius: 3px;
@@ -3144,4 +3145,31 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
         width: 100%;
         height: 100%;
     }
+}
+
+/* Story */
+#story {
+    display: none;
+}
+
+#chat_story_button {
+
+    cursor: pointer;
+    position: absolute;
+    right: 20px;
+    font-weight: 700;
+    font-size: 11pt;
+    opacity: 0.72;
+}
+#chat_story_button_story_text {
+    opacity: 0.5;
+}
+
+
+#story textarea {
+    height: 99%;
+    scrollbar-width: thin;
+    padding-left: 18px;
+    font-size: 13.5pt;
+    background: #191b31A0;
 }

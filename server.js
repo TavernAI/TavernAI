@@ -1845,7 +1845,7 @@ app.post("/generate_openai", jsonParser, function(request, response_generate_ope
         "stop": request.body.stop
     };
     let request_path = '';
-    if(request.body.model === 'gpt-3.5-turbo' || request.body.model === 'gpt-3.5-turbo-0301' || request.body.model === 'gpt-4' || request.body.model === 'gpt-4-32k'){
+    if(request.body.model === 'gpt-3.5-turbo' || request.body.model === 'gpt-3.5-turbo-16k' || request.body.model === 'gpt-4' || request.body.model === 'gpt-4-32k'){
         request_path = '/chat/completions';
         data.messages = request.body.messages;
         
@@ -1898,20 +1898,26 @@ app.post("/generate_openai", jsonParser, function(request, response_generate_ope
             }
             console.log(response.statusCode);
             if(response.statusCode <= 299){
-                response_generate_openai.send(data);
+                return response_generate_openai.send(data);
             }
             if(response.statusCode == 401){
                 console.log('Invalid Authentication');
-                response_generate_openai.send({error: true, error_code: 401, error_message: "Invalid Authentication"});
+                return response_generate_openai.send({error: true, error_code: 401, error_message: "Invalid Authentication"});
+            }
+            if(response.statusCode == 404){
+                console.log('Model not found');
+                return response_generate_openai.send({error: true, error_code: 404, error_message: "Model not found"});
             }
             if(response.statusCode == 429){
                 console.log('Rate limit reached for requests');
-                response_generate_openai.send({error: true, error_code: 429, error_message: "Rate limit reached for requests"});
+                return response_generate_openai.send({error: true, error_code: 429, error_message: "Rate limit reached for requests"});
             }
             if(response.statusCode == 500){
                 console.log('The server had an error while processing your request');
-                response_generate_openai.send({error: true, error_code: 500, error_message: "The server had an error while processing your request"});
+                return response_generate_openai.send({error: true, error_code: 500, error_message: "The server had an error while processing your request"});
             }
+            console.log('Unique error');
+            return response_generate_openai.send({error: true, error_code: response.statusCode, error_message: "Unique error"});
         }catch (error) {
             console.log("An error occurred: " + error);
             response_generate_openai.send({error: true, error_message: error});
