@@ -1191,7 +1191,7 @@ $(document).ready(function(){
         }
 
         let gap_holder = 120;
-        if(main_api === 'openai' && (model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-0301' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k')) 
+        if(main_api === 'openai' && (model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-16k' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k')) 
             gap_holder = parseInt(amount_gen_openai)+gap_holder;
         var textareaText = '';
         tokens_already_generated = 0;
@@ -1418,7 +1418,7 @@ $(document).ready(function(){
                 storyString = storyString.replace(/\n+/g, "\n");
             }
 
-            if(main_api === 'openai' && (model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-0301' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k')){
+            if(main_api === 'openai' && (model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-16k' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k')){
                 let osp_string = "";
                 if(!is_room)
                     osp_string = openai_system_prompt.replace(/{{user}}/gi, name1) //System prompt for OpenAI
@@ -1502,7 +1502,7 @@ $(document).ready(function(){
                     arrMes = arrMes.reverse();
                     var is_add_personality = false;
 
-                    if (main_api === 'openai' && (model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-0301' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k')) { // Jailbreak
+                    if (main_api === 'openai' && (model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-16k' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k')) { // Jailbreak
                         if (openai_jailbreak2_prompt.length > 0) {
                             arrMes[arrMes.length-1] = arrMes[arrMes.length-1]+'\n'+openai_jailbreak2_prompt.replace(/{{user}}/gi, name1)
                                     .replace(/{{char}}/gi, name2)
@@ -1549,7 +1549,7 @@ $(document).ready(function(){
                         }
 
 
-                        if(!free_char_name_mode && !(main_api === 'openai' && (model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-0301' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k'))){
+                        if(!free_char_name_mode && !(main_api === 'openai' && (model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-16k' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k'))){
                             if(i >= arrMes.length-1 && $.trim(item).substr(0, (name1+":").length) == name1+":"){//for add name2 when user sent
                                 item =item+name2+":";
                             }
@@ -1625,7 +1625,7 @@ $(document).ready(function(){
                 }else{
                     mesSendString = '<START>\n'+mesSendString;
                 }
-                if(main_api === 'openai' && (model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-0301' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k')){
+                if(main_api === 'openai' && (model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-16k' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k')){
                     finalPromt = {};
                     finalPromt = [];
 
@@ -1793,7 +1793,7 @@ $(document).ready(function(){
                         "max_tokens": this_amount_gen
                     };
 
-                    if((model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-0301' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k')){
+                    if((model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-16k' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k')){
                         generate_data.messages = finalPromt;
                     }else{
                         generate_data.prompt = finalPromt;
@@ -1931,7 +1931,7 @@ $(document).ready(function(){
                 }
             }
             if(main_api == 'openai'){
-                if(model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-0301' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k'){
+                if(model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-16k' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k'){
                     getMessage = data.choices[0].message.content;
                 }else{
                     getMessage = data.choices[0].text;
@@ -5218,6 +5218,9 @@ $(document).ready(function(){
                 break;
             case 'gpt-4-32k':
                 this_openai_max_context = 32768;
+                break;
+            case 'gpt-3.5-turbo-16k':
+                this_openai_max_context = 16384;
                 break;
             case 'code-davinci-002':
                 this_openai_max_context = 8000;
