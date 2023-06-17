@@ -34,6 +34,21 @@ export var style_anchor = true;
 export var character_anchor = true;
 export const gap_holder = 120;
 export var online_status = 'no_connection';
+
+const VERSION = '1.4.1';
+var chloeMes = {
+        name: 'Chloe',
+        is_user: false,
+        is_name: true,
+        create_date: 0,
+        mes: '*You went inside. The air smelled of fried meat, tobacco and a hint of wine. A dim light was cast by candles, and a fire crackled in the fireplace. It seems to be a very pleasant place. Behind the wooden bar is an elf waitress, she is smiling. Her ears are very pointy, and there is a twinkle in her eye. She wears glasses and a white apron. As soon as she noticed you, she immediately came right up close to you.*\n\n' +
+            ' Hello there! How is your evening going?' +
+            '<div id="characloud_img"><img src="img/tavern.png" id="chloe_star_dust_city"></div>\n<a id="verson" href="https://github.com/TavernAI/TavernAI" target="_blank">@@@TavernAI v'+VERSION+'@@@</a><a href="https://boosty.to/tavernai" target="_blank"><div id="characloud_url"><img src="img/cloud_logo.png"><div id="characloud_title">Cloud</div></div></a><br><br><br><br>',
+        chid: -2
+    };
+export var chat = [chloeMes];
+
+
     //KoboldAI settings
     export var settings;
     export var koboldai_settings;
@@ -382,7 +397,7 @@ $(document).ready(function(){
     }.bind(this));
     Story.on(StoryModule.CONVERT_CHAT, function(event) {
         if(Tavern.mode === 'story'){
-            if(chat.length === 0){
+            if(chat.length === 1){
                 $('#story_textarea').val(chat[0].mes);
             }else{
                 let story_text = '';
@@ -408,11 +423,12 @@ $(document).ready(function(){
         }
         if(Tavern.mode === 'chat'){
             let story_text = $('#story_textarea').val();
-            const chat_messages = story_text.split(new RegExp(`(${name1}|${name2}): `));
-
+            let chat_messages = story_text.split(new RegExp(`(${name1}|${name2}): `));
+            
             chat_messages.shift();
-
-
+            if(chat_messages.length <= 1){
+                chat_messages = [name2, story_text];
+            }
             chat = [];
             for (let i = 0; i < chat_messages.length; i++) {
                 let name = chat_messages[i];
@@ -437,7 +453,6 @@ $(document).ready(function(){
                 i++;
 
             }
-            
             saveChat();
             clearChat();
             printMessages();
@@ -448,6 +463,9 @@ $(document).ready(function(){
     Story.on(StoryModule.UPDATE_HORDE_STATUS, function(event) {
         updateHordeStats();
     }.bind(this));
+    Story.on(StoryModule.CONVERT_ALERT, function(event) {
+        callPopup('<h3 style="margin-bottom:2px;margin-top:5px;">Convert chat to text?</h3>In some cases, the reverse conversion to the chat will be in a modified form.','convert_to_story');
+    }.bind(this));
 
     //CharaCloud
     var charaCloud = charaCloudClient.getInstance();
@@ -455,23 +473,11 @@ $(document).ready(function(){
     var characloud_characters_rows;
     var charaCloudServer = 'http://127.0.0.1:80';
     ///////////
-    const VERSION = '1.4.1';
     var converter = new showdown.Converter({ extensions: ['xssfilter'] });
     var bg_menu_toggle = false;
     var default_user_name = "You";
     var name1 = default_user_name;
     var name2 = "Chloe";
-    var chloeMes = {
-        name: 'Chloe',
-        is_user: false,
-        is_name: true,
-        create_date: 0,
-        mes: '*You went inside. The air smelled of fried meat, tobacco and a hint of wine. A dim light was cast by candles, and a fire crackled in the fireplace. It seems to be a very pleasant place. Behind the wooden bar is an elf waitress, she is smiling. Her ears are very pointy, and there is a twinkle in her eye. She wears glasses and a white apron. As soon as she noticed you, she immediately came right up close to you.*\n\n' +
-            ' Hello there! How is your evening going?' +
-            '<div id="characloud_img"><img src="img/tavern.png" id="chloe_star_dust_city"></div>\n<a id="verson" href="https://github.com/TavernAI/TavernAI" target="_blank">@@@TavernAI v'+VERSION+'@@@</a><a href="https://boosty.to/tavernai" target="_blank"><div id="characloud_url"><img src="img/cloud_logo.png"><div id="characloud_title">Cloud</div></div></a><br><br><br><br>',
-        chid: -2
-    };
-    var chat = [chloeMes];
     
     var number_bg = 1;
     var delete_user_avatar_filename;
@@ -1128,13 +1134,13 @@ $(document).ready(function(){
                 if(!is_room)
                 {
                     mes.chid = parseInt(Characters.selectedID);     // TODO: properly establish persistent ids
-                    avatarImg = Characters.id[mes.chid].filename == 'none' ? "img/fluffy.png" : "characters/"+Characters.id[Characters.selectedID].filename + "#t=" + Date.now();
+                    avatarImg = Characters.id[mes.chid].filename == 'none' ? "img/fluffy.png" : "characters/"+Characters.id[Characters.selectedID].filename + "?t=" + Date.now();
                 }
                 else
                 {
                     if(mes.chid === undefined)
                         mes.chid = parseInt(Characters.selectedID);
-                    avatarImg = Characters.id[mes.chid].filename == 'none' ? "img/fluffy.png" : "characters/"+Characters.id[mes.chid].filename + "#t=" + Date.now();
+                    avatarImg = Characters.id[mes.chid].filename == 'none' ? "img/fluffy.png" : "characters/"+Characters.id[mes.chid].filename + "?t=" + Date.now();
                 }
             }
         } else {
@@ -1620,6 +1626,7 @@ $(document).ready(function(){
                         }
                         if (openai_jailbreak_prompt.length > 0) {
                             //arrMes.splice(-1, 0, openai_jailbreak_prompt);
+                            
                             arrMes.push(openai_jailbreak_prompt.replace(/{{user}}/gi, name1)
                                     .replace(/{{char}}/gi, name2)
                                     .replace(/<USER>/gi, name1)
@@ -1636,11 +1643,13 @@ $(document).ready(function(){
 
                     arrMes.forEach(function(item, i, arr) {//For added anchors and others
 
-                        if(i >= arrMes.length-1 && $.trim(item).substr(0, (name1+":").length) != name1+":"){
+                        if((i >= arrMes.length-1 && $.trim(item).substr(0, (name1+":").length) != name1+":" && main_api !== 'openai') || 
+                                (i >= arrMes.length-1 && $.trim(item).substr(0, (name1+":").length) != name1+":" && main_api === 'openai' && openai_jailbreak_prompt.lenght === 0)){
                             if(textareaText == ""){
                                 item = item.substr(0,item.length-1);
                             }
                         }
+
                         if(i === arrMes.length-topAnchorDepth && count_view_mes>=topAnchorDepth && !is_add_personality){
 
                             is_add_personality = true;
@@ -1677,6 +1686,7 @@ $(document).ready(function(){
                         mesSend[mesSend.length] = item;
                         //chatString = chatString+item;
                     });
+                    
                 }
                 //finalPromt +=chatString;
                 //console.log(storyString);
@@ -3042,7 +3052,13 @@ $(document).ready(function(){
                 }
             });
         }
+        if(popup_type === 'convert_to_story'){
+            Story.ConvertChatStory();
+            return;
+        }
         if(popup_type == 'new_chat' && Characters.selectedID != undefined && menu_type != "create"){//Fix it; New chat doesn't create while open create character menu
+            Tavern.mode = 'chat';
+            Story.showHide();
             clearChat();
             chat.length = 0;
             Characters.id[Characters.selectedID].chat = Date.now();
@@ -3127,6 +3143,11 @@ $(document).ready(function(){
                 text = '<h3 class="error">Error</h3>'+text+'';
                 break;
             case 'new_chat':
+
+                $("#dialogue_popup_ok").css("background-color", "#191b31CC");
+                $("#dialogue_popup_ok").text("Yes");
+                break;
+            case 'convert_to_story':
 
                 $("#dialogue_popup_ok").css("background-color", "#191b31CC");
                 $("#dialogue_popup_ok").text("Yes");
@@ -3292,14 +3313,22 @@ $(document).ready(function(){
         }
     });
     $( "#option_regenerate" ).click(function() {
-        if(Tavern.is_send_press == false && count_view_mes > 1){
-            hideSwipeButtons();
-            Tavern.is_send_press = true;
-            if(this_edit_mes_id === chat.length-1) {
-                this_edit_target_id = undefined;
-                this_edit_mes_id = undefined;
+        if(Tavern.mode === 'chat'){
+            if(Tavern.is_send_press == false && count_view_mes > 1){
+                hideSwipeButtons();
+                Tavern.is_send_press = true;
+                if(this_edit_mes_id === chat.length-1) {
+                    this_edit_target_id = undefined;
+                    this_edit_mes_id = undefined;
+                }
+                Generate('regenerate');
             }
-            Generate('regenerate');
+            return;
+        }
+        if(Tavern.mode === 'story'){
+            if(Tavern.is_send_press == false){
+                Story.Generate();
+            }
         }
     });
     
@@ -3881,7 +3910,11 @@ $(document).ready(function(){
                     Tavern.hordeCheck = false;
                     document.getElementById("hordeInfo").classList.remove("hidden");
                     document.getElementById("hordeQueue").innerHTML = "Finished" + (data.hordeData.kudos ? " (" + data.hordeData.kudos + " kudos)" : "");
-                    generateCallback(data.hordeData);
+                    if(Tavern.mode === 'chat'){
+                        generateCallback(data.hordeData);
+                    } else if(Tavern.mode === 'story'){
+                        Story.generateCallback(data.hordeData);
+                    }
                     return;
                 }
                 if(data.hordeData && data.hordeData.wait_time) {
@@ -5576,6 +5609,7 @@ $(document).ready(function(){
                 complete: function() {  }
             });
         }else{
+            Tavern.mode = 'chat';
             Characters.selectedID = undefined;
             clearChat();
             chat.length = 0;

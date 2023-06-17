@@ -7,23 +7,32 @@ export class StoryModule extends EventEmitter {
     static SAVE_CHAT = "save_chat";
     static CONVERT_CHAT = "convert_chat";
     static UPDATE_HORDE_STATUS = "update_horde_status";
+    static CONVERT_ALERT = "convert_alert";
     constructor() {
         super();
         //this.is_online = false;
         const self = this;
         $('#chat_story_button').click(function(){
-            if(Main.Characters.selectedID !== undefined){
-                if (Tavern.mode === 'chat') {
-                    Tavern.mode = 'story';
-                }else if (Tavern.mode === 'story') {
-                    Tavern.mode = 'chat';
-                }
-                self.emit(StoryModule.CONVERT_CHAT, {});
-                self.showHide();
+            if(Main.chat.length > 1){
+                self.emit(StoryModule.CONVERT_ALERT, {});
+            }else{
+                self.ConvertChatStory();
             }
         });
 
        
+    }
+    ConvertChatStory(){
+        const self = this;
+        if (Main.Characters.selectedID !== undefined) {
+            if (Tavern.mode === 'chat') {
+                Tavern.mode = 'story';
+            } else if (Tavern.mode === 'story') {
+                Tavern.mode = 'chat';
+            }
+            self.emit(StoryModule.CONVERT_CHAT, {});
+            self.showHide();
+        }
     }
     showHide(){
         if(Tavern.mode === 'story'){
@@ -42,11 +51,13 @@ export class StoryModule extends EventEmitter {
         }
     }
     Generate(){
+        const self = this;
         if(!(Main.online_status != 'no_connection' && Main.Characters.selectedID != undefined)){
             Tavern.is_send_press = false;
             return;
         }
-        const self = this;
+        Main.Characters.id[Main.Characters.selectedID].last_action_date = Date.now();
+        $('#rm_folder_order').change();
         let this_gap_holder = Main.gap_holder;
         if (Main.main_api === 'openai' && (Main.model_openai === 'gpt-3.5-turbo' || Main.model_openai === 'gpt-3.5-turbo-0301' || Main.model_openai === 'gpt-4' || Main.model_openai === 'gpt-4-32k')){
             this_gap_holder = parseInt(Main.amount_gen_openai)+this_gap_holder;
@@ -105,9 +116,9 @@ export class StoryModule extends EventEmitter {
         if (Main.main_api === 'openai' && (Main.model_openai === 'gpt-3.5-turbo' || Main.model_openai === 'gpt-3.5-turbo-0301' || Main.model_openai === 'gpt-4' || Main.model_openai === 'gpt-4-32k')){
             prompt = [];
             prompt[0] = {"role": "assistant", "content": memory};
-            prompt[1] = {"role": "system", "content": $('#openai_system_prompt_textarea').val()};
-            prompt[2] = {"role": "assistant", "content": pre_prompt};
-            prompt[3] = {"role": "system", "content": $('#openai_jailbreak_prompt_textarea').val()};
+            //prompt[1] = {"role": "system", "content": $('#openai_system_prompt_textarea').val()};
+            prompt[1] = {"role": "assistant", "content": pre_prompt};
+            //prompt[3] = {"role": "system", "content": $('#openai_jailbreak_prompt_textarea').val()};
             
         }else{
             prompt = pre_prompt = memory+pre_prompt;
@@ -274,62 +285,7 @@ export class StoryModule extends EventEmitter {
             timeout: Main.requestTimeout,
             dataType: "json",
             contentType: "application/json",
-            success: function(data) {
-                if(data.error != true){
-                    var getPrompt = '';
-                    if (Main.main_api == 'kobold') {
-                        getPrompt = data.results[0].text;
-                    }
-                    if (Main.main_api == 'novel') {
-                        getPrompt = data.output;
-                    }
-                    if (Main.main_api == 'horde') {
-                        if (!data.generations || !data.generations.length) {
-                            console.log("Horde generation request started.");
-                            Tavern.hordeCheck = true;
-                            self.emit(StoryModule.UPDATE_HORDE_STATUS, {});
-                            return;
-                        } else {
-                            console.log("Horde generation request finished.");
-                            getPrompt = data.generations[0].text;
-                        }
-                    }
-                    if (Main.main_api == 'openai') {
-                        if (Main.model_openai === 'gpt-3.5-turbo' || Main.model_openai === 'gpt-3.5-turbo-0301' || Main.model_openai === 'gpt-4' || Main.model_openai === 'gpt-4-32k') {
-                            getPrompt = data.choices[0].message.content+' ';
-                        } else {
-                            getPrompt = data.choices[0].text;
-                        }
-                    }
-                    if(getPrompt.length > 0){
-                        $('#story_textarea').val($('#story_textarea').val()+getPrompt);
-                        if (true){
-                            self.emit(StoryModule.SAVE_CHAT, {});
-                            //saveChat();
-                        }else{
-                            //saveChatRoom();
-                        }
-
-                    } else {
-
-                        //callPopup('The model returned empty message', 'alert');
-
-                    }
-                    $("#send_button").css("display", "block");
-                    $("#loading_mes").css("display", "none");
-                    Tavern.is_send_press = false;
-
-
-                } else {
-                    console.error(data);
-                    if (data.error_message) {
-                        //callPopup(data.error_message, 'alert_error');
-                    }
-                    Tavern.is_send_press = false;
-                    $("#send_button").css("display", "block");
-                    $("#loading_mes").css("display", "none");
-                }
-            },
+            success: self.generateCallback.bind(this),
             error: function (jqXHR, exception) {
                 console.error(jqXHR, exception);
 
@@ -344,5 +300,62 @@ export class StoryModule extends EventEmitter {
                 console.log(jqXHR);
             }
         });
+    }
+    generateCallback(data){
+        const self = this;
+        if (data.error != true) {
+            var getPrompt = '';
+            if (Main.main_api == 'kobold') {
+                getPrompt = data.results[0].text;
+            }
+            if (Main.main_api == 'novel') {
+                getPrompt = data.output;
+            }
+            if (Main.main_api == 'horde') {
+                if (!data.generations || !data.generations.length) {
+                    console.log("Horde generation request started.");
+                    Tavern.hordeCheck = true;
+                    self.emit(StoryModule.UPDATE_HORDE_STATUS, {});
+                    return;
+                } else {
+                    console.log("Horde generation request finished.");
+                    getPrompt = data.generations[0].text;
+                }
+            }
+            if (Main.main_api == 'openai') {
+                if (Main.model_openai === 'gpt-3.5-turbo' || Main.model_openai === 'gpt-3.5-turbo-0301' || Main.model_openai === 'gpt-4' || Main.model_openai === 'gpt-4-32k') {
+                    getPrompt = data.choices[0].message.content + ' ';
+                } else {
+                    getPrompt = data.choices[0].text;
+                }
+            }
+            if (getPrompt.length > 0) {
+                $('#story_textarea').val($('#story_textarea').val() + getPrompt);
+                if (true) {
+                    self.emit(StoryModule.SAVE_CHAT, {});
+                    //saveChat();
+                } else {
+                    //saveChatRoom();
+                }
+
+            } else {
+
+                //callPopup('The model returned empty message', 'alert');
+
+            }
+            $("#send_button").css("display", "block");
+            $("#loading_mes").css("display", "none");
+            Tavern.is_send_press = false;
+
+
+        } else {
+            console.error(data);
+            if (data.error_message) {
+                //callPopup(data.error_message, 'alert_error');
+            }
+            Tavern.is_send_press = false;
+            $("#send_button").css("display", "block");
+            $("#loading_mes").css("display", "none");
+        }
     }
 }

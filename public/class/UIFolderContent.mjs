@@ -31,7 +31,7 @@ export class UIFolderContent extends EventEmitter {
 
         this.container = document.createElement("li");
         this.container.classList.add("folder-content");
-
+        this.container.setAttribute("filename", options.uid);
         this.container.setAttribute("draggable", "true");
 
         this.main = document.createElement("div");
