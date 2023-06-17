@@ -143,7 +143,7 @@ export class Resizable {
                 event.preventDefault();
             }.bind(this);
         }
-        this.hide();
+        //this.hide();
     }
 
     /**
@@ -220,9 +220,9 @@ export class Resizable {
         if (this.shown) {
             return;
         }
-        $(this_shadow_container).css('opacity', 0.0);
-        $(this_shadow_container).css('display', 'block');
-        $(this_shadow_container).transition({opacity: 1.0, duration: animation_rm_duration, easing: animation_rm_easing, complete: function () {
+        $(this.root).css('opacity', 0.0);
+        $(this.root).css('display', 'block');
+        $(this.root).transition({opacity: 1.0, duration: animation_rm_duration, easing: animation_rm_easing, complete: function () {
 
         }});
         this.shown = true;
@@ -235,8 +235,10 @@ export class Resizable {
         if (!this.container) {
             return;
         }
-        $(this_shadow_container).transition({opacity: 0.0, duration: animation_rm_duration, easing: animation_rm_easing, complete: function () {
-            $(this_shadow_container).css('display', 'none');
+
+        const $root = $(this.root);
+        $(this.root).transition({opacity: 0.0, duration: animation_rm_duration, easing: animation_rm_easing, complete: function () {
+            $root.css('display', 'none');
         }});
         this.shown = false;
         this.unfocus();
