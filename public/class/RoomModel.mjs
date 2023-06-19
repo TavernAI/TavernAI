@@ -2,6 +2,7 @@ import {EventEmitter} from "./EventEmitter.mjs";
 import { CharacterModel } from "./CharacterModel.mjs";
 import {token, requestTimeout, characterAddedSign} from "../script.js";
 import {RoomEditor} from "./RoomEditor.mjs";
+import {RoomView} from "./RoomView.mjs";
 import {Resizable} from "./Resizable.mjs";
 
 export class RoomModel extends EventEmitter {
@@ -10,11 +11,13 @@ export class RoomModel extends EventEmitter {
 
     selectedIDs = []; // IDs of character
     selectedNames = []; // Names of character
-    rooms = []; // Each item is an object, each object has a filename and chat, which includes the chat history and metadata of the room
+    rooms = []; // Each item is an object, each object has a filename (with the extension) and chat, which includes the chat history and metadata of the room
     activeId;
     characters; // Question: should we use characters.selectedID or this.activeId instead?
     selectedRoom; // Name of file, without the .jsonl extension
+    loaded;
     editor;
+    view;
     // activeName; // Shouldn't need reference to character name, can do it in the main script file (script.js) since a list of characters (and their information) is kept there (I.e., Characters.id[someID].name)
 
     constructor(options) {
@@ -28,10 +31,26 @@ export class RoomModel extends EventEmitter {
         this.editor.on(RoomEditor.EVENT_CREATE, this.onRoomCreate.bind(this));
         this.editor.on(RoomEditor.EVENT_SHOWN, this.onRoomShown.bind(this));
         this.editor.on(RoomEditor.EVENT_SAVE, this.onRoomSave.bind(this));
+
+        this.view = new RoomView({
+            parent: this
+        });
+        this.view.on(RoomView.EVENT_ROOM_DELETE, this.onRoomDelete.bind(this));
+
+        this.loaded = false;
     }
 
     get id() {
         return this.rooms;
+    }
+
+    get loaded() {
+        return this.loaded;
+    }
+
+    set loaded(is_loaded) {
+        this.loaded = is_loaded;
+        return;
     }
 
     get selectedCharacters() {
@@ -162,6 +181,23 @@ export class RoomModel extends EventEmitter {
         });
     }
 
+    clearSelected() {
+        this.selectedIDs.length = 0;
+        this.selectedNames.length = 0;
+        this.activeId = null;
+        this.characters.selectedID = null;
+        this.selectedRoom = null;
+    }
+
+    getIDbyFilename(filename){
+        return this.rooms.findIndex(room => room.filename === filename);
+    }
+
+    // Method is needed currently since the room view class (RoomView) is not implemented yet
+    deleteRoom(filename) {
+        this.view.emit(RoomView.EVENT_ROOM_DELETE, { target: filename });
+    }
+
     onRoomCreate(event) {
         // console.log("Room Create Event");
         jQuery.ajax({
@@ -216,7 +252,7 @@ export class RoomModel extends EventEmitter {
 
     onRoomSave(event) {
         // let newname = event.data.get("avatar").name;
-        // let filename = event.data.get("filename");
+        let filename = event.data.get("filename");
         // let id = this.getIDbyFilename(filename);
         jQuery.ajax({
             type: 'POST',
@@ -236,7 +272,11 @@ export class RoomModel extends EventEmitter {
                 // }
                 // this.saveFolders();
                 // this.rooms.length = 0;
-                this.loadAll();
+                // this.loadAll();
+                let edited_room = this.rooms.find(
+                    room => room.filename == filename + ".jsonl"
+                );
+                edited_room.chat[0].scenario = event.data.get("scenario");
                 if(event.resolve) {
                     event.resolve(data);
                 }
@@ -255,6 +295,43 @@ export class RoomModel extends EventEmitter {
         let characterContainer = findChildWithClass("room-character-select-items", this.characters.editor.other.roomCharacterSelect, true);
         characterContainer.append("Testing A Message");
         console.log("Testing A Message");
+    }
+
+    onRoomDelete(event) {
+        let id = this.getIDbyFilename(event.target);
+        jQuery.ajax({
+            method: 'POST',
+            url: '/deleteroom',
+            beforeSend: function(){},
+            data: JSON.stringify({
+                filename: event.target
+            }),
+            cache: false,
+            dataType: "json",
+            contentType: "application/json",
+            processData: false,
+            success: function(html){
+                this.rooms = this.rooms.filter(
+                    room => room.filename != event.target + ".jsonl"
+                );
+                // this.view.characters = this.characters;
+                // if(this.characters.selectedID == id) {
+                //     // this.characters.selectedID = null;
+                //     this.clearSelected();
+                //     this.characters.emit(CharacterModel.EVENT_WIPE_CHAT, {});
+                //     document.getElementById("chat_header_back_button").click();
+                // }
+                // this.saveFolders();
+
+                // Since RoomModel.EVENT_ROOM_SELECT is emitted (hence RoomModel.loadAll() is called), everytime a room is deleted,
+                // a room id could change, so selected room must always be deselected.
+                // This should be updated if a "view" object/class is implemented.
+                // this.emit(RoomModel.EVENT_ROOM_SELECT, {});
+                this.clearSelected();
+                this.characters.emit(CharacterModel.EVENT_WIPE_CHAT, {});
+                document.getElementById("chat_header_back_button").click();
+            }.bind(this)
+        });
     }
 
 }

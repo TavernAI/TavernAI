@@ -196,7 +196,15 @@ $(document).ready(function(){
         characters: Characters
     });
     Rooms.on(RoomModel.EVENT_ROOM_SELECT, function(event) {
-        let a = Rooms.loadAll();
+        let a = null;
+
+        if(!Rooms.loaded)
+        {
+            a = Rooms.loadAll();
+            Rooms.loaded = true;
+        }
+
+        // let a = Rooms.loadAll();
 
         // if(!is_room)
         // {
@@ -214,17 +222,33 @@ $(document).ready(function(){
         $("#rm_print_rooms_block").empty();
         Rooms.id.forEach(function(room) {
             let roomName = room.filename.replace(/\.[^/.]+$/, "");
-            $("#rm_print_rooms_block").append('<li class="folder-content"><div style="display: flex; position: relative; border-radius: 15px;"><div class="avatar"><img src="'+defaultImg+'"></div><div class="nameTag name">'+roomName+'</div></div></li>');
+            $("#rm_print_rooms_block").append('<li class="folder-content" filename="'+roomName+'">'
+            + '<div style="display: flex; position: relative; border-radius: 15px;">'
+            + '<div class="avatar"><img src="'+defaultImg+'"></div>'
+            + '<div class="nameTag name">'+roomName+'</div>'
+            + '<button class="delete" title="Delete"></button>'
+            + '</div></li>');
         });
 
         $("#rm_print_rooms_block li").on("click", function(event) {
             setRoomMode(true);
-            let filename = event.currentTarget.firstChild.lastChild.textContent;
+            // let filename = event.currentTarget.firstChild.lastChild.textContent;
+            let filename = event.currentTarget.getAttribute("filename");
             Rooms.selectedRoom = filename;
+            $('#chat_header_back_button').css('display', 'block');
             getChatRoom(filename);
             if($('#characloud_character_page').css('display') === 'none' && $('#characloud_user_profile_block').css('display') === 'none' || $('#chara_cloud').css('display') === 'none'){
                 hideCharaCloud();
             }
+        });
+
+        $("#rm_print_rooms_block li .delete").on("click", function(event) {
+            event.stopPropagation();
+            let filename = event.currentTarget.parentNode.parentNode.getAttribute("filename");
+            if(!confirm("Delete room \""+filename+"\"?")) { return; }
+            Rooms.deleteRoom(filename);
+            event.currentTarget.parentNode.parentNode.remove(); // Remove the HTML node inside the list
+            setRoomMode(false); // Since removing a room redirects to the default Chloe message, which is a character not a room. Also handles the bug that prevents accessing a character after deleting a room.
         });
         
     }.bind(this));
@@ -2065,7 +2089,9 @@ $(document).ready(function(){
         });
     }
 
-    // Note that the clearChat() function (and chat.length = 0 assignment) is already called in this function, calling it before calling this function is redundant
+    /**
+     *  Note that the clearChat() function (and chat.length = 0 assignment) is already called in this function, calling it before calling this function is redundant
+     * */
     async function getChatRoom(filename) {
         //console.log(characters[Characters.selectedID].chat);
         jQuery.ajax({    
@@ -2434,6 +2460,7 @@ $(document).ready(function(){
      */
     $( "#rm_button_create" ).click(function() {
         selected_button = 'create';
+        is_room = false; // Needed to prevent a room being created despite trying to create a character
         select_rm_create();
     });
     $( "#rm_button_selected_ch" ).click(function() {
@@ -2477,6 +2504,7 @@ $(document).ready(function(){
 
         $("#character_file_div").css('display', 'none');
         // set editor to empty data, create mode
+        // is_room = false; // is_room assignment should be handled before the function call
         Characters.editor.chardata = {};
         Characters.editor.editMode = false;
         // if(is_room)
@@ -2513,6 +2541,7 @@ $(document).ready(function(){
 
         $("#character_file_div").css('display', 'none');
         // set editor to empty data, create mode
+        is_room = true; // Needed to prevent a character being created despite trying to create a room
         Characters.editor.chardata = {};
         Characters.editor.editMode = false;
         loadRoomCharacterSelection();
@@ -2550,6 +2579,7 @@ $(document).ready(function(){
     }
 
     function select_selected_character(chid){ //character select
+        // is_room = false;
         select_rm_create();
         menu_type = 'character_edit';
         

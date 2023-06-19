@@ -430,7 +430,7 @@ export class CharacterEditor extends EventEmitter {
     set editMode(value) {
         this._editMode = value;
         this.name.block.style.visible = this._editMode ? null : "none";
-        if(getIsRoomList()) {
+        if(getIsRoom()) {
             // this.avatar.filenameInput.style.display = "none";
             // this.avatar.previewImg.style.display = "none";
             // this.avatar.input.style.display = "none";

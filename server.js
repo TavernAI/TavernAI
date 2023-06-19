@@ -851,6 +851,24 @@ app.post("/editroom", urlencodedParser, async function(request, response){
     }
 });
 
+// Expected filename without the extension
+app.post("/deleteroom", jsonParser, function(request, response){
+    try {
+        if (!request.body){
+            return response.sendStatus(400).json({error: 'Validation body error'});
+        }
+        let extension = ".jsonl";
+        let filename = request.body.filename + extension;
+        rimraf.sync(roomsPath + filename);
+        // let dir_name = filename;
+        // rimraf.sync(chatsPath + dir_name.replace(`.${characterFormat}`, ''));
+        return response.status(200).json({});
+    } catch (err) {
+        console.log(err);
+        return response.status(400).json({error: err.toString()});
+    }
+});
+
 
 
 async function charaWrite(source_img, data, target_img, format = 'webp') {
@@ -961,6 +979,9 @@ async function roomWrite(filedir, characterNames, user_name="You", create_date="
         const fileExtension = ".jsonl"; 
         let fileContent = ''; // In string form
         let createDate = create_date ? create_date : Date.now();
+        // let characterNamesArray = characterNames.isArray() ? characterNames : [characterNames];
+        if(!Array.isArray((characterNames)))
+            characterNames = [characterNames]; // Convert character names into an array if not already (happens when user selected only one character for a room)
         let firstLine = '{"user_name":"'+user_name+'","character_names":'+JSON.stringify(characterNames)+',"create_date":'+createDate+',"notes":"'+notes+'","notes_type":"'+notes_type+'","scenario":"'+scenario+'"}';
         fileContent += firstLine;
         fileContent += chat.length ? "\n" : "";
