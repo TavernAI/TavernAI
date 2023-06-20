@@ -8,6 +8,7 @@ import {Resizable} from "./Resizable.mjs";
 export class RoomModel extends EventEmitter {
     static EVENT_ROOM_SELECT = "room_select";
     static EVENT_ROOM_UPDATED = "room_updated";
+    static EVENT_ROOM_DELETED = "room_m_deleted";
 
     selectedIDs = []; // IDs of character
     selectedNames = []; // Names of character
@@ -29,8 +30,9 @@ export class RoomModel extends EventEmitter {
             characters: this.characters
         });
         this.editor.on(RoomEditor.EVENT_CREATE, this.onRoomCreate.bind(this));
-        this.editor.on(RoomEditor.EVENT_SHOWN, this.onRoomShown.bind(this));
         this.editor.on(RoomEditor.EVENT_SAVE, this.onRoomSave.bind(this));
+        this.editor.on(RoomEditor.EVENT_DELETE, this.onRoomDelete.bind(this));
+        this.editor.on(RoomEditor.EVENT_SHOWN, this.onRoomShown.bind(this));
 
         this.view = new RoomView({
             parent: this
@@ -81,6 +83,16 @@ export class RoomModel extends EventEmitter {
             }
         }.bind(this));
         return id;
+    }
+
+    /**
+     * Get the selected room metadata, which includes the filename (no extension) and the first line inside a room file.
+     */
+    get selectedRoomMetadata() {
+        let selectedRoomObject = this.rooms[this.selectedRoomId].chat[0];
+        // selectedRoomObject.filename = this.rooms[this.selectedRoomId].filename;
+        selectedRoomObject.filename = this.selectedRoom;
+        return selectedRoomObject;
     }
 
     // Get the index of the character about to speak next, note that this index is NOT the character's ID
@@ -329,6 +341,7 @@ export class RoomModel extends EventEmitter {
                 // this.emit(RoomModel.EVENT_ROOM_SELECT, {});
                 this.clearSelected();
                 this.characters.emit(CharacterModel.EVENT_WIPE_CHAT, {});
+                this.emit(RoomModel.EVENT_ROOM_DELETED, { filename: event.target })
                 document.getElementById("chat_header_back_button").click();
             }.bind(this)
         });

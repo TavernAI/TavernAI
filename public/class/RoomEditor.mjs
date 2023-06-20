@@ -4,8 +4,9 @@ import {CharacterEditor} from "./CharacterEditor.mjs";
 
 export class RoomEditor extends EventEmitter {
     static EVENT_CREATE = "roomedit_create";
-    static EVENT_SHOWN = "roomedit_shown";
     static EVENT_SAVE = "roomedit_save";
+    static EVENT_DELETE = "roomedit_delete";
+    static EVENT_SHOWN = "roomedit_shown";
 
     characters;
 

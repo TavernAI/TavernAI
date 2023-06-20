@@ -247,11 +247,18 @@ $(document).ready(function(){
             let filename = event.currentTarget.parentNode.parentNode.getAttribute("filename");
             if(!confirm("Delete room \""+filename+"\"?")) { return; }
             Rooms.deleteRoom(filename);
-            event.currentTarget.parentNode.parentNode.remove(); // Remove the HTML node inside the list
-            setRoomMode(false); // Since removing a room redirects to the default Chloe message, which is a character not a room. Also handles the bug that prevents accessing a character after deleting a room.
+            // event.currentTarget.parentNode.parentNode.remove(); // Remove the HTML node inside the list
+            // setRoomMode(false); // Since removing a room redirects to the default Chloe message, which is a character not a room. Also handles the bug that prevents accessing a character after deleting a room.
         });
         
     }.bind(this));
+
+    // Below is needed currently since the room view class (RoomView) is not implemented yet
+    Rooms.on(RoomModel.EVENT_ROOM_DELETED, function(event) {
+        let filename = event.filename; // Remove the HTML node inside the list
+        $("#rm_print_rooms_block li[filename='"+filename+"']").remove();
+        setRoomMode(false); // Since removing a room redirects to the default Chloe message, which is a character not a room. Also handles the bug that prevents accessing a character after deleting a room.
+    });
 
     // Below segment would never be called, since advanced room updating is not implemented
     Rooms.on(RoomModel.EVENT_ROOM_UPDATED, function(event) {

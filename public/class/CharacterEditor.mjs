@@ -19,6 +19,7 @@ export class CharacterEditor extends EventEmitter {
     advancedWindow;
 
     _chardata = {};
+    _roomdata = {};
     _editMode = false;
 
     name = {
@@ -404,11 +405,24 @@ export class CharacterEditor extends EventEmitter {
     }
 
     onDelete() {
-        if(confirm("Delete the character?")) {
-            this.emit(CharacterEditor.EVENT_DELETE, {
-                target: this.chardata.filename
-            });
+        if(!getIsRoom())
+        {
+            if(confirm("Delete the character?")) {
+                this.emit(CharacterEditor.EVENT_DELETE, {
+                    target: this.chardata.filename
+                });
+            }
         }
+        else
+        {
+            if(confirm("Delete the room?")) {
+                let roomFilename = getRoomsInstance().selectedRoom;
+                getRoomsInstance().editor.emit(RoomEditor.EVENT_DELETE, {
+                    target: roomFilename
+                });
+            }
+        }
+            
     }
 
     get editMode() {
@@ -442,7 +456,7 @@ export class CharacterEditor extends EventEmitter {
             this.name.help.innerHTML = "Room name";
             this.other.roomCharacterSelect.style.display = null;
             this.other.roomScenarioInput.parentElement.style.display = null;
-            this.button.delete.style.display = "none";
+            // this.button.delete.style.display = "none";
             this.button.export.style.display = "none";
             this.button.online.style.display = "none";
         } else {
@@ -457,7 +471,7 @@ export class CharacterEditor extends EventEmitter {
             this.name.help.innerHTML = "Character name";
             this.other.roomCharacterSelect.style.display = "none";
             this.other.roomScenarioInput.parentElement.style.display = "none";
-            this.button.delete.style.display = null;
+            // this.button.delete.style.display = null;
             this.button.export.style.display = null;
             this.button.online.style.display = null;
         }
