@@ -1845,7 +1845,9 @@ app.post("/generate_openai", jsonParser, function(request, response_generate_ope
         "stop": request.body.stop
     };
     let request_path = '';
-    if(request.body.model === 'gpt-3.5-turbo' || request.body.model === 'gpt-3.5-turbo-16k' || request.body.model === 'gpt-4' || request.body.model === 'gpt-4-32k'){
+
+    if(isChatModel(request.body.model)){
+
         request_path = '/chat/completions';
         data.messages = request.body.messages;
         
@@ -1875,7 +1877,9 @@ app.post("/generate_openai", jsonParser, function(request, response_generate_ope
     }
     client.post(api_url_openai+request_path,args, function (data, response) {
         try {
-            if(request.body.model === 'gpt-3.5-turbo' || request.body.model === 'gpt-3.5-turbo-16k' || request.body.model === 'gpt-4' || request.body.model === 'gpt-4-32k'){
+
+            if(isChatModel(request.body.model)){
+
                 console.log(data);
 
                 if(!data.choices || !data.choices[0]) {
@@ -1898,20 +1902,26 @@ app.post("/generate_openai", jsonParser, function(request, response_generate_ope
             }
             console.log(response.statusCode);
             if(response.statusCode <= 299){
-                response_generate_openai.send(data);
+                return response_generate_openai.send(data);
             }
             if(response.statusCode == 401){
                 console.log('Invalid Authentication');
-                response_generate_openai.send({error: true, error_code: 401, error_message: "Invalid Authentication"});
+                return response_generate_openai.send({error: true, error_code: 401, error_message: "Invalid Authentication"});
+            }
+            if(response.statusCode == 404){
+                console.log('Model not found');
+                return response_generate_openai.send({error: true, error_code: 404, error_message: "Model not found"});
             }
             if(response.statusCode == 429){
                 console.log('Rate limit reached for requests');
-                response_generate_openai.send({error: true, error_code: 429, error_message: "Rate limit reached for requests"});
+                return response_generate_openai.send({error: true, error_code: 429, error_message: "Rate limit reached for requests"});
             }
             if(response.statusCode == 500){
                 console.log('The server had an error while processing your request');
-                response_generate_openai.send({error: true, error_code: 500, error_message: "The server had an error while processing your request"});
+                return response_generate_openai.send({error: true, error_code: 500, error_message: "The server had an error while processing your request"});
             }
+            console.log('Unique error');
+            return response_generate_openai.send({error: true, error_code: response.statusCode, error_message: "Unique error"});
         }catch (error) {
             console.log("An error occurred: " + error);
             response_generate_openai.send({error: true, error_message: error});
@@ -1922,6 +1932,14 @@ app.post("/generate_openai", jsonParser, function(request, response_generate_ope
         response_generate_openai.send({error: true, error_message: "Unspecified error while sending the request.\n" + err});
     });
 });
+
+function isChatModel(model_openai){
+    if (model_openai === 'text-davinci-003' || model_openai === 'text-davinci-002' || model_openai === 'text-curie-001' || model_openai === 'text-babbage-001' || model_openai === 'text-ada-001' || model_openai === 'code-davinci-002') {
+        return false;
+    } else {
+        return true;
+    }
+}
 
 app.post("/getallchatsofchatacter", jsonParser, function(request, response){
     if(!request.body) return response.sendStatus(400);
@@ -2259,6 +2277,93 @@ app.post("/deletechat", jsonParser, function(request, response){
         return response.sendStatus(400).send({error: err});
     }
 
+});
+//System Prompt
+app.post("/systemprompt_save", jsonParser, function(request, response){
+    try {
+        if (!request.body)
+            return response.sendStatus(400);
+
+        let {preset_name} = request.body;
+        // Save the system_prompt to a JSON file
+        const filePath = `public/System Prompts/${preset_name}.json`;
+        const data = JSON.stringify(request.body);
+        fs.writeFileSync(filePath, data);
+
+        return response.status(200).send({res: true});
+        
+    } catch (err) {
+        console.error(err);
+        return response.status(400).send({error: err});
+    }
+});
+
+app.post("/systemprompt_get", jsonParser, function(request, response){
+    try {
+        /*
+        const filePath = 'public/System Prompts/system_prompt.json';
+        const data = fs.readFileSync(filePath, 'utf8');
+        //const system_prompt = JSON.parse(data);
+        return response.status(200).send(data);
+        */
+        const folderPath = 'public/System Prompts';
+        const files = fs.readdirSync(folderPath);
+
+        const data = {};
+        files.forEach(file => {
+            const filePath = path.join(folderPath, file);
+            const fileData = fs.readFileSync(filePath, 'utf8');
+            const key = path.parse(file).name;
+            const json = JSON.parse(fileData);
+            data[key] = json;
+        });
+        return response.status(200).send(data);
+        
+    } catch (err) {
+        console.error(err);
+        return response.status(400).send({error: err});
+    }
+});
+
+app.post("/systemprompt_new", jsonParser, function(request, response){
+    try {
+        if (!request.body)
+            return response.sendStatus(400);
+
+        let {preset_name} = request.body;
+        // Save the system_prompt to a JSON file
+        const filePath = `public/System Prompts/${preset_name}.json`;
+        const data = JSON.stringify(request.body);
+        fs.writeFileSync(filePath, data);
+
+        return response.status(200).send({res: true});
+        
+    } catch (err) {
+        console.error(err);
+        return response.status(400).send({error: err});
+    }
+});
+
+app.post("/systemprompt_delete", jsonParser, function(request, response){
+    try {
+        if (!request.body || !request.body.preset_name)
+            return response.sendStatus(400);
+
+        let {preset_name} = request.body;
+        const filePath = `public/System Prompts/${preset_name}.json`;
+
+        if(fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+        } else {
+            return response.status(400).send({error: `File ${filePath} not found`});
+        }
+
+        return response.status(200).send({res: true});
+        
+    } catch (err) {
+        console.error(err);
+        return response.status(400).send({error: err});
+    }
 });
 //Server start
 module.exports.express = express;

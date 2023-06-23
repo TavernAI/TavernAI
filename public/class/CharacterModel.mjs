@@ -2,6 +2,7 @@ import {EventEmitter} from "./EventEmitter.mjs";
 import {token, requestTimeout, characterAddedSign} from "../script.js";
 import {CharacterView} from "./CharacterView.mjs";
 import {CharacterEditor} from "./CharacterEditor.mjs";
+import {Tavern} from "./Tavern.js";
 
 export class CharacterModel extends EventEmitter {
     static EVENT_WIPE_CHAT = "clear_chat";
@@ -66,10 +67,10 @@ export class CharacterModel extends EventEmitter {
 
     // event handlers
     onCharacterSelect(event) {
-        event.is_this_character_selected = true;
+        event.is_this_character_selected = false;
         if(this.selectedID !== undefined){
             if(this.selectedID === this.getIDbyFilename(event.target)){
-                event.is_this_character_selected = false;
+                event.is_this_character_selected = true;
             }
         }
         this.selectedID = this.getIDbyFilename(event.target);
@@ -96,6 +97,7 @@ export class CharacterModel extends EventEmitter {
                 );
                 this.view.characters = this.characters;
                 if(this.selectedID == id) {
+                    Tavern.mode = 'chat';
                     this.selectedID = null;
                     this.emit(CharacterModel.EVENT_WIPE_CHAT, {});
                     document.getElementById("chat_header_back_button").click();
@@ -376,15 +378,24 @@ export class CharacterModel extends EventEmitter {
 
     importCharacter(file) {
         return new Promise((resolve, reject) => {
+            
             if(!file) { return reject("No file given."); }
 
             let filename = file.name.replace(/\.[^\.]*/, "").trim().replace(/ /g, "_");
             let filetype = file.type.replace(/.*\//, "");
+            function getUniqueFilename(filename, characters) {
+                let baseName = filename.replace(/\.[^\.]*/, "").trim().replace(/ /g, "_").toLowerCase();
+                let counter = 1;
+                while (characters.some(char => char.filename.toLowerCase() === `${baseName}${counter}`)) {
+                    counter++;
+                }
+                return `${baseName}${counter}`;
+            }
 
-            if(this.characters.filter(char =>
-                char.filename.replace(/\.[^\.]*/, "").trim().replace(/ /g, "_").toLowerCase() === filename.toLowerCase()
-            ).length) {
-                return reject("File already exists");
+            // Check if the filename exists in the array
+            if (this.characters.some(char => char.filename.toLowerCase() === filename.toLowerCase())) {
+                // If it exists, get a unique filename
+                filename = getUniqueFilename(filename, this.characters);
             }
 
             var formData = new FormData();

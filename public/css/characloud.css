@@ -12,6 +12,7 @@
     height: 100%;
     z-index: -1;
     background-image: linear-gradient(rgba(19,21,44,0.6), rgba(19,21,44,0.6));
+    opacity: 0.0;
 }
 
 #chara_cloud{

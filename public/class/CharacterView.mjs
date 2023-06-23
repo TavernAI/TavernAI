@@ -66,8 +66,8 @@ export class CharacterView extends EventEmitter {
     constructor(options) {
         super(options.parent);
         this.container = options.container;
-        this.container.classList.add("folders")
-        this.container.classList.add("character-screen")
+        this.container.classList.add("folders");
+        this.container.classList.add("character-screen");
 
         if(options.input) {
             (options.input.addFolder || []).forEach(item => {
