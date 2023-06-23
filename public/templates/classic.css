@@ -177,7 +177,9 @@ pre {
 }
 #shell {
     display: grid;
-    grid-template-rows: 40px auto 145px;
+    /*grid-template-rows: 40px auto 145px;*/
+    grid-template-rows: 40px [chat] auto [inputform] minmax(145px, min-content);
+    
     background: #191b3133;
     height: 100vh;
     overflow: auto;
@@ -186,6 +188,7 @@ pre {
     max-width:800px;
     margin-left: auto;
     margin-right: auto;
+    
 }
 #chat_header {
     position: relative;
@@ -258,9 +261,10 @@ pre {
     margin-right: auto;
 }
 #send_textarea{
-    --autoresize: false;
+    --autoresize: true;
     /* width:100%;  */
     height: 89px;
+    max-height: 50vh;
     resize: none;
     display:inline-block;
     background-color: #13152c;
@@ -611,6 +615,14 @@ textarea {
     padding: 0px;
     margin-bottom: 5px;
 }
+
+#proxy_set_context_size_button {
+    cursor: pointer;
+    display: inline-block;
+    font-weight: 600;
+    opacity: 0.8;
+}
+
 .modular .h5_menu_help {
     margin-bottom: 0px;
 }
@@ -2183,17 +2195,17 @@ label.checkbox :checked + span:after {
     margin-top: 4px;
 }
 
-#openai_system_prompt_textarea, #openai_system_prompt_room_textarea, #openai_jailbreak_prompt_textarea, #openai_jailbreak2_prompt_textarea {
+#system_prompt_textarea, #system_prompt_room_textarea, #jailbreak_prompt_textarea, #user_jailbreak_prompt_textarea {
     margin-left: 2px;
     width: 94%;
     height: 180px;
     margin-top: 4px;
     margin-bottom: 16px;
 }
-#openai_jailbreak_prompt_textarea {
+#jailbreak_prompt_textarea {
     height: 100px;
 }
-#openai_jailbreak2_prompt_textarea {
+#user_jailbreak_prompt_textarea {
     height: 60px;
     margin-bottom: 28px;
 }
@@ -3166,10 +3178,14 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
 }
 
 
-#story textarea {
+#story_textarea {
     height: 99%;
     scrollbar-width: thin;
     padding-left: 18px;
     font-size: 13.5pt;
     background: #191b31A0;
+}
+
+#story_textarea .highlight {
+  background-color: yellow;
 }

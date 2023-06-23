@@ -13,13 +13,20 @@ export class StoryModule extends EventEmitter {
         //this.is_online = false;
         const self = this;
         $('#chat_story_button').click(function(){
-            if(Main.chat.length > 1){
-                self.emit(StoryModule.CONVERT_ALERT, {});
-            }else{
-                self.ConvertChatStory();
+            if (Main.Characters.selectedID !== undefined) {
+                if (Main.chat.length > 1) {
+                    self.emit(StoryModule.CONVERT_ALERT, {});
+                } else {
+                    self.ConvertChatStory();
+                }
+            } else {
+                alert('Сharacter is not selected');
             }
         });
-
+        $(document).on('input', '#story_textarea', function () {
+            //let this_story = $('#story_textarea').val();
+            var saveStoryRangeTimer = setTimeout(self.emit(StoryModule.SAVE_CHAT, {}), 500);
+        });
        
     }
     ConvertChatStory(){
@@ -40,6 +47,11 @@ export class StoryModule extends EventEmitter {
             $('#story').css('display', 'block');
             $('#chat_story_button_story_text').css('opacity', 1.0);
             $('#chat_story_button_chat_text').css('opacity', 0.5);
+            
+            //sub menu
+            $('#option_delete_mes').css('display', 'none');
+            $('#option_regenerate').css('display', 'none');
+            $('#option_toggle_notes').css('display', 'none');
             return;
         }
         if(Tavern.mode === 'chat'){
@@ -47,6 +59,11 @@ export class StoryModule extends EventEmitter {
             $('#story').css('display', 'none');
             $('#chat_story_button_story_text').css('opacity', 0.5);
             $('#chat_story_button_chat_text').css('opacity', 1.0);
+            
+            //sub menu
+            $('#option_delete_mes').css('display', 'block');
+            $('#option_regenerate').css('display', 'block');
+            $('#option_toggle_notes').css('display', 'block');
             return;
         }
     }
@@ -59,7 +76,7 @@ export class StoryModule extends EventEmitter {
         Main.Characters.id[Main.Characters.selectedID].last_action_date = Date.now();
         $('#rm_folder_order').change();
         let this_gap_holder = Main.gap_holder;
-        if (Main.main_api === 'openai' && (Main.model_openai === 'gpt-3.5-turbo' || Main.model_openai === 'gpt-3.5-turbo-0301' || Main.model_openai === 'gpt-4' || Main.model_openai === 'gpt-4-32k')){
+        if ((Main.main_api === 'openai' || Main.main_api === 'proxy') && Main.isChatModel()){
             this_gap_holder = parseInt(Main.amount_gen_openai)+this_gap_holder;
         }
         let prompt;
@@ -84,7 +101,7 @@ export class StoryModule extends EventEmitter {
                 }
             }
         }
-        if (Main.main_api == 'openai') this_max_context = Main.max_context_openai;
+        if (Main.main_api === 'openai' || Main.main_api === 'proxy') this_max_context = Main.max_context_openai;
         
         //Prepare prompt
         if($('#send_textarea').val().length > 0){
@@ -113,12 +130,12 @@ export class StoryModule extends EventEmitter {
             }
             thisTokensCount = Main.getTokenCount(memory+pre_prompt)+this_gap_holder;
         }
-        if (Main.main_api === 'openai' && (Main.model_openai === 'gpt-3.5-turbo' || Main.model_openai === 'gpt-3.5-turbo-0301' || Main.model_openai === 'gpt-4' || Main.model_openai === 'gpt-4-32k')){
+        if ((Main.main_api === 'openai' || Main.main_api === 'proxy') && Main.isChatModel()){
             prompt = [];
             prompt[0] = {"role": "assistant", "content": memory};
-            //prompt[1] = {"role": "system", "content": $('#openai_system_prompt_textarea').val()};
+            //prompt[1] = {"role": "system", "content": $('#system_prompt_textarea').val()};
             prompt[1] = {"role": "assistant", "content": pre_prompt};
-            //prompt[3] = {"role": "system", "content": $('#openai_jailbreak_prompt_textarea').val()};
+            //prompt[3] = {"role": "system", "content": $('#jailbreak_prompt_textarea').val()};
             
         }else{
             prompt = pre_prompt = memory+pre_prompt;
@@ -135,6 +152,9 @@ export class StoryModule extends EventEmitter {
                 this_amount_gen = parseInt(Main.amount_gen_novel);
                 break;
             case 'openai':
+                this_amount_gen = parseInt(Main.amount_gen_openai);
+                break;
+            case 'proxy':
                 this_amount_gen = parseInt(Main.amount_gen_openai);
                 break;
         }
@@ -239,7 +259,13 @@ export class StoryModule extends EventEmitter {
             };
         }
 
-        if (Main.main_api == 'openai') {
+        if (Main.main_api === 'openai' || Main.main_api === 'proxy') {
+            let this_model_gen;
+            if (Main.main_api === 'openai') {
+                this_model_gen = Main.model_openai;
+            } else if (Main.main_api === 'proxy') {
+                this_model_gen = Main.model_proxy;
+            }
             generate_data = {
                 "model": Main.model_openai,
                 "temperature": parseFloat(Main.temp_openai),
@@ -250,7 +276,7 @@ export class StoryModule extends EventEmitter {
                 "max_tokens": this_amount_gen
             };
 
-            if ((Main.model_openai === 'gpt-3.5-turbo' || Main.model_openai === 'gpt-3.5-turbo-0301' || Main.model_openai === 'gpt-4' || Main.model_openai === 'gpt-4-32k')) {
+            if (Main.isChatModel()) {
                 generate_data.messages = prompt;
             } else {
                 generate_data.prompt = prompt;
@@ -268,7 +294,7 @@ export class StoryModule extends EventEmitter {
         if (Main.main_api == 'horde') {
             generate_url = '/generate_horde';
         }
-        if (Main.main_api == 'openai') {
+        if (Main.main_api === 'openai' || Main.main_api === 'proxy') {
             generate_url = '/generate_openai';
         }    
         $( "#send_button" ).css("display", "none");
@@ -322,8 +348,8 @@ export class StoryModule extends EventEmitter {
                     getPrompt = data.generations[0].text;
                 }
             }
-            if (Main.main_api == 'openai') {
-                if (Main.model_openai === 'gpt-3.5-turbo' || Main.model_openai === 'gpt-3.5-turbo-0301' || Main.model_openai === 'gpt-4' || Main.model_openai === 'gpt-4-32k') {
+            if (Main.main_api === 'openai' || Main.main_api === 'proxy') {
+                if (Main.isChatModel()) {
                     getPrompt = data.choices[0].message.content + ' ';
                 } else {
                     getPrompt = data.choices[0].text;

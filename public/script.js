@@ -9,6 +9,7 @@ import {CharacterModel} from "./class/CharacterModel.mjs";
 import {CharacterView} from "./class/CharacterView.mjs";
 import {RoomModel} from "./class/RoomModel.mjs";
 import {StoryModule} from "./class/Story.js";
+import {SystemPromptModule} from "./class/SystemPrompt.js";
 import {Tavern} from "./class/Tavern.js";
 var token;
 var data_delete_chat = {};
@@ -90,6 +91,9 @@ export var chat = [chloeMes];
     export var amount_gen_openai = 220;
     export var max_context_openai = 2048;
     export var model_openai = 'gpt-3.5-turbo';
+    export var model_proxy;
+    var models_holder_openai = [];
+    var is_need_load_models_proxy = true;
     // HORDE
     export var horde_api_key = "0000000000";
     export var horde_model = "";
@@ -152,10 +156,25 @@ export function select_rm_info(text){
     $( "#rm_button_selected_ch" ).children("h2").removeClass('seleced_button_style');
     $( "#rm_button_selected_ch" ).children("h2").addClass('deselected_button_style');
 }
+export function isChatModel() { // Checking is it chat model (for OpenAI and proxy)
+    let checked_model;
+    if(main_api === 'openai'){
+        checked_model = model_openai;
+    }else if(main_api === 'proxy'){
+        checked_model = model_proxy;
+    }
+    if (checked_model === 'text-davinci-003' || checked_model === 'text-davinci-002' || checked_model === 'text-curie-001' || checked_model === 'text-babbage-001' || checked_model === 'text-ada-001' || checked_model === 'code-davinci-002') {
+        return false;
+    } else {
+        return true;
+    }
 
+}
 export {token, default_avatar, vl, filterFiles, requestTimeout, max_context, getIsRoom, getIsRoomList};
 export var animation_rm_duration = 200;
 export var animation_rm_easing = "";
+
+export var SystemPrompt = new SystemPromptModule();
 
 export var Characters = new CharacterModel({
     container: document.getElementById("rm_print_charaters_block"),
@@ -208,15 +227,15 @@ $(document).ready(function(){
      */
     function setRoomMode(room) {
         if(room){
-            $('#openai_system_promt').css('display', 'none');
-            $('#openai_system_promt_room').css('display', 'block');
+            $('#system_prompt').css('display', 'none');
+            $('#system_prompt_room').css('display', 'block');
             is_room = true;
             $("#option_select_chat").css("display", "none");
         }else{
-            $('#openai_system_promt').css('display', 'block');
-            $('#openai_system_promt_room').css('display', 'none');
+            $('#system_prompt').css('display', 'block');
+            $('#system_prompt_room').css('display', 'none');
             is_room = false;
-            $("#option_select_chat").css("display", "block");
+            $("#select_chat").css("display", "block");
         }
 
         // Needed since we need to update the winNotes (Notes on chat or room, switcing whether saveChat() or saveChatRoom() is used)
@@ -232,7 +251,9 @@ $(document).ready(function(){
                 save: saveChatRoom.bind(this)
             });
     }
-    
+    SystemPrompt.on(SystemPromptModule.SAVE_SETTINGS, function (event) {
+        saveSettings();
+    });
     Characters.on(CharacterModel.EVENT_WIPE_CHAT, function() {
         clearChat();
         chat.length = 0;
@@ -240,9 +261,8 @@ $(document).ready(function(){
     }.bind(this));
     Characters.on(CharacterView.EVENT_CHARACTER_SELECT, function(event){
         let was_room = is_room; // Needed so that the chat interface is updated when switching from room to character
-
         setRoomMode(false);
-
+        $('#chat_story_button').css('display', 'block');
         if(!event.is_this_character_selected || was_room){
             Tavern.mode = 'chat';
             if (Characters.selectedID >= 0 && Characters.id[Characters.selectedID].online === true) {
@@ -282,8 +302,8 @@ $(document).ready(function(){
         characters: Characters
     });
     Rooms.on(RoomModel.EVENT_ROOM_SELECT, function(event) {
+        
         let a = Rooms.loadAll();
-
         // if(!is_room)
         // {
         //     // console.log(Rooms.id[0].name);
@@ -304,6 +324,7 @@ $(document).ready(function(){
         });
 
         $("#rm_print_rooms_block li").on("click", function(event) {
+            $('#chat_story_button').css('display', 'none');
             setRoomMode(true);
             let filename = event.currentTarget.firstChild.lastChild.textContent;
             Rooms.selectedRoom = filename;
@@ -317,6 +338,7 @@ $(document).ready(function(){
 
     // Below segment would never be called, since advanced room updating is not implemented
     Rooms.on(RoomModel.EVENT_ROOM_UPDATED, function(event) {
+        
         clearChat();
         chat.length = 0;
         getChatRoom(Rooms.selectedRoom);
@@ -416,6 +438,7 @@ $(document).ready(function(){
                     send_date: Date.now(),
                     mes: story_text
                 };
+
                 $('#story_textarea').val(story_text);
             }
             saveChat();
@@ -572,10 +595,10 @@ $(document).ready(function(){
     const default_api_url_openai = "https://api.openai.com/v1"
     var api_url_openai = default_api_url_openai;
     var api_key_openai = "";
-    var openai_system_prompt = "";
-    var openai_system_prompt_room = "";
-    var openai_jailbreak_prompt = "";
-    var openai_jailbreak2_prompt = "";
+    var api_url_proxy = default_api_url_openai;
+    var api_key_proxy = "";
+    var system_prompt_room = "";
+
 
 
 
@@ -1096,6 +1119,12 @@ $(document).ready(function(){
         }
         if(Tavern.mode === 'story'){
             $('#story_textarea').val(chat[0].mes);
+            let textArea = chat[0].mes;
+                $('#story_textarea').val(textArea.substring(0, 5) +
+                        '<span class="highlight">' +
+                        textArea.substring(5, 10) +
+                        '</span>' +
+                        textArea.substring(10));
         }
     }
     function clearChat(){
@@ -1306,7 +1335,7 @@ $(document).ready(function(){
         }
 
 
-        if(main_api === 'openai' && (model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-16k' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k')) 
+        if((main_api === 'openai' || main_api === 'proxy') && isChatModel()) 
             this_gap_holder = parseInt(amount_gen_openai)+this_gap_holder;
         var textareaText = '';
         tokens_already_generated = 0;
@@ -1533,19 +1562,19 @@ $(document).ready(function(){
                 storyString = storyString.replace(/\n+/g, "\n");
             }
 
-            if(main_api === 'openai' && (model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-16k' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k')){
-                let osp_string = "";
+            if(main_api === 'openai' || main_api === 'proxy' && isChatModel()){
+                let sp_string = "";
                 if(!is_room)
-                    osp_string = openai_system_prompt.replace(/{{user}}/gi, name1) //System prompt for OpenAI
+                    sp_string = SystemPrompt.system_prompt.replace(/{{user}}/gi, name1) //System prompt for OpenAI
                                     .replace(/{{char}}/gi, name2)
                                     .replace(/<USER>/gi, name1)
                                     .replace(/<BOT>/gi, name2);
                 else
-                    osp_string = openai_system_prompt_room.replace(/{{user}}/gi, name1) //System prompt for OpenAI
+                    sp_string = system_prompt_room.replace(/{{user}}/gi, name1) //System prompt for OpenAI
                                     .replace(/{{char}}/gi, name2)
                                     .replace(/<USER>/gi, name1)
                                     .replace(/<BOT>/gi, name2);
-                storyString = osp_string+'\n'+storyString;
+                storyString = sp_string+'\n'+storyString;
             }
             
             var count_exm_add = 0;
@@ -1592,7 +1621,7 @@ $(document).ready(function(){
                     }
                 }
             }
-            if(main_api == 'openai') this_max_context = max_context_openai;
+            if(main_api == 'openai' || main_api == 'proxy') this_max_context = max_context_openai;
             
             var i = 0;
             let mesExmString = '';
@@ -1617,17 +1646,17 @@ $(document).ready(function(){
                     arrMes = arrMes.reverse();
                     var is_add_personality = false;
 
-                    if (main_api === 'openai' && (model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-16k' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k')) { // Jailbreak
-                        if (openai_jailbreak2_prompt.length > 0) {
-                            arrMes[arrMes.length-1] = arrMes[arrMes.length-1]+'\n'+openai_jailbreak2_prompt.replace(/{{user}}/gi, name1)
+                    if ((main_api === 'openai' || main_api === 'proxy') && isChatModel()) { // Jailbreak
+                        if (SystemPrompt.user_jailbreak_prompt.length > 0) {
+                            arrMes[arrMes.length-1] = arrMes[arrMes.length-1]+'\n'+SystemPrompt.user_jailbreak_prompt.replace(/{{user}}/gi, name1)
                                     .replace(/{{char}}/gi, name2)
                                     .replace(/<USER>/gi, name1)
                                     .replace(/<BOT>/gi, name2);
                         }
-                        if (openai_jailbreak_prompt.length > 0) {
-                            //arrMes.splice(-1, 0, openai_jailbreak_prompt);
+                        if (SystemPrompt.jailbreak_prompt.length > 0) {
+                            //arrMes.splice(-1, 0, jailbreak_prompt);
                             
-                            arrMes.push(openai_jailbreak_prompt.replace(/{{user}}/gi, name1)
+                            arrMes.push(SystemPrompt.jailbreak_prompt.replace(/{{user}}/gi, name1)
                                     .replace(/{{char}}/gi, name2)
                                     .replace(/<USER>/gi, name1)
                                     .replace(/<BOT>/gi, name2));
@@ -1643,8 +1672,8 @@ $(document).ready(function(){
 
                     arrMes.forEach(function(item, i, arr) {//For added anchors and others
 
-                        if((i >= arrMes.length-1 && $.trim(item).substr(0, (name1+":").length) != name1+":" && main_api !== 'openai') || 
-                                (i >= arrMes.length-1 && $.trim(item).substr(0, (name1+":").length) != name1+":" && main_api === 'openai' && openai_jailbreak_prompt.lenght === 0)){
+                        if((i >= arrMes.length-1 && $.trim(item).substr(0, (name1+":").length) != name1+":" && (main_api !== 'openai' && main_api !== 'proxy')) || 
+                                (i >= arrMes.length-1 && $.trim(item).substr(0, (name1+":").length) != name1+":" && (main_api === 'openai' || main_api === 'proxy') && SystemPrompt.jailbreak_prompt.lenght === 0)){
                             if(textareaText == ""){
                                 item = item.substr(0,item.length-1);
                             }
@@ -1667,7 +1696,7 @@ $(document).ready(function(){
                         }
 
 
-                        if(!free_char_name_mode && !(main_api === 'openai' && (model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-16k' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k'))){
+                        if(!free_char_name_mode && !((main_api === 'openai' || main_api === 'proxy') && isChatModel())){
                             if(i >= arrMes.length-1 && $.trim(item).substr(0, (name1+":").length) == name1+":"){//for add name2 when user sent
                                 item =item+name2+":";
                             }
@@ -1744,14 +1773,14 @@ $(document).ready(function(){
                 }else{
                     mesSendString = '<START>\n'+mesSendString;
                 }
-                if(main_api === 'openai' && (model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-16k' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k')){
+                if((main_api === 'openai' || main_api === 'proxy') && isChatModel()){
                     finalPromt = {};
                     finalPromt = [];
 
 
                     finalPromt[0] = {"role": "system", "content": storyString+mesExmString};
                     mesSend.forEach(function(item,i){
-                        if (openai_jailbreak_prompt.length > 0 && i === mesSend.length-1) {
+                        if (SystemPrompt.jailbreak_prompt.length > 0 && i === mesSend.length-1) {
                             finalPromt[i + 1] = {"role": "system", "content": item};
                         } else {
                             if (item.indexOf(name1 + ':') === 0) {
@@ -1776,6 +1805,9 @@ $(document).ready(function(){
                         this_amount_gen = parseInt(amount_gen_novel);
                         break;
                     case 'openai':
+                        this_amount_gen = parseInt(amount_gen_openai);
+                        break;
+                    case 'proxy':
                         this_amount_gen = parseInt(amount_gen_openai);
                         break;
                 }
@@ -1901,9 +1933,15 @@ $(document).ready(function(){
                     };
                 }
 
-                if(main_api == 'openai'){
+                if(main_api === 'openai' || main_api === 'proxy'){
+                    let this_model_gen;
+                    if(main_api === 'openai'){
+                        this_model_gen = model_openai;
+                    }else if(main_api === 'proxy'){
+                        this_model_gen = model_proxy;
+                    }
                     generate_data = {
-                        "model": model_openai,
+                        "model": this_model_gen,
                         "temperature": parseFloat(temp_openai),
                         "frequency_penalty": parseFloat(freq_pen_openai),
                         "presence_penalty": parseFloat(pres_pen_openai),
@@ -1912,7 +1950,7 @@ $(document).ready(function(){
                         "max_tokens": this_amount_gen
                     };
 
-                    if((model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-16k' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k')){
+                    if(isChatModel()){
                         generate_data.messages = finalPromt;
                     }else{
                         generate_data.prompt = finalPromt;
@@ -1920,17 +1958,17 @@ $(document).ready(function(){
 
                 }
                 var generate_url = '';
-                if(main_api == 'kobold'){
+                if(main_api === 'kobold'){
                     generate_url = '/generate';
                 }
-                if(main_api == 'novel'){
+                if(main_api === 'novel'){
                     generate_url = '/generate_novelai';
                 }
                 // HORDE
-                if(main_api == 'horde'){
+                if(main_api === 'horde'){
                     generate_url = '/generate_horde';
                 }
-                if(main_api == 'openai'){
+                if(main_api === 'openai' || main_api === 'proxy'){
                     generate_url = '/generate_openai';
                 }
 
@@ -2049,8 +2087,8 @@ $(document).ready(function(){
                     getMessage = data.generations[0].text;
                 }
             }
-            if(main_api == 'openai'){
-                if(model_openai === 'gpt-3.5-turbo' || model_openai === 'gpt-3.5-turbo-16k' || model_openai === 'gpt-4' || model_openai === 'gpt-4-32k'){
+            if(main_api === 'openai' || main_api === 'proxy'){
+                if(isChatModel()){
                     getMessage = data.choices[0].message.content;
                 }else{
                     getMessage = data.choices[0].text;
@@ -2139,7 +2177,7 @@ $(document).ready(function(){
 
             }else{
                 //console.log('run force_name2 protocol');
-                if(free_char_name_mode && main_api !== 'openai')
+                if(free_char_name_mode && (main_api !== 'openai' && main_api !== 'proxy'))
                 {
                     Generate('force_name2');
                 }
@@ -3610,7 +3648,7 @@ $(document).ready(function(){
 
             main_api = 'novel';
         }
-        if($('#main_api').find(":selected").val() == 'openai'){
+        if($('#main_api').find(":selected").val() === 'openai' || $('#main_api').find(":selected").val() === 'proxy'){
             $('#kobold_api').css("display", "none");
             $('#novel_api').css("display", "none");
             $('#openai_api').css("display","block");
@@ -3621,7 +3659,47 @@ $(document).ready(function(){
             $('#singleline_toggle').css("display", "none");
             $('#multigen_toggle').css("display", "grid");
             document.getElementById("hordeInfo").classList.add("hidden");
-            main_api = 'openai';
+            main_api = $('#main_api').find(":selected").val();
+            
+            if(models_holder_openai.length === 0){
+                models_holder_openai = $('#model_openai_select option').map(function() {
+                    return $(this).val();
+                }).get();
+            }
+            if(main_api === 'openai'){
+                $('#model_openai_select').empty();
+                    models_holder_openai.forEach(function(item){
+                        $('#model_openai_select').append($('<option>', {
+                        value: item,
+                        text: item
+                    }));
+                });
+                $('#model_openai_select option[value="'+model_openai+'"]').attr('selected', 'true');
+                api_url_openai = default_api_url_openai;
+                $('#openai_api_h4_title').text('API Key');
+                $('#openai_api_logo').css('display', 'block');
+                $('#openai_proxy_adress_block').css('display', 'none');
+                $('#h5_model_openai_help').css('display', 'block');
+                
+                $('#api_url_openai').val(api_url_openai);
+                $('#api_key_openai').val(api_key_openai);
+            }else if(main_api === 'proxy'){
+                is_need_load_models_proxy = true;
+                $('#model_openai_select').empty();
+                $('#model_openai_select').append($('<option>', {
+                    value: 'empty',
+                    text: '<not loaded>'
+                }));
+                $('#openai_api_logo').css('display', 'none');
+                $('#openai_proxy_adress_block').css('display', 'block');
+                $('#openai_api_h4_title').text('API address and password');
+                $('#h5_model_openai_help').css('display', 'none');
+                
+                $('#api_url_openai').val(api_url_proxy);
+                $('#api_key_openai').val(api_key_proxy);
+            }
+            openAIChangeMaxContextForModels();
+            
         }
         // HORDE
         if($('#main_api').find(":selected").val() == 'horde'){
@@ -4005,22 +4083,6 @@ $(document).ready(function(){
         $('#amount_gen_counter_openai').html( $(this).val()+' Tokens' );
         var amountTimer = setTimeout(saveSettings, 500);
     });
-    $(document).on('input', '#openai_system_prompt_textarea', function() {
-        openai_system_prompt = $(this).val();
-        var saveRangeTimer = setTimeout(saveSettings, 500);
-    });
-    $(document).on('input', '#openai_system_prompt_room_textarea', function() {
-        openai_system_prompt_room = $(this).val();
-        var saveRangeTimer = setTimeout(saveSettings, 500);
-    });
-    $(document).on('input', '#openai_jailbreak_prompt_textarea', function() {
-        openai_jailbreak_prompt = $(this).val();
-        var saveRangeTimer = setTimeout(saveSettings, 500);
-    });
-    $(document).on('input', '#openai_jailbreak2_prompt_textarea', function() {
-        openai_jailbreak2_prompt = $(this).val();
-        var saveRangeTimer = setTimeout(saveSettings, 500);
-    });
     //***************SETTINGS****************//
     ///////////////////////////////////////////
     async function getSettings(){//timer
@@ -4048,6 +4110,7 @@ $(document).ready(function(){
                             $('#your_name').val(name1);
                         }
                     }
+                    SystemPrompt.select(settings.system_prompt_preset_chat);
                     
                     charaCloudServer = data.charaCloudServer;
                     characterFormat = data.characterFormat;
@@ -4071,36 +4134,42 @@ $(document).ready(function(){
                         $("#main_api option[value="+main_api+"]").attr('selected', 'true');
                         changeMainAPI();
                     }
-                    if(settings.api_key_novel != undefined){
-                        api_key_novel = settings.api_key_novel;
-                        $("#api_key_novel").val(api_key_novel);
-                    }
+
+                    api_key_novel = settings.api_key_novel || '';
+                    $("#api_key_novel").val(api_key_novel);
+
                     if(settings.api_key_openai != undefined){
                         api_key_openai = settings.api_key_openai;
-                        $("#api_key_openai").val(api_key_openai);
+                        if(main_api === 'openai'){
+                            $("#api_key_openai").val(api_key_openai);
+                        }
                     }
                     if(settings.api_url_openai != undefined){
                         api_url_openai = settings.api_url_openai;
-                        $("#api_url_openai").val(api_url_openai);
+                        if(main_api === 'openai'){
+                            $("#api_url_openai").val(default_api_url_openai);
+                        }
                     }
-                    if(settings.openai_system_prompt != undefined){
-                        openai_system_prompt = settings.openai_system_prompt;
-                        $("#openai_system_prompt_textarea").val(openai_system_prompt);
+
+                    api_key_proxy = settings.api_key_proxy || '';
+                    if (main_api === 'proxy') {
+                        $("#api_key_openai").val(api_key_proxy);
                     }
-                    if(settings.openai_system_prompt_room != undefined){
-                        openai_system_prompt_room = settings.openai_system_prompt_room;
-                        $("#openai_system_prompt_room_textarea").val(openai_system_prompt_room);
+
+
+                    api_url_proxy = settings.api_url_proxy || default_api_url_openai;
+                    if (main_api === 'proxy') {
+                        $("#api_url_openai").val(api_url_proxy);
                     }
-                    if(settings.openai_jailbreak_prompt != undefined){
-                        openai_jailbreak_prompt = settings.openai_jailbreak_prompt;
-                        $("#openai_jailbreak_prompt_textarea").val(openai_jailbreak_prompt);
-                    }
-                    if(settings.openai_jailbreak2_prompt != undefined){
-                        openai_jailbreak2_prompt = settings.openai_jailbreak2_prompt;
-                        $("#openai_jailbreak2_prompt_textarea").val(openai_jailbreak2_prompt);
-                    }
+
+                    
                     model_openai = settings.model_openai;
-                    $('#model_openai_select option[value="'+model_openai+'"]').attr('selected', 'true');
+                    model_proxy = settings.model_proxy;
+                    if(main_api === 'openai'){
+                        $('#model_openai_select option[value="'+model_openai+'"]').attr('selected', 'true');
+                    }else if(main_api === 'proxy'){
+                        $('#model_openai_select option[value="'+model_proxy+'"]').attr('selected', 'true');
+                    }
                     openAIChangeMaxContextForModels();
                     
                     //Novel
@@ -4465,9 +4534,20 @@ $(document).ready(function(){
                     api_server = settings.api_server;
                     $('#api_url_text').val(api_server);
 
-                    if(api_server && settings.auto_connect && !is_colab) {
+                    if(settings.auto_connect && !is_colab) {
                         setTimeout(function() {
-                            $('#api_button').click();
+                            if(main_api === 'kobold' && api_server){
+                                $('#api_button').click();
+                            }
+                            if(main_api === 'novel' && api_key_novel){
+                                $('#api_button_novel').click();
+                            }
+                            if(main_api === 'openai' && api_key_openai){
+                                $('#api_button_openai').click();
+                            }
+                            if(main_api === 'proxy' && api_key_proxy && api_url_proxy){
+                                $('#api_button_openai').click();
+                            }
                         }, 2000);
                     }
 
@@ -4525,13 +4605,12 @@ $(document).ready(function(){
                     keep_dialog_examples: keep_dialog_examples,
                     free_char_name_mode: free_char_name_mode,
                     main_api: main_api,
+                    system_prompt_preset_chat: SystemPrompt.chat_preset_name,
+                    system_prompt_preset_room: SystemPrompt.room_preset_name,
                     api_key_novel: api_key_novel,
                     api_key_openai: api_key_openai,
-                    api_url_openai: api_url_openai,
-                    openai_system_prompt: openai_system_prompt,
-                    openai_system_prompt_room: openai_system_prompt_room,
-                    openai_jailbreak_prompt: openai_jailbreak_prompt,
-                    openai_jailbreak2_prompt: openai_jailbreak2_prompt,
+                    api_key_proxy: api_key_proxy,
+                    api_url_proxy: api_url_proxy,
                     model_novel: model_novel,
                     temp_novel: temp_novel,
                     top_p_novel: top_p_novel,
@@ -4550,6 +4629,7 @@ $(document).ready(function(){
                     max_context_openai: max_context_openai,
                     amount_gen_openai: amount_gen_openai,
                     model_openai: model_openai,
+                    model_proxy: model_proxy,
                     character_sorting_type: character_sorting_type
                     }),
             beforeSend: function(){
@@ -4898,16 +4978,18 @@ $(document).ready(function(){
     //***Swipes***
     $(document).keydown(function(e) {
         if (($(document.activeElement).is('#send_textarea') && $('#send_textarea').val().length === 0) || !$('textarea:focus, input[type="text"]:focus').length) {
-            if (e.keyCode == 37) {
-                // Left arrow key pressed
-                if(JSON.parse($('#chat').children('.mes').last().attr('is_user')) === false && $('#chat').children('.mes').last().children('.swipe_left').css('display') !== 'none'){
-                    $('#chat').children('.mes').last().children('.swipe_left').click();
-                }
-            } else if (e.keyCode == 39) {
-                // Right arrow key pressed
-                if(JSON.parse($('#chat').children('.mes').last().attr('is_user')) === false && $('#chat').children('.mes').last().children('.swipe_right').css('display') !== 'none'){
-                    $('#chat').children('.mes').last().children('.swipe_right').click();
+            if(Tavern.mode === 'chat'){
+                if (e.keyCode == 37) {
+                    // Left arrow key pressed
+                    if(JSON.parse($('#chat').children('.mes').last().attr('is_user')) === false && $('#chat').children('.mes').last().children('.swipe_left').css('display') !== 'none'){
+                        $('#chat').children('.mes').last().children('.swipe_left').click();
+                    }
+                } else if (e.keyCode == 39) {
+                    // Right arrow key pressed
+                    if(JSON.parse($('#chat').children('.mes').last().attr('is_user')) === false && $('#chat').children('.mes').last().children('.swipe_right').css('display') !== 'none'){
+                        $('#chat').children('.mes').last().children('.swipe_right').click();
 
+                    }
                 }
             }
         }
@@ -5353,38 +5435,46 @@ $(document).ready(function(){
         saveSettings();
     });
     $( "#model_openai_select" ).change(function() {
-        model_openai = $('#model_openai_select').find(":selected").val();
+        if(main_api === 'openai'){
+            model_openai = $('#model_openai_select').find(":selected").val();
+        }else if(main_api === 'proxy'){
+            model_proxy = $('#model_openai_select').find(":selected").val();
+        }
         openAIChangeMaxContextForModels();
         saveSettings();
     });
     
     function openAIChangeMaxContextForModels(){
         let this_openai_max_context;
-        switch(model_openai){
-            case 'gpt-4':
-                this_openai_max_context = 8192;
-                break;
-            case 'gpt-4-32k':
-                this_openai_max_context = 32768;
-                break;
-            case 'gpt-3.5-turbo-16k':
-                this_openai_max_context = 16384;
-                break;
-            case 'code-davinci-002':
-                this_openai_max_context = 8000;
-                break;
-            case 'text-curie-001':
-                this_openai_max_context = 2049;
-                break;
-            case 'text-babbage-001':
-                this_openai_max_context = 2049;
-                break;
-            case 'text-ada-001':
-                this_openai_max_context = 2049;
-                break;
-            default:
-                this_openai_max_context = 4096;
-                break;
+        if (main_api === 'openai') {
+            switch (model_openai) {
+                case 'gpt-4':
+                    this_openai_max_context = 8192;
+                    break;
+                case 'gpt-4-32k':
+                    this_openai_max_context = 32768;
+                    break;
+                case 'gpt-3.5-turbo-16k':
+                    this_openai_max_context = 16384;
+                    break;
+                case 'code-davinci-002':
+                    this_openai_max_context = 8000;
+                    break;
+                case 'text-curie-001':
+                    this_openai_max_context = 2049;
+                    break;
+                case 'text-babbage-001':
+                    this_openai_max_context = 2049;
+                    break;
+                case 'text-ada-001':
+                    this_openai_max_context = 2049;
+                    break;
+                default:
+                    this_openai_max_context = 4096;
+                    break;
+            }
+        }else if(main_api === 'proxy'){
+            this_openai_max_context = 100000;
         }
         $('#max_context_openai').attr('max', this_openai_max_context);
         if(max_context_openai > this_openai_max_context){
@@ -5394,6 +5484,18 @@ $(document).ready(function(){
         $('#max_context_counter_openai').html(max_context_openai+' Tokens');
         
     }
+    $('#proxy_set_context_size_button').click(function(){
+        let number = prompt("Please enter a context size:");
+        if (number !== null) {
+            number = parseFloat(number);
+            if (!isNaN(number)) {
+                max_context_openai = number;
+                openAIChangeMaxContextForModels();
+            } else {
+                alert("Invalid input. Please enter a valid number.");
+            }
+        }
+    });
     $( "#anchor_order" ).change(function() {
         anchor_order = parseInt($('#anchor_order').find(":selected").val());
         saveSettings();
@@ -5408,12 +5510,18 @@ $(document).ready(function(){
     //************************OPENAI****************************
     //************************************************************
     async function getStatusOpenAI(){
+        let this_api_key;
+        if(main_api === 'openai'){
+            this_api_key = api_key_openai;
+        }else if(main_api === 'proxy'){
+            this_api_key = api_key_proxy;
+        }
         if(is_get_status_openai){
             jQuery.ajax({    
                 type: 'POST', // 
                 url: '/getstatus_openai', // 
                 data: JSON.stringify({
-                    key: api_key_openai,
+                    key: this_api_key,
                     url: $('#api_url_openai').val()
                 }),
                 beforeSend: function(){
@@ -5436,6 +5544,21 @@ $(document).ready(function(){
                         callPopup(data.error_message, 'alert_error');
                     }else{
                         online_status = 'Connected';
+                        if(main_api === 'proxy' && is_need_load_models_proxy){
+                            is_need_load_models_proxy = false;
+                            $('#model_openai_select').empty();
+                            $('#model_openai_select').append($('<option>', {
+                                value: 'gpt-3.5-turbo',
+                                text: 'gpt-3.5-turbo'
+                            }));
+                            data.data.forEach(function(item, i){
+                                $('#model_openai_select').append($('<option>', {
+                                    value: item.id,
+                                    text: item.id
+                                }));
+                            });
+                            $('#model_openai_select option[value="'+model_proxy+'"]').attr('selected', 'true');
+                        }
                     }
                     setPygmalionFormating();
 
@@ -5462,12 +5585,22 @@ $(document).ready(function(){
         }
     }
     $( "#api_button_openai" ).click(function() {
-        api_key_openai = $('#api_key_openai').val();
-        api_key_openai = $.trim(api_key_openai);
-        if($('#api_url_openai').val() != ''){
-            api_url_openai = $.trim($('#api_url_openai').val());
-        } else {
-            api_url_openai = null;
+        if(main_api === 'openai'){
+            api_key_openai = $('#api_key_openai').val();
+            api_key_openai = $.trim(api_key_openai);
+            if($('#api_url_openai').val() != ''){
+                api_url_openai = $.trim($('#api_url_openai').val());
+            } else {
+                api_url_openai = null;
+            }
+        }else if(main_api === 'proxy'){
+            api_key_proxy = $('#api_key_openai').val();
+            api_key_proxy = $.trim(api_key_proxy);
+            if($('#api_url_openai').val() != ''){
+                api_url_proxy = $.trim($('#api_url_openai').val());
+            } else {
+                api_url_proxy = null;
+            }
         }
         $("#api_loading_openai").css("display", 'inline-block');
         $("#api_button_openai").css("display", 'none');
@@ -5482,7 +5615,7 @@ $(document).ready(function(){
         $("#api_loading_openai").css("display", 'none');
         $("#api_button_openai").css("display", 'inline-block');
     }
-
+    
     function compareVersions(v1, v2) {
         const v1parts = v1.split('.');
         const v2parts = v2.split('.');

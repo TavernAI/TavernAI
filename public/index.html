@@ -251,34 +251,41 @@
                             <input type="range" class="range_bar" id="amount_gen_openai" name="volume" min="16" max="512" step="1">
                         </div>
                         <div>
-                            <h4 class="h4_menu_title">Context Size</h4><h5 id="max_context_counter_openai" class="range_counter">select</h5>
+                            <div>
+                                <h4 class="h4_menu_title">Context Size</h4><h5 id="max_context_counter_openai" style="display: inline-block" class="range_counter">select</h5>
+                                <div id="proxy_set_context_size_button"><a>(set)</a></div>
+                            </div>
                             <input type="range" class="range_bar" id="max_context_openai" name="volume" min="1024" max="4096" step="1">
                         </div>
                     </div>
-                    <div id="openai_system_promt">
+                    <div id="system_prompt">
                         <div>
-                            <h4 class="h4_menu_title">OpenAI System prompt</h4>
+                            <h4 class="h4_menu_title">System prompt</h4>
                             <h5 class="h5_menu_help">Defines how the model will behave (<a href="/notes/20" target="_blank">?</a>)</h5>
+                            <select id="system_prompt_preset_selector" class="menu_select">
+                            </select>
+                            <input id="system_prompt_new_button" type="submit" value="New preset">
+                            <input id="system_prompt_delete_button" type="submit" value="Delete">
                         </div>
-                        <textarea id="openai_system_prompt_textarea" placeholder=""></textarea>
+                        <textarea id="system_prompt_textarea" placeholder=""></textarea>
                     </div>
-                    <div id="openai_system_promt_room" style="display: none">
+                    <div id="system_prompt_room" style="display: none">
                         <div>
-                            <h4 class="h4_menu_title">OpenAI System prompt for rooms</h4>
+                            <h4 class="h4_menu_title">System prompt for rooms</h4>
                             <h5 class="h5_menu_help">Defines how the model will behave for rooms (<a href="/notes/20" target="_blank">?</a>)</h5>
                         </div>
-                        <textarea id="openai_system_prompt_room_textarea" placeholder=""></textarea>
+                        <textarea id="system_prompt_room_textarea" placeholder=""></textarea>
                     </div>
                     <div>
-                        <h4 class="h4_menu_title">OpenAI Jailbreak</h4>
-                        <h5 class="h5_menu_help">Jailbreak for OpenAI (<a href="/notes/23" target="_blank">?</a>)</h5>
+                        <h4 class="h4_menu_title">Jailbreak</h4>
+                        <h5 class="h5_menu_help">Jailbreak helps to circumvent censorship restrictions (<a href="/notes/23" target="_blank">?</a>)</h5>
                     </div>
-                    <textarea id="openai_jailbreak_prompt_textarea" placeholder=""></textarea>
+                    <textarea id="jailbreak_prompt_textarea" placeholder=""></textarea>
                     <div>
-                        <h4 class="h4_menu_title">OpenAI additional Jailbreak</h4>
-                        <h5 class="h5_menu_help">Additional Jailbreak for OpenAI (<a href="/notes/24" target="_blank">?</a>)</h5>
+                        <h4 class="h4_menu_title">User Jailbreak</h4>
+                        <h5 class="h5_menu_help">An additional Jailbreak for circumventing censorship (<a href="/notes/24" target="_blank">?</a>)</h5>
                     </div>
-                    <textarea id="openai_jailbreak2_prompt_textarea" placeholder=""></textarea>
+                    <textarea id="user_jailbreak_prompt_textarea" placeholder=""></textarea>
 
                 </div>
                 <div id="master_settings_toggle_block">
@@ -545,6 +552,7 @@
                 <option value="horde">Kobold Horde</option>
                 <option value="novel">NovelAI</option>
                 <option value="openai">OpenAI</option>
+                <option value="proxy">Reverse Proxy</option>
             </select>
             <div id="kobold_api">
                 <div id="kobold_api_logo"><a href="https://github.com/KoboldAI/KoboldAI-Client" target="_blank"><img src="img/kobold.png"></a></div>
@@ -628,10 +636,12 @@
             <div id="openai_api">
                 <div id="openai_api_logo"><a href="https://openai.com" target="_blank"><img src="img/openai.png"></a></div>
                 <form  action="javascript:void(null);" method="post" enctype="multipart/form-data" id="openai_auth">
-                    <h4 class="h4_menu_title">API address and key</h4><h5 class="h5_menu_help">Where to get (<a href="/notes/19" target="_blank">?</a>)</h5>
-                    <input id="api_url_openai" name="api_url_openai" class="text_pole" value="https://api.openai.com/v1" placeholder="https://api.openai.com/v1" type="text" maxlength="500" size="35" autocomplete="off">
-                    <img src="../img/revert.png" id="default_openai_url_button">
-                    <br>
+                    <h4 class="h4_menu_title" id="openai_api_h4_title">API address and password</h4><h5 class="h5_menu_help">Where to get (<a href="/notes/19" target="_blank">?</a>)</h5>
+                    <div id="openai_proxy_adress_block">
+                        <input id="api_url_openai" name="api_url_openai" class="text_pole" value="https://api.openai.com/v1" placeholder="https://api.openai.com/v1" type="text" maxlength="500" size="35" autocomplete="off">
+                        <img src="../img/revert.png" id="default_openai_url_button">
+                        <br>
+                    </div>
                     <input id="api_key_openai" name="api_key_openai" class="text_pole" maxlength="500" size="35" value="" autocomplete="off" placeholder="API key or Prpxy password">
                     <input id="api_button_openai" type="submit" value="Connect">
                     <img id="api_loading_openai" src="img/load.svg" >
@@ -640,7 +650,7 @@
                     <div id="online_status_indicator4" class="online_status_indicator_offline"></div><div id="online_status_text4">No connection...</div>
                 </div>
                 <div>
-                <h4 class="h4_menu_title">Model</h4><h5 class="h5_menu_help">OpenAI models (<a href="/notes/13" target="_blank">?</a>)</h5>
+                <h4 class="h4_menu_title">Model</h4><h5 class="h5_menu_help" id="h5_model_openai_help">OpenAI models (<a href="/notes/13" target="_blank">?</a>)</h5>
                     <select id="model_openai_select" class="menu_select">
                         <option value="gpt-4">gpt-4</option>
                         <option value="gpt-4-32k">gpt-4-32k</option>
