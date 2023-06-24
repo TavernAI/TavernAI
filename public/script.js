@@ -1366,7 +1366,6 @@ $(document).ready(function(){
             else
                 Rooms.setActiveCharacterId(chat); // Needs to be done since we don't know the latest message made by a character
         } 
-        name2 = Characters.id[Characters.selectedID].name;
         generateType = type;
         // HORDE
         if (main_api == 'horde' && horde_model == '') {
@@ -1383,12 +1382,15 @@ $(document).ready(function(){
             this_gap_holder = parseInt(amount_gen_openai)+this_gap_holder;
         var textareaText = '';
         tokens_already_generated = 0;
-        if(!free_char_name_mode){
-            message_already_generated = name2+': ';
-        }else{
-            message_already_generated = '';
-        }
+
+
         if(online_status != 'no_connection' && Characters.selectedID != undefined){
+            name2 = Characters.id[Characters.selectedID].name;
+            if (!free_char_name_mode) {
+                message_already_generated = name2 + ': ';
+            } else {
+                message_already_generated = '';
+            }
             Characters.id[Characters.selectedID].last_action_date = Date.now();
             $('#rm_folder_order').change();
             if(!is_room)
