@@ -2861,7 +2861,7 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
     margin: 0px; 
 }
 .character-screen {
-    min-height: 72vh;
+    min-height: 62vh;
 }
 .character-screen .folder-content, .character-screen .folder {
     padding: 0px;
