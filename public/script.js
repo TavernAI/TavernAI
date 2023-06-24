@@ -1206,13 +1206,13 @@ $(document).ready(function(){
                 if(!is_room)
                 {
                     mes.chid = parseInt(Characters.selectedID);     // TODO: properly establish persistent ids
-                    avatarImg = Characters.id[mes.chid].filename == 'none' ? "img/fluffy.png" : "characters/"+Characters.id[Characters.selectedID].filename + "?t=" + Date.now();
+                    avatarImg = Characters.id[mes.chid].filename == 'none' ? "img/fluffy.png" : "characters/"+Characters.id[Characters.selectedID].filename + "?v=" + Date.now();
                 }
                 else
                 {
                     if(mes.chid === undefined)
                         mes.chid = parseInt(Characters.selectedID);
-                    avatarImg = Characters.id[mes.chid].filename == 'none' ? "img/fluffy.png" : "characters/"+Characters.id[mes.chid].filename + "?t=" + Date.now();
+                    avatarImg = Characters.id[mes.chid].filename == 'none' ? "img/fluffy.png" : "characters/"+Characters.id[mes.chid].filename + "?v=" + Date.now();
                 }
             }
         } else {
