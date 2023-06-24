@@ -17,6 +17,7 @@ Examples of interface and output:
 * Flexible settings for AI models
 * Story mode
 * World Info
+* Swipes
 * Choosing atmospheric backgrounds
 * Editing/Deleting/Moving any messages
 * KoboldAI Support
