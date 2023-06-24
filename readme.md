@@ -13,14 +13,18 @@ Examples of interface and output:
 ## Features
 * Creating characters with personality setup
 * Online character library
-* Choosing name and avatar for your character
-* Deleting and regenerating messages
-* Editing any messages
-* Works with various AI models
-* Importing chats from CAI
-* More longer messages from characters
+* Supporting chat with multiple characters simultaneously
+* Flexible settings for AI models
+* Story mode
+* World Info
 * Choosing atmospheric backgrounds
-* Creating and easy choosing preset settings
+* Editing/Deleting/Moving any messages
+* KoboldAI Support
+* Horde Support
+* NovelAI support
+* OpenAI Support
+* Reverse Proxy server support
+
 
 ## How to install
 ### In Detail:
