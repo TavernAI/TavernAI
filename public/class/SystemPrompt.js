@@ -17,7 +17,7 @@ export class SystemPromptModule extends EventEmitter {
         //this.is_online = false;
         const self = this;
         this.Save = this.Save.bind(this);
-        self.Load();
+        
         
         //Save events
         $(document).on('input', '#system_prompt_textarea', function () {
@@ -123,7 +123,7 @@ export class SystemPromptModule extends EventEmitter {
         });
     }
     
-    Load() {
+    Load(preset_name = undefined) {
         const self = this;
 
         jQuery.ajax({
@@ -155,8 +155,13 @@ export class SystemPromptModule extends EventEmitter {
                 Object.keys(self.presets).forEach(key => {
                     $('#system_prompt_preset_selector').append(`<option value="${key}">${self.presets[key].preset_name}</option>`);
                 });
-                $('#system_prompt_preset_selector option[value="'+self.selected_preset_name+'"]').attr('selected', 'true');
-                self.printPreset();
+                if(preset_name !== undefined){
+                    self.select(preset_name);
+                    $('#system_prompt_preset_selector option[value="'+self.selected_preset_name+'"]').attr('selected', 'true');
+                }else{
+                    $('#system_prompt_preset_selector option[value="'+self.selected_preset_name+'"]').attr('selected', 'true');
+                    self.printPreset();
+                }
 
             },
             error: function (jqXHR, exception) {
@@ -233,5 +238,9 @@ export class SystemPromptModule extends EventEmitter {
         $('#system_prompt_preset_selector').val(self.selected_preset_name);
         self.printPreset();
         
+    }
+    selectWithLoad(preset_name){
+        const self = this;
+        self.Load(preset_name);
     }
 }

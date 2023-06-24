@@ -4158,7 +4158,7 @@ $(document).ready(function(){
                             $('#your_name').val(name1);
                         }
                     }
-                    SystemPrompt.select(settings.system_prompt_preset_chat);
+                    SystemPrompt.selectWithLoad(settings.system_prompt_preset_chat);
                     
                     charaCloudServer = data.charaCloudServer;
                     characterFormat = data.characterFormat;
