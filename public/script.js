@@ -36,7 +36,8 @@ export var character_anchor = true;
 export const gap_holder = 120;
 export var online_status = 'no_connection';
 
-const VERSION = '1.4.1';
+const VERSION = '1.5.0';
+/*
 var chloeMes = {
         name: 'Chloe',
         is_user: false,
@@ -44,7 +45,18 @@ var chloeMes = {
         create_date: 0,
         mes: '*You went inside. The air smelled of fried meat, tobacco and a hint of wine. A dim light was cast by candles, and a fire crackled in the fireplace. It seems to be a very pleasant place. Behind the wooden bar is an elf waitress, she is smiling. Her ears are very pointy, and there is a twinkle in her eye. She wears glasses and a white apron. As soon as she noticed you, she immediately came right up close to you.*\n\n' +
             ' Hello there! How is your evening going?' +
-            '<div id="characloud_img"><img src="img/tavern.png" id="chloe_star_dust_city"></div>\n<a id="verson" href="https://github.com/TavernAI/TavernAI" target="_blank">@@@TavernAI v'+VERSION+'@@@</a><a href="https://boosty.to/tavernai" target="_blank"><div id="characloud_url"><img src="img/cloud_logo.png"><div id="characloud_title">Cloud</div></div></a><br><br><br><br>',
+            '<div id="characloud_img"><img src="img/tavern.png" id="chloe_star_dust_city"></div>\n<a id="verson" href="https://github.com/TavernAI/TavernAI" target="_blank">@@@TavernAI v'+VERSION+'@@@</a><a href="https://boosty.to/tavernai" target="_blank"><div id="characloud_url"><img src="img/cloud_logo.png"><div id="characloud_title">Support</div></div></a><br><br><br><br>',
+        chid: -2
+    };
+*/
+var chloeMes = {
+        name: 'Chloe',
+        is_user: false,
+        is_name: true,
+        create_date: 0,
+        mes: '*You went outside. The air smelled of saltwater, rum and barbecue. A bright sun shone down from the clear blue sky, glinting off the ocean waves. It seems to be a lively place. Behind the wooden counter of the open-air bar is an elf barmaid grinning cheekily. Her ears are very pointy, and there is a twinkle in her eye. She wears glasses and a white apron. She noticed you right away.*\n\n' +
+            ' Hi! How is your day going?' +
+            '<div id="characloud_img"><img src="img/tavern_summer.png" id="chloe_star_dust_city"></div>\n<a id="verson" href="https://github.com/TavernAI/TavernAI" target="_blank">@@@TavernAI v'+VERSION+'@@@</a><a href="https://boosty.to/tavernai" target="_blank"><div id="characloud_url"><img src="img/heart.png" style="width:18px; heigth:18px; margin-right:2px;"><div id="characloud_title">Support</div></div></a><br><br><br><br>',
         chid: -2
     };
 export var chat = [chloeMes];
@@ -106,10 +118,10 @@ export var characterFormat = 'webp';
 function vl(text) { //Validation security function for html
     return !text ? text : window.DOMPurify.sanitize(text);
 }
-function getIsRoom() {
+export function getIsRoom() {
     return is_room;
 }
-function getIsRoomList() {
+export function getIsRoomList() {
     return is_room_list;
 }
 export function getRoomsInstance() {
@@ -170,7 +182,7 @@ export function isChatModel() { // Checking is it chat model (for OpenAI and pro
     }
 
 }
-export {token, default_avatar, vl, filterFiles, requestTimeout, max_context, getIsRoom, getIsRoomList};
+export {token, default_avatar, vl, filterFiles, requestTimeout, max_context};
 export var animation_rm_duration = 200;
 export var animation_rm_easing = "";
 
@@ -227,13 +239,11 @@ $(document).ready(function(){
      */
     function setRoomMode(room) {
         if(room){
-            $('#system_prompt').css('display', 'none');
-            $('#system_prompt_room').css('display', 'block');
+            SystemPrompt.select(settings.system_prompt_preset_room);
             is_room = true;
             $("#option_select_chat").css("display", "none");
         }else{
-            $('#system_prompt').css('display', 'block');
-            $('#system_prompt_room').css('display', 'none');
+            SystemPrompt.select(settings.system_prompt_preset_chat);
             is_room = false;
             $("#select_chat").css("display", "block");
         }
@@ -628,7 +638,6 @@ $(document).ready(function(){
     var api_key_openai = "";
     var api_url_proxy = default_api_url_openai;
     var api_key_proxy = "";
-    var system_prompt_room = "";
 
 
 
@@ -1151,11 +1160,14 @@ $(document).ready(function(){
         if(Tavern.mode === 'story'){
             $('#story_textarea').val(chat[0].mes);
             let textArea = chat[0].mes;
-                $('#story_textarea').val(textArea.substring(0, 5) +
+            $('#story_textarea').val(textArea);
+                    /*    
+            $('#story_textarea').val(textArea.substring(0, 5) +
                         '<span class="highlight">' +
                         textArea.substring(5, 10) +
                         '</span>' +
                         textArea.substring(10));
+            */
         }
     }
     function clearChat(){
@@ -1188,7 +1200,7 @@ $(document).ready(function(){
         var avatarImg = "User Avatars/"+user_avatar;
         if(!mes.is_user){
             if(Characters.selectedID === undefined) {
-                avatarImg = "img/chloe.png";
+                avatarImg = "img/chloe_summer.png";
             } else {
                 //mes.chid = mes.chid || parseInt(Characters.selectedID);
                 if(!is_room)
@@ -1597,16 +1609,10 @@ $(document).ready(function(){
 
             if(main_api === 'openai' || main_api === 'proxy' && isChatModel()){
                 let sp_string = "";
-                if(!is_room)
-                    sp_string = SystemPrompt.system_prompt.replace(/{{user}}/gi, name1) //System prompt for OpenAI
-                                    .replace(/{{char}}/gi, name2)
-                                    .replace(/<USER>/gi, name1)
-                                    .replace(/<BOT>/gi, name2);
-                else
-                    sp_string = system_prompt_room.replace(/{{user}}/gi, name1) //System prompt for OpenAI
-                                    .replace(/{{char}}/gi, name2)
-                                    .replace(/<USER>/gi, name1)
-                                    .replace(/<BOT>/gi, name2);
+                sp_string = SystemPrompt.system_prompt.replace(/{{user}}/gi, name1) //System prompt
+                                .replace(/{{char}}/gi, name2)
+                                .replace(/<USER>/gi, name1)
+                                .replace(/<BOT>/gi, name2);
                 storyString = sp_string+'\n'+storyString;
             }
             
@@ -4608,7 +4614,13 @@ $(document).ready(function(){
     }
 
     async function saveSettings(){
-
+        let system_prompt_preset_chat = settings.system_prompt_preset_chat;
+        let system_prompt_preset_room = settings.system_prompt_preset_room;
+        if(getIsRoomList()){
+            system_prompt_preset_room = SystemPrompt.selected_preset_name;
+        }else{
+            system_prompt_preset_chat = SystemPrompt.selected_preset_name;
+        }
         jQuery.ajax({    
             type: 'POST', 
             url: '/savesettings', 
@@ -4647,8 +4659,8 @@ $(document).ready(function(){
                     keep_dialog_examples: keep_dialog_examples,
                     free_char_name_mode: free_char_name_mode,
                     main_api: main_api,
-                    system_prompt_preset_chat: SystemPrompt.chat_preset_name,
-                    system_prompt_preset_room: SystemPrompt.room_preset_name,
+                    system_prompt_preset_chat: system_prompt_preset_chat,
+                    system_prompt_preset_room: system_prompt_preset_room,
                     api_key_novel: api_key_novel,
                     api_key_openai: api_key_openai,
                     api_key_proxy: api_key_proxy,

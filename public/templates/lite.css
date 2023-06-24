@@ -1075,3 +1075,7 @@ a {
 .world_info .content, .modular > div > textarea {
     background-color: #16161680;
 }
+
+#story_textarea {
+    background: #ffffff00;
+}

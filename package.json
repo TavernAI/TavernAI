@@ -23,7 +23,7 @@
         "webp-converter": "^2.3.3"
     },
     "name": "TavernAI",
-    "version": "1.4.1",
+    "version": "1.5.0",
     "bin": {
         "TavernAI": "server.js"
     },

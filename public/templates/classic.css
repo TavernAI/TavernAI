@@ -2195,7 +2195,7 @@ label.checkbox :checked + span:after {
     margin-top: 4px;
 }
 
-#system_prompt_textarea, #system_prompt_room_textarea, #jailbreak_prompt_textarea, #user_jailbreak_prompt_textarea {
+#system_prompt_textarea, #jailbreak_prompt_textarea, #user_jailbreak_prompt_textarea {
     margin-left: 2px;
     width: 94%;
     height: 180px;

@@ -5,34 +5,34 @@ import {EventEmitter} from "./EventEmitter.mjs";
 
 export class SystemPromptModule extends EventEmitter {
     static SAVE_SETTINGS = "save_settings";
+    empty_prest_id = '(empty)';
     constructor() {
         super();
-        //this.is_online = false;
         var presets = {};
-        
-        var chat_preset_name;
-        var room_preset_name;
-        var system_prompt;
-        var jailbreak_prompt;
-        var user_jailbreak_prompt;
+        var selected_preset_name; 
+        var system_prompt = '';
+        var jailbreak_prompt = '';
+        var user_jailbreak_prompt = '';
         var saveRangeTimer;
+        //this.is_online = false;
         const self = this;
+        this.Save = this.Save.bind(this);
         self.Load();
         
         //Save events
         $(document).on('input', '#system_prompt_textarea', function () {
             self.system_prompt = $(this).val();
-            self.presets[self.chat_preset_name].system_prompt = self.system_prompt;
+            self.presets[self.selected_preset_name].system_prompt = self.system_prompt;
             self.saveRangeTimer = setTimeout(self.Save, 500);
         });
         $(document).on('input', '#jailbreak_prompt_textarea', function () {
             self.jailbreak_prompt = $(this).val();
-            self.presets[self.chat_preset_name].jailbreak_prompt = self.jailbreak_prompt;
+            self.presets[self.selected_preset_name].jailbreak_prompt = self.jailbreak_prompt;
             self.saveRangeTimer = setTimeout(self.Save, 500);
         });
         $(document).on('input', '#user_jailbreak_prompt_textarea', function () {
             self.user_jailbreak_prompt = $(this).val();
-            self.presets[self.chat_preset_name].user_jailbreak_prompt = self.user_jailbreak_prompt;
+            self.presets[self.selected_preset_name].user_jailbreak_prompt = self.user_jailbreak_prompt;
             self.saveRangeTimer = setTimeout(self.Save, 500);
         });
         $('#system_prompt_new_button').click(function(){
@@ -61,7 +61,7 @@ export class SystemPromptModule extends EventEmitter {
                     success: function (data) {
                         //online_status = data.result;
                         //$('#system_prompt_preset_selector').append(`<option value="${new_name}">${new_name}</option>`);
-                        self.chat_preset_name = new_name;
+                        self.selected_preset_name = data.preset_name;
                         self.emit(SystemPromptModule.SAVE_SETTINGS, {});
                         self.Load();
                     },
@@ -75,16 +75,17 @@ export class SystemPromptModule extends EventEmitter {
         });
         
         $("#system_prompt_preset_selector").change(function () {
-            self.chat_preset_name = $('#system_prompt_preset_selector').find(":selected").val();
-            self.system_prompt = self.presets[self.chat_preset_name].system_prompt;
-            self.jailbreak_prompt = self.presets[self.chat_preset_name].jailbreak_prompt;
-            self.user_jailbreak_prompt = self.presets[self.chat_preset_name].user_jailbreak_prompt;
+            
+            self.selected_preset_name = $('#system_prompt_preset_selector').find(":selected").val();
+            self.system_prompt = self.presets[self.selected_preset_name].system_prompt;
+            self.jailbreak_prompt = self.presets[self.selected_preset_name].jailbreak_prompt;
+            self.user_jailbreak_prompt = self.presets[self.selected_preset_name].user_jailbreak_prompt;
             self.printPreset();
             self.emit(SystemPromptModule.SAVE_SETTINGS, {});
         });
         
         $('#system_prompt_delete_button').click(function(){
-            self.Delete(self.chat_preset_name);
+            self.Delete(self.selected_preset_name);
         });
 
     }
@@ -94,7 +95,7 @@ export class SystemPromptModule extends EventEmitter {
             type: 'POST',
             url: '/systemprompt_save',
             data: JSON.stringify({
-                preset_name: self.chat_preset_name,
+                preset_name: self.selected_preset_name,
                 create_date: Date.now(),
                 edit_date: Date.now(),
                 system_prompt: $('#system_prompt_textarea').val(),
@@ -124,6 +125,7 @@ export class SystemPromptModule extends EventEmitter {
     
     Load() {
         const self = this;
+
         jQuery.ajax({
                 type: 'POST',
             url: '/systemprompt_get',
@@ -138,13 +140,13 @@ export class SystemPromptModule extends EventEmitter {
             contentType: "application/json",
             //processData: false, 
             success: function (data) {
-                data['(empty)'] = {};
-                data['(empty)'].preset_name = '(Empty)';
-                data['(empty)'].create_date = 99999999999900000;
-                data['(empty)'].edit_date = 99999999999900000;
-                data['(empty)'].system_prompt = '';
-                data['(empty)'].jailbreak_prompt = '';
-                data['(empty)'].user_jailbreak_prompt = '';
+                data[self.empty_prest_id] = {};
+                data[self.empty_prest_id].preset_name = '(Empty)';
+                data[self.empty_prest_id].create_date = 99999999999900000;
+                data[self.empty_prest_id].edit_date = 99999999999900000;
+                data[self.empty_prest_id].system_prompt = '';
+                data[self.empty_prest_id].jailbreak_prompt = '';
+                data[self.empty_prest_id].user_jailbreak_prompt = '';
                 const sortedData = Object.entries(data)
                 .sort(([key1, value1], [key2, value2]) => value2.create_date - value1.create_date)
                 .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
@@ -153,7 +155,7 @@ export class SystemPromptModule extends EventEmitter {
                 Object.keys(self.presets).forEach(key => {
                     $('#system_prompt_preset_selector').append(`<option value="${key}">${self.presets[key].preset_name}</option>`);
                 });
-                $('#system_prompt_preset_selector option[value="'+self.chat_preset_name+'"]').attr('selected', 'true');
+                $('#system_prompt_preset_selector option[value="'+self.selected_preset_name+'"]').attr('selected', 'true');
                 self.printPreset();
 
             },
@@ -166,7 +168,7 @@ export class SystemPromptModule extends EventEmitter {
     }
     Delete(del_name) {
         const self = this;
-        if(del_name !== '<empty>'){
+        if(del_name !== self.empty_prest_id){
         const confirmed = confirm(`Are you sure you want to delete ${del_name} preset?`);
 
         if (confirmed) {
@@ -188,9 +190,8 @@ export class SystemPromptModule extends EventEmitter {
                 success: function (data) {
                     //online_status = data.result;
                     //$('#system_prompt_preset_selector').append(`<option value="${new_name}">${new_name}</option>`);
-                    delete self.presets[Object.keys(self.presets)[0]];
-                    self.chat_preset_name = Object.keys(self.presets)[0];
 
+                    self.selected_preset_name = self.empty_prest_id;
                     self.emit(SystemPromptModule.SAVE_SETTINGS, {});
                     self.Load();
                 },
@@ -207,10 +208,10 @@ export class SystemPromptModule extends EventEmitter {
     }
     printPreset(){
         const self = this;
-        if(self.chat_preset_name !== undefined){
-            self.system_prompt = self.presets[self.chat_preset_name].system_prompt;
-            self.jailbreak_prompt = self.presets[self.chat_preset_name].jailbreak_prompt;
-            self.user_jailbreak_prompt = self.presets[self.chat_preset_name].user_jailbreak_prompt;
+        if(self.selected_preset_name !== undefined){
+            self.system_prompt = self.presets[self.selected_preset_name].system_prompt;
+            self.jailbreak_prompt = self.presets[self.selected_preset_name].jailbreak_prompt;
+            self.user_jailbreak_prompt = self.presets[self.selected_preset_name].user_jailbreak_prompt;
 
             $("#system_prompt_textarea").val(self.system_prompt);
 
@@ -222,8 +223,15 @@ export class SystemPromptModule extends EventEmitter {
     
     select(preset_name) {
         const self = this;
-        self.chat_preset_name = preset_name;
-        $('#system_prompt_preset_selector option[value="'+self.chat_preset_name+'"]').attr('selected', 'true');
+        self.selected_preset_name = preset_name;
+
+        if(self.presets[self.selected_preset_name] !== undefined){
+            self.selected_preset_name = preset_name;
+        }else{
+            self.selected_preset_name = self.empty_prest_id;
+        }
+        $('#system_prompt_preset_selector').val(self.selected_preset_name);
         self.printPreset();
+        
     }
 }

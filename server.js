@@ -2352,12 +2352,20 @@ app.post("/systemprompt_new", jsonParser, function(request, response){
             return response.sendStatus(400);
 
         let {preset_name} = request.body;
-        // Save the system_prompt to a JSON file
+        preset_name = sanitize_filename(preset_name);
+        if (preset_name.length === 0) {
+            return response.status(400).send({error: "Wrong filename"});
+        }
         const filePath = `public/System Prompts/${preset_name}.json`;
+        
+        if (fs.existsSync(filePath)) {
+            return response.status(400).send({error: "File already exists"});
+        }
+        
         const data = JSON.stringify(request.body);
         fs.writeFileSync(filePath, data);
 
-        return response.status(200).send({res: true});
+        return response.status(200).send({preset_name: preset_name});
         
     } catch (err) {
         console.error(err);
