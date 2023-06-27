@@ -105,7 +105,7 @@ export class StoryModule extends EventEmitter {
         
         //Prepare prompt
         if($('#send_textarea').val().length > 0){
-            if($.trim($('#story_textarea').val()) > 0){
+            if($.trim($('#story_textarea').val().length) > 0){
                 $('#story_textarea').val($('#story_textarea').val()+'\n'+$('#send_textarea').val());
             }else{
                 $('#story_textarea').val($('#send_textarea').val());
