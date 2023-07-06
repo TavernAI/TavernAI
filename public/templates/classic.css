@@ -1780,6 +1780,21 @@ select {
     border-radius: 1px !important;
     padding: 1px;
 }
+.ch_select_cross {
+	right: 7px;
+	position: absolute;
+	width: 50px !important;
+	height: 50px !important;
+	top: 20px;
+	opacity: 0.3;
+	display: none;
+}
+#room_character_selected_items .avatar:hover .ch_select_cross {
+	display: block;
+}
+#room_character_selected_items .avatar:hover img:not(.ch_select_cross) {
+	filter: brightness(50%);
+}
 #rm_api_block {
     display: none;
     padding-bottom: 5px;

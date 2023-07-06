@@ -362,6 +362,11 @@ export class CharacterEditor extends EventEmitter {
                     }.bind(this)
                 });
             } 
+            // Re-disabled the input elements in case user is editing (not creating) a room, and removes more than one characters
+            let charactersSelected = this.other.roomSelectedCharacters.getElementsByTagName("input");
+            for (var i = 0; i < charactersSelected.length; i++) {
+                charactersSelected[i].setAttribute( "disabled", "" );
+            }
             return;
         }
         
