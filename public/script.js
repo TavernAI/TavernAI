@@ -2644,7 +2644,26 @@ $(document).ready(function(){
                 '<input type="hidden" name="character_names" value="'+Characters.id[characterId].name+'" disabled>'+
                 '</div>');
         });
+        Characters.id.forEach(function(character, i) {
+            if(!Rooms.selectedCharacterNames.includes(character.name))
+                $("#room_character_select_items")
+                    .append('<div class="avatar" title="'+character.name+'" ch_name="'+character.name+'" style="position: relative;">'+
+                    '<img src="characters/'+character.filename+'"><img src="../img/cross.png" class="ch_select_cross">' +
+                    '<input type="hidden" name="character_names" value="'+character.name+'" disabled>'+
+                    '</div>');
+        });
         $("#room_character_selected_items .avatar").on("click", function(event) {
+            if(event.currentTarget.parentElement.id == "room_character_select_items") {
+                $("#room_character_selected_items").append(event.currentTarget);
+            }
+            else {
+                if($("#room_character_selected_items").children().length > 1)
+                    $("#room_character_select_items").append(event.currentTarget);
+                else
+                    callPopup("Cannot remove character. At least one character needed to be selected.", "alert");
+            }
+        });
+        $("#room_character_select_items .avatar").on("click", function(event) {
             if(event.currentTarget.parentElement.id == "room_character_select_items") {
                 $("#room_character_selected_items").append(event.currentTarget);
             }
