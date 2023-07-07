@@ -4902,7 +4902,7 @@ $(document).ready(function(){
                     });
 
                     // If the message character is no longer part of the selected characters
-                    if(!Rooms.selectedCharacterNames.includes(chat[this_edit_mes_id].name))
+                    if(!Rooms.selectedCharacterNames.includes(chat[this_edit_mes_id].name) && !chat[this_edit_mes_id].is_user)
                     {
                         if(chat[this_edit_mes_id].chid >= 0) // If the character has not been deleted
                             nameSelect.append('<option value="' + chat[this_edit_mes_id].chid + '" class="host" selected="selected">'+chat[this_edit_mes_id].name+'</option>');
