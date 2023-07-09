@@ -5660,6 +5660,19 @@ $(document).ready(function(){
             }
         }
     });
+    $('#kobold_set_context_size_button').click(function(){
+        let number = prompt("Please enter a context size:");
+        if (number !== null) {
+            number = parseFloat(number);
+            if (!isNaN(number)) {
+                max_context = number;
+                $('#max_context').val(max_context);
+                $('#max_context_counter').html(max_context+' Tokens');
+            } else {
+                alert("Invalid input. Please enter a valid number.");
+            }
+        }
+    });
     $( "#anchor_order" ).change(function() {
         anchor_order = parseInt($('#anchor_order').find(":selected").val());
         saveSettings();

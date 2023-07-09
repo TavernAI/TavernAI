@@ -629,7 +629,7 @@ textarea {
     margin-bottom: 5px;
 }
 
-#proxy_set_context_size_button {
+#proxy_set_context_size_button, #kobold_set_context_size_button {
     cursor: pointer;
     display: inline-block;
     font-weight: 600;

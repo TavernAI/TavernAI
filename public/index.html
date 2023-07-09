@@ -191,11 +191,12 @@
                     <div id="max_context_block">
                         <div id="max_context_grid">
                             <div id="max_context_label">
-                                <h4 class="range_title">Context Size</h4><h5 id="max_context_counter" class="range_counter">select</h5>
+                                <h4 class="range_title">Context Size</h4><h5 id="max_context_counter" style="display: inline-block" class="range_counter">select</h5>
+                                <div id="kobold_set_context_size_button"><a>(set)</a></div>
                             </div>
                             <input id="lock_context_size" type="checkbox" class="toggle_lock">
                         </div>
-                        <input type="range" class="range_bar" id="max_context" name="volume" min="512" max="2048" step="1">
+                        <input type="range" class="range_bar" id="max_context" name="volume" min="512" max="8192" step="1">
                     </div>
                 </div>
                 <div id="master_settings_novelai_block" class="master_settings_range_block">
