@@ -5655,6 +5655,7 @@ $(document).ready(function(){
             if (!isNaN(number)) {
                 max_context_openai = number;
                 openAIChangeMaxContextForModels();
+                saveSettings();
             } else {
                 alert("Invalid input. Please enter a valid number.");
             }
@@ -5668,6 +5669,7 @@ $(document).ready(function(){
                 max_context = number;
                 $('#max_context').val(max_context);
                 $('#max_context_counter').html(max_context+' Tokens');
+                saveSettings();
             } else {
                 alert("Invalid input. Please enter a valid number.");
             }
