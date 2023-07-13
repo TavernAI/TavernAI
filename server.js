@@ -1821,6 +1821,9 @@ app.post("/getstatus_openai", jsonParser, function(request, response_getstatus_o
     if(!request.body) return response_getstatus_openai.sendStatus(400);
     api_key_openai = request.body.key;
     api_url_openai = request.body.url;
+    if(api_url_openai.indexOf('localhost') != -1){
+        api_url_openai = api_url_openai.replace('localhost','127.0.0.1');
+    }
     var args = {};
     if(api_key_openai && api_key_openai.length) {
         args = {
