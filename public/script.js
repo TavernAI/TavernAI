@@ -245,6 +245,7 @@ $(document).ready(function(){
         }else{
             SystemPrompt.select(settings.system_prompt_preset_chat);
             is_room = false;
+            $("#option_select_chat").css("display", "block");
             $("#select_chat").css("display", "block");
         }
 
