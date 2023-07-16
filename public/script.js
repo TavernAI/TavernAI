@@ -1389,6 +1389,7 @@ $(document).ready(function(){
             }else{
                Generate(); 
             }
+            $('#send_textarea').attr('style', '');
         }
     });
     async function Generate(type) {
@@ -2597,8 +2598,8 @@ $(document).ready(function(){
             }else{
                 Generate();
             }
+            $('#send_textarea').attr('style', '');
             
-            //$(this).closest("form").submit();
         }
     });
 
