@@ -205,7 +205,7 @@ export class Resizable {
     /** If shown, hides, and vice versa */
     toggle() {
         if(this.shown) {
-            //this.hide();
+            this.hide();
         } else {
             this.show();
         }

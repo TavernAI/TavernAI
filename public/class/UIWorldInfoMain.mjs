@@ -78,7 +78,7 @@ export class UIWorldInfoMain extends Resizable {
             }
         }
 
-        document.getElementById("option_toggle_worldinfo").onclick = this.show.bind(this);
+        document.getElementById("option_toggle_worldinfo").onclick = this.toggle.bind(this);
     }
 
     get entriesArray() {
