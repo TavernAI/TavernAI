@@ -5938,7 +5938,7 @@ $(document).ready(function(){
             $('#rm_button_selected_ch').css('display', 'none');
             $('#chat_header_char_name').text('');
             $('#chat_header_back_button').css('display', 'none');
-            $('#chat_header_char_info').text('Wellcome to Tavern');
+            $('#chat_header_char_info').text('Welcome to Tavern');
             printMessages();
             $('#chat').scrollTop(0);
         }
