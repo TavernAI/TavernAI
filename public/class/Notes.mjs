@@ -33,7 +33,7 @@ export class Notes extends Resizable {
         this.saveFunction = options.save || null;
 
         this.tokens = this.findChildWithClass("notes_token_stat", this.header).children[0];
-        let chb = this.findChildWithClass("wpp-checkbox", this.header)
+        let chb = this.findChildWithClass("wpp-checkbox", this.header);
         chb.checked = false;
         chb.onchange = function(event) {
             if(event.target.checked) {

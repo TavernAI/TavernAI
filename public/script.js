@@ -263,7 +263,6 @@ $(document).ready(function(){
             });
     }
     SystemPrompt.on(SystemPromptModule.SAVE_SETTINGS, function (event) {
-
         if(getIsRoom()){
             settings.system_prompt_preset_room = SystemPrompt.selected_preset_name;
         }else{
@@ -3225,6 +3224,8 @@ $(document).ready(function(){
             return;
         }
         if(popup_type == 'new_chat' && Characters.selectedID != undefined && menu_type != "create"){//Fix it; New chat doesn't create while open create character menu
+            winNotes.text = '';
+            winNotes.strategy = 'discr';
             Tavern.mode = 'chat';
             Story.showHide();
             clearChat();
