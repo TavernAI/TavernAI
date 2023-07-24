@@ -2268,7 +2268,7 @@ label.checkbox :checked + span:after {
 #select_chat_popup {
     display: block;
     grid-template-rows: 50px 100px 100px auto 45px;
-    max-width:450px;
+    max-width:770px;
     height: 440px;
     position: absolute;
     z-index: 2066;
@@ -2284,7 +2284,7 @@ label.checkbox :checked + span:after {
     background: #191b31F0;
     border-radius: 5px;
 }
-.chat_delete, .chat_export {
+.chat_delete, .chat_export, .chat_name {
     padding: 5px;
     padding-top: 0px;
     padding-bottom: 10px;
@@ -2741,8 +2741,12 @@ label.wpp_label {
     /* height: 80%; */
     overflow: hidden;
     overflow-y: scroll;
-    max-width:430px;
+    max-width:757px;
     height: 350px;
+}
+#select_chat_div hr {
+    background-image: unset;
+    border: 1px solid rgba(255, 255, 255, 0.12);
 }
 .select_chat_block {
     border-radius: 5px;
@@ -2767,7 +2771,11 @@ label.wpp_label {
 }
 
 .select_chat_block_filename {
+    opacity:0.99;
+}
+.select_chat_block_filename_text {
     opacity:0.5;
+    display: inline-block;
 }
 .select_chat_block_mes {
     margin-right: 6px;

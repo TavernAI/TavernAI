@@ -2007,6 +2007,7 @@ app.post("/getallchatsofchatacter", jsonParser, function(request, response){
                         chatData[i] = {};
                         chatData[i]['file_name'] = file;
                         chatData[i]['mes'] = jsonData['mes'];
+                        chatData[i]['mes_send_date'] = jsonData['send_date'];
                         ii--;
                         if(ii === 0){ 
                             response.send(chatData);

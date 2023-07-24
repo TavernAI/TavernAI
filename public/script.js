@@ -10,6 +10,7 @@ import {CharacterView} from "./class/CharacterView.mjs";
 import {RoomModel} from "./class/RoomModel.mjs";
 import {StoryModule} from "./class/Story.js";
 import {SystemPromptModule} from "./class/SystemPrompt.js";
+import {TavernDate} from "./class/TavernDate.js";
 import {Tavern} from "./class/Tavern.js";
 var token;
 var data_delete_chat = {};
@@ -5462,17 +5463,23 @@ $(document).ready(function(){
                 data = dataArr.sort((a, b) => a['file_name'].localeCompare(b['file_name']));
                 data = data.reverse();
                 for (const key in data) {
-                    let strlen = 40;
+                    let strlen = 340;
                     let mes = data[key]['mes'];
                     if(mes.length > strlen){
                         mes = '...'+mes.substring(mes.length - strlen);
                     }
-                    let delete_chat_div = `<div class="chat_delete"><a href="#">Delete</a></div>`;
+
+                    mes+=` <span style="opacity:0.3">(${TavernDate(data[key]['mes_send_date'])})</span>`;
+                    let delete_chat_div = `<div class="chat_delete" style="width: 80px;"><a href="#">Delete</a></div>`;
                     if(Number(Characters.id[Characters.selectedID].chat) === Number(data[key]['file_name'].split(".")[0])){
                         delete_chat_div = '';
                     }
-
-                    $('#select_chat_div').append('<div class="select_chat_block" file_name="'+data[key]['file_name']+'"><div class=avatar><img src="characters/'+Characters.id[Characters.selectedID].filename+'"></div><div class="select_chat_block_filename">'+data[key]['file_name']+'</div><div class="select_chat_block_mes">'+vl(mes)+'</div><div class="chat_export"><a href="#">Export</a></div>'+delete_chat_div+'</div>');
+                    let this_chat_name = data[key]['file_name'];
+                    if(this_chat_name.split(".")[0] == Characters.id[Characters.selectedID].chat){
+                        this_chat_name = `<u>${this_chat_name}</u>`;
+                    }
+                    //$('#select_chat_div').append(`<div class="select_chat_block" file_name="`+data[key]['file_name']+`"><div class=avatar><img src="characters/`+Characters.id[Characters.selectedID].filename+`"></div><div class="select_chat_block_filename"><div class="select_chat_block_filename_text">`+this_chat_name+`</div> <div style="display: inline-block" class="chat_name"><a href="#">Change Name</a></div></div><div class="select_chat_block_mes">`+vl(mes)+`</div><div class="chat_export"><a href="#">Export</a></div><div>`+delete_chat_div+`</div></div><hr>`);
+                    $('#select_chat_div').append(`<div class="select_chat_block" file_name="`+data[key]['file_name']+`"><div class=avatar><img src="characters/`+Characters.id[Characters.selectedID].filename+`"></div><div class="select_chat_block_filename"><div class="select_chat_block_filename_text">`+this_chat_name+`</div></div><div class="select_chat_block_mes">`+vl(mes)+`</div><div class="chat_export"><a href="#">Export</a></div><div>`+delete_chat_div+`</div></div><hr>`);
                     if(Characters.id[Characters.selectedID]['chat'] == data[key]['file_name'].replace('.jsonl', '')){
                         //children().last()
                         $('#select_chat_div').children(':nth-last-child(1)').attr('highlight', true);
@@ -5498,7 +5505,21 @@ $(document).ready(function(){
     $('#select_chat_popup').on('click', '.chat_export', function(e){
         e.stopPropagation();
         let chat_file = $(this).parent().attr('file_name');
-        console.log();
+        $.get(`../chats/${Characters.id[Characters.selectedID].filename.replace(`.${characterFormat}`, '')}/${chat_file}`, function (data) {
+            let blob = new Blob([data], {type: "application/json"});
+            let url = URL.createObjectURL(blob);
+            let $a = $("<a>").attr("href", url).attr("download", `${Characters.id[Characters.selectedID].name}_${chat_file}`);
+            $("body").append($a);
+            $a[0].click();
+            $a.remove();
+        });
+    });
+    $('#select_chat_popup').on('click', '.chat_name', function(e){
+        e.stopPropagation();
+        let chat_file = $(this).parent().attr('file_name');
+        let userInput = prompt("Please enter some text:");
+            alert("You entered: " + userInput);
+        return;
         $.get(`../chats/${Characters.id[Characters.selectedID].filename.replace(`.${characterFormat}`, '')}/${chat_file}`, function (data) {
             let blob = new Blob([data], {type: "application/json"});
             let url = URL.createObjectURL(blob);
@@ -7223,21 +7244,15 @@ $(document).ready(function(){
         $('#avatar-info-author').text(`Author: ${author}`);
         $('#avatar-info-filesize').text(`File Size: ${parseFloat(image_size).toFixed(1)}kb`);
         
-        let date = new Date(Number(character_data.create_date_online));
+        let this_date = Number(character_data.create_date_online);
         if(character_data.create_date_online === undefined){
-            date = new Date(Number(Date.now()));
+            this_date = Number(Date.now());
         }
         
 
-        const options = {
-            year: 'numeric',
-            month: 'numeric',
-            day: 'numeric',
-            hour: 'numeric',
-            minute: 'numeric'
-        };
+
         //console.log(`${month}/${day}/${year}, ${hours}:${minutes}:${seconds}`);
-        $('#avatar-info-creation-date').text(`Creation Date: ${date.toLocaleString(navigator.language, options).replace(',','')}`);
+        $('#avatar-info-creation-date').text(`Creation Date: ${TavernDate(this_date)}`);
     }
     function printCharacterPageLocalButtons(){
         $('.characloud_character_page_top_info').text('');
