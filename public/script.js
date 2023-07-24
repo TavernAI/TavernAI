@@ -263,6 +263,12 @@ $(document).ready(function(){
             });
     }
     SystemPrompt.on(SystemPromptModule.SAVE_SETTINGS, function (event) {
+
+        if(getIsRoom()){
+            settings.system_prompt_preset_room = SystemPrompt.selected_preset_name;
+        }else{
+            settings.system_prompt_preset_chat = SystemPrompt.selected_preset_name;
+        }
         saveSettings();
     });
     Characters.on(CharacterModel.EVENT_WIPE_CHAT, function() {
