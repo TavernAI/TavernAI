@@ -393,6 +393,34 @@ app.post("/savechat", jsonParser, function(request, response){
     });
     
 });
+app.post("/changechatname", jsonParser, function(request, response){
+    try {
+        let dir_name = String(request.body.character_filename).replace(`.${characterFormat}`,'');
+        let filePath = chatsPath+dir_name+"/"+request.body.chat_filename+'.jsonl';
+
+        //read
+        let fileContents = fs.readFileSync(filePath, 'utf8');
+        let lines = fileContents.split('\n');
+
+        let firstLine = JSON.parse(lines[0]);
+        firstLine.chat_name = request.body.chat_name;  
+        lines[0] = JSON.stringify(firstLine);
+
+        // Join updated lines 
+        fileContents = lines.join('\n');
+        //write
+        //let chat_data = request.body.chat;
+        //let jsonlData = chat_data.map(JSON.stringify).join('\n');
+        fs.writeFileSync(filePath, fileContents);
+
+        // Send response
+        response.send({result: "ok"});
+    }catch(err){
+        console.log(err);
+        return response.status(400).send(err);
+    }
+    
+});
 app.post("/getchat", jsonParser, function(request, response){
     //console.log(request.data);
     //console.log(request.body.bg);
@@ -1993,21 +2021,33 @@ app.post("/getallchatsofchatacter", jsonParser, function(request, response){
                 input: fileStream,
                 crlfDelay: Infinity
             });
-
+            let firstLine; 
             let lastLine;
 
             rl.on('line', (line) => {
+                if (!firstLine) {
+                    firstLine = line;
+                }
                 lastLine = line;
             });
 
             rl.on('close', () => {
                 if(lastLine){
-                    let jsonData = json5.parse(lastLine);
-                    if(jsonData.name !== undefined){
+                    let firstLineData;
+                    let chat_name;
+                    if(firstLine){
+                        firstLineData = json5.parse(firstLine);
+                        if(firstLineData['chat_name']){
+                            chat_name = firstLineData['chat_name'];
+                        }
+                    }
+                    let lastLineData = json5.parse(lastLine);
+                    if(lastLineData.name !== undefined){
                         chatData[i] = {};
                         chatData[i]['file_name'] = file;
-                        chatData[i]['mes'] = jsonData['mes'];
-                        chatData[i]['mes_send_date'] = jsonData['send_date'];
+                        if(chat_name) chatData[i]['chat_name'] = chat_name;
+                        chatData[i]['mes'] = lastLineData['mes'];
+                        chatData[i]['mes_send_date'] = lastLineData['send_date'];
                         ii--;
                         if(ii === 0){ 
                             response.send(chatData);

@@ -2976,7 +2976,7 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
     background-position-x: 1em;
     background-position-y: 1ex;
 }
-.folder .delete:hover, .folder .rename:hover {
+.folder .delete:hover, .folder .rename:hover, .select_chat_block .rename:hover {
     opacity: 1;
 }
 .folder .delete {
@@ -2989,7 +2989,21 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
     background-position-x: 1em;
     background-image: url("../img/quill.png");
 }
-
+.select_chat_block .rename {
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin: 0;
+    background-image: url("../img/quill.png");
+    width: 2.5em;
+    height: 2.5em;
+    background-size: 1.25em;
+    background-repeat: no-repeat;
+    cursor: pointer;
+    opacity: 0.3;
+    background-position-x: 0.25em;
+    background-position-y: 0.5ex;
+}
 
 /* Right nav */
 

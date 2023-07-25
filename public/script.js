@@ -36,7 +36,7 @@ export var style_anchor = true;
 export var character_anchor = true;
 export const gap_holder = 120;
 export var online_status = 'no_connection';
-
+var chat_name;
 const VERSION = '1.5.0';
 /*
 var chloeMes = {
@@ -2474,7 +2474,9 @@ $(document).ready(function(){
             }
         });
         var save_chat = [{user_name:default_user_name, character_name:name2,create_date: chat_create_date, notes: winNotes.text, notes_type: winNotes.strategy, mode: Tavern.mode}, ...chat];
-
+        if(chat_name !== undefined){
+            save_chat[0].chat_name = chat_name;
+        }
 
         jQuery.ajax({    
             type: 'POST', 
@@ -2526,6 +2528,7 @@ $(document).ready(function(){
                     Tavern.mode = chat[0].mode || 'chat';
                     Story.showHide();
                     chat_create_date = chat[0]['create_date'];
+                    chat_name = chat[0]['chat_name'];
                     winNotes.text = chat[0].notes || "";
                     winNotes.strategy = chat[0].notes_type || "discr";
                     if(!winNotes.text || !winNotes.text.length) {
@@ -5474,12 +5477,9 @@ $(document).ready(function(){
                     if(Number(Characters.id[Characters.selectedID].chat) === Number(data[key]['file_name'].split(".")[0])){
                         delete_chat_div = '';
                     }
-                    let this_chat_name = data[key]['file_name'];
-                    if(this_chat_name.split(".")[0] == Characters.id[Characters.selectedID].chat){
-                        this_chat_name = `<u>${this_chat_name}</u>`;
-                    }
-                    //$('#select_chat_div').append(`<div class="select_chat_block" file_name="`+data[key]['file_name']+`"><div class=avatar><img src="characters/`+Characters.id[Characters.selectedID].filename+`"></div><div class="select_chat_block_filename"><div class="select_chat_block_filename_text">`+this_chat_name+`</div> <div style="display: inline-block" class="chat_name"><a href="#">Change Name</a></div></div><div class="select_chat_block_mes">`+vl(mes)+`</div><div class="chat_export"><a href="#">Export</a></div><div>`+delete_chat_div+`</div></div><hr>`);
-                    $('#select_chat_div').append(`<div class="select_chat_block" file_name="`+data[key]['file_name']+`"><div class=avatar><img src="characters/`+Characters.id[Characters.selectedID].filename+`"></div><div class="select_chat_block_filename"><div class="select_chat_block_filename_text">`+this_chat_name+`</div></div><div class="select_chat_block_mes">`+vl(mes)+`</div><div class="chat_export"><a href="#">Export</a></div><div>`+delete_chat_div+`</div></div><hr>`);
+                    let this_chat_name = getChatNameHtml(data[key]['file_name'], data[key]['chat_name']);
+                    
+                    $('#select_chat_div').append(`<div class="select_chat_block" file_name="`+data[key]['file_name']+`"><div class=avatar><img src="characters/`+Characters.id[Characters.selectedID].filename+`"></div><div class="select_chat_block_filename"><div class="select_chat_block_filename_text">`+this_chat_name+`</div> <button class="rename" title="Change name"></button></div><div class="select_chat_block_mes">`+vl(mes)+`</div><div class="chat_export"><a href="#">Export</a></div><div>`+delete_chat_div+`</div></div><hr>`);
                     if(Characters.id[Characters.selectedID]['chat'] == data[key]['file_name'].replace('.jsonl', '')){
                         //children().last()
                         $('#select_chat_div').children(':nth-last-child(1)').attr('highlight', true);
@@ -5514,24 +5514,74 @@ $(document).ready(function(){
             $a.remove();
         });
     });
-    $('#select_chat_popup').on('click', '.chat_name', function(e){
+    $('#select_chat_popup').on('click', '.rename', function(e){
         e.stopPropagation();
-        let chat_file = $(this).parent().attr('file_name');
-        let userInput = prompt("Please enter some text:");
-            alert("You entered: " + userInput);
-        return;
-        $.get(`../chats/${Characters.id[Characters.selectedID].filename.replace(`.${characterFormat}`, '')}/${chat_file}`, function (data) {
-            let blob = new Blob([data], {type: "application/json"});
-            let url = URL.createObjectURL(blob);
-            let $a = $("<a>").attr("href", url).attr("download", `${Characters.id[Characters.selectedID].name}_${chat_file}`);
-            $("body").append($a);
-            $a[0].click();
-            $a.remove();
-        });
+        
+        let chat_file = $(this).parent().parent().attr('file_name');
+        let old_name_prompt;
+        if(chat_file != $(this).parent().children('.select_chat_block_filename_text').text()){
+            old_name_prompt = $.trim($(this).parent().children('.select_chat_block_filename_text').html().split("<span")[0].replace('<u>', '').replace('</u>', ''));
+        }
+        let this_chat_name = prompt("Please enter the chat name:", old_name_prompt);
+        if(this_chat_name === null) {
+            // User clicked cancel 
+        } else if (this_chat_name === '') {
+            // User entered empty text
+            chat_name = undefined;
+            setChatName(chat_file);
+        } else {
+            // User entered non-empty text
+            chat_name = this_chat_name;
+            setChatName(chat_file);
+        }
+
     });
+    function setChatName(chat_file){
+
+        jQuery.ajax({    
+            type: 'POST', 
+            url: '/changechatname', 
+            data: JSON.stringify({character_filename: Characters.id[Characters.selectedID].filename, chat_filename: chat_file.split(".")[0], chat_name: chat_name}),
+            beforeSend: function(){
+                //$('#create_button').attr('value','Creating...'); 
+            },
+            cache: false,
+            timeout: requestTimeout,
+            dataType: "json",
+            contentType: "application/json",
+            success: function(data){
+                let $chatBlock = $(`.select_chat_block[file_name="${chat_file}"]`);
+                if ($chatBlock.length) {
+                    $chatBlock.find('.select_chat_block_filename_text').html(getChatNameHtml(chat_file, chat_name));
+                }
+            },
+            error: function (jqXHR, exception) {
+
+                console.log(exception);
+                console.log(jqXHR);
+                callPopup(exception, 'alert_error');
+            }
+        });
+    }
+    function getChatNameHtml(chat_file, chat_name){
+        let this_chat_name;
+        if (chat_name != undefined) {
+            this_chat_name = chat_name;
+        }else{
+            this_chat_name = chat_file;
+        }
+        if (chat_file.split(".")[0] == Characters.id[Characters.selectedID].chat) {
+            this_chat_name = `<u>${this_chat_name}</u>`;
+        }
+        if (chat_name != undefined) {
+            this_chat_name = `${this_chat_name} <span style="font-size:0.8em;opacity:0.3">(${chat_file})</span>`;
+        }
+        
+        return vl(this_chat_name);
+    }
     $('#select_chat_popup').on('click', '.chat_delete', function(e){
         e.stopPropagation();
-        let $patent = $(this).parent()
+        let $patent = $(this).parent();
         let chat_file = $(this).parent().attr('file_name');
         data_delete_chat = {
             chat_file:chat_file,
