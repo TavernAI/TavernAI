@@ -2231,7 +2231,7 @@ label.checkbox :checked + span:after {
     margin-bottom: 16px;
 }
 #jailbreak_prompt_textarea {
-    height: 100px;
+    height: 140px;
 }
 #user_jailbreak_prompt_textarea {
     height: 60px;
@@ -2754,7 +2754,7 @@ label.wpp_label {
     cursor:pointer;
     display: grid;
     grid-template-columns: 60px auto;
-    grid-template-rows: 26px auto;
+    grid-template-rows: auto auto;
 }
 .select_chat_block:hover {
     background-color: #ffffff07;

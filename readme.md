@@ -24,7 +24,7 @@ Examples of interface and output:
 * Horde Support
 * NovelAI support
 * OpenAI Support
-* Reverse Proxy server support
+* Reverse Proxy support
 
 
 ## How to install

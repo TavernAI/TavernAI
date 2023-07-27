@@ -1656,7 +1656,7 @@ $(document).ready(function(){
             }
 
 
-            if(main_api === 'openai' || main_api === 'proxy' && isChatModel()){
+            if(main_api === 'openai' || main_api === 'proxy' && isChatModel() && SystemPrompt.system_depth <= SystemPrompt.system_depth_max){
                 let sp_string = "";
                 sp_string = SystemPrompt.system_prompt.replace(/{{user}}/gi, name1) //System prompt
                                 .replace(/{{char}}/gi, name2)
@@ -1741,6 +1741,7 @@ $(document).ready(function(){
                                     .replace(/<USER>/gi, name1)
                                     .replace(/<BOT>/gi, name2);
                         }
+                        /*
                         if (SystemPrompt.jailbreak_prompt.length > 0) {
                             //arrMes.splice(-1, 0, jailbreak_prompt);
                             
@@ -1749,6 +1750,7 @@ $(document).ready(function(){
                                     .replace(/<USER>/gi, name1)
                                     .replace(/<BOT>/gi, name2));
                         }
+                        */
 
                     }
 
@@ -1837,16 +1839,68 @@ $(document).ready(function(){
                             count_exm_add--;
                             checkPromtSize();
                         }else if(mesSend.length > 0){
-                            mesSend.shift();
+                            removeMessage();
                             checkPromtSize();
                         }else{
                             //end
                         }
                     }
                 }
+                function removeMessage(){
+                    if (this_system_depth === undefined && this_jailbreak_depth === undefined) {
+                        mesSend.shift();
+                    } else {
+                        if(this_system_depth === 0 || this_jailbreak_depth === 0){
+                            if(this_system_depth === 1 || this_jailbreak_depth === 1){
+                                mesSend.splice(2, 1);
+                            }else{
+                                mesSend.splice(1, 1);
+                                if(this_system_depth === 0 && this_jailbreak_depth !== undefined) this_jailbreak_depth--;
+                                if(this_jailbreak_depth === 0 && this_system_depth !== undefined) this_system_depth--;
+                            }
+                        }else{
+                            mesSend.shift();
+                        }
+                    }
 
+                    
+                }
+                
+                
+                //Add System Prompt and Jailbreak with depth
+                
+                let this_system_depth;
+                let this_jailbreak_depth;
+                
+                if ((main_api === 'openai' || main_api === 'proxy') && isChatModel()) {
+                    this_system_depth = mesSend.length - SystemPrompt.system_depth; // for reverse array of messages
+                    if (this_system_depth < 0 || SystemPrompt.system_depth > SystemPrompt.system_depth_max)
+                        this_system_depth = 0;
+                    console.log(SystemPrompt.jailbreak_depth);
+                    this_jailbreak_depth = mesSend.length - SystemPrompt.jailbreak_depth;
+                    if (SystemPrompt.jailbreak_depth > mesSend.length) 
+                        this_jailbreak_depth = 0;
+                    if (SystemPrompt.jailbreak_depth === 0)
+                        this_jailbreak_depth = mesSend.length; //
+                    
+                    if (SystemPrompt.system_prompt.length > 0 && SystemPrompt.system_depth <= SystemPrompt.system_depth_max) {
+                        mesSend.splice(this_system_depth, 0, SystemPrompt.system_prompt.replace(/{{user}}/gi, name1)
+                                    .replace(/{{char}}/gi, name2)
+                                    .replace(/<USER>/gi, name1)
+                                    .replace(/<BOT>/gi, name2));
+                    }
 
-
+                    if (SystemPrompt.jailbreak_prompt.length > 0) {
+                        mesSend.splice(this_jailbreak_depth, 0, SystemPrompt.jailbreak_prompt.replace(/{{user}}/gi, name1)
+                                    .replace(/{{char}}/gi, name2)
+                                    .replace(/<USER>/gi, name1)
+                                    .replace(/<BOT>/gi, name2));
+                        if (this_jailbreak_depth <= this_system_depth)
+                            this_system_depth++;
+                    }
+                }
+                //**
+                
                 if(generatedPromtCache.length > 0){
                     checkPromtSize();
                 }else{
@@ -1866,16 +1920,19 @@ $(document).ready(function(){
                     finalPromt = {};
                     finalPromt = [];
 
-
                     finalPromt[0] = {"role": "system", "content": storyString+mesExmString};
                     mesSend.forEach(function(item,i){
-                        if (SystemPrompt.jailbreak_prompt.length > 0 && i === mesSend.length-1) {
+                        if (SystemPrompt.system_prompt.length > 0 && this_system_depth === i  && SystemPrompt.system_depth <= SystemPrompt.system_depth_max) {
                             finalPromt[i + 1] = {"role": "system", "content": item};
                         } else {
-                            if (item.indexOf(name1 + ':') === 0) {
-                                finalPromt[i + 1] = {"role": "user", "content": item};
+                            if (SystemPrompt.jailbreak_prompt.length > 0 && this_jailbreak_depth === i) {
+                                finalPromt[i + 1] = {"role": "system", "content": item};
                             } else {
-                                finalPromt[i + 1] = {"role": "assistant", "content": item};
+                                if (item.indexOf(name1 + ':') === 0) {
+                                    finalPromt[i + 1] = {"role": "user", "content": item};
+                                } else {
+                                    finalPromt[i + 1] = {"role": "assistant", "content": item};
+                                }
                             }
                         }
 
@@ -3232,6 +3289,7 @@ $(document).ready(function(){
             winNotes.strategy = 'discr';
             Tavern.mode = 'chat';
             Story.showHide();
+            chat_name = undefined;
             clearChat();
             chat.length = 0;
             Characters.id[Characters.selectedID].chat = Date.now();
@@ -5582,7 +5640,7 @@ $(document).ready(function(){
     $('#select_chat_popup').on('click', '.chat_delete', function(e){
         e.stopPropagation();
         let $patent = $(this).parent();
-        let chat_file = $(this).parent().attr('file_name');
+        let chat_file = $(this).parent().parent().attr('file_name');
         data_delete_chat = {
             chat_file:chat_file,
             character_filename: Characters.id[Characters.selectedID].filename.replace(`.${characterFormat}`, '')

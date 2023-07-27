@@ -260,19 +260,34 @@
                         </div>
                     </div>
                     <div id="system_prompt">
-                        <div>
+                        <div style="display:grid;grid-template-columns: auto auto;position:relative;width:94%">
+                            <div>
                             <h4 class="h4_menu_title">System prompt</h4>
                             <h5 class="h5_menu_help">Defines how the model will behave (<a href="/notes/20" target="_blank">?</a>)</h5>
                             <select id="system_prompt_preset_selector" class="menu_select">
                             </select>
                             <input id="system_prompt_new_button" type="submit" value="New preset">
                             <input id="system_prompt_delete_button" type="submit" value="Delete">
+                            </div>
+                            <div style="position:absolute; bottom: -20px; right:0">
+                                <h5 id="system_depth_counter" class="range_counter">Depth</h5>
+                                <input style="margin-right: unset;" type="range" class="range_bar" id="system_depth_range" name="volume" min="0" max="34" step="1">
+                            </div>
                         </div>
+                        
                         <textarea id="system_prompt_textarea" placeholder=""></textarea>
+                        
+                        
                     </div>
-                    <div>
+                    <div style="display:grid;grid-template-columns: auto auto;position:relative;width:94%">
+                        <div>
                         <h4 class="h4_menu_title">Jailbreak</h4>
                         <h5 class="h5_menu_help">Jailbreak helps to circumvent censorship restrictions (<a href="/notes/23" target="_blank">?</a>)</h5>
+                        </div>
+                        <div style="position:absolute; bottom: -20px; right:0">
+                                <h5 id="jailbreak_depth_counter" class="range_counter">Depth 5</h5>
+                                <input style="margin-right: unset;" type="range" class="range_bar" id="jailbreak_depth_range" name="volume" min="0" max="34" step="1">
+                            </div>
                     </div>
                     <textarea id="jailbreak_prompt_textarea" placeholder=""></textarea>
                     <div>
