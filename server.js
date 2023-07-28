@@ -685,7 +685,7 @@ function charaFormatData(data){
     }else{
         short_description = data.short_description;
     }
-    let char = {public_id: checkCharaProp(data.public_id), public_id_short: checkCharaProp(data.public_id_short), user_name: checkCharaProp(data.user_name), user_name_view: checkCharaProp(data.user_name_view), name: name, description: checkCharaProp(data.description), short_description: checkCharaProp(short_description), personality: checkCharaProp(data.personality), first_mes: checkCharaProp(data.first_mes), chat: Date.now(), mes_example: checkCharaProp(data.mes_example), scenario: checkCharaProp(data.scenario), categories: categories, create_date_online: create_date_online, edit_date_online: edit_date_online, create_date_local: create_date_local, edit_date_local: edit_date_local, add_date_local: add_date_local, last_action_date: last_action_date, online: data.online, nsfw: data.nsfw};
+    let char = {public_id: checkCharaProp(data.public_id), public_id_short: checkCharaProp(data.public_id_short), user_name: checkCharaProp(data.user_name), user_name_view: checkCharaProp(data.user_name_view), name: name, description: checkCharaProp(data.description), short_description: checkCharaProp(short_description), personality: checkCharaProp(data.personality), first_mes: checkCharaProp(data.first_mes), chat: Date.now(), mes_example: checkCharaProp(data.mes_example), scenario: checkCharaProp(data.scenario), categories: categories, create_date_online: create_date_online, edit_date_online: edit_date_online, create_date_local: create_date_local, edit_date_local: edit_date_local, add_date_local: add_date_local, last_action_date: last_action_date, online: data.online, nsfw: data.nsfw, spec: "tavern_ai", spec_version: "1.0"};
     // Filtration
     if(data.public_id === undefined){ 
         char.public_id = uuid.v4().replace(/-/g, '');
@@ -2113,6 +2113,7 @@ app.post("/importcharacter", urlencodedParser, async function(request, response)
                 try{
                     var img_data = await charaRead('./uploads/'+filedata.filename, format);
                     let jsonData = json5.parse(img_data);
+                    if(jsonData.spec === "chara_card_v2") jsonData = parseV2CharacterCard(jsonData);
                     img_name = setCardName(jsonData.name);
                     if(checkCharaProp(img_name).length > 0){
                         let char = charaFormatData(jsonData);
@@ -2132,7 +2133,17 @@ app.post("/importcharacter", urlencodedParser, async function(request, response)
             }
         }
 });
-
+function parseV2CharacterCard(jsonData){
+    return {
+        name: jsonData.data.name, 
+        description: jsonData.data.description, 
+        personality: jsonData.data.personality,
+        first_mes: jsonData.data.first_mes,
+        mes_example: jsonData.data.mes_example,
+        scenario: jsonData.data.scenario
+    };
+    
+}
 app.post("/importchat", urlencodedParser, function(request, response){
     if(!request.body) return response.sendStatus(400);
         var format = request.body.file_type;
