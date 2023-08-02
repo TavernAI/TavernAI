@@ -7,7 +7,7 @@ export class StoryModule extends EventEmitter {
     static SAVE_CHAT = "save_chat";
     static CONVERT_CHAT = "convert_chat";
     static UPDATE_HORDE_STATUS = "update_horde_status";
-    static CONVERT_ALERT = "convert_alert";
+    static ALERT = "alert";
     constructor() {
         super();
         //this.is_online = false;
@@ -15,7 +15,7 @@ export class StoryModule extends EventEmitter {
         $('#chat_story_button').click(function(){
             if (Main.Characters.selectedID !== undefined) {
                 if (Main.chat.length > 1) {
-                    self.emit(StoryModule.CONVERT_ALERT, {});
+                    self.emit(StoryModule.ALERT, {type: 'convert_to_story'});
                 } else {
                     self.ConvertChatStory();
                 }
@@ -87,6 +87,7 @@ export class StoryModule extends EventEmitter {
         var this_max_context = 1487;
         if (Main.main_api == 'kobold') this_max_context = Main.max_context;
         if (Main.main_api == 'horde') this_max_context = Main.max_context;
+        if (Main.main_api == 'webui') this_max_context = Main.max_context_webui;
         if (Main.main_api == 'novel') {
             if (Main.novel_tier === 1) {
                 this_max_context = 1024;
@@ -119,7 +120,7 @@ export class StoryModule extends EventEmitter {
                 memory += Main.Characters.id[Main.Characters.selectedID].description+'\n';
             }
         }
-        let thisTokensCount = Main.getTokenCount(memory+pre_prompt)+this_gap_holder;
+        let thisTokensCount = Main.Tokenizer(memory+pre_prompt)+this_gap_holder;
         while(thisTokensCount > this_max_context){
             let difference = thisTokensCount - this_max_context;
             pre_prompt = pre_prompt.substring(Math.floor(difference*2.5));
@@ -128,7 +129,7 @@ export class StoryModule extends EventEmitter {
                 break;
                 //need to add error handler for this
             }
-            thisTokensCount = Main.getTokenCount(memory+pre_prompt)+this_gap_holder;
+            thisTokensCount = Main.Tokenizer(memory+pre_prompt)+this_gap_holder;
         }
         if ((Main.main_api === 'openai' || Main.main_api === 'proxy') && Main.isChatModel()){
             prompt = [];
@@ -147,6 +148,9 @@ export class StoryModule extends EventEmitter {
         switch (Main.main_api) {
             case 'kobold':
                 this_amount_gen = parseInt(Main.amount_gen);
+                break;
+            case 'webui':
+                this_amount_gen = parseInt(Main.amount_gen_webui);
                 break;
             case 'novel':
                 this_amount_gen = parseInt(Main.amount_gen_novel);
@@ -188,6 +192,40 @@ export class StoryModule extends EventEmitter {
                     s7: this_settings.sampler_order[6]
                 };
             }
+        }
+        if (Main.main_api == 'webui') {
+            generate_data = {
+                prompt: prompt,
+                max_new_tokens: this_amount_gen,
+                preset: 'None',
+                do_sample: true,
+                temperature: parseFloat(Main.temp_webui),
+                top_p: parseFloat(Main.top_p_webui),
+                typical_p: parseFloat(Main.typical_webui),
+                epsilon_cutoff: 0,
+                eta_cutoff: 0,
+                tfs: parseFloat(Main.tfs_webui),
+                top_a: parseFloat(Main.top_a_webui),
+                repetition_penalty: parseFloat(Main.rep_pen_webui),
+                repetition_penalty_range: parseInt(Main.rep_pen_size_webui),
+                top_k: parseInt(Main.top_k_webui),
+                min_length: 0,
+                no_repeat_ngram_size: parseInt(Main.nrns_webui),
+                num_beams: 1,
+                penalty_alpha: 0,
+                length_penalty: 1,
+                early_stopping: false,
+                mirostat_mode: 0,
+                mirostat_tau: 5,
+                mirostat_eta: 0.1,
+
+                seed: -1,
+                add_bos_token: true,
+                truncation_length: parseInt(Main.max_context_webui),
+                ban_eos_token: false,
+                skip_special_tokens: true,
+                stopping_strings: []
+            };
         }
         if (Main.main_api == 'novel') {
             var this_settings = Main.novelai_settings[Main.novelai_setting_names[Main.preset_settings_novel]];
@@ -287,6 +325,9 @@ export class StoryModule extends EventEmitter {
         if (Main.main_api == 'kobold') {
             generate_url = '/generate';
         }
+        if (Main.main_api == 'webui') {
+            generate_url = '/generate_webui';
+        }
         if (Main.main_api == 'novel') {
             generate_url = '/generate_novelai';
         }
@@ -313,7 +354,6 @@ export class StoryModule extends EventEmitter {
             contentType: "application/json",
             success: self.generateCallback.bind(this),
             error: function (jqXHR, exception) {
-                console.error(jqXHR, exception);
 
                 $("#send_textarea").removeAttr('disabled');
                 Tavern.is_send_press = false;
@@ -321,7 +361,7 @@ export class StoryModule extends EventEmitter {
                 $( "#loading_mes" ).css("display", "none");
 
                 //callPopup(exception, 'alert_error');
-
+                self.emit(StoryModule.ALERT, {type: 'alert_error', error: exception});
                 console.log(exception);
                 console.log(jqXHR);
             }
@@ -331,7 +371,7 @@ export class StoryModule extends EventEmitter {
         const self = this;
         if (data.error != true) {
             var getPrompt = '';
-            if (Main.main_api == 'kobold') {
+            if (Main.main_api == 'kobold' || Main.main_api == 'webui') {
                 getPrompt = data.results[0].text;
             }
             if (Main.main_api == 'novel') {

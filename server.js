@@ -371,6 +371,122 @@ app.post("/generate", jsonParser, function(request, response_generate = response
         response_generate.send({error: true, error_message: "Unspecified error while sending the request.\n" + err});
     });
 });
+
+//**************WEBUI api
+app.post("/generate_webui", jsonParser, function(request, response_generate){
+    if(!request.body) return response_generate.sendStatus(400);
+    //console.log(request.body.prompt);
+    //const dataJson = json5.parse(request.body);
+    
+    //console.log(request.body);
+
+    let this_settings = {
+        prompt: request.body.prompt,
+        max_new_tokens: request.body.max_new_tokens,
+        preset: 'None',
+        do_sample: true,
+        temperature: request.body.temperature,
+        top_p: request.body.top_p,
+        typical_p: request.body.typical_p,
+        epsilon_cutoff: 0,
+        eta_cutoff: 0,
+        tfs: request.body.tfs,
+        top_a: request.body.top_a,
+        repetition_penalty: request.body.repetition_penalty,
+        repetition_penalty_range: request.body.repetition_penalty_range,
+        top_k: request.body.top_k,
+        min_length: 0,
+        no_repeat_ngram_size: request.body.no_repeat_ngram_size,
+        num_beams: 1,
+        penalty_alpha: 0,
+        length_penalty: 1,
+        early_stopping: false,
+        mirostat_mode: 0,
+        mirostat_tau: 5,
+        mirostat_eta: 0.1,
+
+        seed: -1,
+        add_bos_token: true,
+        truncation_length: request.body.truncation_length,
+        ban_eos_token: false,
+        skip_special_tokens: true,
+        stopping_strings: request.body.stopping_strings
+    };
+
+    console.log(this_settings);
+    var args = {
+        data: this_settings,
+        headers: { "Content-Type": "application/json" },
+        requestConfig: {
+            timeout: connectionTimeoutMS
+        }
+    };
+    client.post(api_server+"/v1/generate",args, function (data, response) {
+        if(response.statusCode == 200){
+            console.log(data);
+            response_generate.send(data);
+        }
+        if(response.statusCode == 422){
+            console.log('Validation error');
+            response_generate.send({error: true, error_message: "Validation error"});
+        }
+        if(response.statusCode == 501 || response.statusCode == 503 || response.statusCode == 507){
+            console.log(data);
+            if(data.detail && data.detail.msg) {
+                response_generate.send({error: true, error_message: data.detail.msg});
+            } else {
+                response_generate.send({error: true, error_message: "Error. Status code: " + response.statusCode});
+            }
+        }
+    }).on('error', function (err) {
+        console.log(err);
+	//console.log('something went wrong on the request', err.request.options);
+        response_generate.send({error: true, error_message: "Unspecified error while sending the request.\n" + err});
+    });
+});
+
+app.post("/tokenizer_webui", jsonParser, function(request, response_tokenizer){
+    if(!request.body) return response_generate.sendStatus(400);
+    //console.log(request.body.prompt);
+    //const dataJson = json5.parse(request.body);
+    
+    //console.log(request.body);
+
+    let this_data = {
+        prompt: request.body.prompt
+    };
+
+    var args = {
+        data: this_data,
+        headers: { "Content-Type": "application/json" },
+        requestConfig: {
+            timeout: connectionTimeoutMS
+        }
+    };
+    client.post(api_server+"/v1/token-count",args, function (data, response) {
+        if(response.statusCode == 200){
+            response_tokenizer.send(data);
+        }
+        if(response.statusCode == 422){
+            console.log('Validation error');
+            response_tokenizer.send({error: true, error_message: "Validation error"});
+        }
+        if(response.statusCode == 501 || response.statusCode == 503 || response.statusCode == 507){
+            console.log(data);
+            if(data.detail && data.detail.msg) {
+                response_tokenizer.send({error: true, error_message: data.detail.msg});
+            } else {
+                response_tokenizer.send({error: true, error_message: "Error. Status code: " + response.statusCode});
+            }
+        }
+    }).on('error', function (err) {
+        console.log(err);
+	//console.log('something went wrong on the request', err.request.options);
+        response_tokenizer.send({error: true, error_message: "Unspecified error while sending the request.\n" + err});
+    });
+});
+
+
 app.post("/savechat", jsonParser, function(request, response){
     //console.log(request.data);
     //console.log(request.body.bg);
@@ -565,6 +681,37 @@ app.post("/getchatroom", jsonParser, function(request, response){
 app.post("/getstatus", jsonParser, function(request, response_getstatus = response){
     if(!request.body) return response_getstatus.sendStatus(400);
     api_server = request.body.api_server;
+    if(api_server.indexOf('localhost') != -1){
+        api_server = api_server.replace('localhost','127.0.0.1');
+    }
+    var args = {
+        headers: { "Content-Type": "application/json" }
+    };
+    client.get(api_server+"/v1/model",args, function (data, response) {
+        if(response.statusCode == 200){
+            if(data.result != "ReadOnly"){
+                
+                //response_getstatus.send(data.result);
+            }else{
+                data.result = "no_connection";
+            }
+        }else{
+            data.result = "no_connection";
+        }
+        response_getstatus.send(data);
+        //console.log(response.statusCode);
+        //console.log(data);
+        //response_getstatus.send(data);
+        //data.results[0].text
+    }).on('error', function (err) {
+        //console.log('');
+	//console.log('something went wrong on the request', err.request.options);
+        response_getstatus.send({result: "no_connection"});
+    });
+});
+app.post("/getstatus_webui", jsonParser, function(request, response_getstatus){
+    if(!request.body) return response_getstatus.sendStatus(400);
+    api_server = request.body.api_server_webui;
     if(api_server.indexOf('localhost') != -1){
         api_server = api_server.replace('localhost','127.0.0.1');
     }
