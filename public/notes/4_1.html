@@ -1,0 +1,44 @@
+<html>
+    <head>
+        <title>WebUI Settings</title>
+        <link rel="stylesheet" href="/css/notes.css">
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <div id="main">
+            <div id="content">
+                <h2>WebUI Settings</h2>
+                <p>Standard WebUI settings files are used here. To add your own settings, simply add the file .settings in TavernAI\public\WebUI Settings
+                </p>
+                <h3>Temperature</h3>
+                <p>Value from 0.1 to 2.0. Lower value - the answers are more logical, but less creative. Higher value - the answers are more creative, but less logical.</p>
+                <h3>Repetition penalty</h3>
+                <p>Repetition penalty is responsible for the penalty of repeated words. If the character is fixated on something or repeats the same phrase, then increasing this parameter will fix it. It is not recommended to increase this parameter too much for the chat format, as it may break this format. The standard value for chat is approximately 1.0 - 1.05</p>
+                <h3>Repetition penalty range</h3>
+                <p>The range of influence of Repetition penalty in tokens.</p>
+                <h3>No Repeat Ngram Size</h3>
+                <p>If not set to 0, specifies the length of token sets that are completely blocked from repeating at all. Higher values = blocks larger phrases, lower values = blocks words or letters from repeating. Only 0 or high values are a good idea in most cases.</p>
+                <h3>Top P Sampling</h3>
+                <p>1 is disabled</p>
+                <p>Top P is a widely used text generation method that involves converting logits into probabilities using the softmax function. The technique keeps as many tokens as possible while adhering to two rules, which are based on the top-p value. A high top-p value is recommended for better creativity, as lower values limit the number of tokens kept. Setting the top-p value to 0 is equivalent to greedy search.</p>
+                <h3>Top K Sampling</h3>
+                <p>0 is disabled</p>
+                <p>Top K leaves the largest k logits unchanged while setting all the others to negative infinity. However, it has been found to be less effective than other sampling techniques and is often used as a permissive filter before implementing more advanced methods. It is recommended to use top-k sampling as the first sampler in the model to avoid nullifying the effects of more intelligent samplers.</p>
+                <h3>Top A Sampling</h3>
+                <p>0 is disabled</p>
+                <p>Top-a sampling is a relatively new sampling method designed for use with BlinkDL's RWKV language models. It involves converting logits into probabilities using the softmax function and setting the logits of tokens with a probability less than a certain value (the top-a value) to negative infinity. One of the highest probability tokens must always be kept, even if its probability is less than the top-a value. Top-a sampling reduces randomness when the model is confident about the next token, but has little effect on creativity.</p>
+                <h3>Typical Sampling</h3>
+                <p>1 is disabled</p>
+                <p>Typical Sampling aims to keep the information content of text consistent throughout generated text. It works by sorting tokens in ascending order of their absolute value of entropy and natural logarithm of probability, and keeping the minimum possible number of tokens that exceed a certain probability threshold. This method can strongly affect the content of the output but still maintains creativity even at extremely low settings.</p>
+                <h3>Tail Free Sampling</h3>
+                <p>1 is disabled</p>
+                <p>Tail Free Sampling aims to remove low probability tokens without compromising the creativity of the generated text. It does this by identifying a "tail" of undesirable tokens in the probability distribution and removing them based on a user-specified threshold. This method is designed to work well on longer pieces of text and can be used in conjunction with other sampling methods for further control over the generated output.</p>
+                <h3>Amount generation</h3>
+                <p>The maximum amount of tokens that a AI will generate to respond. One word is approximately 3-4 tokens. The larger the parameter value, the longer the generation time takes.</p>
+                <h3>Context size</h3>
+                <p>How much will the AI remember. Context size also affects the speed of generation.<br><br>
+            </div>
+        </div>
+    </body>
+</html>

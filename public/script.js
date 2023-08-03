@@ -1,5 +1,4 @@
 import {encode, decode} from "../scripts/gpt-2-3-tokenizer/mod.js";
-export var Tokenizer = new TokenizerModule();
 
 import {Notes} from "./class/Notes.mjs";
 import {WPP} from "./class/WPP.mjs";
@@ -9,6 +8,7 @@ import {CharacterView} from "./class/CharacterView.mjs";
 import {RoomModel} from "./class/RoomModel.mjs";
 import {StoryModule} from "./class/Story.js";
 import {TokenizerModule} from "./class/Tokenizer.js";
+export var Tokenizer = new TokenizerModule();
 import {SystemPromptModule} from "./class/SystemPrompt.js";
 import {TavernDate} from "./class/TavernDate.js";
 import {Tavern} from "./class/Tavern.js";
@@ -80,6 +80,9 @@ export var chat = [chloeMes];
     export var rep_pen_size = 100;
     export var rep_pen_slope = 0.9;
     //WEBUI
+    export var webui_settings;
+    export var webui_setting_names;
+    export var preset_settings_webui = 'Default';
     export var temp_webui = 0.5;
     export var top_p_webui = 1.0;
     export var top_k_webui = 0;
@@ -3960,6 +3963,49 @@ $(document).ready(function(){
         //$("#range_block").css('opacity',1.0);
         saveSettings();
     });
+    $( "#settings_perset_webui" ).change(function() {
+
+        preset_settings_webui = $('#settings_perset_webui').find(":selected").text();
+        temp_webui = webui_settings[webui_setting_names[preset_settings_webui]].temp;
+
+        top_p_webui = webui_settings[webui_setting_names[preset_settings_webui]].top_p;
+        top_k_webui = webui_settings[webui_setting_names[preset_settings_webui]].top_k;
+        top_a_webui = webui_settings[webui_setting_names[preset_settings_webui]].top_a;
+        typical_webui = webui_settings[webui_setting_names[preset_settings_webui]].typical_p;
+        tfs_webui = webui_settings[webui_setting_names[preset_settings_webui]].tfs;
+
+
+        rep_pen_webui = webui_settings[webui_setting_names[preset_settings_webui]].rep_pen;
+        nrns_webui = webui_settings[webui_setting_names[preset_settings_webui]].no_repeat_ngram_size;
+
+        $('#temp_webui').val(temp_webui);
+        $('#temp_counter_webui').html(temp_webui);
+
+        $('#top_p_webui').val(top_p_webui);
+        $('#top_p_counter_webui').html(top_p_webui);
+
+        $('#top_k_webui').val(top_k_webui);
+        $('#top_k_counter_webui').html(top_k_webui);
+
+        $('#top_a_webui').val(top_a_webui);
+        $('#top_a_counter_webui').html(top_a_webui);
+
+        $('#typical_webui').val(typical_webui);
+        $('#typical_counter_webui').html(typical_webui);
+
+        $('#tfs_webui').val(tfs_webui);
+        $('#tfs_counter_webui').html(tfs_webui);
+
+
+        $('#rep_pen_webui').val(rep_pen_webui);
+        $('#rep_pen_counter_webui').html(rep_pen_webui);
+
+        $('#nrns_webui').val(nrns_webui);
+        $('#nrns_counter_webui').html(nrns_webui);
+        
+        saveSettings();
+    });
+    
     $( "#main_api" ).change(function() {
         is_pygmalion = false;
         is_get_status = false;
@@ -4616,7 +4662,26 @@ $(document).ready(function(){
                         $('#model_openai_select option[value="'+model_proxy+'"]').attr('selected', 'true');
                     }
                     openAIChangeMaxContextForModels();
-                    
+                    //WEBUI
+
+                    webui_setting_names = data.webui_setting_names;
+                    webui_settings = data.webui_settings;
+                    webui_settings.forEach(function(item, i, arr) {
+
+                        webui_settings[i] = JSON.parse(item);
+                    });
+                    var arr_holder = {};
+                    $("#settings_perset_webui").empty();
+                    webui_setting_names.forEach(function(item, i, arr) {
+                        arr_holder[item] = i;
+                        $('#settings_perset_webui').append('<option value='+i+'>'+item+'</option>');
+
+                    });
+                    webui_setting_names = {};
+                    webui_setting_names = arr_holder;
+
+                    preset_settings_webui = settings.preset_settings_webui;
+                    $("#settings_perset_webui option[value="+webui_setting_names[preset_settings_webui]+"]").attr('selected', 'true');
                     //Novel
                     model_novel = settings.model_novel;
                     $('#model_novel_select option[value="'+model_novel+'"]').attr('selected', 'true');
@@ -4779,9 +4844,8 @@ $(document).ready(function(){
                     $('#rep_pen_counter_webui').html(rep_pen_webui+addZeros);
 
                     addZeros = "";
-                    if(isInt(nrns_webui)) addZeros = ".00";
                     $('#nrns_webui').val(nrns_webui);
-                    $('#nrns_counter_webui').html(nrns_webui+addZeros);
+                    $('#nrns_counter_webui').html(nrns_webui);
                     
                     $('#rep_pen_size_webui').val(rep_pen_size_webui);
                     $('#rep_pen_size_counter_webui').html(rep_pen_size_webui+" Tokens");
@@ -5099,6 +5163,7 @@ $(document).ready(function(){
                     api_server: api_server,
                     preset_settings: preset_settings,
                     preset_settings_novel: preset_settings_novel,
+                    preset_settings_webui: preset_settings_webui,
                     user_avatar: user_avatar,
                     temp: temp,
                     top_p: top_p,

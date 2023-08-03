@@ -1,4 +1,4 @@
-### TavernAI is a adventure atmospheric chat (KoboldAI, NovelAI, Pygmalion, OpenAI)
+### TavernAI is a adventure atmospheric chat (KoboldAI, NovelAI, Pygmalion, OpenAI,  Text-gen webUI)
 Examples of interface and output:
 <br><img src="readme/1.png" height="200" /><img src="readme/4.png" height="200" /><img src="readme/5.png" height="200" />
 
@@ -41,6 +41,7 @@ Examples of interface and output:
 * [Pygmalion](https://rentry.org/pygmalion-ai)
 * [chatGPT](https://chat.openai.com/)
 * [GPT-4](https://openai.com/research/gpt-4)
+* [Text-gen webUI] (https://github.com/oobabooga/text-generation-webui)
 
 ## Tips
 Use this button to edit the message<br><br>

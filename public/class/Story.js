@@ -67,7 +67,7 @@ export class StoryModule extends EventEmitter {
             return;
         }
     }
-    Generate(){
+    async Generate(){
         const self = this;
         if(!(Main.online_status != 'no_connection' && Main.Characters.selectedID != undefined)){
             Tavern.is_send_press = false;
@@ -120,7 +120,7 @@ export class StoryModule extends EventEmitter {
                 memory += Main.Characters.id[Main.Characters.selectedID].description+'\n';
             }
         }
-        let thisTokensCount = Main.Tokenizer(memory+pre_prompt)+this_gap_holder;
+        let thisTokensCount = await Main.Tokenizer.encode(memory+pre_prompt)+this_gap_holder;
         while(thisTokensCount > this_max_context){
             let difference = thisTokensCount - this_max_context;
             pre_prompt = pre_prompt.substring(Math.floor(difference*2.5));
@@ -129,7 +129,7 @@ export class StoryModule extends EventEmitter {
                 break;
                 //need to add error handler for this
             }
-            thisTokensCount = Main.Tokenizer(memory+pre_prompt)+this_gap_holder;
+            thisTokensCount = await Main.Tokenizer.encode(memory+pre_prompt)+this_gap_holder;
         }
         if ((Main.main_api === 'openai' || Main.main_api === 'proxy') && Main.isChatModel()){
             prompt = [];

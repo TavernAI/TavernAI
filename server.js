@@ -1573,6 +1573,8 @@ app.post('/getsettings', jsonParser, (request, response) => { //Wintermute's cod
     const koboldai_setting_names = [];
     const novelai_settings = [];
     const novelai_setting_names = [];
+    const webui_settings = [];
+    const webui_setting_names = [];
     let settings = fs.readFileSync('public/settings.json', 'utf8',  (err, data) => {
     if (err) return response.sendStatus(500);
 
@@ -1632,6 +1634,30 @@ app.post('/getsettings', jsonParser, (request, response) => { //Wintermute's cod
         novelai_setting_names.push(item.replace(/\.[^/.]+$/, ''));
     });
     
+    //WEBUI
+    const files3 = fs
+    .readdirSync('public/WebUI Settings')
+    .sort(
+      (a, b) =>
+        new Date(fs.statSync(`public/WebUI Settings/${b}`).mtime) -
+        new Date(fs.statSync(`public/WebUI Settings/${a}`).mtime)
+    );
+    
+    files3.forEach(item => {
+    const file3 = fs.readFileSync(
+        `public/WebUI Settings/${item}`,
+        'utf8',
+        (err, data) => {
+            if (err) return response.sendStatus(500);
+
+            return data;
+        }
+    );
+
+        webui_settings.push(file3);
+        webui_setting_names.push(item.replace(/\.[^/.]+$/, ''));
+    });
+    
     //Styles
     const templates = fs.readdirSync('public/templates')
         .filter(file => file.endsWith('.css'))
@@ -1646,7 +1672,9 @@ app.post('/getsettings', jsonParser, (request, response) => { //Wintermute's cod
         koboldai_settings,
         koboldai_setting_names,
         novelai_settings,
-        novelai_setting_names
+        novelai_setting_names,
+        webui_settings,
+        webui_setting_names
     });
 });
 
