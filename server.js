@@ -2668,7 +2668,13 @@ app.listen(server_port, listenIp, function() {
     initializationCards();
     clearUploads();
     initCardeditor();
-    if(autorun) open('http:127.0.0.1:'+server_port);
+    
+    const autorunUrl = new URL(
+            ('http://') +
+            ('127.0.0.1') +
+            (':' + server_port)
+            );
+    if(autorun) open(autorunUrl.toString());
     console.log('TavernAI started: http://127.0.0.1:'+server_port);
     
 });
