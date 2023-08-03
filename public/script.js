@@ -38,7 +38,7 @@ export var character_anchor = true;
 export const gap_holder = 120;
 export var online_status = 'no_connection';
 var chat_name;
-const VERSION = '1.5.0';
+const VERSION = '1.5.1';
 /*
 var chloeMes = {
         name: 'Chloe',
