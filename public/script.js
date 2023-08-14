@@ -6165,6 +6165,9 @@ $(document).ready(function(){
                 case 'gpt-3.5-turbo-16k':
                     this_openai_max_context = 16384;
                     break;
+                case 'gpt-3.5-turbo-16k-0613':
+                    this_openai_max_context = 16384;
+                    break;
                 case 'code-davinci-002':
                     this_openai_max_context = 8000;
                     break;
@@ -6213,6 +6216,20 @@ $(document).ready(function(){
                 max_context = number;
                 $('#max_context').val(max_context);
                 $('#max_context_counter').html(max_context+' Tokens');
+                saveSettings();
+            } else {
+                alert("Invalid input. Please enter a valid number.");
+            }
+        }
+    });
+    $('#webui_set_context_size_button').click(function(){
+        let number = prompt("Please enter a context size:");
+        if (number !== null) {
+            number = parseFloat(number);
+            if (!isNaN(number)) {
+                max_context_webui = number;
+                $('#max_context_webui').val(max_context_webui);
+                $('#max_context_counter_webui').html(max_context_webui+' Tokens');
                 saveSettings();
             } else {
                 alert("Invalid input. Please enter a valid number.");
