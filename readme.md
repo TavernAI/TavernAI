@@ -35,13 +35,13 @@ Examples of interface and output:
 1. Download [TavernAI](https://github.com/TavernAI/TavernAI/archive/refs/heads/main.zip)
 2. Install [Node.js v19.1.0](https://nodejs.org/download/release/v19.1.0/)
 3. Run Start.bat (or use command: *npm install*, *node server.js*)
-## AI Models
+## AI Models and AI Engines
 * [KoboldAI](https://github.com/KoboldAI/KoboldAI-Client)
 * [NovelAI](https://novelai.net/)
 * [Pygmalion](https://rentry.org/pygmalion-ai)
 * [chatGPT](https://chat.openai.com/)
 * [GPT-4](https://openai.com/research/gpt-4)
-* [Text-gen webUI] (https://github.com/oobabooga/text-generation-webui)
+* [Text-gen webUI](https://github.com/oobabooga/text-generation-webui)
 
 ## Tips
 Use this button to edit the message<br><br>
