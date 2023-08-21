@@ -1982,7 +1982,6 @@ $(document).ready(function(){
                     this_system_depth = mesSend.length - SystemPrompt.system_depth; // for reverse array of messages
                     if (this_system_depth < 0 || SystemPrompt.system_depth > SystemPrompt.system_depth_max)
                         this_system_depth = 0;
-                    console.log(SystemPrompt.jailbreak_depth);
                     this_jailbreak_depth = mesSend.length - SystemPrompt.jailbreak_depth;
                     if (SystemPrompt.jailbreak_depth > mesSend.length) 
                         this_jailbreak_depth = 0;
@@ -1997,7 +1996,7 @@ $(document).ready(function(){
                     }
 
                     if (SystemPrompt.jailbreak_prompt.length > 0) {
-                        mesSend.splice(this_jailbreak_depth, 0, SystemPrompt.jailbreak_prompt.replace(/{{user}}/gi, name1)
+                        mesSend.splice(this_jailbreak_depth+1, 0, SystemPrompt.jailbreak_prompt.replace(/{{user}}/gi, name1)
                                     .replace(/{{char}}/gi, name2)
                                     .replace(/<USER>/gi, name1)
                                     .replace(/<BOT>/gi, name2));
