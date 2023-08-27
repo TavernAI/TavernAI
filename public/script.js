@@ -2819,11 +2819,12 @@ $(document).ready(function(){
         $("#room_character_selected_items").empty();
         let characterNameList = [];
         Characters.id.forEach(function(character, i) {
+
             if(!characterNameList.includes(character.name))
                 $("#room_character_select_items")
                     .append('<div class="avatar" title="'+character.name+'" ch_name="'+character.name+'" style="position: relative;">'+
                     '<img src="characters/'+character.filename+'"><img src="../img/cross.png" class="ch_select_cross">' +
-                    '<input type="hidden" name="room_characters" value="'+character.name+'" disabled>'+
+                    '<input type="hidden" name="room_characters" value="'+character.filename.replace(`.${characterFormat}`, '')+'" disabled>'+
                     '</div>');
             characterNameList.push(character.name);
         });
