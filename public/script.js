@@ -38,6 +38,7 @@ export var character_anchor = true;
 export const gap_holder = 120;
 export var online_status = 'no_connection';
 var chat_name;
+var this_mes_ch_filename = '';
 const VERSION = '1.5.1';
 /*
 var chloeMes = {
@@ -1347,6 +1348,7 @@ $(document).ready(function(){
             if(Characters.selectedID === undefined) {
                 avatarImg = "img/chloe_summer.png";
             } else {
+                
                 //mes.chid = mes.chid || parseInt(Characters.selectedID);
                 if(!is_room)
                 {
@@ -1355,12 +1357,11 @@ $(document).ready(function(){
                 }
                 else
                 {
-                    if(mes.chid === undefined)
-                        mes.chid = parseInt(Characters.selectedID);
-                    if(Characters.id[mes.chid] !== undefined)
-                        avatarImg = Characters.id[mes.chid].filename == 'none' ? "img/fluffy.png" : "characters/"+Characters.id[mes.chid].filename + "?v=" + Date.now();
-                    else
-                        avatarImg = undefined;
+
+
+                    mes.chid = parseInt(Characters.selectedID);
+                    avatarImg = Characters.id[mes.chid].filename == 'none' ? "img/fluffy.png" : "characters/"+mes.filename + "?v=" + Date.now();
+
                 }
             }
         } else {
@@ -1390,7 +1391,7 @@ $(document).ready(function(){
         messageText = messageFormating(messageText, characterName);
         let container = null;
         if(type !== 'swipe'){
-                container = $('<div class="mes" mesid='+count_view_mes+' ch_name="'+vl(characterName)+'" is_user="'+mes['is_user']+'"></div>')
+                container = $('<div class="mes" mesid='+count_view_mes+' ch_name="'+vl(characterName)+'" ch_filename="'+mes.filename+'" is_user="'+mes['is_user']+'"></div>')
                 container.append('<div class="for_checkbox"></div><input type="checkbox" class="del_checkbox">');       // delete checkbox
                 container.append('<div class="avatar"><img class="avt_img" src="'+avatarImg+'"></div>');                                // avatar
 
@@ -1781,13 +1782,17 @@ $(document).ready(function(){
                     chat[j]['mes'] = chat[j]['mes'].replace(/<BOT>/gi, name2);
                 }
                 let this_mes_ch_name = '';
+                this_mes_ch_filename = '';
                 if(chat[j]['is_user']){
                     this_mes_ch_name = name1;
                 }else{
-                    if(!is_room)
+                    if(!is_room){
                         this_mes_ch_name = name2;
-                    else
+                        this_mes_ch_filename = Characters.id[Characters.selectedID].filename;
+                    }else{
                         this_mes_ch_name = Characters.id[chat[j]['chid']].name;
+                        this_mes_ch_filename = Characters.id[chat[j]['chid']].filename;
+                    }
                 }
                 if(chat[j]['is_name']){
                     chat2[i] = this_mes_ch_name+': '+chat[j]['mes']+'\n';
@@ -2453,6 +2458,7 @@ $(document).ready(function(){
                 }else{
                     chat[chat.length] = {}; //adds one mes in array but then increases length by 1
                     chat[chat.length-1]['name'] = name2;
+                    chat[chat.length-1]['name'] = this_mes_ch_filename;
                     chat[chat.length-1]['is_user'] = false;
                     chat[chat.length-1]['is_name'] = this_mes_is_name;
                     chat[chat.length-1]['send_date'] = Date.now();
@@ -2776,6 +2782,7 @@ $(document).ready(function(){
                 let first = Characters.id[Characters.selectedID].first_mes;
                 chat[0] = {
                     name: name2,
+                    filename: Characters.id[Characters.selectedID].filename,
                     is_user: false,
                     is_name: true,
                     send_date: Date.now(),
@@ -2787,6 +2794,7 @@ $(document).ready(function(){
                     let first = Characters.id[curId].first_mes;
                     chat[i] = {
                         name: Characters.id[curId].name,
+                        filename: Characters.id[curId].filename,
                         is_user: false,
                         is_name: true,
                         send_date: Date.now(),
