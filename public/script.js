@@ -39,7 +39,7 @@ export const gap_holder = 120;
 export var online_status = 'no_connection';
 var chat_name;
 const VERSION = '1.5.1';
-/*
+
 var chloeMes = {
         name: 'Chloe',
         is_user: false,
@@ -47,10 +47,10 @@ var chloeMes = {
         create_date: 0,
         mes: '*You went inside. The air smelled of fried meat, tobacco and a hint of wine. A dim light was cast by candles, and a fire crackled in the fireplace. It seems to be a very pleasant place. Behind the wooden bar is an elf waitress, she is smiling. Her ears are very pointy, and there is a twinkle in her eye. She wears glasses and a white apron. As soon as she noticed you, she immediately came right up close to you.*\n\n' +
             ' Hello there! How is your evening going?' +
-            '<div id="characloud_img"><img src="img/tavern.png" id="chloe_star_dust_city"></div>\n<a id="verson" href="https://github.com/TavernAI/TavernAI" target="_blank">@@@TavernAI v'+VERSION+'@@@</a><a href="https://boosty.to/tavernai" target="_blank"><div id="characloud_url"><img src="img/cloud_logo.png"><div id="characloud_title">Support</div></div></a><br><br><br><br>',
+            '<div id="characloud_img"><img src="img/tavern.png" id="chloe_star_dust_city"></div>\n<a id="verson" href="https://github.com/TavernAI/TavernAI" target="_blank">@@@TavernAI v'+VERSION+'@@@</a><a href="https://boosty.to/tavernai" target="_blank"><div id="characloud_url"><img src="img/heart.png" style="width:18px; heigth:18px; margin-right:2px;"><div id="characloud_title">Support</div></div></a><br><br><br><br>',
         chid: -2
     };
-*/
+/*
 var chloeMes = {
         name: 'Chloe',
         is_user: false,
@@ -58,9 +58,10 @@ var chloeMes = {
         create_date: 0,
         mes: '*You went outside. The air smelled of saltwater, rum and barbecue. A bright sun shone down from the clear blue sky, glinting off the ocean waves. It seems to be a lively place. Behind the wooden counter of the open-air bar is an elf barmaid grinning cheekily. Her ears are very pointy, and there is a twinkle in her eye. She wears glasses and a white apron. She noticed you right away.*\n\n' +
             ' Hi! How is your day going?' +
-            '<div id="characloud_img"><img src="img/tavern.png" id="chloe_star_dust_city"></div>\n<a id="verson" href="https://github.com/TavernAI/TavernAI" target="_blank">@@@TavernAI v'+VERSION+'@@@</a><a href="https://boosty.to/tavernai" target="_blank"><div id="characloud_url"><img src="img/heart.png" style="width:18px; heigth:18px; margin-right:2px;"><div id="characloud_title">Support</div></div></a><br><br><br><br>',
+            '<div id="characloud_img"><img src="img/tavern_summer.png" id="chloe_star_dust_city"></div>\n<a id="verson" href="https://github.com/TavernAI/TavernAI" target="_blank">@@@TavernAI v'+VERSION+'@@@</a><a href="https://boosty.to/tavernai" target="_blank"><div id="characloud_url"><img src="img/heart.png" style="width:18px; heigth:18px; margin-right:2px;"><div id="characloud_title">Support</div></div></a><br><br><br><br>',
         chid: -2
     };
+*/
 export var chat = [chloeMes];
 
 
