@@ -2031,7 +2031,7 @@ $(document).ready(function(){
                         if (SystemPrompt.system_prompt.length > 0 && this_system_depth === i  && SystemPrompt.system_depth <= SystemPrompt.system_depth_max) {
                             finalPromt[i + 1] = {"role": "system", "content": item};
                         } else {
-                            if (SystemPrompt.jailbreak_prompt.length > 0 && this_jailbreak_depth === i) {
+                            if (SystemPrompt.jailbreak_prompt.length > 0 && this_jailbreak_depth+1 === i) {
                                 finalPromt[i + 1] = {"role": "system", "content": item};
                             } else {
                                 if (item.indexOf(name1 + ':') === 0) {
