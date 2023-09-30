@@ -49,9 +49,11 @@ Use this button to edit the message:
 
 <img src="readme/3.png" width="600"/>
 
-If the message is not finished, you can simply send the request again. TavernAI will understand that you want to continue the message.
+If the message is not finished, you can simply send the request again, or say "continue", depending on the model. It should understand that you want to continue the message.
 
 <img src="readme/2.png" width="600"/>
+
+<img src="readme/6.png" width="600"/>
 
 ## Additional materials
 * [paniphons's guide to text generation](https://github.com/TavernAI/TavernAI/blob/main/faq.md)
