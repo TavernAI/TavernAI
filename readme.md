@@ -1,7 +1,9 @@
 # TavernAI
 ### TavernAI is an atmospheric frontend for chat and storywriting, compatible with many backends!
 **Screenshots:**
-<br><img src="readme/1.png" height="200" /><img src="readme/4.png" height="200" /><img src="readme/5.png" height="200" />
+<br><img src="readme/1.png" height="200" />
+
+<img src="readme/4.png" height="200" /><img src="readme/5.png" height="200" />
 
 ###### Download: 
 * [Windows .exe](https://sourceforge.net/projects/tavernaimain/files/TavernAI.rar/download) | [Node.js version](https://github.com/TavernAI/TavernAI/archive/refs/heads/main.zip)<br>
