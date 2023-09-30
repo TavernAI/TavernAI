@@ -21,8 +21,8 @@
 * World info
 * Message swiping
 * Configurable generation settings
-* Configurable generation themes, including one that resembles CharacterAI
-* Configurable backgrounds, including beautiful default backgrounds
+* Configurable interface themes, including one that resembles CharacterAI
+* Configurable backgrounds, including beautiful defaults to select from
 * Edit, delete, and move any message
 
 ## How to install
