@@ -1,56 +1,64 @@
-### TavernAI is a adventure atmospheric chat (KoboldAI, NovelAI, Pygmalion, OpenAI,  Text-gen webUI)
-Examples of interface and output:
-<br><img src="readme/1.png" height="200" /><img src="readme/4.png" height="200" /><img src="readme/5.png" height="200" />
+# TavernAI
+### TavernAI is an atmospheric frontend for chat and storywriting, compatible with many backends!
+**Screenshots:**
+<br><img src="readme/1.png" height="200" />
+
+<img src="readme/4.png" height="200" /><img src="readme/5.png" height="200" />
 
 ###### Download: 
-* [Windows .exe](https://sourceforge.net/projects/tavernaimain/files/TavernAI.rar/download)&nbsp;&nbsp;|&nbsp;&nbsp;[Node.js version](https://github.com/TavernAI/TavernAI/archive/refs/heads/main.zip)<br>
+* [Windows .exe](https://sourceforge.net/projects/tavernaimain/files/TavernAI.rar/download) | [Node.js version](https://github.com/TavernAI/TavernAI/archive/refs/heads/main.zip)<br>
 ###### Run online: 
-* [TavernAI Colab](https://colab.research.google.com/github/TavernAI/TavernAI/blob/main/colab/GPU.ipynb)<br>
+* [TavernAI on Google Colab](https://colab.research.google.com/github/TavernAI/TavernAI/blob/main/colab/GPU.ipynb)
 ###### Links: 
-* [TavernAI Boosty](https://boosty.to/tavernai)
-* [TavernAI Discord](https://discord.gg/zmK2gmr45t)
+* [TavernAI on Boosty](https://boosty.to/tavernai) - Support the project!
+* [TavernAI Discord](https://discord.gg/zmK2gmr45t) - Meet the community!
 
 ## Features
-* Creating characters with personality setup
-* Online character library
-* Supporting chat with multiple characters simultaneously
-* Flexible settings for AI models
+* Character creation
+* Online character database
+* Group chat with multiple characters at the same time
 * Story mode
-* World Info
-* Swipes
-* Choosing atmospheric backgrounds
-* Editing/Deleting/Moving any messages
-* KoboldAI Support
-* Horde Support
-* NovelAI support
-* OpenAI Support
-* Reverse Proxy support
-
+* World info
+* Message swiping
+* Configurable generation settings
+* Configurable interface themes, including one that resembles CharacterAI
+* Configurable backgrounds, including beautiful defaults to select from
+* Edit, delete, and move any message
 
 ## How to install
-### In Detail:
-* [Install with KoboldAI](https://github.com/TavernAI/TavernAI/wiki/How-to-install)<br>
-* [Install with NovelAI](https://github.com/TavernAI/TavernAI/wiki/How-to-install-Novel)<br>
-### Briefly:
 1. Download [TavernAI](https://github.com/TavernAI/TavernAI/archive/refs/heads/main.zip)
-2. Install [Node.js v19.1.0](https://nodejs.org/download/release/v19.1.0/)
-3. Run Start.bat (or use command: *npm install*, *node server.js*)
-## AI Models and AI Engines
-* [KoboldAI](https://github.com/KoboldAI/KoboldAI-Client)
+2. Download and install [Node.js v19.1.0](https://nodejs.org/download/release/v19.1.0/)
+
+Then:
+- **On Windows:** Start TavernAI by running `Start.bat`
+- **On Linux:** Start TavernAI by running `start-linux.sh`
+- **On other OSes:**  Run `npm install` to install dependencies, then run `node server.js` to start the server
+
+For detailed instructions on how to setup TavernAI with KoboldAI or NovelAI:
+- [KoboldAI](https://github.com/TavernAI/TavernAI/wiki/How-to-install)
+- [NovelAI](https://github.com/TavernAI/TavernAI/wiki/How-to-install-Novel)
+
+## Supported Backends
+* Kobold series ([KoboldAI](https://github.com/KoboldAI/KoboldAI-Client), [KoboldCpp](https://github.com/LostRuins/koboldcpp), and [Horde](https://horde.koboldai.net/))
+* [Oobabooga's Text Generation Web UI](https://github.com/oobabooga/text-generation-webui)
+* OpenAI (including ChatGPT, GPT-4, and reverse proxies)
 * [NovelAI](https://novelai.net/)
-* [Pygmalion](https://rentry.org/pygmalion-ai)
-* [chatGPT](https://chat.openai.com/)
-* [GPT-4](https://openai.com/research/gpt-4)
-* [Text-gen webUI](https://github.com/oobabooga/text-generation-webui)
 
 ## Tips
-Use this button to edit the message<br><br>
-<img src="readme/3.png" width="600" /><br><br>
-If the message is not finished, you can simply send the request again, TavernAI will understand that this is a continuation. <br>(Works with KoboldAI and NovelAI models, not with Pygmalion)<br>
-<br><img src="readme/2.png" width="600" />
+Use this button to edit the message:
+
+<img src="readme/3.png" width="600"/>
+
+If the message is not finished, you can simply send the request again, or say "continue", depending on the model. It should understand that you want to continue the message.
+
+<img src="readme/2.png" width="600"/>
+
+<img src="readme/6.png" width="600"/>
+
 ## Additional materials
-* [FAQ](https://github.com/TavernAI/TavernAI/blob/main/faq.md)
-* [https://www.reddit.com/user/Crataco/comments/zuowi9/opensource_chatbot_companions/](https://github.com/TavernAI/TavernAI/blob/main/faq.md)
-## For contacts
+* [paniphons's guide to text generation](https://github.com/TavernAI/TavernAI/blob/main/faq.md)
+* [Crataco's guide to text generation](https://github.com/Crataco/ai-guide)
+## Contact
+#### Humi (the original developer):
 * Discord: Humi#5044
 <br><br><br>
