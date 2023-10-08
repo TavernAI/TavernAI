@@ -26,8 +26,8 @@
 * Edit, delete, and move any message
 
 ## How to install
-1. Download [TavernAI](https://github.com/TavernAI/TavernAI/archive/refs/heads/main.zip)
-2. Download and install [Node.js v19.1.0](https://nodejs.org/download/release/v19.1.0/)
+1. Download and install: [Node.js](https://nodejs.org/dist/v20.8.0/node-v20.8.0-x64.msi)
+2. Download [TavernAI](https://github.com/TavernAI/TavernAI/archive/refs/heads/main.zip)
 
 Then:
 - **On Windows:** Start TavernAI by running `Start.bat`
