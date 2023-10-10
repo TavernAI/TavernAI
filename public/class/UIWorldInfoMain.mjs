@@ -682,7 +682,8 @@ export class UIWorldInfoMain extends Resizable {
                 entry.key = entry.key || [];
                 let included = false;
                 for(let j = 0; j < entry.key.length; j++) {
-                    if(message.includes(entry.key[j].trim().toLowerCase())) {
+                    const eachEntryKey = entry.key[j] || "";
+                    if(eachEntryKey.length > 0 && message.includes(eachEntryKey.trim().toLowerCase())) {
                         included = true;
                         break;
                     }
@@ -704,7 +705,8 @@ export class UIWorldInfoMain extends Resizable {
                 entry.keysecondary = entry.keysecondary || [];
                 let included = false;
                 for(let j = 0; j < entry.keysecondary.length; j++) {
-                    if(message.includes(entry.keysecondary[j].trim().toLowerCase())) {
+                    const eachEntryKeySecondary = entry.keysecondary[j] || "";
+                    if(eachEntryKeySecondary.length > 0 && message.includes(eachEntryKeySecondary.trim().toLowerCase())) {
                         included = true;
                         break;
                     }
