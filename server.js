@@ -2033,6 +2033,7 @@ app.post("/getstatus_openai", jsonParser, function(request, response_getstatus_o
             headers: {"Authorization": "Bearer " + api_key_openai}
         };
     }
+    
     client.get(api_url_openai+"/models", args, function (data, response) {
         if(response.statusCode == 200){
             response_getstatus_openai.send(data);
@@ -2071,6 +2072,7 @@ app.post("/generate_openai", jsonParser, function(request, response_generate_ope
         "frequency_penalty": request.body.frequency_penalty,
         "stop": request.body.stop
     };
+
     let request_path = '';
 
     if(isChatModel(request.body.model)){
@@ -2161,7 +2163,7 @@ app.post("/generate_openai", jsonParser, function(request, response_generate_ope
 });
 
 function isChatModel(model_openai){
-    if (model_openai === 'text-davinci-003' || model_openai === 'text-davinci-002' || model_openai === 'text-curie-001' || model_openai === 'text-babbage-001' || model_openai === 'text-ada-001' || model_openai === 'code-davinci-002') {
+    if (model_openai === 'text-davinci-003' || model_openai === 'text-davinci-002' || model_openai === 'text-curie-001' || model_openai === 'text-babbage-001' || model_openai === 'text-ada-001' || model_openai === 'code-davinci-002' || model_openai === 'gpt-3.5-turbo-instruct') {
         return false;
     } else {
         return true;
