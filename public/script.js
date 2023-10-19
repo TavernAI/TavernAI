@@ -193,7 +193,7 @@ export function isChatModel() { // Checking is it chat model (for OpenAI and pro
     }else if(main_api === 'proxy'){
         checked_model = model_proxy;
     }
-    if (checked_model === 'text-davinci-003' || checked_model === 'text-davinci-002' || checked_model === 'text-curie-001' || checked_model === 'text-babbage-001' || checked_model === 'text-ada-001' || checked_model === 'code-davinci-002') {
+    if (checked_model === 'text-davinci-003' || checked_model === 'text-davinci-002' || checked_model === 'text-curie-001' || checked_model === 'text-babbage-001' || checked_model === 'text-ada-001' || checked_model === 'code-davinci-002'|| checked_model === 'gpt-3.5-turbo-instruct') {
         return false;
     } else {
         return true;
@@ -2040,6 +2040,7 @@ $(document).ready(function(){
                                     finalPromt[i + 1] = {"role": "assistant", "content": item};
                                 }
                             }
+
                         }
 
                     });
@@ -6290,6 +6291,14 @@ $(document).ready(function(){
                             $('#model_openai_select').append($('<option>', {
                                 value: 'gpt-3.5-turbo',
                                 text: 'gpt-3.5-turbo'
+                            }));
+                            $('#model_openai_select').append($('<option>', {
+                                value: 'claude-v1.3',
+                                text: 'claude-v1.3'
+                            }));
+                            $('#model_openai_select').append($('<option>', {
+                                value: 'claude-v1.2',
+                                text: 'claude-v1.2'
                             }));
                             let is_mode_exist = false;
                             
