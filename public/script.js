@@ -1909,6 +1909,7 @@ $(document).ready(function(){
                                 item = item.replace(name1+':', 'You:');
                             }
                         }
+
                         mesSend[mesSend.length] = item;
                         //chatString = chatString+item;
                     });
@@ -2677,7 +2678,7 @@ $(document).ready(function(){
                 }
             }
         });
-        var save_chat = [{user_name:default_user_name, character_name:name2,create_date: chat_create_date, notes: winNotes.text, notes_type: winNotes.strategy, mode: Tavern.mode}, ...chat];
+        var save_chat = [{user_name:name1, character_name:name2,create_date: chat_create_date, notes: winNotes.text, notes_type: winNotes.strategy, mode: Tavern.mode}, ...chat];
         if(chat_name !== undefined){
             save_chat[0].chat_name = chat_name;
         }
@@ -2735,6 +2736,7 @@ $(document).ready(function(){
                     chat_name = chat[0]['chat_name'];
                     winNotes.text = chat[0].notes || "";
                     winNotes.strategy = chat[0].notes_type || "discr";
+                    name1 = chat[0].user_name;
                     if(!winNotes.text || !winNotes.text.length) {
                         let defaultWpp = '[Character("'+Characters.id[Characters.selectedID].name+'"){}]';
                         try {
