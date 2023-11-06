@@ -3469,6 +3469,16 @@ $(document).ready(function(){
                 return;
             });
         }
+        if(popup_type === 'change_username'){
+            name1 = $("#your_name").val();
+            if(name1 === undefined || name1 == '') name1 = default_user_name;
+            $('.mes').each(function () {
+                if ($(this).attr('is_user') === 'true') {
+                    $(this).find('.ch_name').text(name1);
+                }
+            });
+            saveSettings();
+        }
         if(popup_type === 'delete_chat'){
             jQuery.ajax({
                 type: 'POST', // 
@@ -3524,6 +3534,11 @@ $(document).ready(function(){
                 break;
             case 'new_chat':
 
+                $("#dialogue_popup_ok").css("background-color", "#191b31CC");
+                $("#dialogue_popup_ok").text("Yes");
+                break;
+            case 'change_username':
+                text = `<h3 class="alert">${text}</h3>`;
                 $("#dialogue_popup_ok").css("background-color", "#191b31CC");
                 $("#dialogue_popup_ok").text("Yes");
                 break;
@@ -5854,14 +5869,7 @@ $(document).ready(function(){
 
     $("#your_name_button").click(function() {
         if(!Tavern.is_send_press){
-            name1 = $("#your_name").val();
-            if(name1 === undefined || name1 == '') name1 = default_user_name;
-            $('.mes').each(function () {
-                if ($(this).attr('is_user') === 'true') {
-                    $(this).find('.ch_name').text(name1);
-                }
-            });
-            saveSettings();
+            callPopup('Change your name for this chat?','change_username')
             
         }
     });
