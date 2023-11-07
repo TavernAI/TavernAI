@@ -40,6 +40,8 @@ export var online_status = 'no_connection';
 var chat_name;
 const VERSION = '1.5.1';
 
+var is_openai_image_input = false;
+var openai_image_input = '';
 var chloeMes = {
         name: 'Chloe',
         is_user: false,
@@ -776,6 +778,7 @@ $(document).ready(function(){
                     printMessages();
                     getBackgrounds();
                     getUserAvatars();
+                    
                     
             });
             
@@ -1842,6 +1845,10 @@ $(document).ready(function(){
                     var is_add_personality = false;
 
                     if ((main_api === 'openai' || main_api === 'proxy') && isChatModel()) { // Jailbreak
+                        
+                        if(is_openai_image_input){
+                            arrMes[arrMes.length-1] += '<!load_img_openai!>';
+                        }
                         if (SystemPrompt.user_jailbreak_prompt.length > 0) {
                             arrMes[arrMes.length-1] = arrMes[arrMes.length-1]+'\n'+SystemPrompt.user_jailbreak_prompt.replace(/{{user}}/gi, name1)
                                     .replace(/{{char}}/gi, name2)
@@ -2036,7 +2043,33 @@ $(document).ready(function(){
                                 finalPromt[i + 1] = {"role": "system", "content": item};
                             } else {
                                 if (item.indexOf(name1 + ':') === 0) {
-                                    finalPromt[i + 1] = {"role": "user", "content": item};
+                                    if(item.indexOf('<!load_img_openai!>') !== -1){
+                                        is_openai_image_input = false;
+                                        
+                                        $('#ai_image_input').val('');
+                                        selectImage.show();
+                                        imageSelected.hide();
+                                        
+                                        item = item.replace(/<!load_img_openai!>/gi, '');
+                                        finalPromt[i + 1] = {
+                                            role: 'user',
+                                            content: [
+                                                {
+                                                    type: 'text',
+                                                    text: item
+                                                },
+                                                {
+                                                    type: 'image_url',
+                                                    image_url: {
+                                                        url: `data:image/jpeg;base64,${openai_image_input}`
+                                                    }
+                                                }
+                                            ]
+                                        };
+                                    }else{
+                                        finalPromt[i + 1] = {"role": "user", "content": item};
+                                    }
+                                    
                                 } else {
                                     finalPromt[i + 1] = {"role": "assistant", "content": item};
                                 }
@@ -2500,7 +2533,50 @@ $(document).ready(function(){
             $( "#loading_mes" ).css("display", "none");
         }
     }
+    
+    //<OpenAI image input>
+    const imageInput = $('#ai_image_input')[0];
+    const selectImage = $('#ai-select-image');
+    const imageSelected = $('#ai-image-selected');
 
+
+    $('#ai_image_picker').click(() => {
+      $('#ai_image_input').trigger('click'); 
+    });
+    $('#ai_image_input').on('change', async function () {
+        if (this.files.length) {
+            selectImage.hide();
+            imageSelected.show();
+        }
+        const imageFile = imageInput.files[0];
+
+        // Use jQuery ajax to convert file to base64 
+        openai_image_input = await getBase64Image(imageFile);
+        is_openai_image_input = true;
+    });
+    function getBase64Image(imageFile) {
+        return new Promise(function (resolve, reject) {
+            const reader = new FileReader();
+            reader.onload = function () {
+                resolve(reader.result.replace(/^data:image\/[a-z]+;base64,/, ''));
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(imageFile);
+        });
+    }
+    function aiImagePickerInit(){
+        $('#ai_image_picker').css("display", 'none');
+        if (main_api === 'openai' && model_openai === 'gpt-4-vision-preview') {
+            console.log(111)
+            $('#ai_image_picker').css("display", 'block');
+        }
+        if (main_api === 'proxy' && model_proxy === 'gpt-4-vision-preview') {
+            $('#ai_image_picker').css("display", 'block');
+        }
+    }
+    //</OpenAI image input>
+    
+    
     function getIDsByNames(ch_names) {
         let ids = [];
         ch_names.forEach(function(name) {
@@ -4039,6 +4115,10 @@ $(document).ready(function(){
         horde_model = "";
         $('#horde_model_select').empty();
         $('#horde_model_select').append($('<option></option>').val('').html('-- Connect to Horde for models --'));
+        
+        //OpenAI and Proxy
+        aiImagePickerInit();
+        openAIChangeMaxContextForModels();
     });
     function changeMainAPI(){
         $('#kobold_api').css("display", "none");
@@ -5150,6 +5230,8 @@ $(document).ready(function(){
                             }
                         }, 2000);
                     }
+                    
+                    aiImagePickerInit();
 
                     
                 }
@@ -6158,6 +6240,7 @@ $(document).ready(function(){
         }else if(main_api === 'proxy'){
             model_proxy = $('#model_openai_select').find(":selected").val();
         }
+        aiImagePickerInit();
         openAIChangeMaxContextForModels();
         saveSettings();
     });
@@ -6166,6 +6249,7 @@ $(document).ready(function(){
         let this_openai_max_context;
 
         if (main_api === 'openai') {
+            
             switch (model_openai) {
                 case 'gpt-4':
                     this_openai_max_context = 8192;
@@ -6192,6 +6276,9 @@ $(document).ready(function(){
                     this_openai_max_context = 2049;
                     break;
                 case 'gpt-4-1106-preview':
+                    this_openai_max_context = 128000;
+                    break;
+                case 'gpt-4-vision-preview':
                     this_openai_max_context = 128000;
                     break;
                 default:

@@ -711,6 +711,7 @@
                         <option value="gpt-4">gpt-4</option>
                         <option value="gpt-4-32k">gpt-4-32k</option>
                         <option value="gpt-4-1106-preview">gpt-4-1106-preview</option>
+                        <option value="gpt-4-vision-preview">gpt-4-vision-preview</option>
                         <option value="gpt-3.5-turbo">gpt-3.5-turbo</option>   
                         <option value="gpt-3.5-turbo-16k">gpt-3.5-turbo-16k</option>
                         <option value="gpt-3.5-turbo-16k-0613">gpt-3.5-turbo-16k-0613</option>
@@ -863,6 +864,15 @@
                         </div>
                     </div>
                 </div>
+                <!--<input type="file" id="ai_image_input" accept=".jpg, .jpeg, .png, .gif, .webp, .bmp">-->
+                <div id="ai_image_picker">
+                    <img id="ai-select-image" src="img/ai_image_load.png">
+                    <img id="ai-image-selected" src="img/ai_image_load_selected.png" hidden>
+                </div>
+                <input type="file" id="ai_image_input" accept="image/*" hidden>
+
+                    
+
                 <textarea id="send_textarea" placeholder="Type a message..." name="text"></textarea>
                 <div id="send_button_shell"><div id="loading_mes"></div><input id="send_button" type="button"></div>
             </form>

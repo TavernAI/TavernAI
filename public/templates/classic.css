@@ -15,7 +15,7 @@
 
 body {
     margin: 0;
-    background-image: linear-gradient(rgba(19,21,44,0.75), rgba(19,21,44,0.75)), url(../backgrounds/tavern.png);
+    background-image: linear-gradient(rgba(19,21,44,0.60), rgba(19,21,44,0.60)), url(../backgrounds/tavern.png);
     font-family: "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
     background-size: auto 100%;
     background-repeat: no-repeat;
@@ -351,10 +351,10 @@ pre {
 hr {
     height: 1px;
     border: 0;
-    background-image: -webkit-linear-gradient(left, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
-    background-image: -moz-linear-gradient(left, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
-    background-image: -ms-linear-gradient(left, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
-    background-image: linear-gradient(left, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
+    background-image: -webkit-linear-gradient(left, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.60), rgba(0, 0, 0, 0));
+    background-image: -moz-linear-gradient(left, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.60), rgba(0, 0, 0, 0));
+    background-image: -ms-linear-gradient(left, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.60), rgba(0, 0, 0, 0));
+    background-image: linear-gradient(left, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.60), rgba(0, 0, 0, 0));
 }
 .options-content hr {
   margin: 0px;
@@ -3239,4 +3239,37 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
 
 #story_textarea .highlight {
   background-color: yellow;
+}
+/*
+#ai_image_input{
+    position: absolute;
+    margin-top: 35px;
+}
+*/
+#ai_image_picker{
+    position: absolute;
+    margin-top: 35px;
+    margin-left: 6px;
+    opacity: 0.9;
+    display: none;
+}
+#ai-select-image, #ai-image-selected {
+  width: 28px;
+  height: 28px;
+  cursor: pointer; 
+}
+
+#ai-image-selected {
+  position: relative;
+}
+
+#ai-image-selected::after {
+  content: '';
+  position: absolute;
+  right: -5px;
+  top: -5px;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  border: 2px solid green;
 }
