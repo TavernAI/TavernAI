@@ -6191,6 +6191,9 @@ $(document).ready(function(){
                 case 'text-ada-001':
                     this_openai_max_context = 2049;
                     break;
+                case 'gpt-4-1106-preview':
+                    this_openai_max_context = 128000;
+                    break;
                 default:
                     this_openai_max_context = 4096;
                     break;
