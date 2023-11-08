@@ -40,8 +40,9 @@ export var online_status = 'no_connection';
 var chat_name;
 const VERSION = '1.5.1';
 
-var is_openai_image_input = false;
+
 var openai_image_input = '';
+var is_ai_image_input = false;
 var chloeMes = {
         name: 'Chloe',
         is_user: false,
@@ -1392,6 +1393,9 @@ $(document).ready(function(){
             messageText = messageText.replace(/<BOT>/gi, name2);
         }
         messageText = messageFormating(messageText, characterName);
+        if(mes['image_for_recognition'] !== undefined){
+            messageText+=`<img src=img/default_image.png width=100 height=100 style="opacity:0.7">`;
+        }
         let container = null;
         if(type !== 'swipe'){
                 container = $('<div class="mes" mesid='+count_view_mes+' ch_name="'+vl(characterName)+'" is_user="'+mes['is_user']+'"></div>')
@@ -1493,7 +1497,7 @@ $(document).ready(function(){
         name = name+':';
         return name;
     }
-
+    
     $( "#send_button" ).click(function() {
         //$( "#send_button" ).css({"background": "url('img/load.gif')","background-size": "100%, 100%", "background-position": "center center"});
         if(Tavern.is_send_press == false){
@@ -1613,6 +1617,13 @@ $(document).ready(function(){
                 chat[chat.length-1]['is_name'] = true;
                 chat[chat.length-1]['send_date'] = Date.now();
                 chat[chat.length-1]['mes'] = textareaText;
+                if(is_ai_image_input && model_openai === 'gpt-4-vision-preview' && main_api === 'openai'){
+                    is_ai_image_input = false;
+                    chat[chat.length-1]['image_for_recognition'] = openai_image_input;
+                    $('#ai_image_input').val('');
+                    selectImage.show();
+                    imageSelected.hide();
+                }
                 addOneMessage(chat[chat.length-1]);
             }
             var chatString = '';
@@ -1793,10 +1804,14 @@ $(document).ready(function(){
                     else
                         this_mes_ch_name = Characters.id[chat[j]['chid']].name;
                 }
+                chat2[i] = {};
                 if(chat[j]['is_name']){
-                    chat2[i] = this_mes_ch_name+': '+chat[j]['mes']+'\n';
+                    chat2[i]['mes'] = this_mes_ch_name+': '+chat[j]['mes']+'\n';
                 }else{
-                    chat2[i] = chat[j]['mes']+'\n';
+                    chat2[i]['mes'] = chat[j]['mes']+'\n';
+                }
+                if(chat[j]['image_for_recognition'] !== undefined && model_openai === 'gpt-4-vision-preview' && main_api === 'openai'){
+                    chat2[i]['image_for_recognition'] = chat[j]['image_for_recognition'];
                 }
                 j++;
             }
@@ -1846,9 +1861,6 @@ $(document).ready(function(){
 
                     if ((main_api === 'openai' || main_api === 'proxy') && isChatModel()) { // Jailbreak
                         
-                        if(is_openai_image_input){
-                            arrMes[arrMes.length-1] += '<!load_img_openai!>';
-                        }
                         if (SystemPrompt.user_jailbreak_prompt.length > 0) {
                             arrMes[arrMes.length-1] = arrMes[arrMes.length-1]+'\n'+SystemPrompt.user_jailbreak_prompt.replace(/{{user}}/gi, name1)
                                     .replace(/{{char}}/gi, name2)
@@ -1916,7 +1928,7 @@ $(document).ready(function(){
                                 item = item.replace(name1+':', 'You:');
                             }
                         }
-
+                        
                         mesSend[mesSend.length] = item;
                         //chatString = chatString+item;
                     });
@@ -2033,9 +2045,9 @@ $(document).ready(function(){
                 if((main_api === 'openai' || main_api === 'proxy') && isChatModel()){
                     finalPromt = {};
                     finalPromt = [];
-
                     finalPromt[0] = {"role": "system", "content": storyString+mesExmString};
                     mesSend.forEach(function(item,i){
+                        
                         if (SystemPrompt.system_prompt.length > 0 && this_system_depth === i  && SystemPrompt.system_depth <= SystemPrompt.system_depth_max) {
                             finalPromt[i + 1] = {"role": "system", "content": item};
                         } else {
@@ -2043,14 +2055,13 @@ $(document).ready(function(){
                                 finalPromt[i + 1] = {"role": "system", "content": item};
                             } else {
                                 if (item.indexOf(name1 + ':') === 0) {
-                                    if(item.indexOf('<!load_img_openai!>') !== -1){
-                                        is_openai_image_input = false;
+                                    const regex = /<load_img_openai>(.*?)<\/load_img_openai>/;
+                                    if(model_openai === 'gpt-4-vision-preview' && main_api === 'openai' && regex.test(item)){
                                         
-                                        $('#ai_image_input').val('');
-                                        selectImage.show();
-                                        imageSelected.hide();
+                                        const match = item.match(regex);
                                         
-                                        item = item.replace(/<!load_img_openai!>/gi, '');
+                                        const this_openai_image_input = match[1];
+                                        item = item.replace(regex, '');
                                         finalPromt[i + 1] = {
                                             role: 'user',
                                             content: [
@@ -2061,7 +2072,8 @@ $(document).ready(function(){
                                                 {
                                                     type: 'image_url',
                                                     image_url: {
-                                                        url: `data:image/jpeg;base64,${openai_image_input}`
+                                                        detail: 'low',
+                                                        url: `data:image/jpeg;base64,${this_openai_image_input}`
                                                     }
                                                 }
                                             ]
@@ -2330,9 +2342,14 @@ $(document).ready(function(){
             }
 
             for (var item of chat2) {//console.log(encode("dsfs").length);
-                chatString = item+chatString;
+                chatString = item['mes']+chatString;
                 if(await Tokenizer.encode(storyString+mesExmString+chatString+anchorTop+anchorBottom+charPersonality)+this_gap_holder < this_max_context){ //(The number of tokens in the entire prompt) need fix, it must count correctly (added +120, so that the description of the character does not hide)
-                    arrMes[arrMes.length] = item;
+                    
+                    if(item['image_for_recognition'] !== undefined){
+                        arrMes[arrMes.length] = item['mes']+`<load_img_openai>${item['image_for_recognition']}</load_img_openai>\n`;
+                    }else{
+                        arrMes[arrMes.length] = item['mes'];
+                    }
                 }else{
                     i = chat2.length-1;
                 }
@@ -2547,12 +2564,12 @@ $(document).ready(function(){
         if (this.files.length) {
             selectImage.hide();
             imageSelected.show();
+            is_ai_image_input = true;
         }
         const imageFile = imageInput.files[0];
 
         // Use jQuery ajax to convert file to base64 
         openai_image_input = await getBase64Image(imageFile);
-        is_openai_image_input = true;
     });
     function getBase64Image(imageFile) {
         return new Promise(function (resolve, reject) {
@@ -2567,10 +2584,6 @@ $(document).ready(function(){
     function aiImagePickerInit(){
         $('#ai_image_picker').css("display", 'none');
         if (main_api === 'openai' && model_openai === 'gpt-4-vision-preview') {
-            console.log(111)
-            $('#ai_image_picker').css("display", 'block');
-        }
-        if (main_api === 'proxy' && model_proxy === 'gpt-4-vision-preview') {
             $('#ai_image_picker').css("display", 'block');
         }
     }
@@ -2758,7 +2771,7 @@ $(document).ready(function(){
         if(chat_name !== undefined){
             save_chat[0].chat_name = chat_name;
         }
-
+        
         jQuery.ajax({    
             type: 'POST', 
             url: '/savechat', 
