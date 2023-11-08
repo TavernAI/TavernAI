@@ -1619,7 +1619,9 @@ $(document).ready(function(){
                 chat[chat.length-1]['mes'] = textareaText;
                 if(is_ai_image_input && model_openai === 'gpt-4-vision-preview' && main_api === 'openai'){
                     is_ai_image_input = false;
-                    chat[chat.length-1]['image_for_recognition'] = openai_image_input;
+                    chat[chat.length-1]['image_for_recognition'] = [];
+                    chat[chat.length-1]['image_for_recognition'][0] = {};
+                    chat[chat.length-1]['image_for_recognition'][0]['img_base64'] = openai_image_input;
                     $('#ai_image_input').val('');
                     selectImage.show();
                     imageSelected.hide();
@@ -2346,7 +2348,7 @@ $(document).ready(function(){
                 if(await Tokenizer.encode(storyString+mesExmString+chatString+anchorTop+anchorBottom+charPersonality)+this_gap_holder < this_max_context){ //(The number of tokens in the entire prompt) need fix, it must count correctly (added +120, so that the description of the character does not hide)
                     
                     if(item['image_for_recognition'] !== undefined){
-                        arrMes[arrMes.length] = item['mes']+`<load_img_openai>${item['image_for_recognition']}</load_img_openai>\n`;
+                        arrMes[arrMes.length] = item['mes']+`<load_img_openai>${item['image_for_recognition'][0]['img_base64']}</load_img_openai>\n`;
                     }else{
                         arrMes[arrMes.length] = item['mes'];
                     }
