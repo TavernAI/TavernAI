@@ -2587,7 +2587,7 @@ $(document).ready(function(){
 
             const imageFile = this.files[0];
 
-            //openai_image_input = await getBase64Image(imageFile);
+            openai_image_input = await getBase64Image(imageFile);
             
             const img = new Image();
             const reader = new FileReader();
