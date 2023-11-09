@@ -42,6 +42,7 @@ const VERSION = '1.5.1';
 
 
 var openai_image_input = '';
+var openai_image_input_thumb64 = '';
 var is_ai_image_input = false;
 var chloeMes = {
         name: 'Chloe',
@@ -1376,6 +1377,7 @@ $(document).ready(function(){
     function addOneMessage(mes, type='normal') {
         var messageText = mes['mes'];
         var characterName = name1;
+        var messageImageRecognition = '';
         generatedPromtCache = '';
         var avatarImg = getMessageAvatar(mes);
         if(!mes.is_user){
@@ -1393,8 +1395,15 @@ $(document).ready(function(){
             messageText = messageText.replace(/<BOT>/gi, name2);
         }
         messageText = messageFormating(messageText, characterName);
+        console.log(mes['image_for_recognition']);
         if(mes['image_for_recognition'] !== undefined){
-            messageText+=`<img src=img/default_image.png width=100 height=100 style="opacity:0.7">`;
+            if(mes['image_for_recognition'][0]['img_base64_thumb'] !== undefined){
+                messageImageRecognition = `<img src="data:image/jpeg;base64,${mes['image_for_recognition'][0]['img_base64_thumb']}" height=65 style="opacity:1.0">`;
+            }else{
+                messageImageRecognition = `<img src="../img/default_image.png" height=100 style="opacity:0.6">`;
+            }
+            messageImageRecognition = `<div class="image_recognition" style="margin-bottom:9px;;margin-top:0px;margin-left:38px;">${messageImageRecognition}</div>`;
+            
         }
         let container = null;
         if(type !== 'swipe'){
@@ -1434,6 +1443,10 @@ $(document).ready(function(){
             if(type === 'swipe'){
                 $("#chat").children().filter('[mesid="'+(count_view_mes-1)+'"]').children('.mes_block').children('.mes_text').html('');
                 $("#chat").children().filter('[mesid="'+(count_view_mes-1)+'"]').children('.mes_block').children('.mes_text').append(messageText);
+                if(messageImageRecognition !== ''){
+                    $("#chat").children().filter('[mesid="'+(count_view_mes-1)+'"]').children('.mes_block').append(messageImageRecognition)
+                    $("#chat").children().filter('[mesid="'+(count_view_mes-1)+'"]').children('.mes_block').children('.mes_text').attr('style', 'min-height: 0px;');
+                }
                 $("#chat").children().filter('[mesid="'+(count_view_mes-1)+'"]').children('.token_counter').html(String(Tokenizer.encodeOffline(messageText)));
                 if(mes['swipe_id'] !== 0 && swipes){
                     $("#chat").children().filter('[mesid="'+(count_view_mes-1)+'"]').children('.swipe_right').css('display', 'block');
@@ -1442,7 +1455,10 @@ $(document).ready(function(){
             }else{
                 $("#chat").children().filter('[mesid="'+count_view_mes+'"]').children('.mes_block').children('.mes_text').append(messageText);
                 $("#chat").children().filter('[mesid="'+count_view_mes+'"]').children('.token_counter').html(String(Tokenizer.encodeOffline(messageText)));
-                
+                if(messageImageRecognition !== ''){
+                    $("#chat").children().filter('[mesid="'+count_view_mes+'"]').children('.mes_block').append(messageImageRecognition);
+                    $("#chat").children().filter('[mesid="'+(count_view_mes)+'"]').children('.mes_block').children('.mes_text').attr('style', 'min-height: 0px;');
+                }
                 hideSwipeButtons();
                 
                 if(parseInt(chat.length-1) === parseInt(count_view_mes) && !mes['is_user'] && swipes){
@@ -1622,6 +1638,7 @@ $(document).ready(function(){
                     chat[chat.length-1]['image_for_recognition'] = [];
                     chat[chat.length-1]['image_for_recognition'][0] = {};
                     chat[chat.length-1]['image_for_recognition'][0]['img_base64'] = openai_image_input;
+                    chat[chat.length-1]['image_for_recognition'][0]['img_base64_thumb'] = openai_image_input_thumb64;
                     $('#ai_image_input').val('');
                     selectImage.show();
                     imageSelected.hide();
@@ -2564,15 +2581,74 @@ $(document).ready(function(){
     });
     $('#ai_image_input').on('change', async function () {
         if (this.files.length) {
+
+            selectImage.hide();
+            imageSelected.show();
+            is_ai_image_input = true;
+
+            const imageFile = this.files[0];
+
+            //openai_image_input = await getBase64Image(imageFile);
+            
+            const img = new Image();
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                img.src = e.target.result;
+                
+                img.onload = function () {
+                    let width = img.width;
+                    let height = img.height;
+
+                    // Calculate the new dimensions based on max size
+                    
+                    const maxSize = 85;  // Max size of the larger dimension
+
+                    if (width > height && width > maxSize) {
+                        height *= maxSize / width;
+                        width = maxSize;
+                    } else if (height > maxSize) {
+                        width *= maxSize / height;
+                        height = maxSize;
+                    }
+                    
+                    // Create a canvas with the desired dimensions
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+
+                    // Draw the resized image onto the canvas
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Convert the canvas content to a base64 string
+                    const dataUrl = canvas.toDataURL('image/png');  // Second argument is for quality
+
+                    // Extract just the base64 part of the data URL
+                    const base64String = dataUrl.replace("data:", "")
+                            .replace(/^.+,/, "");
+                    
+                    openai_image_input_thumb64 = base64String;
+
+                };
+            };
+
+            reader.onerror = function (error) {
+                console.log('Error: ', error);
+            };
+            reader.readAsDataURL(imageFile);
+        }
+    });
+    /*
+    $('#ai_image_input').on('change', async function () {
+        if (this.files.length) {
             selectImage.hide();
             imageSelected.show();
             is_ai_image_input = true;
         }
-        const imageFile = imageInput.files[0];
-
-        // Use jQuery ajax to convert file to base64 
-        openai_image_input = await getBase64Image(imageFile);
+        
     });
+    */
     function getBase64Image(imageFile) {
         return new Promise(function (resolve, reject) {
             const reader = new FileReader();
@@ -2583,6 +2659,7 @@ $(document).ready(function(){
             reader.readAsDataURL(imageFile);
         });
     }
+    
     function aiImagePickerInit(){
         $('#ai_image_picker').css("display", 'none');
         if (main_api === 'openai' && model_openai === 'gpt-4-vision-preview') {

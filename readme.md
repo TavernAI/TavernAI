@@ -24,6 +24,7 @@
 * Configurable interface themes, including one that resembles CharacterAI
 * Configurable backgrounds, including beautiful defaults to select from
 * Edit, delete, and move any message
+* GPT-4.5 picture recognition
 
 ## How to install
 1. Download and install: [Node.js](https://nodejs.org/dist/v20.8.0/node-v20.8.0-x64.msi)
