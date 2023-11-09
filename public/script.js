@@ -1395,14 +1395,13 @@ $(document).ready(function(){
             messageText = messageText.replace(/<BOT>/gi, name2);
         }
         messageText = messageFormating(messageText, characterName);
-        console.log(mes['image_for_recognition']);
         if(mes['image_for_recognition'] !== undefined){
             if(mes['image_for_recognition'][0]['img_base64_thumb'] !== undefined){
                 messageImageRecognition = `<img src="data:image/jpeg;base64,${mes['image_for_recognition'][0]['img_base64_thumb']}" height=65 style="opacity:1.0">`;
             }else{
                 messageImageRecognition = `<img src="../img/default_image.png" height=100 style="opacity:0.6">`;
             }
-            messageImageRecognition = `<div class="image_recognition" style="margin-bottom:9px;;margin-top:0px;margin-left:38px;">${messageImageRecognition}</div>`;
+            messageImageRecognition = `<div class="message_image_recognition" style="width:fit-content;height:fit-content;position:relative;margin-bottom:9px;;margin-top:0px;margin-left:38px;">${messageImageRecognition}<img src="../img/cross.png" class="message_image_recognition_cross"></div>`;
             
         }
         let container = null;
@@ -3408,6 +3407,15 @@ $(document).ready(function(){
         callPopup('<h3>Delete the background?</h3>', 'del_bg');
 
     });
+    $(document).on('click', '.message_image_recognition_cross', function(){
+        let this_mes_id = $(this).parent().parent().parent().attr('mesid');
+        $(this).parent().remove();
+        chat[this_mes_id]['image_for_recognition'] = undefined;
+        saveChat();
+        //callPopup('<h3>Delete the background?</h3>', 'del_bg');
+
+    });
+    
     $(document).on('click', '.style_button', function() {
         const this_style_id = $(this).attr('style_id');
         const this_style_name = templates[this_style_id];

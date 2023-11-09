@@ -3273,3 +3273,17 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
   border-radius: 50%;
   border: 2px solid green;
 }
+
+.message_image_recognition_cross {
+    height: 18px !important;
+    width: 18px !important;
+    position: absolute;
+    float: right;
+    right: 3px;
+    top: 3px;
+    cursor: pointer;
+    opacity: 0.5;
+    background-color: black;
+    border-radius: 1px !important;
+    padding: 1px;
+}
