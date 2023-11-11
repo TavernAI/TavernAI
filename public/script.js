@@ -1398,7 +1398,7 @@ $(document).ready(function(){
         messageText = messageFormating(messageText, characterName);
         if(mes['image_for_recognition'] !== undefined){
             if(mes['image_for_recognition'][0]['img_base64_thumb'] !== undefined){
-                messageImageRecognition = `<img src="data:image/jpeg;base64,${mes['image_for_recognition'][0]['img_base64_thumb']}" height=65 style="opacity:0.9">`;
+                messageImageRecognition = `<img src="data:image/jpeg;base64,${mes['image_for_recognition'][0]['img_base64_thumb']}" height=165 style="opacity:0.9">`;
             }else{
                 messageImageRecognition = `<img src="../img/default_image.png" height=100 style="opacity:0.6">`;
             }
@@ -2641,7 +2641,7 @@ $(document).ready(function(){
 
                     // Calculate the new dimensions based on max size
                     
-                    const maxSize = 85;  // Max size of the larger dimension
+                    const maxSize = 165;  // Max size of the larger dimension
 
                     if (width > height && width > maxSize) {
                         height *= maxSize / width;
