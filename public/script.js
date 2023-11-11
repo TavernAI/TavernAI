@@ -2143,7 +2143,29 @@ $(document).ready(function(){
                                     }
                                     
                                 } else {
-                                    finalPromt[i + 1] = {"role": "assistant", "content": item['mes']};
+                                    if(model_openai === 'gpt-4-vision-preview' && main_api === 'openai' && item['image_for_recognition'] !== undefined){
+                                        
+                                        const this_openai_image_input = item['image_for_recognition'];
+
+                                        finalPromt[i + 1] = {
+                                            role: 'assistant',
+                                            content: [
+                                                {
+                                                    type: 'text',
+                                                    text: item['mes']
+                                                },
+                                                {
+                                                    type: 'image_url',
+                                                    image_url: {
+                                                        detail: 'low',
+                                                        url: `data:image/jpeg;base64,${this_openai_image_input}`
+                                                    }
+                                                }
+                                            ]
+                                        };
+                                    }else{
+                                        finalPromt[i + 1] = {"role": "assistant", "content": item['mes']};
+                                    }
                                 }
                             }
 
