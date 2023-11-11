@@ -38,12 +38,13 @@ export var character_anchor = true;
 export const gap_holder = 120;
 export var online_status = 'no_connection';
 var chat_name;
-const VERSION = '1.5.1';
+const VERSION = '1.5.2';
 
 
 var openai_image_input = '';
 var openai_image_input_thumb64 = '';
 var is_ai_image_input = false;
+var $this_delete_image_recognition;
 var chloeMes = {
         name: 'Chloe',
         is_user: false,
@@ -1397,7 +1398,7 @@ $(document).ready(function(){
         messageText = messageFormating(messageText, characterName);
         if(mes['image_for_recognition'] !== undefined){
             if(mes['image_for_recognition'][0]['img_base64_thumb'] !== undefined){
-                messageImageRecognition = `<img src="data:image/jpeg;base64,${mes['image_for_recognition'][0]['img_base64_thumb']}" height=65 style="opacity:1.0">`;
+                messageImageRecognition = `<img src="data:image/jpeg;base64,${mes['image_for_recognition'][0]['img_base64_thumb']}" height=65 style="opacity:0.9">`;
             }else{
                 messageImageRecognition = `<img src="../img/default_image.png" height=100 style="opacity:0.6">`;
             }
@@ -1880,7 +1881,7 @@ $(document).ready(function(){
                     if ((main_api === 'openai' || main_api === 'proxy') && isChatModel()) { // Jailbreak
                         
                         if (SystemPrompt.user_jailbreak_prompt.length > 0) {
-                            arrMes[arrMes.length-1] = arrMes[arrMes.length-1]+'\n'+SystemPrompt.user_jailbreak_prompt.replace(/{{user}}/gi, name1)
+                            arrMes[arrMes.length-1]['mes'] = arrMes[arrMes.length-1]['mes']+'\n'+SystemPrompt.user_jailbreak_prompt.replace(/{{user}}/gi, name1)
                                     .replace(/{{char}}/gi, name2)
                                     .replace(/<USER>/gi, name1)
                                     .replace(/<BOT>/gi, name2);
@@ -1899,17 +1900,21 @@ $(document).ready(function(){
                     }
 
 
-                    if(inject && inject.length && arrMes.length) {
-                        arrMes.splice(arrMes.length-1, 0, inject);
+                    if (inject && inject.length && arrMes.length) {
+                        let thisInject = {
+                            mes: inject
+                        };
+
+                        arrMes.splice(arrMes.length - 1, 0, thisInject);
                     }
 
 
                     arrMes.forEach(function(item, i, arr) {//For added anchors and others
 
-                        if((i >= arrMes.length-1 && $.trim(item).substr(0, (name1+":").length) != name1+":" && (main_api !== 'openai' && main_api !== 'proxy')) || 
-                                (i >= arrMes.length-1 && $.trim(item).substr(0, (name1+":").length) != name1+":" && (main_api === 'openai' || main_api === 'proxy') && SystemPrompt.jailbreak_prompt.lenght === 0)){
+                        if((i >= arrMes.length-1 && $.trim(item['mes']).substr(0, (name1+":").length) != name1+":" && (main_api !== 'openai' && main_api !== 'proxy')) || 
+                                (i >= arrMes.length-1 && $.trim(item['mes']).substr(0, (name1+":").length) != name1+":" && (main_api === 'openai' || main_api === 'proxy') && SystemPrompt.jailbreak_prompt.lenght === 0)){
                             if(textareaText == ""){
-                                item = item.substr(0,item.length-1);
+                                item['mes'] = item['mes'].substr(0,item.length-1);
                             }
                         }
 
@@ -1920,34 +1925,37 @@ $(document).ready(function(){
                             //anchorAndPersonality = "[Genre: roleplay chat][Tone: very long messages with descriptions]";
                             if((anchorTop != "" || charPersonality != "") && !is_pygmalion){
                                 if(anchorTop != "") charPersonality+=' ';
-                                item+="["+charPersonality+anchorTop+']\n';
+                                item['mes']+="["+charPersonality+anchorTop+']\n';
                             }
                         }
-                        if(i >= arrMes.length-1 && count_view_mes>8 && $.trim(item).substr(0, (name1+":").length) == name1+":" && !is_pygmalion){//For add anchor in end
-                            item = item.substr(0,item.length-1);
+                        if(i >= arrMes.length-1 && count_view_mes>8 && $.trim(item['mes']).substr(0, (name1+":").length) == name1+":" && !is_pygmalion){//For add anchor in end
+                            item['mes'] = item['mes'].substr(0,item.length-1);
                             //chatString+=postAnchor+"\n";//"[Writing style: very long messages]\n";
-                            item =item+ anchorBottom+"\n";
+                            item['mes'] =item['mes']+ anchorBottom+"\n";
                         }
 
 
                         if(!free_char_name_mode && !((main_api === 'openai' || main_api === 'proxy') && isChatModel())){
-                            if(i >= arrMes.length-1 && $.trim(item).substr(0, (name1+":").length) == name1+":"){//for add name2 when user sent
-                                item =item+name2+":";
+                            if(i >= arrMes.length-1 && $.trim(item['mes']).substr(0, (name1+":").length) == name1+":"){//for add name2 when user sent
+                                item['mes'] =item['mes']+name2+":";
                             }
-                            if(i >= arrMes.length-1 && $.trim(item).substr(0, (name1+":").length) != name1+":"){//for add name2 when continue
+                            if(i >= arrMes.length-1 && $.trim(item['mes']).substr(0, (name1+":").length) != name1+":"){//for add name2 when continue
                                 if(textareaText == ""){
-                                    item =item+'\n'+name2+":";
+                                    item['mes'] =item['mes']+'\n'+name2+":";
                                 }
                             }
                         }
 
                         if(is_pygmalion){
-                            if($.trim(item).indexOf(name1) === 0){
-                                item = item.replace(name1+':', 'You:');
+                            if($.trim(item['mes']).indexOf(name1) === 0){
+                                item['mes'] = item['mes'].replace(name1+':', 'You:');
                             }
                         }
-                        
-                        mesSend[mesSend.length] = item;
+                        mesSend[mesSend.length] = {};
+                        mesSend[mesSend.length-1]['mes'] = item['mes'];
+                        if(item['image_for_recognition'] !== undefined){
+                            mesSend[mesSend.length-1]['image_for_recognition'] = item['image_for_recognition'];
+                        }
                         //chatString = chatString+item;
                     });
                     
@@ -1962,6 +1970,7 @@ $(document).ready(function(){
                 //Send story string
                 var mesSendString = '';
                 var mesExmString = '';
+                var imageRecognitionBudgetTokens = 0;
                 function setPromtString(){
                     mesSendString = '';
                     mesExmString = '';
@@ -1969,7 +1978,10 @@ $(document).ready(function(){
                         mesExmString+=mesExamplesArray[j];
                     }
                     for(let j = 0; j < mesSend.length; j++){
-                        mesSendString+=mesSend[j];
+                        mesSendString+=mesSend[j]['mes'];
+                        if(mesSend[j]['image_for_recognition'] !== undefined){
+                            imageRecognitionBudgetTokens += 85;
+                        }
                         if(type === 'force_name2' && j === mesSend.length-1 && tokens_already_generated === 0){
                             mesSendString+= name2+':';
                         }
@@ -1977,7 +1989,7 @@ $(document).ready(function(){
                 }
                 async function checkPromtSize(){
                     setPromtString();
-                    let thisPromtContextSize = await Tokenizer.encode(storyString+mesExmString+mesSendString+anchorTop+anchorBottom+charPersonality+generatedPromtCache)+this_gap_holder;
+                    let thisPromtContextSize = await Tokenizer.encode(storyString+mesExmString+mesSendString+anchorTop+anchorBottom+charPersonality+generatedPromtCache)+this_gap_holder+imageRecognitionBudgetTokens;
                     if(thisPromtContextSize > this_max_context){
                         if(count_exm_add > 0 && !keep_dialog_examples){
                             //mesExamplesArray.length = mesExamplesArray.length-1;
@@ -1991,24 +2003,48 @@ $(document).ready(function(){
                         }
                     }
                 }
-                function removeMessage(){
+                function removeMessage() {
+
                     if (this_system_depth === undefined && this_jailbreak_depth === undefined) {
-                        mesSend.shift();
+
+                        const deletedMsg = mesSend.shift();
+                        if (deletedMsg['image_for_recognition'] !== undefined) {
+                            imageRecognitionBudgetTokens -= 85;
+                        }
+
                     } else {
-                        if(this_system_depth === 0 || this_jailbreak_depth === 0){
-                            if(this_system_depth === 1 || this_jailbreak_depth === 1){
-                                mesSend.splice(2, 1);
-                            }else{
-                                mesSend.splice(1, 1);
-                                if(this_system_depth === 0 && this_jailbreak_depth !== undefined) this_jailbreak_depth--;
-                                if(this_jailbreak_depth === 0 && this_system_depth !== undefined) this_system_depth--;
+
+                        if (this_system_depth === 0 || this_jailbreak_depth === 0) {
+
+                            if (this_system_depth === 1 || this_jailbreak_depth === 1) {
+
+                                const deletedMsg = mesSend.splice(2, 1)[0];
+                                if (deletedMsg['image_for_recognition'] !== undefined) {
+                                    imageRecognitionBudgetTokens -= 85;
+                                }
+
+                            } else {
+
+                                const deletedMsg = mesSend.splice(1, 1)[0];
+                                if (deletedMsg['image_for_recognition'] !== undefined) {
+                                    imageRecognitionBudgetTokens -= 85;
+                                }
+
+                                if (this_system_depth === 0 && this_jailbreak_depth !== undefined)
+                                    this_jailbreak_depth--;
+                                if (this_jailbreak_depth === 0 && this_system_depth !== undefined)
+                                    this_system_depth--;
                             }
-                        }else{
-                            mesSend.shift();
+
+                        } else {
+
+                            const deletedMsg = mesSend.shift();
+                            if (deletedMsg['image_for_recognition'] !== undefined) {
+                                imageRecognitionBudgetTokens -= 85;
+                            }
+
                         }
                     }
-
-                    
                 }
                 
                 
@@ -2028,17 +2064,25 @@ $(document).ready(function(){
                         this_jailbreak_depth = mesSend.length; //
                     
                     if (SystemPrompt.system_prompt.length > 0 && SystemPrompt.system_depth <= SystemPrompt.system_depth_max) {
-                        mesSend.splice(this_system_depth, 0, SystemPrompt.system_prompt.replace(/{{user}}/gi, name1)
+                        let newSystemPrompt = {
+                            mes: SystemPrompt.system_prompt.replace(/{{user}}/gi, name1)
                                     .replace(/{{char}}/gi, name2)
                                     .replace(/<USER>/gi, name1)
-                                    .replace(/<BOT>/gi, name2));
+                                    .replace(/<BOT>/gi, name2)
+                        };
+
+                        mesSend.splice(this_system_depth, 0, newSystemPrompt);
                     }
 
                     if (SystemPrompt.jailbreak_prompt.length > 0) {
-                        mesSend.splice(this_jailbreak_depth+1, 0, SystemPrompt.jailbreak_prompt.replace(/{{user}}/gi, name1)
+                        let newJailbreakPrompt = {
+                            mes: SystemPrompt.jailbreak_prompt.replace(/{{user}}/gi, name1)
                                     .replace(/{{char}}/gi, name2)
                                     .replace(/<USER>/gi, name1)
-                                    .replace(/<BOT>/gi, name2));
+                                    .replace(/<BOT>/gi, name2)
+                        };
+
+                        mesSend.splice(this_jailbreak_depth + 1, 0, newJailbreakPrompt);
                         if (this_jailbreak_depth <= this_system_depth)
                             this_system_depth++;
                     }
@@ -2067,25 +2111,23 @@ $(document).ready(function(){
                     mesSend.forEach(function(item,i){
                         
                         if (SystemPrompt.system_prompt.length > 0 && this_system_depth === i  && SystemPrompt.system_depth <= SystemPrompt.system_depth_max) {
-                            finalPromt[i + 1] = {"role": "system", "content": item};
+                            finalPromt[i + 1] = {"role": "system", "content": item['mes']};
                         } else {
                             if (SystemPrompt.jailbreak_prompt.length > 0 && this_jailbreak_depth+1 === i) {
-                                finalPromt[i + 1] = {"role": "system", "content": item};
+                                finalPromt[i + 1] = {"role": "system", "content": item['mes']};
                             } else {
-                                if (item.indexOf(name1 + ':') === 0) {
-                                    const regex = /<load_img_openai>(.*?)<\/load_img_openai>/;
-                                    if(model_openai === 'gpt-4-vision-preview' && main_api === 'openai' && regex.test(item)){
+                                if (item['mes'].indexOf(name1 + ':') === 0) {
+
+                                    if(model_openai === 'gpt-4-vision-preview' && main_api === 'openai' && item['image_for_recognition'] !== undefined){
                                         
-                                        const match = item.match(regex);
-                                        
-                                        const this_openai_image_input = match[1];
-                                        item = item.replace(regex, '');
+                                        const this_openai_image_input = item['image_for_recognition'];
+
                                         finalPromt[i + 1] = {
                                             role: 'user',
                                             content: [
                                                 {
                                                     type: 'text',
-                                                    text: item
+                                                    text: item['mes']
                                                 },
                                                 {
                                                     type: 'image_url',
@@ -2097,11 +2139,11 @@ $(document).ready(function(){
                                             ]
                                         };
                                     }else{
-                                        finalPromt[i + 1] = {"role": "user", "content": item};
+                                        finalPromt[i + 1] = {"role": "user", "content": item['mes']};
                                     }
                                     
                                 } else {
-                                    finalPromt[i + 1] = {"role": "assistant", "content": item};
+                                    finalPromt[i + 1] = {"role": "assistant", "content": item['mes']};
                                 }
                             }
 
@@ -2112,7 +2154,6 @@ $(document).ready(function(){
                 }else{
                     finalPromt = storyString+mesExmString+mesSendString+generatedPromtCache;
                 }
-
                 var generate_data;
                 switch(main_api){
                     case 'kobold':
@@ -2362,12 +2403,11 @@ $(document).ready(function(){
             for (var item of chat2) {//console.log(encode("dsfs").length);
                 chatString = item['mes']+chatString;
                 if(await Tokenizer.encode(storyString+mesExmString+chatString+anchorTop+anchorBottom+charPersonality)+this_gap_holder < this_max_context){ //(The number of tokens in the entire prompt) need fix, it must count correctly (added +120, so that the description of the character does not hide)
-                    
+                    arrMes[arrMes.length] = {};
                     if(item['image_for_recognition'] !== undefined){
-                        arrMes[arrMes.length] = item['mes']+`<load_img_openai>${item['image_for_recognition'][0]['img_base64']}</load_img_openai>\n`;
-                    }else{
-                        arrMes[arrMes.length] = item['mes'];
+                        arrMes[arrMes.length-1]['image_for_recognition'] = item['image_for_recognition'][0]['img_base64'];
                     }
+                    arrMes[arrMes.length-1]['mes'] = item['mes'];
                 }else{
                     i = chat2.length-1;
                 }
@@ -3408,11 +3448,14 @@ $(document).ready(function(){
 
     });
     $(document).on('click', '.message_image_recognition_cross', function(){
+        callPopup('<h3>Delete the image?</h3>', 'delete_image_recognition');
+        $this_delete_image_recognition = $(this);
+        /*
         let this_mes_id = $(this).parent().parent().parent().attr('mesid');
         $(this).parent().remove();
         chat[this_mes_id]['image_for_recognition'] = undefined;
         saveChat();
-        //callPopup('<h3>Delete the background?</h3>', 'del_bg');
+        */
 
     });
     
@@ -3654,6 +3697,7 @@ $(document).ready(function(){
                 }
             });
             saveSettings();
+            return;
         }
         if(popup_type === 'delete_chat'){
             jQuery.ajax({
@@ -3678,6 +3722,13 @@ $(document).ready(function(){
                 }
             });
         }
+        if(popup_type === 'delete_image_recognition'){
+            let this_mes_id = $this_delete_image_recognition.parent().parent().parent().attr('mesid');
+            $this_delete_image_recognition.parent().remove();
+            chat[this_mes_id]['image_for_recognition'] = undefined;
+            saveChat();
+        }
+            
     });
     $("#dialogue_popup_cancel").click(function(){
         $("#shadow_popup").css('display', 'none');
@@ -3720,6 +3771,10 @@ $(document).ready(function(){
                 break;
             case 'convert_to_story':
 
+                $("#dialogue_popup_ok").css("background-color", "#191b31CC");
+                $("#dialogue_popup_ok").text("Yes");
+                break;
+            case 'delete_image_recognition':
                 $("#dialogue_popup_ok").css("background-color", "#191b31CC");
                 $("#dialogue_popup_ok").text("Yes");
                 break;
