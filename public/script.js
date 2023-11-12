@@ -1908,7 +1908,6 @@ $(document).ready(function(){
                         arrMes.splice(arrMes.length - 1, 0, thisInject);
                     }
 
-
                     arrMes.forEach(function(item, i, arr) {//For added anchors and others
 
                         if((i >= arrMes.length-1 && $.trim(item['mes']).substr(0, (name1+":").length) != name1+":" && (main_api !== 'openai' && main_api !== 'proxy')) || 
@@ -1929,7 +1928,7 @@ $(document).ready(function(){
                             }
                         }
                         if(i >= arrMes.length-1 && count_view_mes>8 && $.trim(item['mes']).substr(0, (name1+":").length) == name1+":" && !is_pygmalion){//For add anchor in end
-                            item['mes'] = item['mes'].substr(0,item.length-1);
+                            item['mes'] = item['mes'].substr(0,item['mes'].length-1);
                             //chatString+=postAnchor+"\n";//"[Writing style: very long messages]\n";
                             item['mes'] =item['mes']+ anchorBottom+"\n";
                         }
@@ -1965,7 +1964,7 @@ $(document).ready(function(){
 
                 //console.log(encode(characters[Characters.selectedID].description+chatString).length);
                 //console.log(encode(JSON.stringify(characters[Characters.selectedID].description+chatString)).length);
-
+                
                 //console.log(JSON.stringify(storyString));
                 //Send story string
                 var mesSendString = '';
@@ -2052,7 +2051,6 @@ $(document).ready(function(){
                 
                 let this_system_depth;
                 let this_jailbreak_depth;
-                
                 if ((main_api === 'openai' || main_api === 'proxy') && isChatModel()) {
                     this_system_depth = mesSend.length - SystemPrompt.system_depth; // for reverse array of messages
                     if (this_system_depth < 0 || SystemPrompt.system_depth > SystemPrompt.system_depth_max)
@@ -2423,13 +2421,16 @@ $(document).ready(function(){
             }
 
             for (var item of chat2) {//console.log(encode("dsfs").length);
+
                 chatString = item['mes']+chatString;
                 if(await Tokenizer.encode(storyString+mesExmString+chatString+anchorTop+anchorBottom+charPersonality)+this_gap_holder < this_max_context){ //(The number of tokens in the entire prompt) need fix, it must count correctly (added +120, so that the description of the character does not hide)
                     arrMes[arrMes.length] = {};
                     if(item['image_for_recognition'] !== undefined){
                         arrMes[arrMes.length-1]['image_for_recognition'] = item['image_for_recognition'][0]['img_base64'];
                     }
+
                     arrMes[arrMes.length-1]['mes'] = item['mes'];
+                    
                 }else{
                     i = chat2.length-1;
                 }
@@ -2468,6 +2469,7 @@ $(document).ready(function(){
                         }
                         //storyString+='\nThen the roleplay chat between '+name1+' and '+name2+' begins.\n';
                     }
+                    
                     runGenerate();
                     return;
                 }
