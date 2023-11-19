@@ -1,5 +1,6 @@
 //import {Main.requestTimeout, main_api, singleline} from "../script.js";
 import * as Main from "../script.js";
+import {SystemPrompt} from "../script.js";
 import {Tavern} from "./Tavern.js";
 import {EventEmitter} from "./EventEmitter.mjs";
 
@@ -120,22 +121,74 @@ export class StoryModule extends EventEmitter {
                 memory += Main.Characters.id[Main.Characters.selectedID].description+'\n';
             }
         }
-        let thisTokensCount = await Main.Tokenizer.encode(memory+pre_prompt)+this_gap_holder;
-        while(thisTokensCount > this_max_context){
-            let difference = thisTokensCount - this_max_context;
-            pre_prompt = pre_prompt.substring(Math.floor(difference*2.5));
-            if(pre_prompt <= 0){
-                alert('Promt does not fit into the context.');
+        //Count tokens
+        let sentences = pre_prompt.split(/(?<=[.\n])/).map(sentence => ({ sentence }));
+        let thisTokensCount = 99999999999;
+        let is_system_prompt = 0;
+        let is_jailbreak_prompt = 0;
+        
+        
+        while (thisTokensCount > this_max_context) {
+            sentences.shift();
+            sentences.reverse();
+            if ((Main.main_api === 'openai' || Main.main_api === 'proxy') && Main.isChatModel()){
+                
+            }
+            if (SystemPrompt.system_prompt !== "" && (Main.main_api === 'openai' || Main.main_api === 'proxy') && Main.isChatModel()) {
+                let is_system_prompt = 1;
+                sentences.splice(SystemPrompt.system_depth, 0, {sentence: SystemPrompt.system_prompt, role: "system"});
+            }
+
+            if (SystemPrompt.jailbreak_prompt !== "" && (Main.main_api === 'openai' || Main.main_api === 'proxy') && Main.isChatModel()) {
+                let is_jailbreak_prompt = 1;
+                sentences.splice(SystemPrompt.jailbreak_depth, 0, {sentence: SystemPrompt.jailbreak_prompt, role: "system"});
+            }
+
+            sentences.reverse();
+
+            // Extracting 'sentence' property and joining them
+            pre_prompt = sentences.map(obj => obj.sentence).join('');
+
+            thisTokensCount = await Main.Tokenizer.encode(memory + pre_prompt) + this_gap_holder;
+
+            if (sentences.length <= 0 + is_system_prompt + is_jailbreak_prompt) {
+                alert('Prompt does not fit into the context.');
                 break;
                 //need to add error handler for this
             }
-            thisTokensCount = await Main.Tokenizer.encode(memory+pre_prompt)+this_gap_holder;
+
+            thisTokensCount = await Main.Tokenizer.encode(memory + pre_prompt) + this_gap_holder;
         }
+        
         if ((Main.main_api === 'openai' || Main.main_api === 'proxy') && Main.isChatModel()){
+            let combinedSentences = [];
+            let currentSentence = {sentence: '', role: ''};
+
+            for (let i = 0; i < sentences.length; i++) {
+                if (sentences[i].role !== "system") {
+                    currentSentence.sentence += sentences[i].sentence;
+                } else {
+                    if (currentSentence.sentence !== '') {
+                        combinedSentences.push(currentSentence);
+                        currentSentence = {sentence: '', role: ''};
+                    }
+                    combinedSentences.push(sentences[i]);
+                }
+            }
+
+            // Add the last combined sentence if it exists
+            if (currentSentence.sentence !== '') {
+                combinedSentences.push(currentSentence);
+            }
+            console.log(combinedSentences);
             prompt = [];
             prompt[0] = {"role": "assistant", "content": memory};
             //prompt[1] = {"role": "system", "content": $('#system_prompt_textarea').val()};
-            prompt[1] = {"role": "assistant", "content": pre_prompt};
+            combinedSentences.forEach(function(item,i){
+                prompt[i+1] = {"role": "assistant", "content": item['sentence']};
+                if(item['role'] === 'system') prompt[i+1]['role'] = 'system';
+                
+            });
             //prompt[3] = {"role": "system", "content": $('#jailbreak_prompt_textarea').val()};
             
         }else{
