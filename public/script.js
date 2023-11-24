@@ -1913,7 +1913,7 @@ $(document).ready(function(){
                         if((i >= arrMes.length-1 && $.trim(item['mes']).substr(0, (name1+":").length) != name1+":" && (main_api !== 'openai' && main_api !== 'proxy')) || 
                                 (i >= arrMes.length-1 && $.trim(item['mes']).substr(0, (name1+":").length) != name1+":" && (main_api === 'openai' || main_api === 'proxy') && SystemPrompt.jailbreak_prompt.lenght === 0)){
                             if(textareaText == ""){
-                                item['mes'] = item['mes'].substr(0,item.length-1);
+                                item['mes'] = item['mes'].substr(0,item['mes'].length-1);
                             }
                         }
 
