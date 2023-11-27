@@ -383,6 +383,7 @@ app.post("/generate_webui", jsonParser, function(request, response_generate){
     let this_settings = {
         prompt: request.body.prompt,
         max_new_tokens: request.body.max_new_tokens,
+        max_tokens: request.body.max_new_tokens,
         preset: 'None',
         do_sample: true,
         temperature: request.body.temperature,
@@ -410,9 +411,9 @@ app.post("/generate_webui", jsonParser, function(request, response_generate){
         truncation_length: request.body.truncation_length,
         ban_eos_token: false,
         skip_special_tokens: true,
-        stopping_strings: request.body.stopping_strings
+        stopping_strings: request.body.stopping_strings,
+        stop: request.body.stopping_strings
     };
-
     console.log(this_settings);
     var args = {
         data: this_settings,
@@ -421,7 +422,7 @@ app.post("/generate_webui", jsonParser, function(request, response_generate){
             timeout: connectionTimeoutMS
         }
     };
-    client.post(api_server+"/v1/generate",args, function (data, response) {
+    client.post(api_server+"/v1/completions",args, function (data, response) {
         if(response.statusCode == 200){
             console.log(data);
             response_generate.send(data);
@@ -453,9 +454,8 @@ app.post("/tokenizer_webui", jsonParser, function(request, response_tokenizer){
     //console.log(request.body);
 
     let this_data = {
-        prompt: request.body.prompt
+        text: request.body.prompt
     };
-
     var args = {
         data: this_data,
         headers: { "Content-Type": "application/json" },
@@ -463,7 +463,7 @@ app.post("/tokenizer_webui", jsonParser, function(request, response_tokenizer){
             timeout: connectionTimeoutMS
         }
     };
-    client.post(api_server+"/v1/token-count",args, function (data, response) {
+    client.post(api_server+"/v1/internal/encode",args, function (data, response) {
         if(response.statusCode == 200){
             response_tokenizer.send(data);
         }
@@ -718,7 +718,8 @@ app.post("/getstatus_webui", jsonParser, function(request, response_getstatus){
     var args = {
         headers: { "Content-Type": "application/json" }
     };
-    client.get(api_server+"/v1/model",args, function (data, response) {
+    
+    client.get(api_server+"/v1/internal/model/info",args, function (data, response) {
         if(response.statusCode == 200){
             if(data.result != "ReadOnly"){
                 
