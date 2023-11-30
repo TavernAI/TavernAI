@@ -1848,7 +1848,7 @@ $(document).ready(function(){
                         this_max_context-=160;
                     }
                     if(model_novel === 'clio-v1' || model_novel === 'kayra-v1'){
-                        this_max_context = 8192;
+                        this_max_context = 8000;//FunkEngine Fixing for what I suspect may be our failure to include JBs/prompts in token counts here as well, specific with kayra-vi 2023-11-30 @Zando in discord.
                         this_max_context-=160;//fix for fat tokens 
                     }
                 }
