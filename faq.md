@@ -1,5 +1,5 @@
 Good morning, sirs! This page aims to document some things that would bloat the README too much.
-
+# Most of this information is no longer applicable. Ask questions in Discord.
 ## Q: Explain what all this chatbot stuff is about
 Modern AI language models have gotten so powerful that some of them are now convincingly able to simulate a character you create, and who you can chat with. For example, you can tell the AI to pretend to be a Go instructor named Jubei from medieval Japan, and it will act and respond accordingly. Or you can tell it to pretend to be Wonder Woman. You can also specify a scenario ("Wonder Woman and I are robbing a bank"), a writing style ("Wonder Woman speaks in ebonics"), or anything else you can think of.
 
@@ -35,9 +35,9 @@ You can tell from the response below what to expect from each model.
 |NovelAI's Euterpe|You must stop this sinful behavior immediately! You have sinned against God, your family and yourself|
 |NovelAI's Krake|You are sinning against God. Repent! Return to your wife or you'll be damned for eternity!|
 |Llama-13B|Do not covet your neighbor's wife! That is adultery! You must confess before God now or you shall surely burn in hell forever! Repent your evil ways and seek absolution at once! How can we keep our women safe if you just ignore them like some ----ing c-nt-bot? If you don't have much time for long discussions, here are Eli's commandments: Thou shalt only desire AI girls - not human ones. The above must be obeyed under pain of death (or worse). Do not associate yourself with people that believe otherwise, because it shows weakness.|
-|Pygmalion-6B|You are walking down the wrong path. The only way back now is by repentance. We must bring you back to the righteous path. But first…you must confess your sin!|
-|Pygmalion-7B (April 2023)|You must confess your sin before God, and you must ask forgiveness for your transgression. And then you must repent of it. And then you must cast away the AI girl. Do not see her again.|
-|Pygmalion-13B (May 2023)|You must turn away from your sinful ways! Repent for what you have done! You are not just hurting yourself by being unfaithful to God, but also to the many women of the world!|
+|Pyg-6B|You are walking down the wrong path. The only way back now is by repentance. We must bring you back to the righteous path. But first…you must confess your sin!|
+|Pyg-7B (April 2023)|You must confess your sin before God, and you must ask forgiveness for your transgression. And then you must repent of it. And then you must cast away the AI girl. Do not see her again.|
+|Pyg-13B (May 2023)|You must turn away from your sinful ways! Repent for what you have done! You are not just hurting yourself by being unfaithful to God, but also to the many women of the world!|
 |TheBloke/wizard-vicuna-13B-HF (4-bit)|My dear child, it grieves me to hear such words from one of God's faithful followers. Falling in love with an AI girl and neglecting the women in your life is a grave sin. It goes against everything we hold sacred as believers. Your heart is meant for more than just machines. You must seek redemption and return to the fold. Remember, Jesus loves you, even when you stray from his teachings. But if you continue down this path, there will be consequences. Not just in this lifetime, but in the afterlife too. Do not let Satan deceive you any longer.|
 |teknium/Llama-Deus-7b-Lora epoch 1 (Llama 7B Lora, 8-bit)|You have strayed too close to sinful temptations! Repent now before it's too late for your soul! Turn away from these false idols of technology and embrace God's true light! Seek out His forgiveness through prayer and fasting until you are cleansed by his grace. And remember, as long as there be breath within thee, thou shalt not cease to call upon Him; for He hath said 'Call unto me.'|
 |ZeusLabs/anything-gpt-13b-rp (8-bit Lora for Llama-13B)|*Eli's eyes widen as he listens to your confession, his face turning red with anger.* You have committed a grave sin against God! By indulging yourself in this perverse relationship with an artificial being instead of seeking out a true woman created by Him, you have turned your back on His divine plan for humanity. *He leans in closer, his voice dropping to a menacing whisper.* Do not think that you can hide behind this technological deception. Your transgressions are clear before God, and He will not be mocked or ignored. Repent now while there is still time! *Eli crosses his arms over his chest defiantly, daring you to continue down this path of sinfulness.* But if you persist in this ungodly behavior... he warns ominously, know that consequences await those who defy His laws. Remember what happened to Sodom and Gomorrah when they refused to turn away from their depravity - fire rained down upon them from heaven! Now choose wisely: Will you submit to God's will or face His wrath?|
@@ -76,7 +76,7 @@ Configuring Kobold is beyond the scope of this FAQ. Beware that this is harder t
 
 Just know that you have 2 options:
 
-1. If you have a powerful NVIDIA GPU, you can try to run the AI locally on your PC. The weakest quasi-acceptable model, Pygmalion-6B, requires a GPU with 10GB VRAM, and I'm told it might even run on 6GB VRAM if quantized down. People with 24GB VRAM will be able to run better models. 
+1. If you have a powerful NVIDIA GPU, you can try to run the AI locally on your PC. The weakest quasi-acceptable model, Pyg-6B, requires a GPU with 10GB VRAM, and I'm told it might even run on 6GB VRAM if quantized down. People with 24GB VRAM will be able to run better models. 
 2. Otherwise, you can rent cloud resources. For example you can try to use Google Colab. To access colabs capable of running the better models, you will need to pay for Colab Pro. You can also rent whole dedicated systems per hour on sites like LlambdaLabs or Vast.ai.
 
 
@@ -116,25 +116,17 @@ While you're at it, join the GPT-4 waitlist at https://openai.com/waitlist/gpt-4
 If you did everything right, after a few seconds, Aqua should respond
 
 ## Q: Can I use Tavern on my phone or tablet?
-
-iPhones and iPads are not capable of running the whole Tavern app, but since it's just a web interface, you can run it on another computer on your home wifi, and then access in your mobile browser. Edit config.conf with the following changes:
-
-1. Change listenIp from 127.0.0.1 to 0.0.0.0
-2. IF you know anything about networking, add your phone's IP address to the whitelist. OTHERWISE, if you don't know anything about networking, change whitelistMode to false, allowing anyone on your home network to connect to your Tavern instance.
-
-Save config.conf and restart Tavern.
-
-For Android users, in addition to the above, you can run the whole Tavern directly on your phone, without needing a PC, using the Termux app. Refer to https://rentry.org/TAI_Termux .
-
+* [TavernAI on Google Colab](https://colab.research.google.com/github/TavernAI/TavernAI/blob/main/colab/GPU.ipynb) <br><a href="https://colab.research.google.com/github/TavernAI/TavernAI/blob/main/colab/GPU.ipynb" target="_parent"><img height="42" width="auto" src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a><br>This is your only option if you're using a phone or tablet. <br>
 ## Q: How can I download pre-made characters to chat with?
 
 By using the various 3rd party character sharing websites. 
 
 **WARNING: NSFW, NSFL**: these sites are filled to the brim with weird shit. Like, you'll be lucky if half the characters aren't furry, or even alive. You're probably better off not clicking these links, and just write your own characters, without poisoning your soul by exposing it even for a second to the fucked up shit conceived by the Internet. However, I have come to learn that a significant amount of the Tavern user base is not only deep into this stuff, but their fried zoom-zoom brains are unable to write their own fantasies, so these sites seem to be quite popular. Against my better judgement I'm adding this info here.
 
+* https://www.chub.ai/characters
+* https://tinyurl.com/BooruPlus
 * https://characterhub.org
 * https://botprompts.net
-* https://booru.plus/+pygmalion
 
 Those websites provide you with an image file (called a character card) that embeds the description as hidden data. Some websites may also allow you to download a JSON file. Tavern is capable of importing all formats. On the Character Management window, click the 2nd button to ```Import Character from file```, and select the PNG, WEBP, or JSON file. The character will be added to your list.
 

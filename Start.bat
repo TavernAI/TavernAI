@@ -1,2 +1,3 @@
-call npm install
-node server.js
+cmd /c powershell.exe -noexit -command "%CD%\start.ps1"
+Pause
+

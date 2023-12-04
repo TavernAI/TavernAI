@@ -522,8 +522,8 @@ hr {
     width: 27px;
     cursor: pointer;
     position: absolute; /* Add absolute position */
-    top: 50%; /* Vertically center */
-    transform: translateY(-50%);
+    top: 93%; /* Vertically center */
+    transform: translateY(-93%);
     z-index: 3; /* Add a z-index */
 }
 .swipe_right img,.swipe_left img {
