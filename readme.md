@@ -26,8 +26,9 @@
 * Edit, delete, and move any message
 * GPT-4.5 picture recognition
 
+* 
 ## How to install
-1. Download and install: [Node.js](https://nodejs.org/dist/v20.8.0/node-v20.8.0-x64.msi) Please tick the box in the installer for "Additional Build-Tools" and answer Yes to All when the tools install script asks. <br>For [Win7x64SP1](https://nodejs.org/dist/v20.2.0/node-v20.2.0-x64.msi), [Wndows 10+](https://nodejs.org/dist/v21.3.0/node-v21.3.0-x64.msi), [MacOS](https://nodejs.org/dist/v21.3.0/node-v21.3.0.pkg), as well as [Linux(Source)](https://nodejs.org/dist/v21.3.0/node-v21.3.0.tar.gz) and [Debian/Ubuntu(Binaries)](https://nodejs.org/dist/v21.3.0/node-v21.3.0-linux-x64.tar.xz) 
+1. Download and install: [Node.js](https://nodejs.org/en/download/current) Please tick the box in the installer for "Additional Build-Tools" and answer Yes to All when the tools install script asks. <br>For [Win7x64SP1](https://nodejs.org/dist/v20.2.0/node-v20.2.0-x64.msi), [Wndows 10+](https://nodejs.org/dist/v21.3.0/node-v21.3.0-x64.msi), [MacOS](https://nodejs.org/dist/v21.3.0/node-v21.3.0.pkg), as well as [Linux(Source)](https://nodejs.org/dist/v21.3.0/node-v21.3.0.tar.gz) and [Debian/Ubuntu(Binaries)](https://nodejs.org/dist/v21.3.0/node-v21.3.0-linux-x64.tar.xz) 
 2. Download [TavernAI](https://github.com/TavernAI/TavernAI/archive/refs/heads/main.zip)
 
 Then:
