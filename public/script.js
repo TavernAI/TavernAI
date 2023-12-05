@@ -2631,7 +2631,7 @@ $(document).ready(function(){
     function getIDsByNames(ch_names) {
         let ids = [];
         ch_names.forEach(function(name) {
-            const ch_ext = ".webp"; // Assumed that character files would always have .webp extension
+            const ch_ext = ".png"; // Assumed that character files would always have .webp extension
             ids.push(Characters.getIDbyFilename(name+ch_ext));
         });
         return ids;
@@ -2640,7 +2640,7 @@ $(document).ready(function(){
     // Assumed that the chat array is filled already
     function assignIDsByNames() {
         chat.forEach(function(mes, i) {
-            const ch_ext = ".webp"; // Assumed that character files would always have .webp extension
+            const ch_ext = ".png"; // Assumed that character files would always have .webp extension
             chat[i].chid = Characters.getIDbyFilename(mes.name+ch_ext);
         });
     }
