@@ -558,7 +558,7 @@ router.post("/users/avatar", urlencodedParser, async function (request, response
         let user_name = request.body.user_name;
         let img_name = '';
         let filedata = request.file;
-            //console.log(filedata.filename);
+            //console.log(filedata.filename);
         var format = request.body.file_type;
         const sourcePath = './uploads/' + filedata.filename;
         const stats = fs.statSync(sourcePath);
@@ -586,7 +586,6 @@ router.post("/users/avatar", urlencodedParser, async function (request, response
                         .resize(100, 100)
                         .toFormat('webp')
                         .toFile(destPath);
-                
                         const imagePath = destPath;
                         let data = {
                             image: {
@@ -614,7 +613,6 @@ router.post("/users/avatar", urlencodedParser, async function (request, response
                             }
                             return response.status(200).json(result.body);
                         });
-
                     } catch (err) {
                         console.log(err);
                         return response.status(400).json({error: err.toString()});
@@ -627,7 +625,6 @@ router.post("/users/avatar", urlencodedParser, async function (request, response
         console.log(err);
         return response.status(400).json({error: err.toString()});
     }
-
 });
 
 router.post("/category/characters", jsonParser, function (request, response_characloud_category) {
