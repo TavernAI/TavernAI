@@ -1,3 +1,3 @@
-cmd /c PowerShell -NoExit -Command "& {.\Start.ps1}"
+cmd /c PowerShell -NoExit -Command "& {".\Start.ps1"}"
 Pause
 
