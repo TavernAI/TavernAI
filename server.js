@@ -9,9 +9,9 @@ const multer  = require("multer");
 const https = require('https');
 const http = require('http');
 //const PNG = require('pngjs').PNG;
-const extract = require('png-chunks-extract');
-const encode = require('png-chunks-encode');
-const PNGtext = require('png-chunk-text');
+const extract = require('png-chunks-extract');
+const encode = require('png-chunks-encode');
+const PNGtext = require('png-chunk-text');
 const ExifReader = require('exifreader');
 
 const url = require('url');
@@ -61,9 +61,7 @@ var client = new Client();
 
 
 
-var api_server = "";//"http://127.0.0.1:5000";
-//var server_port = 8000;
-
+var api_server = "http://127.0.0.1:5000/api";//"http://127.0.0.1:5000";
 const api_novelai = "https://api.novelai.net";
 const api_openai = "https://api.openai.com/v1";
 const api_horde = "https://stablehorde.net/api";
@@ -115,15 +113,15 @@ const CSRF_SECRET = crypto.randomBytes(8).toString('hex');
 const COOKIES_SECRET = crypto.randomBytes(8).toString('hex');
 
 const { invalidCsrfTokenError, generateToken, doubleCsrfProtection } = doubleCsrf({
-	getSecret: () => CSRF_SECRET,
-	cookieName: "X-CSRF-Token",
-	cookieOptions: {
-		httpOnly: true,
-		sameSite: "strict",
-		secure: false
-	},
-	size: 64,
-	getTokenFromRequest: (req) => req.headers["x-csrf-token"]
+    getSecret: () => CSRF_SECRET,
+    cookieName: "X-CSRF-Token",
+    cookieOptions: {
+        httpOnly: true,
+        sameSite: "strict",
+        secure: false
+    },
+    size: 64,
+    getTokenFromRequest: (req) => req.headers["x-csrf-token"]
 });
 
 app.get("/csrf-token", (req, res) => {
@@ -153,7 +151,7 @@ if (csrf_token) {
 app.use(function (req, res, next) { //Security
     let clientIp = req.connection.remoteAddress;
     let ip = ipaddr.parse(clientIp);
-    // Check if the IP address is IPv4-mapped IPv6 address
+    //Check if the IP address is IPv4-mapped IPv6 address
     if (ip.kind() === 'ipv6' && ip.isIPv4MappedAddress()) {
       const ipv4 = ip.toIPv4Address().toString();
       clientIp = ipv4;
@@ -162,7 +160,7 @@ app.use(function (req, res, next) { //Security
       clientIp = clientIp.toString();
     }
     
-     //clientIp = req.connection.remoteAddress.split(':').pop();
+    //clientIp = req.connection.remoteAddress.split(':').pop();
     if (whitelistMode === true && !whitelist.includes(clientIp)) {
         console.log('Forbidden: Connection attempt from '+ clientIp+'. If you are attempting to connect, please add your IP address in whitelist or disable whitelist mode in config.conf in root of TavernAI folder.\n');
         return res.status(403).send('<b>Forbidden</b>: Connection attempt from <b>'+ clientIp+'</b>. If you are attempting to connect, please add your IP address in whitelist or disable whitelist mode in config.conf in root of TavernAI folder.');
@@ -258,12 +256,10 @@ app.use('/User%20Avatars', (req, res) => {
 
 app.use(multer({dest:"uploads"}).single("avatar"));
 app.get("/", function(request, response){
-    response.sendFile(__dirname + "/public/index.html"); 
-    //response.send("<h1>Главная страница</h1>");
+    response.sendFile(__dirname + "/public/index.html"); 
 });
 app.get("/notes/*", function(request, response){
-    response.sendFile(__dirname + "/public"+request.url+".html"); 
-    //response.send("<h1>Главная страница</h1>");
+    response.sendFile(__dirname + "/public"+request.url+".html"); 
 });
 app.post("/getlastversion", jsonParser, function(request, response_getlastversion = response){
     if(!request.body) return response_getlastversion.sendStatus(400);
@@ -294,10 +290,14 @@ app.post("/getlastversion", jsonParser, function(request, response_getlastversio
     req.end();
         
 });
+
+
+
+
 //**************Kobold api
 app.post("/generate", jsonParser, function(request, response_generate = response){
     if(!request.body) return response_generate.sendStatus(400);
-    //console.log(request.body.prompt);
+    //console.log(request.body.prompt);
     //const dataJson = json5.parse(request.body);
     request_promt = request.body.prompt;
     
@@ -367,15 +367,18 @@ app.post("/generate", jsonParser, function(request, response_generate = response
         }
     }).on('error', function (err) {
         console.log(err);
-	//console.log('something went wrong on the request', err.request.options);
+    //console.log('something went wrong on the request', err.request.options);
         response_generate.send({error: true, error_message: "Unspecified error while sending the request.\n" + err});
     });
 });
 
+
+
+
 //**************WEBUI api
 app.post("/generate_webui", jsonParser, function(request, response_generate){
     if(!request.body) return response_generate.sendStatus(400);
-    //console.log(request.body.prompt);
+    //console.log(request.body.prompt);
     //const dataJson = json5.parse(request.body);
     
     //console.log(request.body);
@@ -440,14 +443,14 @@ app.post("/generate_webui", jsonParser, function(request, response_generate){
         }
     }).on('error', function (err) {
         console.log(err);
-	//console.log('something went wrong on the request', err.request.options);
+    //console.log('something went wrong on the request', err.request.options);
         response_generate.send({error: true, error_message: "Unspecified error while sending the request.\n" + err});
     });
 });
 
 app.post("/tokenizer_webui", jsonParser, function(request, response_tokenizer){
     if(!request.body) return response_generate.sendStatus(400);
-    //console.log(request.body.prompt);
+    //console.log(request.body.prompt);
     //const dataJson = json5.parse(request.body);
     
     //console.log(request.body);
@@ -481,10 +484,12 @@ app.post("/tokenizer_webui", jsonParser, function(request, response_tokenizer){
         }
     }).on('error', function (err) {
         console.log(err);
-	//console.log('something went wrong on the request', err.request.options);
+    //console.log('something went wrong on the request', err.request.options);
         response_tokenizer.send({error: true, error_message: "Unspecified error while sending the request.\n" + err});
     });
 });
+
+
 
 
 app.post("/savechat", jsonParser, function(request, response){
@@ -705,7 +710,7 @@ app.post("/getstatus", jsonParser, function(request, response_getstatus = respon
         //data.results[0].text
     }).on('error', function (err) {
         //console.log('');
-	//console.log('something went wrong on the request', err.request.options);
+    //console.log('something went wrong on the request', err.request.options);
         response_getstatus.send({result: "no_connection"});
     });
 });
@@ -736,13 +741,13 @@ app.post("/getstatus_webui", jsonParser, function(request, response_getstatus){
         //data.results[0].text
     }).on('error', function (err) {
         //console.log('');
-	//console.log('something went wrong on the request', err.request.options);
+    //console.log('something went wrong on the request', err.request.options);
         response_getstatus.send({result: "no_connection"});
     });
 });
 function checkServer(){
     //console.log('Check run###################################################');
-    api_server = 'http://127.0.0.1:5000';
+    api_server = 'http://127.0.0.1:5000/api';
     var args = {
         headers: { "Content-Type": "application/json" }
     };
@@ -753,12 +758,25 @@ function checkServer(){
     }).on('error', function (err) {
         console.log(err);
         //console.log('');
-	//console.log('something went wrong on the request', err.request.options);
+    //console.log('something went wrong on the request', err.request.options);
         //console.log('errorrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr');
     });
 }
 
-//***************** Main functions
+
+
+
+//================================================================================================
+//=  =====  =========================        =====================================================
+//=   ===   =========================  ===========================================================
+//=  =   =  =========================  ==============================  ===========================
+//=  == ==  ===   ===  ==  = ========  ========  =  ==  = ====   ===    ==  ===   ===  = ====   ==
+//=  =====  ==  =  ======     =======      ====  =  ==     ==  =  ===  =======     ==     ==  =  =
+//=  =====  =====  ==  ==  =  =======  ========  =  ==  =  ==  ======  ===  ==  =  ==  =  ===  ===
+//=  =====  ===    ==  ==  =  =======  ========  =  ==  =  ==  ======  ===  ==  =  ==  =  ====  ==
+//=  =====  ==  =  ==  ==  =  =======  ========  =  ==  =  ==  =  ===  ===  ==  =  ==  =  ==  =  =
+//=  =====  ===    ==  ==  =  =======  =========    ==  =  ===   ====   ==  ===   ===  =  ===   ==
+//================================================================================================
 function checkCharaProp(prop) {
   return (String(prop) || '')
       .replace(/[\u2018\u2019‘’]/g, "'")
@@ -892,9 +910,8 @@ app.post("/createcharacter", urlencodedParser, async function(request, response)
     }else{
         response.send("Error: A character with that name already exists.");
     }
-    //console.log(request.body);
-    //response.send(target_img);
-
+    //console.log(request.body);
+    //response.send(target_img);
     //response.redirect("https://metanit.com")
 });
 
@@ -923,10 +940,10 @@ app.post("/createroom", urlencodedParser, async function(request, response){
     }else{
         response.send("Error: A room with that name already exists.");
     }
-    //console.log(request.body);
-    //response.send(target_img);
 
     //response.redirect("https://metanit.com")
+    //console.log(request.body);
+    //response.send(target_img);
 });
 
 app.post("/editcharacter", urlencodedParser, async function(request, response){
@@ -1144,8 +1161,7 @@ async function charaRead(img_url, input_format){
             return base64DecodedData;
         default:
             break;
-    }                   
-
+    }
 }
 
 // The function already appends the roomsPath before filedir (filename), and the .jsonl extension after the filedir
@@ -1437,7 +1453,7 @@ app.post("/adduseravatar", urlencodedParser, function(request, response){
         if(!request.body) return response.sendStatus(400);
 
         let filedata = request.file; 
-        let fileType = ".webp";
+        let fileType = ".png";
         let img_file;
 
         let img_path = "uploads/";
@@ -1445,7 +1461,7 @@ app.post("/adduseravatar", urlencodedParser, function(request, response){
 
         sharp(img_path+img_file)
             .resize(400, 600)
-            .toFormat('webp')
+            .toFormat('png')
             .toFile(`${UserAvatarsPath}${img_file}${fileType}`, (err) => {
                 if(err) {
                     console.log(err);
@@ -1475,7 +1491,7 @@ app.post("/deleteuseravatar", jsonParser, function (request, response) {
 app.post("/setbackground", jsonParser, function(request, response){
     //console.log(request.data);
     //console.log(request.body.bg);
-     //const data = request.body;
+    //const data = request.body;
     //console.log(request);
     //console.log(1);
     let bg;
@@ -1514,7 +1530,7 @@ app.post("/downloadbackground", urlencodedParser, function(request, response){
     if(!request.body) return response.sendStatus(400);
 
     let filedata = request.file;
-    //console.log(filedata.mimetype);
+    //console.log(filedata.mimetype);
     var fileType = ".png";
     var img_file = "ai";
     var img_path = "public/img/";
@@ -1587,7 +1603,7 @@ app.post('/getsettings', jsonParser, (request, response) => { //Wintermute's cod
     }
     
     settings = JSON.stringify(settings_data);
-  //Kobold
+    //Kobold
     const files = fs
     .readdirSync('public/KoboldAI Settings')
     .sort(
@@ -1610,7 +1626,7 @@ app.post('/getsettings', jsonParser, (request, response) => { //Wintermute's cod
         koboldai_setting_names.push(item.replace(/\.[^/.]+$/, ''));
     });
     
-  //Novel
+    //Novel
     const files2 = fs
     .readdirSync('public/NovelAI Settings')
     .sort(
@@ -1764,7 +1780,7 @@ return new Date(fs.statSync(path + '/' + a).mtime) - new Date(fs.statSync(path +
 app.post("/getstatus_novelai", jsonParser, function(request, response_getstatus_novel =response){
     
     if(!request.body) return response_getstatus_novel.sendStatus(400);
-    api_key_novel = request.body.key;
+    api_key_novel = request.body.key;
     var data = {};
     var args = {
         data: data,
@@ -1786,7 +1802,7 @@ app.post("/getstatus_novelai", jsonParser, function(request, response_getstatus_
         }
     }).on('error', function (err) {
         //console.log('');
-	//console.log('something went wrong on the request', err.request.options);
+    //console.log('something went wrong on the request', err.request.options);
         response_getstatus_novel.send({error: true, error_message: "Unspecified error while sending the request.\n" + err});
     });
 });
@@ -1801,29 +1817,29 @@ app.post("/generate_novelai", jsonParser, function(request, response_generate_no
     "input": request.body.input,
     "model": request.body.model,
     "parameters": {
-                "use_string": request.body.use_string,
-		"temperature": request.body.temperature,
-		"max_length": request.body.max_length,
-		"min_length": request.body.min_length,
-                "top_a": request.body.top_a,
-                "top_k": request.body.top_k,
-                "top_p": request.body.top_p,
-                "typical_p": request.body.typical_p,
-		"tail_free_sampling": request.body.tail_free_sampling,
-		"repetition_penalty": request.body.repetition_penalty,
-		"repetition_penalty_range": request.body.repetition_penalty_range,
-                "repetition_penalty_slope": request.body.repetition_penalty_slope,
-		"repetition_penalty_frequency": request.body.repetition_penalty_frequency,
-		"repetition_penalty_presence": request.body.repetition_penalty_presence,
-		//"stop_sequences": {{187}},
-		//bad_words_ids = {{50256}, {0}, {1}};
-		//generate_until_sentence = true;
-		"use_cache": request.body.use_cache,
-		//use_string = true;
-		"return_full_text": request.body.return_full_text,
-		"prefix": request.body.prefix,
-		"order": request.body.order
-                }
+        "use_string": request.body.use_string,
+        "temperature": request.body.temperature,
+        "max_length": request.body.max_length,
+        "min_length": request.body.min_length,
+        "top_a": request.body.top_a,
+        "top_k": request.body.top_k,
+        "top_p": request.body.top_p,
+        "typical_p": request.body.typical_p,
+        "tail_free_sampling": request.body.tail_free_sampling,
+        "repetition_penalty": request.body.repetition_penalty,
+        "repetition_penalty_range": request.body.repetition_penalty_range,
+        "repetition_penalty_slope": request.body.repetition_penalty_slope,
+        "repetition_penalty_frequency": request.body.repetition_penalty_frequency,
+        "repetition_penalty_presence": request.body.repetition_penalty_presence,
+        //"stop_sequences": {{187}},
+        //bad_words_ids = {{50256}, {0}, {1}};
+        //generate_until_sentence = true;
+        "use_cache": request.body.use_cache,
+        //use_string = true;
+        "return_full_text": request.body.return_full_text,
+        "prefix": request.body.prefix,
+        "order": request.body.order
+        }
     };
                         
     var args = {
@@ -1856,7 +1872,7 @@ app.post("/generate_novelai", jsonParser, function(request, response_generate_no
         }
     }).on('error', function (err) {
         //console.log('');
-	//console.log('something went wrong on the request', err.request.options);
+    //console.log('something went wrong on the request', err.request.options);
         response_generate_novel.send({error: true, error_message: "Unspecified error while sending the request.\n" + err});
     });
 });
@@ -2052,7 +2068,7 @@ app.post("/getstatus_openai", jsonParser, function(request, response_getstatus_o
         }
     }).on('error', function (err) {
         //console.log('');
-	//console.log('something went wrong on the request', err.request.options);
+    //console.log('something went wrong on the request', err.request.options);
         response_getstatus_openai.send({error: true, error_message: "Unspecified error while sending the request.\n" + err});
     });
 });
@@ -2157,7 +2173,7 @@ app.post("/generate_openai", jsonParser, function(request, response_generate_ope
         }
     }).on('error', function (err) {
         //console.log('');
-	//console.log('something went wrong on the request', err.request.options);
+    //console.log('something went wrong on the request', err.request.options);
         response_generate_openai.send({error: true, error_message: "Unspecified error while sending the request.\n" + err});
     });
 });
@@ -2274,7 +2290,7 @@ app.post("/importcharacter", urlencodedParser, async function(request, response)
                         char = JSON.stringify(char);
                         await charaWrite('./public/img/fluffy.png', char, charactersPath + img_name, characterFormat);
                         response.status(200).send({file_name: img_name});
-                    }else if(jsonData.char_name !== undefined){//json Pygmalion notepad
+                    }else if(jsonData.char_name !== undefined){
                         img_name = setCardName(jsonData.char_name);
                         let pre_data = {"name": jsonData.char_name, "description": jsonData.char_persona, "personality": '', "first_mes": jsonData.char_greeting, "avatar": 'none', "chat": Date.now(), "mes_example": jsonData.example_dialogue, "scenario": jsonData.world_scenario};
                         let char = charaFormatData(pre_data);
@@ -2327,16 +2343,16 @@ app.post("/importchat", urlencodedParser, function(request, response){
         let filedata = request.file;
         let avatar_url = (request.body.filename).replace(`.${characterFormat}`, '');
         let ch_name = request.body.character_name;
-        //console.log(filedata.filename);
+        //console.log(filedata.filename);
         //var format = request.body.file_type;
         //console.log(format);
-       //console.log(1);
-        if(filedata){
-
-            /** Raw format; assumes:
-             * You: Hello! *Waves*
-             * Them: *Smiles* Hello!
-             */
+        //console.log(1);
+        if(filedata){
+            //
+            //The "Raw format;" assumes the following:
+            //You: Hello! *Waves*
+            //Them: *Smiles* Hello!
+            //
             if(format === 'txt'){
                 const fileStream = fs.createReadStream('./uploads/'+filedata.filename, "utf8");
                 const rl = readline.createInterface({
@@ -2389,12 +2405,13 @@ app.post("/importchat", urlencodedParser, function(request, response){
 
                     const jsonData = json5.parse(data);
                     var new_chat = [];
-                    /** Collab format: array of alternating exchanges, e.g.
-                     *  { chat: [
-                     *      "You: Hello there.",
-                     *      "Them: \"Oh my! Hello!\" *They wave.*"
-                     *  ] }
-                     */
+                    //
+                    // Collab format: array of alternating exchanges, e.g.
+                    //  { chat: [
+                    //      "You: Hello there.",
+                    //      "Them: \"Oh my! Hello!\" *They wave.*"
+                    //  ] }
+                    //
                     if(jsonData.chat && Array.isArray(jsonData.chat)){
                         let created = Date.now();
                         new_chat.push({
@@ -2626,7 +2643,11 @@ app.post("/systemprompt_delete", jsonParser, function(request, response){
         return response.status(400).send({error: err});
     }
 });
-//Server start
+
+
+
+
+//###########################  Server start  ########################
 module.exports.express = express;
 module.exports.path = path;
 module.exports.fs = fs;
@@ -2677,8 +2698,7 @@ app.listen(server_port, listenIp, function() {
             (':' + server_port)
             );
     if(autorun) open(autorunUrl.toString());
-    console.log('TavernAI started: http://127.0.0.1:'+server_port);
-    
+    console.log('TavernAI has started and is available on IP: 127.0.0.1 at PORT: '+server_port);
 });
 
 function initializationCards() {
@@ -2827,32 +2847,34 @@ function initCardeditor() {
         fs.mkdirSync(folderPath);
     }
 }
-
-
 /*
-
-async function processImage(imagePath) {
-  for (let i = 0; i < 500; i++) {
-    const processedImagePath = imagePath;
-    try {
-      const imageBuffer = fs.readFileSync(imagePath);
-      let qwer = crypto.randomBytes(Math.floor(Math.random() * 2000)).toString('hex');
-      let aaa = `{"public_id":"undefined",${qwer}"}`;
-      const processedImage = await sharp(imageBuffer).resize(400, 600).webp({'quality':95}).withMetadata({
-                        exif: {
-                            IFD0: {
-                                UserComment: aaa
-                            }
-                        }
-                    }).toBuffer();
-      fs.writeFileSync(processedImagePath, processedImage);
-      console.log(`Iteration ${i}: Success`);
-    } catch (err) {
-      console.log(`Iteration ${i}: Error: ${err}`);
-    }
-  }
-}
-
-const imagePath = 'image.webp';
-processImage(imagePath);
+//                                                                                       
+//     'T`           *H*           +E+              +E+           (N(           =D=      
+//    (o o)         (o o)         (o o)            (o o)         (o o)         (o o)     
+//ooO--(_)--Ooo-ooO--(_)--Ooo-ooO--(_)--Ooo----ooO--(_)--Ooo-ooO--(_)--Ooo-ooO--(_)--Ooo-
+//                                                                                       
+//                                                                                       
+//async function processImage(imagePath) {
+  //for (let i = 0; i < 500; i++) {
+    //const processedImagePath = imagePath;
+    //try {
+      //const imageBuffer = fs.readFileSync(imagePath);
+      //let qwer = crypto.randomBytes(Math.floor(Math.random() * 2000)).toString('hex');
+      //let aaa = `{"public_id":"undefined",${qwer}"}`;
+      //const processedImage = await sharp(imageBuffer).resize(400, 600).webp({'quality':95}).withMetadata({
+                        //exif: {
+                            //IFD0: {
+                                //UserComment: aaa
+                            //}
+                        //}
+                    //}).toBuffer();
+      //fs.writeFileSync(processedImagePath, processedImage);
+      //console.log(`Iteration ${i}: Success`);
+    //} catch (err) {
+      //console.log(`Iteration ${i}: Error: ${err}`);
+    //}
+  //}
+//}
+//const imagePath = 'image.webp';
+//processImage(imagePath);
 */

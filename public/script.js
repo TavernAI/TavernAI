@@ -32,7 +32,7 @@ export var swipes = false;
 export var keep_dialog_examples = false;
 export var free_char_name_mode = false;
 export var anchor_order = 0;
-export var pygmalion_formating = 0;
+export var pyg_fmtg = 0;
 export var style_anchor = true;
 export var character_anchor = true;
 export const gap_holder = 120;
@@ -137,7 +137,7 @@ export var chat = [chloeMes];
 Tavern.is_send_press = false; //Send generation
 
 
-export var characterFormat = 'webp';
+export var characterFormat = 'png';
 function vl(text) { //Validation security function for html
     return !text ? text : window.DOMPurify.sanitize(text);
 }
@@ -636,7 +636,7 @@ $(document).ready(function(){
     var popup_type = "";
     var bg_file_for_del = '';
 
-    var api_server = "";
+    var api_server = "http://127.0.0.1:5000/api";
     var api_server_webui = "";
     var horde_api_server = "";
     //var interval_timer = setInterval(getStatus, 2000);
@@ -664,22 +664,17 @@ $(document).ready(function(){
     const delay = ms => new Promise(res => setTimeout(res, ms));
 
     
-    var is_pygmalion = false;
-    const pygmalion_formatng_string_indicator = " (Pyg. formatting on)";
+    var is_pyg = false;
+    const pyg_fmtg_str_ind = " (Pyg: ON!)";
     var tokens_already_generated = 0;
     var this_amount_gen = 0;
     var message_already_generated = '';
     var if_typing_text = false;
-    const tokens_first_request_count = 50;
-    const tokens_cycle_count = 30;
+    const tokens_first_request_count = 80;
+    const tokens_cycle_count = 40;
     var cycle_count_generation = 0;
-
-    
-
-
     var winNotes;
     var winWorldInfo;
-
     var generateType;
     //Profile
     var is_login = false;
@@ -687,35 +682,20 @@ $(document).ready(function(){
     var BETA_KEY;
     var login = getCookie('login');
     var login_view = getCookie('login_view');
-
-
-
-
-
     var runGenerate;
-
-    
     const default_api_url_openai = "https://api.openai.com/v1"
     var api_url_openai = default_api_url_openai;
     var api_key_openai = "";
     var api_url_proxy = default_api_url_openai;
     var api_key_proxy = "";
-
-
-
-
     var switch_log_reg = 'login';
     //css
     var bg1_toggle = true;
     var css_mes_bg = $('<div class="mes"></div>').css('background');
     var css_send_form_display = $('<div id=send_form></div>').css('display');
-
     var colab_ini_step = 1;
-
     // Mobile
     var is_mobile_user = navigator.userAgent.match(/Android/i) || navigator.userAgent.match(/iPhone/i);
-    
-    
     var character_sorting_type = 'NAME';
     $("#rm_folder_order").change(function () {
         character_sorting_type = $('#rm_folder_order').find(":selected").val();
@@ -890,8 +870,8 @@ $(document).ready(function(){
             type: 'POST', // 
             url: '/getlastversion', // 
             data: JSON.stringify({
-                        '': ''
-                    }),
+                        '': ''
+                    }),
             beforeSend: function(){
 
 
@@ -924,26 +904,26 @@ $(document).ready(function(){
     $('#characloud_status_button').click(function(){
         window.open('https://github.com/TavernAI/TavernAI', '_blank');
     });
-    function setPygmalionFormating(){
+    function setPygFmtg(){
         
         if(online_status != 'no_connection'){
-            online_status = online_status.replace(pygmalion_formatng_string_indicator, '');
+            online_status = online_status.replace(pyg_fmtg_str_ind, '');
             
-            switch (pygmalion_formating){
+            switch (pyg_fmtg){
                 case 1:
-                    is_pygmalion = true;
-                    online_status+=pygmalion_formatng_string_indicator;
+                    is_pyg = true;
+                    online_status+=pyg_fmtg_str_ind;
                     break;
                 case 2:
-                    is_pygmalion = false;
+                    is_pyg = false;
                     break;
 
                 default:
-                    if(online_status.toLowerCase().indexOf('pygmalion') != -1){
-                        is_pygmalion = true;
-                        online_status+=pygmalion_formatng_string_indicator;
+                    if(online_status.toLowerCase().indexOf('ygmal') != -1){
+                        is_pyg = true;
+                        online_status+=pyg_fmtg_str_ind;
                     }else{
-                        is_pygmalion = false;
+                        is_pyg = false;
                     }
                     break;
             }
@@ -956,8 +936,8 @@ $(document).ready(function(){
                 type: 'POST', // 
                 url: '/getstatus', // 
                 data: JSON.stringify({
-                        api_server: api_server
-                    }),
+                        api_server: api_server
+                    }),
                 beforeSend: function(){
                     if(is_api_button_press){
                         //$("#api_loading").css("display", 'inline-block');
@@ -977,7 +957,7 @@ $(document).ready(function(){
                     if(online_status == undefined){
                         online_status = 'no_connection';
                     }
-                    setPygmalionFormating();
+                    setPygFmtg();
 
                 
 
@@ -1017,8 +997,8 @@ $(document).ready(function(){
                 type: 'POST', // 
                 url: '/getstatus_webui', // 
                 data: JSON.stringify({
-                        api_server_webui: api_server_webui
-                    }),
+                        api_server_webui: api_server_webui
+                    }),
                 beforeSend: function(){
                     if(is_api_button_press_webui){
                         //$("#api_loading").css("display", 'inline-block');
@@ -1039,7 +1019,7 @@ $(document).ready(function(){
                     if(online_status == undefined){
                         online_status = 'no_connection';
                     }
-                    setPygmalionFormating();
+                    setPygFmtg();
 
                 
 
@@ -1099,7 +1079,7 @@ $(document).ready(function(){
                         $('#horde_model_select').append($('<option></option>').val(p.name).html('['+p.count.toString()+'] - '+p.name));
                     });
 
-                    is_pygmalion = true;
+                    is_pyg = true;
                     if(is_colab){
                         let selectElement = $("#horde_model_select");
                         let numOptions = selectElement.children("option").length;
@@ -1149,8 +1129,8 @@ $(document).ready(function(){
                                         "X-CSRF-Token": token
                                 },
             body: JSON.stringify({
-                        "": ""
-                    })
+                        "": ""
+                    })
 
         });
         if (response.ok === true) {
@@ -1167,7 +1147,7 @@ $(document).ready(function(){
 
         }
     }
-     async function isColab() {
+    async function isColab() {
         is_checked_colab = true;
         const response = await fetch("/iscolab", {
             method: "POST",
@@ -1176,9 +1156,8 @@ $(document).ready(function(){
                 "X-CSRF-Token": token
                                 },
             body: JSON.stringify({
-                        "": ""
-                    })
-
+                        "": ""
+                    })
         });
         if (response.ok === true) {
             const getData = await response.json();
@@ -1188,29 +1167,20 @@ $(document).ready(function(){
                 if (getData.colab_type == "kobold_model") {
                     $("#main_api").val("kobold");
                     $("#main_api").change();
-                    if(String(getData.colaburl).indexOf('cloudflare')){
-                        url = String(getData.colaburl).split("flare.com")[0] + "flare.com";
-                    }else{
-                        url = String(getData.colaburl).split("loca.lt")[0] + "loca.lt";
-                    }
-                    
-                    
+                    url = 'http://127.0.0.1:5000/api';
                     $('#api_url_text').val(url);
                     setTimeout(function () {
                         $('#api_button').click();
                         $('#colab_shadow_popup').css('display', 'none');
                     }, 2000);
                 }
-                
                 if(getData.colab_type == "kobold_horde"){
                     main_api = "horde";
                     $("#main_api").val("horde");
                     $("#main_api").change();
                     setTimeout(function () {
                         $('#api_button_horde').click();
-                        
                     }, 2000);
-
                 }
                 if(getData.colab_type == "openai"){
                     url = getData.colaburl;
@@ -1235,8 +1205,6 @@ $(document).ready(function(){
                     }, 1000);
                 }
             }
-
-
         }
     }
     async function setBackground(bg) {
@@ -1244,8 +1212,8 @@ $(document).ready(function(){
             type: 'POST', // 
             url: '/setbackground', // 
             data: JSON.stringify({
-                        bg: bg
-                    }),
+                        bg: bg
+                    }),
             beforeSend: function(){
                 //$('#create_button').attr('value','Creating...'); // 
             },
@@ -1255,7 +1223,6 @@ $(document).ready(function(){
             contentType: "application/json",
             //processData: false, 
             success: function(html){
-
             },
             error: function (jqXHR, exception) {
                 console.log(exception);
@@ -1271,18 +1238,14 @@ $(document).ready(function(){
                         "X-CSRF-Token": token
                                 },
             body: JSON.stringify({
-                        "bg": bg
-                    })
-
+                        "bg": bg
+                    })
         });
         if (response.ok === true) {
             //const getData = await response.json();
             //background = getData;
-
             //var aa = JSON.parse(getData[0]);
             //const load_ch_coint = Object.getOwnPropertyNames(getData);
-
-
         }
     }
     function printMessages(){
@@ -1333,13 +1296,10 @@ $(document).ready(function(){
         //for Chloe
         if(Characters.selectedID === undefined){
             mes = mes.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\*(.+?)\*/g, '<i>$1</i>').replace(/\n/g, '<br/>');
-
         }else{
             mes = converter.makeHtml(mes);
             mes = mes.replace(/\n/g, '<br/>');
         }
-
-
         if(ch_name !== name1){
             if(!is_room)
                 mes = mes.replaceAll(name2+":", "");
@@ -1410,15 +1370,12 @@ $(document).ready(function(){
                 container = $('<div class="mes" mesid='+count_view_mes+' ch_name="'+vl(characterName)+'" is_user="'+mes['is_user']+'"></div>')
                 container.append('<div class="for_checkbox"></div><input type="checkbox" class="del_checkbox">');       // delete checkbox
                 container.append('<div class="avatar"><img class="avt_img" src="'+avatarImg+'"></div>');                                // avatar
-
             let messageBlock = $('<div class="mes_block"></div>');
                 messageBlock.append('<div class="ch_name">'+vl(characterName)+'</div>');                                    // character name block
                 messageBlock.append('<select class="name_select"></select>');                                    // character name selector for editing
             container.append(messageBlock);
-
             // message content
             messageBlock.append('<div class="mes_text"></div>');
-
             container.append('<div title="Edit" class="mes_edit"><img src="img/scroll.png"></div>');                // edit button
             let editMenu = $('<div class="edit_block"></div>');                                                         // edit menu shown when edit button is pressed
                 editMenu.append('<div class="mes_edit_done"><img src="img/done.png"></div>');                           // confirm button
@@ -1428,17 +1385,13 @@ $(document).ready(function(){
                 editMenu.append('<div class="mes_down"><img src="img/arrow_down.png" title="Move down"></div>');
                 editMenu.append('<div class="mes_edit_cancel"><img src="img/cancel.png"></div>');                       // cancel (close menu)
             container.append(editMenu);
-
             /* Swipes */
             container.append('<div class="swipe_left"><img src="img/swipe_left.png"></div>');
             container.append('<div class="swipe_right"><img src="img/swipe_right.png"></div>');
-
             let tokenCounter = $('<div class="token_counter" title="Token count"></div>');         // token count
             container.append(tokenCounter);
-
             $("#chat").append(container);
         }
-        
         if(!if_typing_text){
             if(type === 'swipe'){
                 $("#chat").children().filter('[mesid="'+(count_view_mes-1)+'"]').children('.mes_block').children('.mes_text').html('');
@@ -1460,9 +1413,7 @@ $(document).ready(function(){
                     $("#chat").children().filter('[mesid="'+(count_view_mes)+'"]').children('.mes_block').children('.mes_text').attr('style', 'min-height: 0px;');
                 }
                 hideSwipeButtons();
-                
                 if(parseInt(chat.length-1) === parseInt(count_view_mes) && !mes['is_user'] && swipes){
-                    
                     if(mes['swipe_id'] === undefined && count_view_mes !== 0){
                         $("#chat").children().filter('[mesid="'+(count_view_mes)+'"]').children('.swipe_right').css('display', 'block');
                     }else if(mes['swipe_id'] !== undefined){
@@ -1478,7 +1429,6 @@ $(document).ready(function(){
         }else{
             typeWriter($("#chat").children().filter('[mesid="'+count_view_mes+'"]').children('.mes_block').children('.mes_text'), messageText, 50, 0);
         }
-        
         if(type !== 'swipe'){
             count_view_mes++;
         }
@@ -1494,11 +1444,9 @@ $(document).ready(function(){
             add_mes_without_animation = false;
         }
         var $textchat = $('#chat');
-        
         $('#chat .mes').last().addClass('last_mes');
         $('#chat .mes').eq(-2).removeClass('last_mes');
         $textchat.scrollTop($textchat[0].scrollHeight);
-
         return container;
     }
     function typeWriter(target, text, speed, i) {
@@ -1513,7 +1461,6 @@ $(document).ready(function(){
         name = name+':';
         return name;
     }
-    
     $( "#send_button" ).click(function() {
         //$( "#send_button" ).css({"background": "url('img/load.gif')","background-size": "100%, 100%", "background-position": "center center"});
         if(Tavern.is_send_press == false){
@@ -1527,7 +1474,6 @@ $(document).ready(function(){
             $('#send_textarea').attr('style', '');
         }
     });
-
     async function Generate(type) {
         let this_gap_holder = gap_holder;
         let originalName2 = name2;
@@ -1552,14 +1498,10 @@ $(document).ready(function(){
         } else {
             document.getElementById("hordeInfo").classList.add("hidden");
         }
-
-
-
         if((main_api === 'openai' || main_api === 'proxy') && isChatModel()) 
             this_gap_holder = parseInt(amount_gen_openai)+this_gap_holder;
         var textareaText = '';
         tokens_already_generated = 0;
-
         if(online_status != 'no_connection' && Characters.selectedID != undefined){
             name2 = Characters.id[Characters.selectedID].name;
             if (!free_char_name_mode) {
@@ -1574,13 +1516,11 @@ $(document).ready(function(){
             if(type === 'regenerate'){
                 textareaText = "";
                 if(chat[chat.length-1]['is_user']){//If last message from You
-
                 }else{
                     chat.length = chat.length-1;
                     count_view_mes-=1;
                     $('#chat').children().last().remove();
                 }
-                
             }else{
                 if(type !== 'swipe'){
                     textareaText = $("#send_textarea").val();
@@ -1588,45 +1528,35 @@ $(document).ready(function(){
                 }
             }
             //$("#send_textarea").attr("disabled","disabled");
-
             //$("#send_textarea").blur();
             $( "#send_button" ).css("display", "none");
             $( "#loading_mes" ).css("display", "block");
-
-
             var storyString = "";
             var userSendString = "";
             var finalPromt = "";
-
             var postAnchorChar = "talks a lot with descriptions";//'Talk a lot with description what is going on around';// in asterisks
             var postAnchorStyle = "Writing style: very long messages";//"[Genre: roleplay chat][Tone: very long messages with descriptions]";
-
-
             var anchorTop = '';
             var anchorBottom = '';
             var topAnchorDepth = 8;
-
-            if(character_anchor && !is_pygmalion){
+            if(character_anchor && !is_pyg){
                 if(anchor_order === 0){
                     anchorTop = name2+" "+postAnchorChar;
                 }else{
                     anchorBottom = "["+name2+" "+postAnchorChar+"]";
                 }
             }
-            if(style_anchor && !is_pygmalion){
+            if(style_anchor && !is_pyg){
                 if(anchor_order === 1){
                     anchorTop = postAnchorStyle;
                 }else{
                     anchorBottom = "["+postAnchorStyle+"]";
                 }
             }
-
-
             //*********************************
             //PRE FORMATING STRING
             //*********************************
             if(textareaText != ""){
-
                 chat[chat.length] = {};
                 chat[chat.length-1]['name'] = name1;
                 chat[chat.length-1]['is_user'] = true;
@@ -1648,15 +1578,10 @@ $(document).ready(function(){
             var chatString = '';
             var arrMes = [];
             var mesSend = [];
-
             var charDescription = Characters.id[Characters.selectedID].description.replace(/\r/g, "");
             var charPersonality = $.trim(Characters.id[Characters.selectedID].personality);
             var inject = "";
-
-
-
             let wDesc = WPP.parseExtended(charDescription);
-
             // Below section might be useless/not working as expected if user is in a room
             if(settings.notes && winNotes.strategy === "discr") {
                 charDescription = WPP.stringifyExtended(WPP.getMergedExtended(wDesc, winNotes.wppx), "line");
@@ -1670,15 +1595,12 @@ $(document).ready(function(){
                 charDescription = WPP.stringifyExtended(wDesc, "line");
             }
             charDescription = $.trim(charDescription);
-
-
             /* World info */
             let prepend = [];
             let append = [];
             if(winWorldInfo.worldName && winWorldInfo.worldName.length) {
                 let depth = parseInt(document.getElementById("input_worldinfo_depth").value);
                 let budget = parseInt(document.getElementById("input_worldinfo_budget").value);
-
                 let process = [];
                 let i = chat.length-1;
                 let k = 0;
@@ -1699,24 +1621,23 @@ $(document).ready(function(){
                     (isAppend ? append : prepend).push(candidate);
                 }
             }
-
             var Scenario = "";
             if(!is_room)
                 Scenario = $.trim(Characters.id[Characters.selectedID].scenario);
             else
                 Scenario = $.trim(Rooms.id[Rooms.selectedRoomId].chat[0].scenario);
             var mesExamples = $.trim(Characters.id[Characters.selectedID].mes_example);
-
             var checkMesExample = $.trim(mesExamples.replace(/<START>/gi, ''));//for check length without tag
             if(checkMesExample.length == 0) mesExamples = '';
             var mesExamplesArray = [];
             //***Base replace***
             if(mesExamples !== undefined){
                 if(mesExamples.length > 0){
-                    if(is_pygmalion){
-                        mesExamples = mesExamples.replace(/{{user}}:/gi, 'You:');
-                        mesExamples = mesExamples.replace(/<USER>:/gi, 'You:');
+                    if(is_pyg){
+                        mesExamples = mesExamples.replace(/{{user}}:\s/gi, 'You: ');
+                        mesExamples = mesExamples.replace(/<USER>:\s/gi, 'You: ');
                     }
+                    mesExamples = mesExamples.replace(/You:\s/gi, name1+": ");
                     mesExamples = mesExamples.replace(/{{user}}/gi, name1);
                     mesExamples = mesExamples.replace(/{{char}}/gi, name2);
                     mesExamples = mesExamples.replace(/<USER>/gi, name1);
@@ -1750,9 +1671,7 @@ $(document).ready(function(){
                     Scenario = Scenario.replace(/<BOT>/gi, name2);
                 }
             }
-            
-
-            if(is_pygmalion){
+            if(is_pyg){
                 if(charDescription.length > 0){
                     storyString = name2+"'s Persona: "+charDescription+"\n";
                 }
@@ -1776,14 +1695,10 @@ $(document).ready(function(){
                         storyString+=charDescription+'\n';
                     }
                 }
-
                 if(count_view_mes < topAnchorDepth){
                     storyString+=charPersonality+'\n';
                 }
-
-
             }
-
             if(main_api == 'kobold' || main_api == 'webui') {
                 if(prepend.length) {
                     storyString = prepend.join("\n") + "\n" + storyString;
@@ -1793,8 +1708,6 @@ $(document).ready(function(){
                 }
                 storyString = storyString.replace(/\n+/g, "\n");
             }
-
-
             if(main_api === 'openai' || main_api === 'proxy' && isChatModel() && SystemPrompt.system_depth <= SystemPrompt.system_depth_max){
                 let sp_string = "";
                 sp_string = SystemPrompt.system_prompt.replace(/{{user}}/gi, name1) //System prompt
@@ -1803,7 +1716,6 @@ $(document).ready(function(){
                                 .replace(/<BOT>/gi, name2);
                 storyString = sp_string+'\n'+storyString;
             }
-            
             var count_exm_add = 0;
             var chat2 = [];
             var j = 0;
@@ -1848,7 +1760,7 @@ $(document).ready(function(){
                         this_max_context-=160;
                     }
                     if(model_novel === 'clio-v1' || model_novel === 'kayra-v1'){
-                        this_max_context = 8192;
+                        this_max_context = 8000;//FunkEngine Fixing for what I suspect may be our failure to include JBs/prompts in token counts here as well, specific with kayra-vi 2023-11-30 @Zando in discord.
                         this_max_context-=160;//fix for fat tokens 
                     }
                 }
@@ -1861,7 +1773,7 @@ $(document).ready(function(){
             if(keep_dialog_examples){
                 for(let iii = 0; iii < mesExamplesArray.length; iii++){
                     mesExmString = mesExmString+mesExamplesArray[iii];
-                    if(!is_pygmalion){
+                    if(!is_pyg){
                         mesExamplesArray[iii] = mesExamplesArray[iii].replace(/<START>/i, 'This is how '+name2+' should talk');//An example of how '+name2+' responds
                     }
                     count_exm_add++;
@@ -1870,16 +1782,13 @@ $(document).ready(function(){
             if(type == 'swipe'){
                 chat2.shift();
             }
-
             runGenerate = function(cycleGenerationPromt = ''){
                 generatedPromtCache+=cycleGenerationPromt;
                 if(generatedPromtCache.length == 0){
                     chatString = "";
                     arrMes = arrMes.reverse();
                     var is_add_personality = false;
-
                     if ((main_api === 'openai' || main_api === 'proxy') && isChatModel()) { // Jailbreak
-                        
                         if (SystemPrompt.user_jailbreak_prompt.length > 0) {
                             arrMes[arrMes.length-1]['mes'] = arrMes[arrMes.length-1]['mes']+'\n'+SystemPrompt.user_jailbreak_prompt.replace(/{{user}}/gi, name1)
                                     .replace(/{{char}}/gi, name2)
@@ -1896,44 +1805,34 @@ $(document).ready(function(){
                                     .replace(/<BOT>/gi, name2));
                         }
                         */
-
                     }
-
-
                     if (inject && inject.length && arrMes.length) {
                         let thisInject = {
                             mes: inject
                         };
-
                         arrMes.splice(arrMes.length - 1, 0, thisInject);
                     }
-
                     arrMes.forEach(function(item, i, arr) {//For added anchors and others
-
                         if((i >= arrMes.length-1 && $.trim(item['mes']).substr(0, (name1+":").length) != name1+":" && (main_api !== 'openai' && main_api !== 'proxy')) || 
                                 (i >= arrMes.length-1 && $.trim(item['mes']).substr(0, (name1+":").length) != name1+":" && (main_api === 'openai' || main_api === 'proxy') && SystemPrompt.jailbreak_prompt.lenght === 0)){
                             if(textareaText == ""){
                                 item['mes'] = item['mes'].substr(0,item['mes'].length-1);
                             }
                         }
-
                         if(i === arrMes.length-topAnchorDepth && count_view_mes>=topAnchorDepth && !is_add_personality){
-
                             is_add_personality = true;
                             //chatString = chatString.substr(0,chatString.length-1);
                             //anchorAndPersonality = "[Genre: roleplay chat][Tone: very long messages with descriptions]";
-                            if((anchorTop != "" || charPersonality != "") && !is_pygmalion){
+                            if((anchorTop != "" || charPersonality != "") && !is_pyg){
                                 if(anchorTop != "") charPersonality+=' ';
                                 item['mes']+="["+charPersonality+anchorTop+']\n';
                             }
                         }
-                        if(i >= arrMes.length-1 && count_view_mes>8 && $.trim(item['mes']).substr(0, (name1+":").length) == name1+":" && !is_pygmalion){//For add anchor in end
+                        if(i >= arrMes.length-1 && count_view_mes>8 && $.trim(item['mes']).substr(0, (name1+":").length) == name1+":" && !is_pyg){//For add anchor in end
                             item['mes'] = item['mes'].substr(0,item['mes'].length-1);
                             //chatString+=postAnchor+"\n";//"[Writing style: very long messages]\n";
                             item['mes'] =item['mes']+ anchorBottom+"\n";
                         }
-
-
                         if(!free_char_name_mode && !((main_api === 'openai' || main_api === 'proxy') && isChatModel())){
                             if(i >= arrMes.length-1 && $.trim(item['mes']).substr(0, (name1+":").length) == name1+":"){//for add name2 when user sent
                                 item['mes'] =item['mes']+name2+":";
@@ -1944,8 +1843,7 @@ $(document).ready(function(){
                                 }
                             }
                         }
-
-                        if(is_pygmalion){
+                        if(is_pyg){
                             if($.trim(item['mes']).indexOf(name1) === 0){
                                 item['mes'] = item['mes'].replace(name1+':', 'You:');
                             }
@@ -2092,8 +1990,7 @@ $(document).ready(function(){
                 }else{
                     setPromtString();
                 }
-
-                if(!is_pygmalion){
+                if(!is_pyg){
                     if(!is_room)
                         mesSendString = '\nThen the roleplay chat between '+name1+' and '+name2+' begins.\n'+mesSendString;
                     else
@@ -2446,7 +2343,7 @@ $(document).ready(function(){
 
                             mesExmString = mesExmString+mesExamplesArray[iii];
                             if(await Tokenizer.encode(storyString+mesExmString+chatString+anchorTop+anchorBottom+charPersonality)+this_gap_holder < this_max_context){ //example of dialogs
-                                if(!is_pygmalion){
+                                if(!is_pyg){
                                     mesExamplesArray[iii] = mesExamplesArray[iii].replace(/<START>/i, 'This is how '+name2+' should talk');//An example of how '+name2+' responds
                                 }
                                 count_exm_add++;
@@ -2460,8 +2357,7 @@ $(document).ready(function(){
 
                         }
                     }
-
-                    if(!is_pygmalion){
+                    if(!is_pyg){
                         if(Scenario !== undefined){
                             if(Scenario.length > 0){
                                 storyString+= 'Circumstances and context of the dialogue: '+Scenario+'\n';
@@ -2481,7 +2377,7 @@ $(document).ready(function(){
         }else{
             if(Characters.selectedID == undefined){
                 //send ch sel
-                callPopup('Сharacter is not selected', 'alert');
+                callPopup('Character is not selected', 'alert');
             }
             Tavern.is_send_press = false;
         }
@@ -2542,7 +2438,7 @@ $(document).ready(function(){
             }
             //Formating
             getMessage = $.trim(getMessage);
-            if(is_pygmalion){
+            if(is_pyg){
                 getMessage = getMessage.replace(new RegExp('<USER>', "g"), name1);
                 getMessage = getMessage.replace(new RegExp('<BOT>', "g"), name2);
                 getMessage = getMessage.replace(new RegExp('You:', "g"), name1+':');
@@ -2735,7 +2631,7 @@ $(document).ready(function(){
     function getIDsByNames(ch_names) {
         let ids = [];
         ch_names.forEach(function(name) {
-            const ch_ext = ".webp"; // Assumed that character files would always have .webp extension
+            const ch_ext = ".png"; // Assumed that character files would always have .webp extension
             ids.push(Characters.getIDbyFilename(name+ch_ext));
         });
         return ids;
@@ -2744,7 +2640,7 @@ $(document).ready(function(){
     // Assumed that the chat array is filled already
     function assignIDsByNames() {
         chat.forEach(function(mes, i) {
-            const ch_ext = ".webp"; // Assumed that character files would always have .webp extension
+            const ch_ext = ".png"; // Assumed that character files would always have .webp extension
             chat[i].chid = Characters.getIDbyFilename(mes.name+ch_ext);
         });
     }
@@ -3650,7 +3546,7 @@ $(document).ready(function(){
                 url: `deleteuseravatar`, // 
                 data: JSON.stringify({
                     filename: delete_user_avatar_filename
-                        }),
+                        }),
                 beforeSend: function(){
                     //$('.load_icon').children('.load_icon').css('display', 'inline-block');
                     //$('.publish_button').children('.submit_button').css('display', 'none');
@@ -4280,7 +4176,7 @@ $(document).ready(function(){
     });
     
     $( "#main_api" ).change(function() {
-        is_pygmalion = false;
+        is_pyg = false;
         is_get_status = false;
         is_get_status_novel = false;
         is_get_status_openai = false;
@@ -4400,9 +4296,8 @@ $(document).ready(function(){
                                         "X-CSRF-Token": token
                                 },
             body: JSON.stringify({
-                        "": ""
-                    })
-
+                        "": ""
+                    })
         });
         if (response.ok === true) {
             const getData = await response.json();
@@ -4850,11 +4745,16 @@ $(document).ready(function(){
         $('#amount_gen_counter_openai').html( $(this).val()+' Tokens' );
         var amountTimer = setTimeout(saveSettings, 500);
     });
+
+
+
+
     //***************SETTINGS****************//
     ///////////////////////////////////////////
+
+
+
     async function getSettings(){//timer
-
-
         jQuery.ajax({    
             type: 'POST', 
             url: '/getsettings', 
@@ -5226,7 +5126,7 @@ $(document).ready(function(){
                     
                     
                     anchor_order = settings.anchor_order;
-                    pygmalion_formating = settings.pygmalion_formating;
+                    pyg_fmtg = settings.pyg_fmtg;
                     style_anchor = !!settings.style_anchor;
                     character_anchor = !!settings.character_anchor;//if(settings.character_anchor !== undefined) character_anchor = !!settings.character_anchor;
                     lock_context_size = !!settings.lock_context_size;
@@ -5299,7 +5199,7 @@ $(document).ready(function(){
                     $("#option_toggle_notes").css("display", settings.notes ? "block" : "none");
                     
                     $("#anchor_order option[value="+anchor_order+"]").attr('selected', 'true');
-                    $("#pygmalion_formating option[value="+pygmalion_formating+"]").attr('selected', 'true');
+                    $("#pyg_fmtg option[value="+pyg_fmtg+"]").attr('selected', 'true');
                     //////////////////////
                     if(preset_settings == 'gui'){
                         $("#settings_perset option[value=gui]").attr('selected', 'true');
@@ -5439,7 +5339,7 @@ $(document).ready(function(){
             url: '/savesettings', 
             data: JSON.stringify({
                     username: name1,
-                    api_server: api_server,
+                    api_server: api_server,
                     preset_settings: preset_settings,
                     preset_settings_novel: preset_settings_novel,
                     preset_settings_webui: preset_settings_webui,
@@ -5468,7 +5368,7 @@ $(document).ready(function(){
                     rep_pen_size_webui: rep_pen_size_webui,
                     nrns_webui: nrns_webui,
                     anchor_order: anchor_order,
-                    pygmalion_formating: pygmalion_formating,
+                    pyg_fmtg: pyg_fmtg,
                     style_anchor: style_anchor,
                     character_anchor: character_anchor,
                     lock_context_size: lock_context_size,
@@ -5512,7 +5412,7 @@ $(document).ready(function(){
                     model_openai: model_openai,
                     model_proxy: model_proxy,
                     character_sorting_type: character_sorting_type
-                    }),
+                    }),
             beforeSend: function(){
 
 
@@ -6169,7 +6069,7 @@ $(document).ready(function(){
                 //let error = handleError(jqXHR);
                 callPopup(exception, 'alert_error');
             }
-        });  
+        });
     });
     $(document).on('click', '.user_avatar_cross', function(){
         delete_user_avatar_filename = $(this).parent().attr('imgfile');
@@ -6371,7 +6271,7 @@ $(document).ready(function(){
                     }else{
                         callPopup(data.error_message, 'alert_error');
                     }
-                    setPygmalionFormating();
+                    setPygFmtg();
                     resultCheckStatusNovel();
                     if(online_status !== 'no_connection'){
                         var timer_status_novel = setTimeout(getStatusNovel, 3000);
@@ -6520,9 +6420,9 @@ $(document).ready(function(){
         anchor_order = parseInt($('#anchor_order').find(":selected").val());
         saveSettings();
     });
-    $( "#pygmalion_formating" ).change(function() {
-        pygmalion_formating = parseInt($('#pygmalion_formating').find(":selected").val());
-        setPygmalionFormating();
+    $( "#pyg_fmtg" ).change(function() {
+        pyg_fmtg = parseInt($('#pyg_fmtg').find(":selected").val());
+        setPygFmtg();
         checkOnlineStatus();
         saveSettings();
     });
@@ -6594,10 +6494,7 @@ $(document).ready(function(){
                             $('#model_openai_select').val(model_proxy);
                         }
                     }
-                    setPygmalionFormating();
-
-                
-
+                    setPygFmtg();
                     //console.log(online_status);
                     resultCheckStatusOpen();
                     if(online_status !== 'no_connection'){

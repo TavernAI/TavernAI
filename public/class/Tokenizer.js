@@ -46,7 +46,7 @@ export class TokenizerModule extends EventEmitter {
                     
                 }
             });
-            return response.results[0].tokens;
+            return response.tokens.length;
         }else{
             return GPT_CUSTOM.encode(prompt).length;
         }
