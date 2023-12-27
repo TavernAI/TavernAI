@@ -6,9 +6,10 @@
 <img src="readme/4.png" height="200" /><img src="readme/5.png" height="200" />
 
 ###### Download: <br>
-* <a href="https://github.com/TavernAI/TavernAI/archive/refs/heads/main.zip" target="_parent"><img height="60" width="auto" src="https://raw.githubusercontent.com/TavernAI/TavernAI/main/public/img/five.png" alt="TavernAI"/> TavernAI</a><b><u> -> Requires -> </u></b><a href="https://nodejs.org/dist/v21.3.0/node-v21.3.0-x64.msi">Node.js®</a><img height="60" width="auto" src="https://funkengine2023.github.io/nodejs128.png" alt="Node.js®"/><br>
+* <a href="https://github.com/TavernAI/TavernAI/archive/refs/heads/main.zip" target="_parent"><img height="60" width="auto" src="https://raw.githubusercontent.com/TavernAI/TavernAI/main/public/img/five.png" alt="TavernAI"/> TavernAI</a><b><u> -> Requires -> </u></b><a href="https://nodejs.org/dist/v21.3.0/node-v21.3.0-x64.msi">Node.js®</a><img height="60" width="auto" src="https://funkengine2023.github.io/nodejs128.png" alt="Node.js®"/>
+* [Windows .exe version](https://sourceforge.net/projects/tavernaimain/files/TavernAI.rar/download)<br>
 ###### Run online: 
-* [TavernAI on Google Colab](https://colab.research.google.com/github/TavernAI/TavernAI/blob/main/colab/GPU.ipynb) <br><a href="https://colab.research.google.com/github/TavernAI/TavernAI/blob/main/colab/GPU.ipynb" target="_parent"><img height="42" width="auto" src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a><br>This is your only option if you're using a phone or tablet. <br>
+* [TavernAI on Google Colab](https://colab.research.google.com/github/TavernAI/TavernAI/blob/main/colab/GPU.ipynb) <br><a href="https://colab.research.google.com/github/TavernAI/TavernAI/blob/main/colab/GPU.ipynb" target="_parent"><img height="42" width="auto" src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a><br>This is your only option if you're using a phone or tablet.<br>
 ###### Links:
 * [TavernAI on Boosty](https://boosty.to/tavernai) - Support the project!
 * [TavernAI Discord](https://discord.gg/zmK2gmr45t) - Meet the community!
@@ -26,7 +27,6 @@
 * Edit, delete, and move any message
 * GPT-4.5 picture recognition
 
-* 
 ## How to install
 1. Download and install: [Node.js](https://nodejs.org/en/download/current) Please tick the box in the installer for "Additional Build-Tools" and answer Yes to All when the tools install script asks. <br>For [Win7x64SP1](https://nodejs.org/dist/v20.2.0/node-v20.2.0-x64.msi), [Wndows 10+](https://nodejs.org/dist/v21.3.0/node-v21.3.0-x64.msi), [MacOS](https://nodejs.org/dist/v21.3.0/node-v21.3.0.pkg), as well as [Linux(Source)](https://nodejs.org/dist/v21.3.0/node-v21.3.0.tar.gz) and [Debian/Ubuntu(Binaries)](https://nodejs.org/dist/v21.3.0/node-v21.3.0-linux-x64.tar.xz) 
 2. Download [TavernAI](https://github.com/TavernAI/TavernAI/archive/refs/heads/main.zip)
