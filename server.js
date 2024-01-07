@@ -40,11 +40,31 @@ const config = require(path.join(process.cwd(), './config.conf'));
 const server_port = config.port;
 const whitelist = config.whitelist;
 const whitelistMode = config.whitelistMode;
-let listenIp = config.listenIp || '127.0.0.1';
+let listenIp = null;
 
-if(!whitelistMode || whitelist.length > 1){
+if (config.listenIp) {
+    // If an advanced user has set the listen IP we use it explicitly
+    listenIp = config.listenIp;    
+} else if (!whitelistMode || whitelist.length > 1) {
+    // If whitelist mode is disabled OR there are multiple IPs in the whitelist
+    // we listen on all interfaces.
     listenIp = '0.0.0.0';
+} else {
+    // Otherwise we listen on the loopback address only
+    listenIp = '127.0.0.1';
 }
+
+if (!whitelistMode && ipaddr.parse(listenIp).range() !== 'loopback') {
+    console.warn(
+`WARNING: You have configured TavernAI to listen on an IP address that 
+         is not a loopback address ('${listenIp}'), and you have not enabled 
+         white list mode. This means that your TavernAI server will be 
+         accessible from other computers on your network. If you do not want 
+         this, please change the listenIp setting in your config.conf file or
+         enable and configure white list mode.`
+    );
+}
+
 const autorun = config.autorun;
 const characterFormat = config.characterFormat;
 const charaCloudMode = config.charaCloudMode;
@@ -2699,6 +2719,7 @@ app.listen(server_port, listenIp, function() {
             );
     if(autorun) open(autorunUrl.toString());
     console.log('TavernAI has started and is available on IP: 127.0.0.1 at PORT: '+server_port);
+    console.log('TavernAI is bound to interface: ' + listenIp)
 });
 
 function initializationCards() {

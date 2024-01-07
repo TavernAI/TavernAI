@@ -135,7 +135,7 @@
 
                 <h4 class="h4_menu_title">Scenario</h4>
                 <h5 class="h5_menu_help">Circumstances and context of the dialogue (<a href="/notes/12" target="_blank">?</a>)</h5>
-                <input id="scenario_pole" name="scenario" class="text_pole chareditor-scenario" type="text" maxlength="9999" size="40" value="" autocomplete="off" form="form_create">
+                <input id="scenario_pole" name="scenario" class="text_pole chareditor-scenario" type="text" maxlength="2500" size="40" value="" autocomplete="off" form="form_create">
 
                 <h4 class="h4_menu_title">Examples of dialogue</h4>
                 <h5 class="h5_menu_help">Forms a personality more clearly (<a href="/notes/11" target="_blank">?</a>)</h5>
@@ -178,7 +178,7 @@
                     </div>
                     <div id="rep_pen_size_block_webui">
                         <h4 class="range_title">Repetition Penalty Range</h4><h5 id="rep_pen_size_counter_webui" class="range_counter">select</h5>
-                        <input type="range" class="range_bar" id="rep_pen_size_webui" name="volume" min="0" max="2048" step="1">
+                        <input type="range" class="range_bar" id="rep_pen_size_webui" name="volume" min="0" max="2048" step="32">
                     </div>
                     <div id="nrns_block_webui">
                         <h4 class="range_title">No Repeat Ngram Size</h4><h5 id="nrns_counter_webui" class="range_counter">select</h5>
@@ -186,7 +186,7 @@
                     </div>
                     <div id="amount_gen_block_webui">
                         <h4 class="range_title">Amount of generation </h4><h5 id="amount_gen_counter_webui" class="range_counter">select</h5>
-                        <input type="range" class="range_bar" id="amount_gen_webui" name="volume" min="16" max="512" step="1">
+                        <input type="range" class="range_bar" id="amount_gen_webui" name="volume" min="16" max="512" step="16">
                     </div>
                     <div id="max_context_block_webui">
                         <div id="max_context_grid_webui">
@@ -196,7 +196,7 @@
                             </div>
                             <input id="lock_context_size_webui" style="display: none;" type="checkbox" class="toggle_lock">
                         </div>
-                        <input type="range" class="range_bar" id="max_context_webui" name="volume" min="512" max="8192" step="1">
+                        <input type="range" class="range_bar" id="max_context_webui" name="volume" min="512" max="8192" step="32">
                     </div>
                 </div>
                 <div id="master_settings_koboldai_block" class="master_settings_range_block">
@@ -222,11 +222,11 @@
                     </div>
                     <div id="rep_pen_size_block">
                         <h4 class="range_title">Repetition Penalty Range</h4><h5 id="rep_pen_size_counter" class="range_counter">select</h5>
-                        <input type="range" class="range_bar" id="rep_pen_size" name="volume" min="0" max="2048" step="1">
+                        <input type="range" class="range_bar" id="rep_pen_size" name="volume" min="0" max="2048" step="16">
                     </div>
                     <div id="rep_pen_slope_block">
                         <h4 class="range_title">Rep Pen Slope</h4><h5 id="rep_pen_slope_counter" class="range_counter">select</h5>
-                        <input type="range" class="range_bar" id="rep_pen_slope" name="volume" min="0.1" max="10.0" step="0.01">
+                        <input type="range" class="range_bar" id="rep_pen_slope" name="volume" min="0.1" max="10.0" step="0.1">
                     </div>
                     <div id="amount_gen_block">
                         <h4 class="range_title">Amount of generation </h4><h5 id="amount_gen_counter" class="range_counter">select</h5>
@@ -240,7 +240,7 @@
                             </div>
                             <input id="lock_context_size" type="checkbox" class="toggle_lock">
                         </div>
-                        <input type="range" class="range_bar" id="max_context" name="volume" min="512" max="8192" step="1">
+                        <input type="range" class="range_bar" id="max_context" name="volume" min="512" max="8192" step="32">
                     </div>
                 </div>
                 <div id="master_settings_novelai_block" class="master_settings_range_block">
@@ -371,10 +371,10 @@
                         <div class="toggle_label"><h4 class="h4_menu_title">Auto-connect</h4><h5 class="h5_menu_help">Attempt to connect to the last API on start</h5></div>
                         <input id="autoconnect" type="checkbox" class="toggle_checkbox">
                     </div>
-                    <div class="menu_toggle" id="characloud_toggle">
-                        <div class="toggle_label"><h4 class="h4_menu_title">Autorun charaCloud</h4><h5 class="h5_menu_help">Autorun charaCloud on startup</h5></div>
-                        <input id="characloud" type="checkbox" class="toggle_checkbox">
-                    </div>
+                    <!-- <div class="menu_toggle" id="characloud_toggle"> -->
+                        <!-- <div class="toggle_label"><h4 class="h4_menu_title">Autorun charaCloud</h4><h5 class="h5_menu_help">Autorun charaCloud on startup</h5></div> -->
+                        <!-- <input id="characloud" type="checkbox" class="toggle_checkbox"> -->
+                    <!-- </div> -->
                     <div class="menu_toggle" id="notes_toggle">
                         <div class="toggle_label"><h4 class="h4_menu_title" style="font-size: 0.95em;">Memory scroll</h4><h5 class="h5_menu_help">Information (<a href="/notes/21" target="_blank">?</a>)</h5></div>
                         <input id="notes_checkbox" type="checkbox" class="toggle_checkbox">
@@ -712,7 +712,8 @@
                         <option value="gpt-4-32k">gpt-4-32k</option>
                         <option value="gpt-4-1106-preview">gpt-4-1106-preview</option>
                         <option value="gpt-4-vision-preview">gpt-4-vision-preview</option>
-                        <option value="gpt-3.5-turbo">gpt-3.5-turbo</option>   
+                        <option value="gpt-3.5-turbo">gpt-3.5-turbo</option>
+                        <option value="gpt-3.5-turbo-0301">gpt-3.5-turbo-0301</option>
                         <option value="gpt-3.5-turbo-16k">gpt-3.5-turbo-16k</option>
                         <option value="gpt-3.5-turbo-16k-0613">gpt-3.5-turbo-16k-0613</option>
                         <option value="gpt-3.5-turbo-instruct">gpt-3.5-turbo-instruct</option>
@@ -908,7 +909,7 @@
             </div>
             <div id="characloud_version_button"></div> 
             <div id="characloud_profile_button">
-                <div id="profile_button_is_not_login">Login / Regestaration</div>
+                <div id="profile_button_is_not_login">Login / Registaration</div>
                 <div id="profile_button_is_login"><img src="/img/user_card.png" class="icon"><div class="user_name">Humi</div></div>
             </div>
             <div id="characloud_upload_character_button">
