@@ -1,16 +1,20 @@
+config.conf
 node_modules/
-uploads/
 readme/
+uploads/
 public/chats/
 public/characters/
+public/rooms/
+public/System Prompts/
+public/User Avatars/
 public/setings.json
-config.conf
 !public/chats/City Explorer (Story)/1687599323821.jsonl
 !public/characters/Aqua.png
 !public/characters/City Explorer (Story).png
 !public/characters/Darkness.png
 !public/characters/Megumin.png
 !public/characters/folders.json
+!public/rooms/Konosuba.jsonl
 !public/backgrounds/cozynight.png
 !public/backgrounds/getrest.png
 !public/backgrounds/kingdom.png
@@ -26,3 +30,13 @@ config.conf
 !public/backgrounds/warmtown.png
 !public/backgrounds/waterflow.png
 !public/backgrounds/whitesnow.png
+!public/User Avatars/legat.png
+!public/User Avatars/you1.png
+public/characters/folders.json
+public/characters/folders.json
+public/settings.json
+!public/System Prompts/Chat Classic.json
+!public/System Prompts/Room Classic.json
+public/rooms/Konosuba.jsonl
+public/settings.json
+public/characters/folders.json
