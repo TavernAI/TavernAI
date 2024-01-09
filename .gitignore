@@ -1,28 +1,31 @@
-node_modules/
 uploads/
 readme/
-public/chats/
-public/characters/
+public/settings.json
 public/setings.json
+public/chats/
+public/characters/folders.json
+public/characters/
+node_modules/
 config.conf
 !public/chats/City Explorer (Story)/1687599323821.jsonl
-!public/characters/Aqua.png
-!public/characters/City Explorer (Story).png
-!public/characters/Darkness.png
-!public/characters/Megumin.png
 !public/characters/folders.json
-!public/backgrounds/cozynight.png
-!public/backgrounds/getrest.png
-!public/backgrounds/kingdom.png
-!public/backgrounds/market.png
-!public/backgrounds/noble1.png
-!public/backgrounds/noble2.png
-!public/backgrounds/ocean.png
-!public/backgrounds/outdoor.png
-!public/backgrounds/smokycity.png
-!public/backgrounds/summer.png
-!public/backgrounds/tavern.png
-!public/backgrounds/theredlake.png
-!public/backgrounds/warmtown.png
-!public/backgrounds/waterflow.png
+!public/characters/Megumin.png
+!public/characters/Darkness.png
+!public/characters/City Explorer (Story).png
+!public/characters/Aqua.png
 !public/backgrounds/whitesnow.png
+!public/backgrounds/waterflow.png
+!public/backgrounds/warmtown.png
+!public/backgrounds/theredlake.png
+!public/backgrounds/tavern.png
+!public/backgrounds/summer.png
+!public/backgrounds/smokycity.png
+!public/backgrounds/outdoor.png
+!public/backgrounds/ocean.png
+!public/backgrounds/noble2.png
+!public/backgrounds/noble1.png
+!public/backgrounds/market.png
+!public/backgrounds/kingdom.png
+!public/backgrounds/getrest.png
+!public/backgrounds/cozynight.png
+!public/System Prompts/Chat Classic.json
