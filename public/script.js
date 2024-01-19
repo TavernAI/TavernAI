@@ -1747,7 +1747,7 @@ $(document).ready(function(){
                 j++;
             }
             //chat2 = chat2.reverse();
-            var this_max_context = 1487;
+            var this_max_context = 2048;
             if(main_api == 'kobold') this_max_context = max_context;
             if(main_api == 'webui') this_max_context = max_context_webui;
             if(main_api == 'horde') this_max_context = max_context;
@@ -1845,7 +1845,7 @@ $(document).ready(function(){
                         }
                         if(is_pyg){
                             if($.trim(item['mes']).indexOf(name1) === 0){
-                                item['mes'] = item['mes'].replace(name1+':', 'You:');
+                                item['mes'] = item['mes'].replace(name1+': ', 'You: ');
                             }
                         }
                         mesSend[mesSend.length] = {};
@@ -1992,11 +1992,11 @@ $(document).ready(function(){
                 }
                 if(!is_pyg){
                     if(!is_room)
-                        mesSendString = '\nThen the roleplay chat between '+name1+' and '+name2+' begins.\n'+mesSendString;
+                        mesSendString = '\nThe chat between '+name1+' and '+name2+' begins.\n'+mesSendString;
                     else
-                        mesSendString = '\nThen the roleplay chat between '+name2+', '+name1+' and other character(s) begins. It is '+name2+'\'s turn to talk.\n'+mesSendString;
+                        mesSendString = '\nThe chat between '+name2+', '+name1+' and other character(s) begins. It is '+name2+'\'s turn to talk.\n'+mesSendString;
                 }else{
-                    mesSendString = '<START>\n'+mesSendString;
+                    mesSendString = '\n'+mesSendString;
                 }
 
                 if((main_api === 'openai' || main_api === 'proxy') && isChatModel()){
@@ -2344,7 +2344,7 @@ $(document).ready(function(){
                             mesExmString = mesExmString+mesExamplesArray[iii];
                             if(await Tokenizer.encode(storyString+mesExmString+chatString+anchorTop+anchorBottom+charPersonality)+this_gap_holder < this_max_context){ //example of dialogs
                                 if(!is_pyg){
-                                    mesExamplesArray[iii] = mesExamplesArray[iii].replace(/<START>/i, 'This is how '+name2+' should talk');//An example of how '+name2+' responds
+                                    mesExamplesArray[iii] = mesExamplesArray[iii].replace(/<START>/i, '');//An example of how '+name2+' responds
                                 }
                                 count_exm_add++;
                                 await delay(1);
@@ -2360,7 +2360,7 @@ $(document).ready(function(){
                     if(!is_pyg){
                         if(Scenario !== undefined){
                             if(Scenario.length > 0){
-                                storyString+= 'Circumstances and context of the dialogue: '+Scenario+'\n';
+                                storyString+= 'Scenario: '+Scenario+'\n';
                             }
                         }
                         //storyString+='\nThen the roleplay chat between '+name1+' and '+name2+' begins.\n';
@@ -2429,7 +2429,7 @@ $(document).ready(function(){
                 getMessage = getMessage.replace(/\n+$/, "");
 
                 message_already_generated +=getMessage;
-                if(message_already_generated.indexOf('You:') === -1 && message_already_generated.indexOf(name1+':') === -1 && message_already_generated.indexOf('<|endoftext|>') === -1 && message_already_generated.indexOf('\\end') === -1 && tokens_already_generated < parseInt(this_max_gen) && getMessage.length > 0){
+                if(message_already_generated.indexOf('You: ') === -1 && message_already_generated.indexOf(name1+': ') === -1 && message_already_generated.indexOf('<|endoftext|>') === -1 && message_already_generated.indexOf('\\end') === -1 && tokens_already_generated < parseInt(this_max_gen) && getMessage.length > 0){
                     runGenerate(getMessage);
                     return;
                 }
@@ -2441,11 +2441,11 @@ $(document).ready(function(){
             if(is_pyg){
                 getMessage = getMessage.replace(new RegExp('<USER>', "g"), name1);
                 getMessage = getMessage.replace(new RegExp('<BOT>', "g"), name2);
-                getMessage = getMessage.replace(new RegExp('You:', "g"), name1+':');
+                getMessage = getMessage.replace(new RegExp('You: ', "g"), name1+': ');
             }
 
-            if(getMessage.indexOf(name1+":") != -1){
-                getMessage = getMessage.substr(0,getMessage.indexOf(name1+":"));
+            if(getMessage.indexOf(name1+": ") != -1){
+                getMessage = getMessage.substr(0,getMessage.indexOf(name1+": "));
 
             }
             
@@ -2897,7 +2897,7 @@ $(document).ready(function(){
         if(chat.length > 1){
             chat.forEach(function(item, i) {
                 if(item['is_user']){
-                    var str = item['mes'].replace(default_user_name+':', name1+':');
+                    var str = item['mes'].replace(default_user_name+': ', name1+': ');
                     chat[i]['mes'] = str;
                     chat[i]['name'] = name1;
                 }
@@ -5376,13 +5376,13 @@ $(document).ready(function(){
                     multigen: multigen,
                     singleline: singleline,
                     worldName: settings.worldName || null,
-                    world_depth: settings.world_depth || 2,
-                    world_budget: settings.world_budget || 100,
-                    auto_connect: settings.auto_connect || false,
+                    world_depth: settings.world_depth || 1,
+                    world_budget: settings.world_budget || 1,
+                    auto_connect: settings.auto_connect || true,
                     characloud: settings.characloud === false ? false : true,
                     show_nsfw: charaCloud.show_nsfw,
                     swipes: swipes,
-                    notes: settings.notes || false,
+                    notes: settings.notes || true,
                     keep_dialog_examples: keep_dialog_examples,
                     free_char_name_mode: free_char_name_mode,
                     main_api: main_api,
