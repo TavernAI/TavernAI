@@ -1434,9 +1434,6 @@ app.post("/importworld", urlencodedParser, async function(request, response){
 
 app.post("/getbackgrounds", jsonParser, function(request, response){
     var images = getImages("public/backgrounds");
-    if(is_colab === true){
-        images = ['tavern.png'];
-    }
     response.send(JSON.stringify(images));
     
 });
@@ -2838,7 +2835,7 @@ function clearUploads() {
             if (err) {
                 console.error('Error deleting file:', err);
             } else {
-                //console.log('Deleted file:', filePath);
+                console.log('Deleted file:', filePath);
             }
         });
     }
