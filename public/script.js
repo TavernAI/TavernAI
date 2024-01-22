@@ -38,7 +38,7 @@ export var character_anchor = true;
 export const gap_holder = 120;
 export var online_status = 'no_connection';
 var chat_name;
-const VERSION = '1.5.2';
+const VERSION = '1.5.3';
 
 
 var openai_image_input = '';
@@ -1774,7 +1774,7 @@ $(document).ready(function(){
                 for(let iii = 0; iii < mesExamplesArray.length; iii++){
                     mesExmString = mesExmString+mesExamplesArray[iii];
                     if(!is_pyg){
-                        mesExamplesArray[iii] = mesExamplesArray[iii].replace(/<START>/i, 'This is how '+name2+' should talk');//An example of how '+name2+' responds
+                        // mesExamplesArray[iii] = mesExamplesArray[iii].replace(/<START>/i, 'This is how '+name2+' should talk');//An example of how '+name2+' responds
                     }
                     count_exm_add++;
                 }
@@ -1880,7 +1880,7 @@ $(document).ready(function(){
                             imageRecognitionBudgetTokens += 85;
                         }
                         if(type === 'force_name2' && j === mesSend.length-1 && tokens_already_generated === 0){
-                            mesSendString+= name2+':';
+                            mesSendString+= name2+': ';
                         }
                     }
                 }
@@ -5289,7 +5289,7 @@ $(document).ready(function(){
                     api_server_webui = settings.api_server_webui;
                     $('#api_url_text_webui').val(api_server_webui);
 
-                    if(settings.auto_connect && !is_colab) {
+                    if(settings.auto_connect) {
                         setTimeout(function() {
                             
                             if(main_api === 'kobold' && api_server){
