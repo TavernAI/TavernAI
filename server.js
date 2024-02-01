@@ -2803,7 +2803,7 @@ function initializationCards() {
                                 console.error('Error deleting file:', err);
                             } else {
                                 console.log(targetName + ' has been converted to .' + this_format);
-                                //console.log('Deleted file:', filePath);
+                                console.log('Deleted file:', filePath);
                             }
                         });
                     } else {

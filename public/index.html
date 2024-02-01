@@ -131,11 +131,11 @@
             <div class="content">
                 <h4 class="h4_menu_title person_summary">Personality summary</h4>
                 <h5 class="h5_menu_help">A brief description of the personality (<a href="/notes/2" target="_blank">?</a>)</h5>
-                <input id="personality_textarea" name="personality" placeholder="" form="form_create" class="text_pole chareditor-personality" type="text" autocomplete="off">
+                <input id="personality_textarea" name="personality" placeholder="" form="form_create" class="text_pole chareditor-personality" type="text" maxlength="600" autocomplete="off">
 
                 <h4 class="h4_menu_title">Scenario</h4>
                 <h5 class="h5_menu_help">Circumstances and context of the dialogue (<a href="/notes/12" target="_blank">?</a>)</h5>
-                <input id="scenario_pole" name="scenario" class="text_pole chareditor-scenario" type="text" maxlength="2500" size="40" value="" autocomplete="off" form="form_create">
+                <input id="scenario_pole" name="scenario" class="text_pole chareditor-scenario" type="text" maxlength="600" size="40" value="" autocomplete="off" form="form_create">
 
                 <h4 class="h4_menu_title">Examples of dialogue</h4>
                 <h5 class="h5_menu_help">Forms a personality more clearly (<a href="/notes/11" target="_blank">?</a>)</h5>
@@ -222,15 +222,15 @@
                     </div>
                     <div id="rep_pen_size_block">
                         <h4 class="range_title">Repetition Penalty Range</h4><h5 id="rep_pen_size_counter" class="range_counter">select</h5>
-                        <input type="range" class="range_bar" id="rep_pen_size" name="volume" min="0" max="2048" step="16">
+                        <input type="range" class="range_bar" id="rep_pen_size" name="volume" min="0" max="4096" step="64">
                     </div>
                     <div id="rep_pen_slope_block">
                         <h4 class="range_title">Rep Pen Slope</h4><h5 id="rep_pen_slope_counter" class="range_counter">select</h5>
-                        <input type="range" class="range_bar" id="rep_pen_slope" name="volume" min="0.1" max="10.0" step="0.1">
+                        <input type="range" class="range_bar" id="rep_pen_slope" name="volume" min="0.1" max="1.0" step="0.01">
                     </div>
                     <div id="amount_gen_block">
                         <h4 class="range_title">Amount of generation </h4><h5 id="amount_gen_counter" class="range_counter">select</h5>
-                        <input type="range" class="range_bar" id="amount_gen" name="volume" min="16" max="512" step="1">
+                        <input type="range" class="range_bar" id="amount_gen" name="volume" min="16" max="512" step="32">
                     </div>
                     <div id="max_context_block">
                         <div id="max_context_grid">
@@ -240,7 +240,7 @@
                             </div>
                             <input id="lock_context_size" type="checkbox" class="toggle_lock">
                         </div>
-                        <input type="range" class="range_bar" id="max_context" name="volume" min="512" max="8192" step="32">
+                        <input type="range" class="range_bar" id="max_context" name="volume" min="512" max="8192" step="128">
                     </div>
                 </div>
                 <div id="master_settings_novelai_block" class="master_settings_range_block">
@@ -610,7 +610,7 @@
                 <option value="webui">Text generation web UI</option>
             </select>
             <div id="kobold_api">
-                <div id="kobold_api_logo"><a href="https://github.com/KoboldAI/KoboldAI-Client" target="_blank"><img src="img/kobold.png"></a></div>
+                <div id="kobold_api_logo"><a href="https://github.com/henk717/KoboldAI" target="_blank"><img src="img/kobold.png"></a></div>
                 <form  action="javascript:void(null);" method="post" enctype="multipart/form-data">
 
                 <h4 class="h4_menu_title">API url</h4><h5 class="h5_menu_help">Example: http://127.0.0.1:5000/api </h5>
@@ -909,7 +909,7 @@
             </div>
             <div id="characloud_version_button"></div> 
             <div id="characloud_profile_button">
-                <div id="profile_button_is_not_login">Login / Registaration</div>
+                <div id="profile_button_is_not_login">Login / Register</div>
                 <div id="profile_button_is_login"><img src="/img/user_card.png" class="icon"><div class="user_name">Humi</div></div>
             </div>
             <div id="characloud_upload_character_button">
@@ -1108,9 +1108,5 @@
             
         </div>
     </div>
-
-
-
-
 </body>
 </html>

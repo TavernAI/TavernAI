@@ -17,7 +17,7 @@ var data_delete_chat = {};
 var default_avatar = 'img/fluffy.png';
 var user_avatar = 'you.png';
 var requestTimeout = 60*1000;
-export var max_context = 2048;//2048;
+export var max_context = 4096;//2048;
 var is_room = false;
 var is_room_list = false;
 var Rooms = null;
@@ -26,15 +26,15 @@ export var templates;
 export var main_api = 'kobold';
 export var lock_context_size = false;
 export var lock_context_size_webui = false;
-export var multigen = false;
+export var multigen = true;
 export var singleline = false;
-export var swipes = false;
+export var swipes = true;
 export var keep_dialog_examples = false;
 export var free_char_name_mode = false;
 export var anchor_order = 0;
 export var pyg_fmtg = 0;
-export var style_anchor = true;
-export var character_anchor = true;
+export var style_anchor = false;
+export var character_anchor = false;
 export const gap_holder = 120;
 export var online_status = 'no_connection';
 var chat_name;
@@ -50,9 +50,9 @@ var chloeMes = {
         is_user: false,
         is_name: true,
         create_date: 0,
-        mes: '*You went inside. The air smelled of fried meat, tobacco and a hint of wine. A dim light was cast by candles, and a fire crackled in the fireplace. It seems to be a very pleasant place. Behind the wooden bar is an elf waitress, she is smiling. Her ears are very pointy, and there is a twinkle in her eye. She wears glasses and a white apron. As soon as she noticed you, she immediately came right up close to you.*\n\n' +
-            ' Hello there! How is your evening going?' +
-            '<div id="characloud_img"><img src="img/tavern.png" id="chloe_star_dust_city"></div>\n<a id="verson" href="https://github.com/TavernAI/TavernAI" target="_blank">@@@TavernAI v'+VERSION+'@@@</a><a href="https://boosty.to/tavernai" target="_blank"><div id="characloud_url"><img src="img/heart.png" style="width:18px; heigth:18px; margin-right:2px;"><div id="characloud_title">Support</div></div></a><br><br><br><br>',
+        mes: '*Inside, the air smelled of fried meat, tobacco and a hint of wine. A dim light is cast throughout by candles and a fire crackling in the fireplace. It seems to be a very pleasant place. Behind the wooden bar is a smiling elf waitress wearing a white apron. Her ears are very pointy, and there is a twinkle in her eyes behind her glasses. As soon as she notices you, she makes her way over to greet you.*\n\n' +
+            ' Hello there! How is your day going?' +
+            '<br><a id="verson" href="https://github.com/TavernAI/TavernAI" target="_blank">@@@TavernAI v'+VERSION+'@@@</a><a href="https://boosty.to/tavernai" target="_blank"><div id="characloud_url"><img src="img/heart.png" style="width:18px; heigth:18px; margin-right:2px;"><div id="characloud_title">Support</div></div></a><br><div id="characloud_img"><img src="img/star_dust_city.png" id="chloe_star_dust_city"></div><br>',
         chid: -2
     };
 /*
@@ -75,15 +75,15 @@ export var chat = [chloeMes];
     export var koboldai_settings;
     export var koboldai_setting_names;
     export var preset_settings = 'gui';
-    export var temp = 0.5;
-    export var top_p = 1.0;
+    export var temp = 0.69;
+    export var top_p = 0.9;
     export var top_k = 0;
     export var top_a = 0.0;
     export var typical = 1.0;
     export var tfs = 1.0;
-    export var amount_gen = 80;
-    export var rep_pen = 1;
-    export var rep_pen_size = 100;
+    export var amount_gen = 440;
+    export var rep_pen = 1.06;
+    export var rep_pen_size = 2048;
     export var rep_pen_slope = 0.9;
     //WEBUI
     export var webui_settings;
@@ -670,8 +670,8 @@ $(document).ready(function(){
     var this_amount_gen = 0;
     var message_already_generated = '';
     var if_typing_text = false;
-    const tokens_first_request_count = 80;
-    const tokens_cycle_count = 40;
+    const tokens_first_request_count = 62;
+    const tokens_cycle_count = 90;
     var cycle_count_generation = 0;
     var winNotes;
     var winWorldInfo;
@@ -1747,7 +1747,7 @@ $(document).ready(function(){
                 j++;
             }
             //chat2 = chat2.reverse();
-            var this_max_context = 2048;
+            var this_max_context = 4096;
             if(main_api == 'kobold') this_max_context = max_context;
             if(main_api == 'webui') this_max_context = max_context_webui;
             if(main_api == 'horde') this_max_context = max_context;
@@ -2500,7 +2500,7 @@ $(document).ready(function(){
                     saveChatRoom();
 
             }else{
-                //console.log('run force_name2 protocol');
+                console.log('run force_name2 protocol');
                 if(free_char_name_mode && (main_api !== 'openai' && main_api !== 'proxy'))
                 {
                     Generate('force_name2');
@@ -5172,7 +5172,7 @@ $(document).ready(function(){
                         });
                     }
                     document.getElementById("input_worldinfo_depth").value = settings.world_depth !== undefined && settings.world_depth !== null ? settings.world_depth : 2;
-                    document.getElementById("input_worldinfo_budget").value = settings.world_budget !== undefined && settings.world_budget !== null ? settings.world_budget : 100;
+                    document.getElementById("input_worldinfo_budget").value = settings.world_budget !== undefined && settings.world_budget !== null ? settings.world_budget : 1;
 
                     document.getElementById("input_worldinfo_depth").onchange = function(event) {
                         settings.world_depth = parseInt(event.target.value);
@@ -6788,9 +6788,9 @@ $(document).ready(function(){
             $(this).css("opacity", "0");
         }
     };
-    $('#shell').on('click', '#chloe_star_dust_city', function(){
-        showCharaCloud();
-    });
+    // $('#shell').on('click', '#chloe_star_dust_city', function(){
+        // showCharaCloud();
+    // });
     async function charaCloudInit(){
             charaCloud.is_init = true;
             charaCloudServerStatus();
