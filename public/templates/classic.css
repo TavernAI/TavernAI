@@ -212,7 +212,7 @@ pre {
 }
 
 #chat_header_back_button {
-    margin-left: 100px;
+    margin-left: 150px;
     /*grid-row: span 2;*/
     cursor: pointer;
     display: flex;
