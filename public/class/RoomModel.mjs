@@ -213,7 +213,7 @@ export class RoomModel extends EventEmitter {
     getIDsByNames(ch_names) {
         let ids = [];
         ch_names.forEach(function(name) {
-            const ch_ext = ".webp"; // Assumed that character files would always have .webp extension
+            const ch_ext = ".png"; // Assumed that character files would always have .webp extension
             ids.push(this.characters.getIDbyFilename(name+ch_ext));
         }.bind(this));
         return ids;
@@ -225,7 +225,7 @@ export class RoomModel extends EventEmitter {
     }
 
     onRoomCreate(event) {
-        // console.log("Room Create Event");
+        console.log("Room Create Event");
         jQuery.ajax({
             type: 'POST',
             url: '/createroom',

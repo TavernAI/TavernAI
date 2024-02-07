@@ -18,8 +18,8 @@ export class TokenizerModule extends EventEmitter {
                 type: 'POST', // 
                 url: '/tokenizer_webui', // 
                 data: JSON.stringify({
-                        prompt: prompt
-                    }),
+                    prompt: prompt
+                    }),
                 beforeSend: function(){
 
                 },
