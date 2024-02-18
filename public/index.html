@@ -91,11 +91,11 @@
             <div id="dialogue_popup_cancel" class="menu_button">Cancel</div>
         </div>
     </div>
-    <div id="colab_shadow_popup" class="shadow_popup">
-        <div id="colab_popup">
-            <div id="colab_popup_text"><h3>Initialization</h3></div>
-        </div>
-    </div>
+    <!-- <div id="colab_shadow_popup" class="shadow_popup"> -->
+        <!-- <div id="colab_popup"> -->
+            <!-- <div id="colab_popup_text"><h3>Initialization</h3></div> -->
+        <!-- </div> -->
+    <!-- </div> -->
     <div id="shadow_charedit_advanced_popup" class="shadow_popup through">
         <div class="container">
             <div class="header">
@@ -105,13 +105,13 @@
             </div>
             <div class="content">
                 <h4 class="h4_menu_title person_summary">Personality Summary.</h4>
-                <h5 class="h5_menu_help">A <em>brief</em> description of the entity. (<a href="/notes/2" target="_blank">?</a>)</h5>
-                <input id="personality_textarea" name="personality" placeholder="" form="form_create" class="text_pole chareditor-personality" type="text" maxlength="400" autocomplete="off">
+                <h5 class="h5_menu_help">A <u><em>brief</em></u> description of the entity. (<a href="/notes/2" target="_blank">?</a>)</h5>
+                <input id="personality_textarea" name="personality" placeholder="" form="form_create" class="text_pole chareditor-personality" type="text" maxlength="500" autocomplete="off">
                 <h4 class="h4_menu_title">Scenario.</h4>
                 <h5 class="h5_menu_help">Premise of the interaction. (<a href="/notes/12" target="_blank">?</a>)</h5>
-                <input id="scenario_pole" name="scenario" class="text_pole chareditor-scenario" type="text" maxlength="300" size="40" value="" autocomplete="off" form="form_create">
+                <input id="scenario_pole" name="scenario" class="text_pole chareditor-scenario" type="text" maxlength="500" size="40" value="" autocomplete="off" form="form_create">
                 <h4 class="h4_menu_title">Examples of dialogue.</h4>
-                <h5 class="h5_menu_help">Things that the character may say, or have heard. (<a href="/notes/11" target="_blank">?</a>)</h5>
+                <h5 class="h5_menu_help">Things that the character might say, or things they may have overheard. (<a href="/notes/11" target="_blank">?</a>)</h5>
                 <textarea id="mes_example_textarea" name="mes_example" placeholder="" class="chareditor-dialogue" form="form_create"></textarea>
             </div>
         </div>
@@ -125,15 +125,15 @@
             <div id="master_settings">
                 <div id="master_settings_webui_block" class="master_settings_range_block">
                     <div id="top_p_block_webui">
-                        <h4 class="range_title">Top P Sampling </h4><h5 id="top_p_counter_webui" class="range_counter">select</h5>
+                        <h4 class="range_title">Top-P Sampling </h4><h5 id="top_p_counter_webui" class="range_counter">select</h5>
                         <input type="range" class="range_bar" id="top_p_webui" name="volume" min="0.0" max="1.0" step="0.01">
                     </div>
                     <div id="top_k_block_webui">
-                        <h4 class="range_title">Top K Sampling </h4><h5 id="top_k_counter_webui" class="range_counter">select</h5>
+                        <h4 class="range_title">Top-K Sampling </h4><h5 id="top_k_counter_webui" class="range_counter">select</h5>
                         <input type="range" class="range_bar" id="top_k_webui" name="volume" min="0" max="100" step="1">
                     </div>
                     <div id="top_a_block_webui">
-                        <h4 class="range_title">Top A Sampling </h4><h5 id="top_a_counter_webui" class="range_counter">select</h5>
+                        <h4 class="range_title">Top-A Sampling </h4><h5 id="top_a_counter_webui" class="range_counter">select</h5>
                         <input type="range" class="range_bar" id="top_a_webui" name="volume" min="0.0" max="1.0" step="0.01">
                     </div>
                     <div id="typical_block_webui">
@@ -153,7 +153,7 @@
                         <input type="range" class="range_bar" id="nrns_webui" name="volume" min="0" max="20" step="1">
                     </div>
                     <div id="amount_gen_block_webui">
-                        <h4 class="range_title">Amount of generation </h4><h5 id="amount_gen_counter_webui" class="range_counter">select</h5>
+                        <h4 class="range_title">Amount of Generation </h4><h5 id="amount_gen_counter_webui" class="range_counter">select</h5>
                         <input type="range" class="range_bar" id="amount_gen_webui" name="volume" min="16" max="512" step="16">
                     </div>
                     <div id="max_context_block_webui">
@@ -169,15 +169,15 @@
                 </div>
                 <div id="master_settings_koboldai_block" class="master_settings_range_block">
                     <div id="top_p_block">
-                        <h4 class="range_title">Top P Sampling </h4><h5 id="top_p_counter" class="range_counter">select</h5>
+                        <h4 class="range_title">Top-P Sampling </h4><h5 id="top_p_counter" class="range_counter">select</h5>
                         <input type="range" class="range_bar" id="top_p" name="volume" min="0.0" max="1.0" step="0.01">
                     </div>
                     <div id="top_k_block">
-                        <h4 class="range_title">Top K Sampling </h4><h5 id="top_k_counter" class="range_counter">select</h5>
+                        <h4 class="range_title">Top-K Sampling </h4><h5 id="top_k_counter" class="range_counter">select</h5>
                         <input type="range" class="range_bar" id="top_k" name="volume" min="0" max="100" step="1">
                     </div>
                     <div id="top_a_block">
-                        <h4 class="range_title">Top A Sampling </h4><h5 id="top_a_counter" class="range_counter">select</h5>
+                        <h4 class="range_title">Top-A Sampling </h4><h5 id="top_a_counter" class="range_counter">select</h5>
                         <input type="range" class="range_bar" id="top_a" name="volume" min="0.0" max="1.0" step="0.01">
                     </div>
                     <div id="typical_block">
@@ -189,15 +189,15 @@
                         <input type="range" class="range_bar" id="tfs" name="volume" min="0.0" max="1.0" step="0.01">
                     </div>
                     <div id="rep_pen_size_block">
-                        <h4 class="range_title">Repetition Penalty Range</h4><h5 id="rep_pen_size_counter" class="range_counter">select</h5>
+                        <h4 class="range_title">Rep Pen Range</h4><h5 id="rep_pen_size_counter" class="range_counter">select</h5>
                         <input type="range" class="range_bar" id="rep_pen_size" name="volume" min="0" max="4096" step="64">
                     </div>
                     <div id="rep_pen_slope_block">
                         <h4 class="range_title">Rep Pen Slope</h4><h5 id="rep_pen_slope_counter" class="range_counter">select</h5>
-                        <input type="range" class="range_bar" id="rep_pen_slope" name="volume" min="0.1" max="1.0" step="0.01">
+                        <input type="range" class="range_bar" id="rep_pen_slope" name="volume" min="0.1" max="10.0" step="0.1">
                     </div>
                     <div id="amount_gen_block">
-                        <h4 class="range_title">Amount of generation </h4><h5 id="amount_gen_counter" class="range_counter">select</h5>
+                        <h4 class="range_title">Amount of Generation </h4><h5 id="amount_gen_counter" class="range_counter">select</h5>
                         <input type="range" class="range_bar" id="amount_gen" name="volume" min="32" max="512" step="32">
                     </div>
                     <div id="max_context_block">
@@ -217,11 +217,11 @@
                         <input type="range" class="range_bar" id="top_p_novel" name="volume" min="0.0" max="1.0" step="0.01">
                     </div>
                     <div>
-                        <h4 class="range_title">Top K Sampling</h4><h5 id="top_k_counter_novel" class="range_counter">select</h5>
+                        <h4 class="range_title">Top-K Sampling</h4><h5 id="top_k_counter_novel" class="range_counter">select</h5>
                         <input type="range" class="range_bar" id="top_k_novel" name="volume" min="0" max="100" step="1">
                     </div>
                     <div>
-                        <h4 class="range_title">Top A Sampling</h4><h5 id="top_a_counter_novel" class="range_counter">select</h5>
+                        <h4 class="range_title">Top-A Sampling</h4><h5 id="top_a_counter_novel" class="range_counter">select</h5>
                         <input type="range" class="range_bar" id="top_a_novel" name="volume" min="0.0" max="1.0" step="0.01">
                     </div>
                     <div>
@@ -233,15 +233,15 @@
                         <input type="range" class="range_bar" id="tfs_novel" name="volume" min="0.0" max="1.0" step="0.01">
                     </div>
                     <div>
-                        <h4 class="range_title">Repetition Penalty Range</h4><h5 id="rep_pen_size_counter_novel" class="range_counter">select</h5>
+                        <h4 class="range_title">Rep Pen Range</h4><h5 id="rep_pen_size_counter_novel" class="range_counter">select</h5>
                         <input type="range" class="range_bar" id="rep_pen_size_novel" name="volume" min="0" max="2048" step="1">
                     </div>
                     <div>
                         <h4 class="range_title">Rep Pen Slope</h4><h5 id="rep_pen_slope_counter_novel" class="range_counter">select</h5>
-                        <input type="range" class="range_bar" id="rep_pen_slope_novel" name="volume" min="0.1" max="10.0" step="0.01">
+                        <input type="range" class="range_bar" id="rep_pen_slope_novel" name="volume" min="0.1" max="10.0" step="0.1">
                     </div>
                     <div>
-                        <h4 class="range_title">Amount of generation</h4><h5 id="amount_gen_counter_novel" class="range_counter">select</h5>
+                        <h4 class="range_title">Amount of Generation</h4><h5 id="amount_gen_counter_novel" class="range_counter">select</h5>
                         <input type="range" class="range_bar" id="amount_gen_novel" name="volume" min="16" max="512" step="1">
                     </div>
                 </div>
@@ -256,11 +256,11 @@
                         <input type="range" class="range_bar" id="pres_pen_openai" name="volume" min="0.0" max="2.0" step="0.01">
                         </div>
                         <div>
-                            <h4 class="h4_menu_title">Top P Sample</h4><h5 id="top_p_counter_openai" class="range_counter">select</h5>
+                            <h4 class="h4_menu_title">Top-P Sample</h4><h5 id="top_p_counter_openai" class="range_counter">select</h5>
                             <input type="range" class="range_bar" id="top_p_openai" name="volume" min="0.0" max="1.0" step="0.01">
                         </div>
                         <div>
-                            <h4 class="range_title">Amount of generation </h4><h5 id="amount_gen_counter_openai" class="range_counter">select</h5>
+                            <h4 class="range_title">Amount of Generation </h4><h5 id="amount_gen_counter_openai" class="range_counter">select</h5>
                             <input type="range" class="range_bar" id="amount_gen_openai" name="volume" min="16" max="1024" step="1">
                         </div>
                         <div>
@@ -319,15 +319,15 @@
                         <input id="keep_dialog_examples" type="checkbox" class="toggle_checkbox">
                     </div> -->
                     <div class="menu_toggle">
-                        <div class="toggle_label"><h4 class="h4_menu_title">Free name mode</h4><h5 class="h5_menu_help">Information (<a href="/notes/17" target="_blank">?</a>)</h5></div>
+                        <div class="toggle_label"><h4 class="h4_menu_title">Free Name Mode</h4><h5 class="h5_menu_help">Information (<a href="/notes/17" target="_blank">?</a>)</h5></div>
                         <input id="free_char_name_mode" type="checkbox" class="toggle_checkbox">
                     </div>
                     <div class="menu_toggle" id="singleline_toggle">
-                        <div class="toggle_label"><h4 class="h4_menu_title">Singleline mode</h4><h5 class="h5_menu_help">Information (<a href="/notes/51" target="_blank">?</a>)</h5></div>
+                        <div class="toggle_label"><h4 class="h4_menu_title">Singleline Mode</h4><h5 class="h5_menu_help">Information (<a href="/notes/51" target="_blank">?</a>)</h5></div>
                         <input id="singleline" type="checkbox" class="toggle_checkbox">
                     </div>
                     <div class="menu_toggle" id="autoconnect_toggle">
-                        <div class="toggle_label"><h4 class="h4_menu_title">Auto-connect</h4><h5 class="h5_menu_help">Attempt to connect to the last API on start</h5></div>
+                        <div class="toggle_label"><h4 class="h4_menu_title">Auto-Connect</h4><h5 class="h5_menu_help">Attempt to connect to the last API on start</h5></div>
                         <input id="autoconnect" type="checkbox" class="toggle_checkbox">
                     </div>
 <!--                    <div class="menu_toggle" id="characloud_toggle">
@@ -335,7 +335,7 @@
                         <input id="characloud" type="checkbox" class="toggle_checkbox">
                     </div> -->
                     <div class="menu_toggle" id="notes_toggle">
-                        <div class="toggle_label"><h4 class="h4_menu_title" style="font-size: 0.95em;">Memory scroll</h4><h5 class="h5_menu_help">Information (<a href="/notes/21" target="_blank">?</a>)</h5></div>
+                        <div class="toggle_label"><h4 class="h4_menu_title" style="font-size: 0.95em;">Memory Scroll</h4><h5 class="h5_menu_help">Information (<a href="/notes/21" target="_blank">?</a>)</h5></div>
                         <input id="notes_checkbox" type="checkbox" class="toggle_checkbox">
                     </div>
                 </div>
@@ -374,7 +374,7 @@
                     <input type="file" id="chat_import_file" accept=".json, .jsonl, .txt" name="avatar">
                     <input id="chat_import_file_type" name="file_type" class="text_pole" type="text" maxlength="999" size="2" value="" autocomplete="off">
                     <input id="chat_import_avatar_url" name="avatar_url" class="text_pole" type="text" maxlength="999" size="2" value="" autocomplete="off">
-                    <input id="chat_import_character_name" name="character_name" class="text_pole" type="text" maxlength="999" size="2" value="" autocomplete="off">
+                    <input id="chat_import_character_name" name="character_name" class="text_pole" type="text" maxlength="64" size="2" value="" autocomplete="off">
                 </form>
             </div>
             <div id="select_chat_div">
@@ -461,7 +461,7 @@
         <div class="right_menu_title_button" id="rm_button_settings"><h2>Settings</h2></div>
         <div class="right_menu_title_button" id="rm_button_selected_ch"><h2></h2></div>
         <div id="rm_ch_create_block" class="right_menu">
-            <form id="form_create" class="chareditor" action="javascript:void(null);" method="post" enctype="multipart/form-data">
+            <form id="form_create" class="chareditor" action="javascript:void(null);" method="post" enctype="multipart/form-data"  autocomplete="off">
                 <button class="chareditor-button-close" title="Back">&#8656;</button>
                 <div>
                     <div class="chareditor-token-warning-count">Warning: character definition exceeds <span></span> tokens!</div>
@@ -551,15 +551,15 @@
                     <h4 class="h4_menu_title">Temperature </h4><h5 id="temp_counter" class="range_counter">select</h5>
                     <input type="range" id="temp" name="volume" min="0.1" max="2.0" step="0.01">
                     <h4 class="h4_menu_title">Repetition Penalty </h4><h5 id="rep_pen_counter" class="range_counter">select</h5>
-                    <input type="range" id="rep_pen" name="volume" min="1" max="1.5" step="0.01">
-                    <h4 class="h4_menu_title">Preset settings</h4><h5 class="h5_menu_help">Tavern Settings or Server Settings. (<a href="/notes/4" target="_blank">?</a>)</h5>
+                    <input type="range" id="rep_pen" name="volume" min="1" max="3" step="0.01">
+                    <h4 class="h4_menu_title">Preset Settings</h4><h5 class="h5_menu_help">Tavern Settings or Server Settings. (<a href="/notes/4" target="_blank">?</a>)</h5>
                     <select id="settings_perset" class="menu_select">
                         <option value="gui">Use API Server GUI Settings</option>
                     </select>
                 </div>
             </div>
             <div id="horde_api" style="position: relative;">
-                <form  action="javascript:void(null);" method="post" enctype="multipart/form-data">
+                <form  action="javascript:void(null);" method="post" enctype="multipart/form-data" autocomplete="off">
                 <input id="api_button_horde" type="submit" value="Connect">
                     <h4 class="h4_menu_title">Horde API Key</h4><h5 class="h5_menu_help">Leave blank for guest account. <a href="notes/31.html" target="_blank">How does it work?</a></h5>
                     <!-- <h5>Register at: <a href="https://horde.koboldai.net/register" target="_blank">https://horde.koboldai.net/register</a></h5> -->
@@ -592,14 +592,14 @@
                     <option value="clio-v1">Clio</option>
                     <option value="kayra-v1">Kayra</option>
                 </select>
-                <h4 class="h4_menu_title">Preset settings</h4><h5 class="h5_menu_help">Selecting settings (<a href="/notes/7" target="_blank">?</a>)</h5>
+                <h4 class="h4_menu_title">Preset Settings</h4><h5 class="h5_menu_help">Selecting settings (<a href="/notes/7" target="_blank">?</a>)</h5>
                 <select id="settings_perset_novel" class="menu_select">
                     <option value="gui">Default</option>
                 </select>
                 <div id="range_block_novel">
                     <h4 class="h4_menu_title">Randomness </h4><h5 id="temp_counter_novel" class="range_counter">select</h5>
                     <input type="range" id="temp_novel" name="volume" min="0.1" max="2.5" step="0.01">
-                    <h4>Amount generation </h4><h5 id="amount_gen_counter">select</h5>
+                    <h4>Amount Generation </h4><h5 id="amount_gen_counter">select</h5>
                     <input type="range" id="amount_gen" name="volume" min="16" max="512" step="1">
                     <h4 class="h4_menu_title">Repetition Penalty </h4><h5 id="rep_pen_counter_novel" class="range_counter">select</h5>
                     <input type="range" id="rep_pen_novel" name="volume" min="1" max="2.0" step="0.01">
@@ -656,7 +656,7 @@
                 <div id="online_status_webui">
                     <div id="online_status_indicator_webui" class="online_status_indicator_offline"></div><div id="online_status_text_webui">No connection...</div>
                 </div>
-                <h4 class="h4_menu_title">Preset settings</h4><h5 class="h5_menu_help">Selecting settings (<a href="/notes/4_1" target="_blank">?</a>)</h5>
+                <h4 class="h4_menu_title">Preset Settings</h4><h5 class="h5_menu_help">Selecting settings (<a href="/notes/4_1" target="_blank">?</a>)</h5>
                 <select id="settings_perset_webui" class="menu_select">
                 </select>
                 <div id="range_block_webui">
@@ -677,12 +677,12 @@
                         <input type="file" id="world_import_file" accept=".json" name="avatar">
                         <input name="filename" type="hidden" autocomplete="off">
                     </form>
-                    <h5 class="h5_menu_help">Evaluation depth</h5>
+                    <h5 class="h5_menu_help">Evaluation Depth</h5>
                     <input type="number" id="input_worldinfo_depth" min="1" step="1" title="How many latest chat messages will be evaluated for World Info">
-                    <h5 class="h5_menu_help">Token budget</h5>
+                    <h5 class="h5_menu_help">Token Budget</h5>
                     <input type="number" id="input_worldinfo_budget" min="1" step="1" value="" title="How many tokens at maximum will be used for World Info">
                 </div>
-                <form id='form_change_name' action="javascript:void(null);" method="post" enctype="multipart/form-data">
+                <form id='form_change_name' action="javascript:void(null);" method="post" enctype="multipart/form-data" autocomplete="off">
                     <h4 class="h4_menu_title">Your Chat Username</h4>
                     <input id="your_name" name="your_name" class="text_pole" type="text" maxlength="35" size="16" value="" autocomplete="off">
                     <input id="your_name_button" type="submit" value="Change">
@@ -752,7 +752,7 @@
                 <div id="dialogue_del_mes_ok" class="menu_button">Delete</div>
                 <div id="dialogue_del_mes_cancel" class="menu_button">Cancel</div>
             </div>
-            <form id="send_form">
+            <form id="send_form" autocomplete="off">
                 <div id="options_button"><!-- Burger-Menu -->
                     <div id="options">
                         <div class="options-content">
@@ -770,7 +770,7 @@
                     <img id="ai-image-selected" src="img/ai_image_load_selected.png" hidden>
                 </div>
                 <input type="file" id="ai_image_input" accept="image/*" hidden>
-                <textarea id="send_textarea" placeholder="Type a message..." name="text"></textarea>
+                <textarea id="send_textarea" placeholder="Type a message..." name="text" autocomplete="off"></textarea>
                 <div id="send_button_shell"><div id="loading_mes"></div><input id="send_button" type="button"></div>
             </form>
             <div id="online_status">
