@@ -5860,6 +5860,9 @@ $(document).ready(function(){
                 case 'gpt-4-32k':
                     this_openai_max_context = 32768;
                     break;
+                case 'gpt-4-32k-0613':
+                    this_openai_max_context = 32768;
+                    break;
                 case 'gpt-3.5-turbo-16k':
                     this_openai_max_context = 16384;
                     break;
