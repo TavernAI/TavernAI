@@ -48,7 +48,7 @@ var chloeMes = {
         create_date: 0,
         mes: '*Inside, the air smelled of fried meat, tobacco and a hint of wine. A dim light is cast throughout by candles and a fire crackling in the fireplace. It seems to be a very pleasant place. Behind the wooden bar is a smiling elf waitress wearing a white apron. Her ears are very pointy, and there is a twinkle in her eyes behind her glasses. As soon as she notices you, she makes her way over to greet you.*\n\n' +
             ' Hello there! How is your day going?' +
-            '<br><a id="verson" href="https://github.com/TavernAI/TavernAI" target="_blank">@@@TavernAI v'+VERSION+'@@@</a><a href="https://boosty.to/tavernai" target="_blank"><div id="characloud_url"><img src="img/heart.png" style="width:18px; heigth:18px; margin-right:2px;"><div id="characloud_title">Support</div></div></a><br><div id="characloud_img"><img src="img/star_dust_city.png" id="chloe_star_dust_city"></div><br>',
+            '<div id="characloud_img"><img src="img/tavern.png" id="chloe_star_dust_city"></div>\n<a id="verson" href="https://github.com/TavernAI/TavernAI" target="_blank">@@@TavernAI v'+VERSION+'@@@</a><a href="https://boosty.to/tavernai" target="_blank"><div id="characloud_url"><img src="img/heart.png" style="width:18px; heigth:18px; margin-right:2px;"><div id="characloud_title">Support</div></div></a><br><br><br><br>',
         chid: -2
     };
 /*
@@ -6309,9 +6309,9 @@ $(document).ready(function(){
             $(this).css("opacity", "0");
         }
     };
-    // $('#shell').on('click', '#chloe_star_dust_city', function(){
-        // showCharaCloud();
-    // });
+    $('#shell').on('click', '#chloe_star_dust_city', function(){
+        showCharaCloud();
+    });
     async function charaCloudInit(){
             charaCloud.is_init = true;
             charaCloudServerStatus();
