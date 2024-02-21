@@ -6,7 +6,7 @@
 <img src="readme/4.png" height="200" /><img src="readme/5.png" height="200" />
 
 ###### Download: <br>
-* <a href="https://github.com/TavernAI/TavernAI/archive/refs/heads/main.zip" target="_parent"><img height="60" width="auto" src="https://raw.githubusercontent.com/TavernAI/TavernAI/main/public/img/five.png" alt="TavernAI"/> TavernAI</a><b><u> -> Requires -> </u></b><a href="https://nodejs.org/dist/v21.3.0/node-v21.3.0-x64.msi">Node.js®</a><img height="60" width="auto" src="https://funkengine2023.github.io/nodejs128.png" alt="Node.js®"/>
+* <a href="https://github.com/TavernAI/TavernAI/archive/refs/heads/main.zip" target="_parent"><img height="20" width="auto" src="https://raw.githubusercontent.com/TavernAI/TavernAI/main/public/img/five.png" alt="TavernAI"/> TavernAI</a><b> -> Requires -> </b><img height="20" width="auto" src="https://raw.githubusercontent.com/TavernAI/TavernAI/main/readme/nodelogo.png" alt="Node.js®"/><a href="https://nodejs.org/dist/v21.3.0/node-v21.3.0-x64.msi">Node.js®</a>
 * [Windows .exe version](https://sourceforge.net/projects/tavernaimain/files/TavernAI.rar/download)<br>
 ###### Run online: 
 * [TavernAI on Google Colab](https://colab.research.google.com/github/TavernAI/TavernAI/blob/main/colab/GPU.ipynb) <br><a href="https://colab.research.google.com/github/TavernAI/TavernAI/blob/main/colab/GPU.ipynb" target="_parent"><img height="42" width="auto" src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a><br>This is your only option if you're using a phone or tablet.<br>
