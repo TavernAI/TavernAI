@@ -185,7 +185,7 @@ pre {
     overflow: auto;
     overflow-x: hidden;
     overflow-y: hidden;
-    max-width:800px;
+    max-width: 95%;
     margin-left: auto;
     margin-right: auto;
     
@@ -212,7 +212,7 @@ pre {
 }
 
 #chat_header_back_button {
-    margin-left: 20px;
+    margin-left: 150px;
     /*grid-row: span 2;*/
     cursor: pointer;
     display: flex;
@@ -390,10 +390,8 @@ hr {
     box-shadow: 0 0 2px rgba(200,200,200,0.1);
     padding: 4px;
     background: #191b31CC;
-
     vertical-align: top;
     width: 100%;
-    
     color: rgb(229, 224, 216);
     font-size: 18px;
     /* background: blue; */
@@ -415,7 +413,7 @@ hr {
     border-radius: 1.25ex;
     color: #191b31;
     background: #ccc;
-    opacity: 0;
+    opacity: 0.5;
     z-index: 4;
     cursor: pointer;
 }
@@ -496,7 +494,7 @@ hr {
     margin-bottom: 10px;
     margin-left: 35px;
     padding-right: 40px;
-    max-width: 720px;
+    max-width: 95hw;
     word-wrap: break-word;
     animation: typing 3.5s steps(40, end), blink-caret .75s step-end infinite;
     
@@ -522,8 +520,8 @@ hr {
     width: 27px;
     cursor: pointer;
     position: absolute; /* Add absolute position */
-    top: 50%; /* Vertically center */
-    transform: translateY(-50%);
+    top: 93%; /* Vertically center */
+    transform: translateY(-93%);
     z-index: 3; /* Add a z-index */
 }
 .swipe_right img,.swipe_left img {
@@ -1024,6 +1022,7 @@ input[type=submit], input[type=button] {
 }
 #character_advanced_button {
     width: 100%;
+    margin-bottom: 1em;
 }
 
 #character_online_editor {
@@ -1042,14 +1041,10 @@ input[type=submit], input[type=button] {
     background-color: #191b3133;
     opacity: 1.0;
     margin-bottom: 8px;
-}
-#character_advanced_button {
-    margin-bottom: 1em;
+    float: left;
+    display: none;
 }
 
-#character_online_editor {
-    float: left;
-}
 .chareditor input[type=submit] {
     opacity: 0.8;
 }
@@ -1359,10 +1354,10 @@ button.inline,
     padding: 0;
     height: 55%;
 }
-
 .chareditor-button-delete {
     color: #c47373;
     margin-rght: 1em;
+    display: none;
 }
 .chareditor-button-delete,
 .chareditor-button-export {
@@ -1381,7 +1376,6 @@ chareditor-button-close {
 }
 .chareditor-token-counter {
     position: relative;
-
     text-align: center;
     /*float: right;*/
     min-width: 2em;
@@ -1391,16 +1385,15 @@ chareditor-button-close {
 .chareditor-token-counter:after {
     margin-left: 1px;
     width: 100%;
-    content: "Tokens";
+    content: " Tokens";
     text-align: center;
 }
 .create .chareditor-button-online {
     display: none;
-    
 }
 #characters_rooms_switch_button {
-    width: 97%; 
-    margin-left: 3px;
+    width: 45%; 
+    margin-left: 5px;
     font-weight: bold;
     color: #ffffff99;
     padding: 0.5em;
@@ -1412,6 +1405,11 @@ chareditor-button-close {
 
 #characters_rooms_switch_button_rooms_text {
     opacity: 0.5;
+}
+
+#characters_rooms_switch_button:hover {
+    background-color: #fff1;
+    transition: background-color 0.2s;
 }
 
 .chareditor .chareditor-token-warning-count,
@@ -1478,7 +1476,7 @@ label form {
 /*Popups*/
 .popup_large {
     display: none;
-    max-width:800px;
+    max-width: 80%;
     height: calc(100vh - 120px);
     position: absolute;
     z-index: 2065;
@@ -1681,6 +1679,9 @@ label form {
 }
 .online_status_indicator_online {
     background-color: green;
+}
+.online_status_indicator_untried {
+    background-color: #FFFF00;
 }
 #online_status_text, #online_status_text2, #online_status_text3, #online_status_text4, #online_status_text_webui {
     margin-left: 4px;
@@ -2194,7 +2195,7 @@ label.checkbox :checked + span:after {
 }
 
 #character_popup_content {
-    margin-left: 36px;
+    margin-left: 16px;
 }
 
 #personality_div {
@@ -2269,8 +2270,8 @@ label.checkbox :checked + span:after {
 #select_chat_popup {
     display: block;
     grid-template-rows: 50px 100px 100px auto 45px;
-    max-width:770px;
-    height: 440px;
+    max-width: 90%;
+    height: 85vh;
     position: absolute;
     z-index: 2066;
     background-color: blue;
@@ -2279,7 +2280,7 @@ label.checkbox :checked + span:after {
     left: 0;
     right: 0;
     /* text-align: center; */
-    margin-top: 21vh;
+    margin-top: 5vh;
     box-shadow: 0 0 2px rgba(200,200,200,0.1);
     padding: 4px;
     background: #191b31F0;
@@ -2310,8 +2311,8 @@ label.checkbox :checked + span:after {
     background-color: blue;
     margin-left: auto;
     margin-right: auto;
-    min-width: 10%;
-    min-height: 15%;
+    min-width: 20%;
+    min-height: 20%;
     box-shadow: 0 0 2px rgba(200,200,200,0.3);
     padding: 1.8ex;
     padding-top: 1.25ex;
@@ -2438,13 +2439,13 @@ label.checkbox :checked + span:after {
     left: calc(25% + 1em);
     right: calc(25% + 1em);
     border-radius: 1ex;
-    transition: opacity 0.5s;
+    transition: opacity 0.1s;
     background: white;
-    opacity: 0;
+    opacity: 0.12;
     cursor: grab;
 }
 .modular .move:hover {
-    opacity: 0.12;
+    opacity: 0.22;
 }
 
 /* NOTES WINDOW */
@@ -2742,8 +2743,8 @@ label.wpp_label {
     /* height: 80%; */
     overflow: hidden;
     overflow-y: scroll;
-    max-width:757px;
-    height: 350px;
+    max-width: 95%;
+    height: 80%;
 }
 #select_chat_div hr {
     background-image: unset;
@@ -3219,7 +3220,7 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
 
     cursor: pointer;
     position: absolute;
-    right: 20px;
+    right: 100px;
     font-weight: 700;
     font-size: 11pt;
     opacity: 0.72;
@@ -3286,4 +3287,13 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
     background-color: black;
     border-radius: 1px !important;
     padding: 1px;
+}
+
+/*  FUNK'S JUNKS! */
+
+#reset {
+    font-weight: bold;
+    color: #FF0000;
+    background-color: #191b31;
+    cursor: pointer;
 }

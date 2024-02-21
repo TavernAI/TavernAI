@@ -2,19 +2,19 @@
   "children": [
     {
       "name": "Aqua",
-      "uid": "Aqua.webp"
+      "uid": "Aqua.png"
     },
     {
       "name": "City Explorer (Story)",
-      "uid": "City Explorer (Story).webp"
+      "uid": "City Explorer (Story).png"
     },
     {
       "name": "Darkness",
-      "uid": "Darkness.webp"
+      "uid": "Darkness.png"
     },
     {
       "name": "Megumin",
-      "uid": "Megumin.webp"
+      "uid": "Megumin.png"
     }
   ]
 }

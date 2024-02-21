@@ -1,0 +1,38 @@
+config.conf
+node_modules/
+public/characters/
+public/characters/folders.json
+public/chats/
+public/rooms/
+public/rooms/Konosuba.jsonl
+public/settings.json
+public/System Prompts/
+public/User Avatars/
+readme/
+uploads/
+!public/backgrounds/cozynight.png
+!public/backgrounds/getrest.png
+!public/backgrounds/kingdom.png
+!public/backgrounds/market.png
+!public/backgrounds/noble1.png
+!public/backgrounds/noble2.png
+!public/backgrounds/ocean.png
+!public/backgrounds/outdoor.png
+!public/backgrounds/smokycity.png
+!public/backgrounds/summer.png
+!public/backgrounds/tavern.png
+!public/backgrounds/theredlake.png
+!public/backgrounds/warmtown.png
+!public/backgrounds/waterflow.png
+!public/backgrounds/whitesnow.png
+!public/characters/Aqua.png
+!public/characters/City Explorer (Story).png
+!public/characters/Darkness.png
+!public/characters/folders.json
+!public/characters/Megumin.png
+!public/chats/City Explorer (Story)/1687599323821.jsonl
+!public/rooms/Konosuba.jsonl
+!public/System Prompts/Chat Classic.json
+!public/System Prompts/Room Classic.json
+!public/User Avatars/legat.png
+!public/User Avatars/you1.png
