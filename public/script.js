@@ -6576,6 +6576,10 @@ $(document).ready(function(){
                                 text: 'gpt-3.5-turbo'
                             }));
                             $('#model_openai_select').append($('<option>', {
+                                value: 'claude-2.1',
+                                text: 'claude-2.1'
+                            }));
+                            $('#model_openai_select').append($('<option>', {
                                 value: 'claude-v1.3',
                                 text: 'claude-v1.3'
                             }));
