@@ -5881,6 +5881,9 @@ $(document).ready(function(){
                 case 'gpt-4-1106-preview':
                     this_openai_max_context = 128000;
                     break;
+                case 'gpt-4-0125-preview':
+                    this_openai_max_context = 128000;
+                    break;
                 case 'gpt-4-vision-preview':
                     this_openai_max_context = 128000;
                     break;
