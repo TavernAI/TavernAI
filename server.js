@@ -650,7 +650,6 @@ app.post("/getstatus_webui", jsonParser, function(request, response_getstatus){
         headers: { "Content-Type": "application/json" }
     };
     client.get(api_server+"/v1/internal/model/info",args, function (data, response) {
-        console.log(data.result);
         if(response.statusCode == 200){
             if(data.result != "ReadOnly"){
                 //response_getstatus.send(data.result);
