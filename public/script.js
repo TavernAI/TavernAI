@@ -921,7 +921,7 @@ $(document).ready(function(){
                 contentType: "application/json",
                 //processData: false, 
                 success: function(data){
-                    online_status = data.result;
+                    online_status = data.model_name;
                     
                     if(online_status == undefined){
                         online_status = 'no_connection';
@@ -2210,8 +2210,11 @@ $(document).ready(function(){
         tokens_already_generated += this_amount_gen;
         if(data.error != true){
             var getMessage = '';
-            if(main_api == 'kobold' || main_api == 'webui'){
+            if(main_api == 'kobold'){
                 getMessage = data.results[0].text;
+            }
+            if(main_api == 'webui'){
+                getMessage = data.choices[0].text;
             }
             if(main_api == 'novel'){
                 getMessage = data.output;
@@ -3522,9 +3525,9 @@ $(document).ready(function(){
             if(api_server_webui.substr(api_server_webui.length-1,1) == "/"){
                 api_server_webui = api_server_webui.substr(0,api_server_webui.length-1);
             }
-            if(!(api_server_webui.substr(api_server_webui.length-3,3) == "api" || api_server_webui.substr(api_server_webui.length-4,4) == "api/")){
-                api_server_webui = api_server_webui+"/api";
-            }
+            //if(!(api_server_webui.substr(api_server_webui.length-3,3) == "api" || api_server_webui.substr(api_server_webui.length-4,4) == "api/")){
+                //api_server_webui = api_server_webui;
+            //}
             //console.log("2: "+api_server);
             saveSettings();
             is_get_status_webui = true;
