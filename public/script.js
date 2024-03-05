@@ -122,6 +122,7 @@ export var amount_gen_openai = 220;
 export var max_context_openai = 2048;
 export var model_openai = 'gpt-3.5-turbo';
 export var model_proxy;
+export var custom_proxy_model = "";
 var models_holder_openai = [];
 var is_need_load_models_proxy = true;
 //Claude settings
@@ -2126,10 +2127,14 @@ $(document).ready(function(){
                 }
                 if(main_api === 'openai' || main_api === 'proxy'){
                     let this_model_gen;
-                    if(main_api === 'openai'){
-                        this_model_gen = model_openai;
-                    }else if(main_api === 'proxy'){
-                        this_model_gen = model_proxy;
+                    if(custom_proxy_model == ''){
+                        if(main_api === 'openai'){
+                            this_model_gen = model_openai;
+                        }else if(main_api === 'proxy'){
+                            this_model_gen = model_proxy;
+                        }
+                    }else{
+                        this_model_gen = custom_proxy_model;
                     }
                     generate_data = {
                         "model": this_model_gen,
@@ -4018,6 +4023,8 @@ $(document).ready(function(){
                 
                 $('#api_url_openai').val(api_url_openai);
                 $('#api_key_openai').val(api_key_openai);
+                
+                customProxyModelUpdate();
             }else if(main_api === 'proxy'){
                 is_need_load_models_proxy = true;
                 $('#model_openai_select').empty();
@@ -4032,6 +4039,7 @@ $(document).ready(function(){
                 
                 $('#api_url_openai').val(api_url_proxy);
                 $('#api_key_openai').val(api_key_proxy);
+                customProxyModelUpdate();
             }
             openAIChangeMaxContextForModels();
             
@@ -4102,6 +4110,27 @@ $(document).ready(function(){
     $('#api_url_openai').on('input', function () {
         $('#api_key_openai').val('');
     });
+    $('#custom_proxy_model').on('input', function () {
+        
+        custom_proxy_model = $('#custom_proxy_model').val();
+        customProxyModelUpdate();
+        var tempTimer = setTimeout(saveSettings, 500);
+    });
+    
+   function customProxyModelUpdate(){
+       let this_text = '';
+       if(main_api === 'openai'){
+           this_text = 'Custom OpenAI model';
+       }
+       if(main_api === 'proxy'){
+           this_text = 'Custom proxy model';
+       }
+       if(custom_proxy_model.length > 0){
+           this_text += " <font color=#4cc54e>(Used)</font>";
+       }
+       $('#h4_menu_title_custom_proxy_model').html(this_text);
+   }
+
     $('#default_openai_url_button').click(function(){
         $('#api_key_openai').val('');
         $('#api_url_openai').val(default_api_url_openai);
@@ -4620,6 +4649,14 @@ $(document).ready(function(){
                     }else if(main_api === 'proxy'){
                         $('#model_openai_select option[value="'+model_proxy+'"]').attr('selected', 'true');
                     }
+                    
+
+                    if(settings.custom_proxy_model != undefined){
+                        custom_proxy_model = settings.custom_proxy_model;
+                        $('#custom_proxy_model').val(custom_proxy_model);
+                        customProxyModelUpdate();
+                    }
+                    
                     openAIChangeMaxContextForModels();
                     //WEBUI
                     webui_setting_names = data.webui_setting_names;
@@ -5132,6 +5169,7 @@ $(document).ready(function(){
                     system_prompt_preset_room: system_prompt_preset_room,
                     api_key_novel: api_key_novel,
                     api_key_openai: api_key_openai,
+                    custom_proxy_model: custom_proxy_model,
                     api_key_proxy: api_key_proxy,
                     api_url_proxy: api_url_proxy,
                     api_key_claude: api_key_claude,
