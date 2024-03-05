@@ -560,7 +560,7 @@ $(document).ready(function(){
     ///////////
     var converter = new showdown.Converter({ extensions: ['xssfilter'] });
     var bg_menu_toggle = false;
-    var default_user_name = "Someone";
+    var default_user_name = "You";
     var name1 = default_user_name;
     var name2 = "Chloe";
     var number_bg = 1;
