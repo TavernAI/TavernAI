@@ -36,7 +36,7 @@ export var character_anchor = false;
 export const gap_holder = 120;
 export var online_status = 'no_connection';
 var chat_name;
-const VERSION = '1.5.3';
+const VERSION = '1.5.4';
 var openai_image_input = '';
 var openai_image_input_thumb64 = '';
 var is_ai_image_input = false;
