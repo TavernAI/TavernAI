@@ -80,6 +80,9 @@ export class StoryModule extends EventEmitter {
         if ((Main.main_api === 'openai' || Main.main_api === 'proxy') && Main.isChatModel()){
             this_gap_holder = parseInt(Main.amount_gen_openai)+this_gap_holder;
         }
+        if (Main.main_api == 'claude'){
+            this_gap_holder = parseInt(Main.amount_gen_claude)+this_gap_holder;
+        }
         let prompt;
         let pre_prompt;
         let memory = '';
@@ -104,7 +107,7 @@ export class StoryModule extends EventEmitter {
             }
         }
         if (Main.main_api === 'openai' || Main.main_api === 'proxy') this_max_context = Main.max_context_openai;
-        
+        if (Main.main_api == 'claude') this_max_context = Main.max_context_claude;
         //Prepare prompt
         if($('#send_textarea').val().length > 0){
             if($.trim($('#story_textarea').val().length) > 0){
@@ -134,12 +137,12 @@ export class StoryModule extends EventEmitter {
             if ((Main.main_api === 'openai' || Main.main_api === 'proxy') && Main.isChatModel()){
                 
             }
-            if (SystemPrompt.system_prompt !== "" && (Main.main_api === 'openai' || Main.main_api === 'proxy') && Main.isChatModel()) {
+            if ((SystemPrompt.system_prompt !== "" && (Main.main_api === 'openai' || Main.main_api === 'proxy') && Main.isChatModel())) {
                 let is_system_prompt = 1;
                 sentences.splice(SystemPrompt.system_depth, 0, {sentence: SystemPrompt.system_prompt, role: "system"});
             }
 
-            if (SystemPrompt.jailbreak_prompt !== "" && (Main.main_api === 'openai' || Main.main_api === 'proxy') && Main.isChatModel()) {
+            if ((SystemPrompt.jailbreak_prompt !== "" && (Main.main_api === 'openai' || Main.main_api === 'proxy') && Main.isChatModel())) {
                 let is_jailbreak_prompt = 1;
                 sentences.splice(SystemPrompt.jailbreak_depth, 0, {sentence: SystemPrompt.jailbreak_prompt, role: "system"});
             }
@@ -160,12 +163,13 @@ export class StoryModule extends EventEmitter {
             thisTokensCount = await Main.Tokenizer.encode(memory + pre_prompt) + this_gap_holder;
         }
         
-        if ((Main.main_api === 'openai' || Main.main_api === 'proxy') && Main.isChatModel()){
+        if (((Main.main_api === 'openai' || Main.main_api === 'proxy') && Main.isChatModel()) || Main.main_api === 'claude'){
             let combinedSentences = [];
             let currentSentence = {sentence: '', role: ''};
-
+            let text_role = "system";
+            if(Main.main_api === 'claude') text_role = "user";
             for (let i = 0; i < sentences.length; i++) {
-                if (sentences[i].role !== "system") {
+                if (sentences[i].role !== text_role) {
                     currentSentence.sentence += sentences[i].sentence;
                 } else {
                     if (currentSentence.sentence !== '') {
@@ -180,15 +184,23 @@ export class StoryModule extends EventEmitter {
             if (currentSentence.sentence !== '') {
                 combinedSentences.push(currentSentence);
             }
-            console.log(combinedSentences);
             prompt = [];
-            prompt[0] = {"role": "assistant", "content": memory};
-            //prompt[1] = {"role": "system", "content": $('#system_prompt_textarea').val()};
-            combinedSentences.forEach(function(item,i){
-                prompt[i+1] = {"role": "assistant", "content": item['sentence']};
-                if(item['role'] === 'system') prompt[i+1]['role'] = 'system';
-                
-            });
+            if(Main.main_api === 'claude'){
+                let this_claude_prompt = "";
+                this_claude_prompt = memory;
+                combinedSentences.forEach(function(item,i){
+                    this_claude_prompt+=item['sentence'];
+                });
+                prompt[0] = {"role": text_role, "content": this_claude_prompt};
+            }else{
+                prompt[0] = {"role": text_role, "content": memory};
+                //prompt[1] = {"role": "system", "content": $('#system_prompt_textarea').val()};
+                combinedSentences.forEach(function(item,i){
+                    prompt[i+1] = {"role": text_role, "content": item['sentence']};
+                    if(item['role'] === 'system') prompt[i+1]['role'] = text_role;
+
+                });
+            }
             //prompt[3] = {"role": "system", "content": $('#jailbreak_prompt_textarea').val()};
             
         }else{
@@ -213,6 +225,9 @@ export class StoryModule extends EventEmitter {
                 break;
             case 'proxy':
                 this_amount_gen = parseInt(Main.amount_gen_openai);
+                break;
+            case 'claude':
+                this_amount_gen = parseInt(Main.amount_gen_claude);
                 break;
         }
         if (Main.main_api === 'kobold') {
@@ -358,7 +373,7 @@ export class StoryModule extends EventEmitter {
                 this_model_gen = Main.model_proxy;
             }
             generate_data = {
-                "model": Main.model_openai,
+                "model": this_model_gen,
                 "temperature": parseFloat(Main.temp_openai),
                 "frequency_penalty": parseFloat(Main.freq_pen_openai),
                 "presence_penalty": parseFloat(Main.pres_pen_openai),
@@ -374,6 +389,18 @@ export class StoryModule extends EventEmitter {
             }
 
         }
+        if(Main.main_api === 'claude'){
+            generate_data = {
+                "model": Main.model_claude,
+                "temperature": parseFloat(Main.temp_claude),
+                "top_p": parseFloat(Main.top_p_claude),
+                "top_k": parseFloat(Main.top_k_claude),
+                "max_tokens": this_amount_gen
+            };
+            generate_data.messages = prompt;
+
+        }
+        console.log(generate_data);
         var generate_url = '';
         if (Main.main_api == 'kobold') {
             generate_url = '/generate';
@@ -390,7 +417,10 @@ export class StoryModule extends EventEmitter {
         }
         if (Main.main_api === 'openai' || Main.main_api === 'proxy') {
             generate_url = '/generate_openai';
-        }    
+        }
+        if (Main.main_api == 'claude') {
+            generate_url = '/generate_claude';
+        }
         $( "#send_button" ).css("display", "none");
         $( "#loading_mes" ).css("display", "block");
 
@@ -448,6 +478,9 @@ export class StoryModule extends EventEmitter {
                     getPrompt = data.choices[0].text;
                 }
             }
+            if(Main.main_api === 'claude'){
+                getPrompt = data.content[0].text;
+            }
             if (getPrompt.length > 0) {
                 $('#story_textarea').val($('#story_textarea').val() + getPrompt);
                 if (true) {
@@ -469,6 +502,7 @@ export class StoryModule extends EventEmitter {
 
         } else {
             console.error(data);
+            alert(data.messages);
             if (data.error_message) {
                 //callPopup(data.error_message, 'alert_error');
             }
