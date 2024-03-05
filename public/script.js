@@ -41,6 +41,7 @@ var openai_image_input = '';
 var openai_image_input_thumb64 = '';
 var is_ai_image_input = false;
 var $this_delete_image_recognition;
+var auto_connect = true;
 var chloeMes = {
         name: 'Chloe',
         is_user: false,
@@ -64,76 +65,76 @@ var chloeMes = {
     };
 */
 export var chat = [chloeMes];
-    //KoboldAI settings
-    export var settings;
-    export var koboldai_settings;
-    export var koboldai_setting_names;
-    export var preset_settings = 'Default-TavernAI';
-    export var temp = 0.69;
-    export var top_p = 0.9;
-    export var top_k = 0;
-    export var top_a = 0.0;
-    export var typical = 1.0;
-    export var tfs = 1.0;
-    export var amount_gen = 512;
-    export var rep_pen = 1.06;
-    export var rep_pen_size = 2048;
-    export var rep_pen_slope = 0.9;
-    //WEBUI
-    export var webui_settings;
-    export var webui_setting_names;
-    export var preset_settings_webui = 'Default';
-    export var temp_webui = 0.5;
-    export var top_p_webui = 1.0;
-    export var top_k_webui = 0;
-    export var top_a_webui = 0.0;
-    export var typical_webui = 1.0;
-    export var tfs_webui = 1.0;
-    export var amount_gen_webui = 80;
-    export var rep_pen_webui = 1;
-    export var rep_pen_size_webui = 100;
-    export var nrns_webui = 0.9;
-    export var max_context_webui = 2048;
-    //NovelAI settings
-        //NovelAI
-    export var api_key_novel = "";
-    export var novel_tier;
-    export var model_novel = "euterpe-v2";
-    export var novelai_settings;
-    export var novelai_setting_names;
-    export var preset_settings_novel = 'Classic-Krake';
-    export var temp_novel = 0.5;
-    export var rep_pen_novel = 1;
-    export var rep_pen_size_novel = 100;
-    export var rep_pen_slope_novel = 0.9;
-    export var top_p_novel = 1.0;
-    export var top_k_novel = 0;
-    export var top_a_novel = 0.0;
-    export var typical_novel = 1.0;
-    export var tfs_novel = 1.0;
-    export var amount_gen_novel = 80;
-    //OpenAI settings
-    export var temp_openai = 0.9;
-    export var top_p_openai = 1.0;
-    export var pres_pen_openai = 0.7;
-    export var freq_pen_openai = 0.7;
-    export var amount_gen_openai = 220;
-    export var max_context_openai = 2048;
-    export var model_openai = 'gpt-3.5-turbo';
-    export var model_proxy;
-    var models_holder_openai = [];
-    var is_need_load_models_proxy = true;
-    //Claude settings
-    export var top_p_claude = 1.0;
-    export var top_k_claude = 0;
-    export var temp_claude = 0.5;
-    export var amount_gen_claude = 220;
-    export var model_claude = 'claude-instant-1.2';
-    export var max_context_claude = 16000;
-    // HORDE
-    export var horde_api_key = "0000000000";
-    export var horde_model = "";
-    Tavern.hordeCheck = false;
+//KoboldAI settings
+export var settings;
+export var koboldai_settings;
+export var koboldai_setting_names;
+export var preset_settings = 'Default-TavernAI';
+export var temp = 0.69;
+export var top_p = 0.9;
+export var top_k = 0;
+export var top_a = 0.0;
+export var typical = 1.0;
+export var tfs = 1.0;
+export var amount_gen = 512;
+export var rep_pen = 1.06;
+export var rep_pen_size = 2048;
+export var rep_pen_slope = 0.9;
+//WEBUI
+export var webui_settings;
+export var webui_setting_names;
+export var preset_settings_webui = 'Default';
+export var temp_webui = 0.5;
+export var top_p_webui = 1.0;
+export var top_k_webui = 0;
+export var top_a_webui = 0.0;
+export var typical_webui = 1.0;
+export var tfs_webui = 1.0;
+export var amount_gen_webui = 80;
+export var rep_pen_webui = 1;
+export var rep_pen_size_webui = 100;
+export var nrns_webui = 0.9;
+export var max_context_webui = 2048;
+//NovelAI settings
+    //NovelAI
+export var api_key_novel = "";
+export var novel_tier;
+export var model_novel = "euterpe-v2";
+export var novelai_settings;
+export var novelai_setting_names;
+export var preset_settings_novel = 'Classic-Krake';
+export var temp_novel = 0.5;
+export var rep_pen_novel = 1;
+export var rep_pen_size_novel = 100;
+export var rep_pen_slope_novel = 0.9;
+export var top_p_novel = 1.0;
+export var top_k_novel = 0;
+export var top_a_novel = 0.0;
+export var typical_novel = 1.0;
+export var tfs_novel = 1.0;
+export var amount_gen_novel = 80;
+//OpenAI settings
+export var temp_openai = 0.9;
+export var top_p_openai = 1.0;
+export var pres_pen_openai = 0.7;
+export var freq_pen_openai = 0.7;
+export var amount_gen_openai = 220;
+export var max_context_openai = 2048;
+export var model_openai = 'gpt-3.5-turbo';
+export var model_proxy;
+var models_holder_openai = [];
+var is_need_load_models_proxy = true;
+//Claude settings
+export var top_p_claude = 1.0;
+export var top_k_claude = 0;
+export var temp_claude = 0.5;
+export var amount_gen_claude = 220;
+export var model_claude = 'claude-instant-1.2';
+export var max_context_claude = 16000;
+// HORDE
+export var horde_api_key = "0000000000";
+export var horde_model = "";
+Tavern.hordeCheck = false;
 Tavern.is_send_press = false; //Send generation
 export var characterFormat = 'png';
 function vl(text) { //Validation security function for html
@@ -1470,7 +1471,7 @@ $(document).ready(function(){
                 chat[chat.length-1]['is_name'] = true;
                 chat[chat.length-1]['send_date'] = Date.now();
                 chat[chat.length-1]['mes'] = textareaText;
-                if(is_ai_image_input && model_openai === 'gpt-4-vision-preview' && main_api === 'openai'){
+                if(is_ai_image_input && isModelHaveImageRecognition()){
                     is_ai_image_input = false;
                     chat[chat.length-1]['image_for_recognition'] = [];
                     chat[chat.length-1]['image_for_recognition'][0] = {};
@@ -1648,7 +1649,7 @@ $(document).ready(function(){
                 }else{
                     chat2[i]['mes'] = chat[j]['mes']+'\n';
                 }
-                if(chat[j]['image_for_recognition'] !== undefined && model_openai === 'gpt-4-vision-preview' && main_api === 'openai'){
+                if(chat[j]['image_for_recognition'] !== undefined && isModelHaveImageRecognition()){
                     chat2[i]['image_for_recognition'] = chat[j]['image_for_recognition'];
                 }
                 j++;
@@ -1899,52 +1900,57 @@ $(document).ready(function(){
                             if (SystemPrompt.jailbreak_prompt.length > 0 && this_jailbreak_depth+1 === i) {
                                 finalPromt[i + 1] = {"role": system_role_name, "content": item['mes']};
                             } else {
+                                let this_role = "";
                                 if (item['mes'].indexOf(name1 + ':') === 0) {
-                                    if(model_openai === 'gpt-4-vision-preview' && main_api === 'openai' && item['image_for_recognition'] !== undefined){
-                                        const this_openai_image_input = item['image_for_recognition'];
-                                        finalPromt[i + 1] = {
-                                            role: 'user',
-                                            content: [
-                                                {
-                                                    type: 'text',
-                                                    text: item['mes']
-                                                },
-                                                {
-                                                    type: 'image_url',
-                                                    image_url: {
-                                                        detail: 'low',
-                                                        url: `data:image/jpeg;base64,${this_openai_image_input}`
-                                                    }
-                                                }
-                                            ]
-                                        };
-                                    }else{
-                                        finalPromt[i + 1] = {"role": "user", "content": item['mes']};
-                                    }
-                                } else {
-                                    if(model_openai === 'gpt-4-vision-preview' && main_api === 'openai' && item['image_for_recognition'] !== undefined){
-                                        
-                                        const this_openai_image_input = item['image_for_recognition'];
-                                        finalPromt[i + 1] = {
-                                            role: 'assistant',
-                                            content: [
-                                                {
-                                                    type: 'text',
-                                                    text: item['mes']
-                                                },
-                                                {
-                                                    type: 'image_url',
-                                                    image_url: {
-                                                        detail: 'low',
-                                                        url: `data:image/jpeg;base64,${this_openai_image_input}`
-                                                    }
-                                                }
-                                            ]
-                                        };
-                                    }else{
-                                        finalPromt[i + 1] = {"role": "assistant", "content": item['mes']};
-                                    }
+                                    this_role = "user";
+                                }else{
+                                    this_role = "assistant";
                                 }
+
+                                if(isModelHaveImageRecognition() && item['image_for_recognition'] !== undefined){
+                                    const this_openai_image_input = item['image_for_recognition'];
+                                    const mediaType = getImageTypeFromBase64(this_openai_image_input);
+                                    console.log(mediaType);
+                                    if (main_api === "claude") {
+                                        finalPromt[i + 1] = {
+                                          role: this_role,
+                                          content: [
+                                            {
+                                              type: 'text',
+                                              text: item['mes']
+                                            },
+                                            {
+                                              type: 'image',
+                                              source: {
+                                                type: "base64",
+                                                media_type: mediaType,
+                                                data: `${this_openai_image_input}`
+                                              }
+                                            }
+                                          ]
+                                        };
+                                    }else{
+                                        finalPromt[i + 1] = {
+                                            role: this_role,
+                                            content: [
+                                                {
+                                                    type: 'text',
+                                                    text: item['mes']
+                                                },
+                                                {
+                                                    type: 'image_url',
+                                                    image_url: {
+                                                        detail: 'low',
+                                                        url: `data:image/jpeg;base64,${this_openai_image_input}`
+                                                    }
+                                                }
+                                            ]
+                                        };
+                                    }
+                                }else{
+                                    finalPromt[i + 1] = {"role": this_role, "content": item['mes']};
+                                }
+
                             }
                         }
                     });
@@ -2151,6 +2157,7 @@ $(document).ready(function(){
                     generate_data.messages = finalPromt;
 
                 }
+                console.log(generate_data);
                 var generate_url = '';
                 if(main_api === 'kobold'){
                     generate_url = '/generate';
@@ -2383,6 +2390,21 @@ $(document).ready(function(){
             $( "#loading_mes" ).css("display", "none");
         }
     }
+    function getImageTypeFromBase64(base64String) {
+        const firstChar = base64String.charAt(0);
+        switch (firstChar) {
+            case '/':
+                return 'image/jpeg';
+            case 'i':
+                return 'image/png';
+            case 'R':
+                return 'image/gif';
+            case 'U':
+                return 'image/webp';
+            default:
+                return null; // Unknown image type
+        }
+    }
     //<OpenAI image input>
     const imageInput = $('#ai_image_input')[0];
     const selectImage = $('#ai-select-image');
@@ -2457,9 +2479,20 @@ $(document).ready(function(){
     }
     function aiImagePickerInit(){
         $('#ai_image_picker').css("display", 'none');
-        if (main_api === 'openai' && model_openai === 'gpt-4-vision-preview') {
+        if (isModelHaveImageRecognition()) {
             $('#ai_image_picker').css("display", 'block');
         }
+    }
+    function isModelHaveImageRecognition(){
+        if((main_api === 'openai' && model_openai === 'gpt-4-vision-preview'))
+            return true;
+
+        if(main_api === 'proxy' && (model_proxy === 'gpt-4-vision-preview' || model_proxy.includes('claude-3')))
+            return true;
+        if(main_api === 'claude' && model_claude.includes('claude-3')){
+            return true;
+        }
+        return false;
     }
     //</OpenAI image input>
     function getIDsByNames(ch_names) {
@@ -4259,7 +4292,7 @@ $(document).ready(function(){
         saveSettings();
     });
     $('#autoconnect').change(function() {
-        settings.auto_connect = !!$('#autoconnect').prop('checked');
+        auto_connect = $('#autoconnect').prop('checked');
         saveSettings();
     });
     $('#show_nsfw').change(function() {
@@ -4865,7 +4898,7 @@ $(document).ready(function(){
                     swipes = !!settings.swipes;
                     keep_dialog_examples = !!settings.keep_dialog_examples;
                     free_char_name_mode = !!settings.free_char_name_mode;
-                    settings.auto_connect = settings.auto_connect === false ? false : true;
+                    if(settings.auto_connect !== undefined) auto_connect = settings.auto_connect;
                     settings.characloud = settings.characloud === false ? false : true;
                     if(settings.show_nsfw !== undefined){
                         charaCloud.show_nsfw = Boolean(settings.show_nsfw);
@@ -4912,7 +4945,7 @@ $(document).ready(function(){
                     $('#lock_context_size_webui').prop('checked', lock_context_size_webui);
                     $('#multigen').prop('checked', multigen);
                     $('#singleline').prop('checked', singleline);
-                    $('#autoconnect').prop('checked', settings.auto_connect);
+                    $('#autoconnect').prop('checked', auto_connect);
                     $('#show_nsfw').prop('checked', charaCloud.show_nsfw);
                     $('#characloud').prop('checked', settings.characloud);
                     $('#notes_checkbox').prop('checked', settings.notes);
@@ -5003,7 +5036,7 @@ $(document).ready(function(){
                     $('#api_url_text').val(api_server);
                     api_server_webui = settings.api_server_webui;
                     $('#api_url_text_webui').val(api_server_webui);
-                    if(settings.auto_connect) {
+                    if(auto_connect) {
                         setTimeout(function() {
                             if(main_api === 'kobold' && api_server){
                                 $('#api_button').click();
@@ -5087,7 +5120,7 @@ $(document).ready(function(){
                     worldName: settings.worldName || null,
                     world_depth: settings.world_depth || 1,
                     world_budget: settings.world_budget || 1,
-                    auto_connect: settings.auto_connect || true,
+                    auto_connect: auto_connect,
                     characloud: settings.characloud === false ? false : true,
                     show_nsfw: charaCloud.show_nsfw,
                     swipes: swipes,
