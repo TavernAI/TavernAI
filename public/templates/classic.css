@@ -629,7 +629,7 @@ textarea {
     margin-bottom: 5px;
 }
 
-#proxy_set_context_size_button, #kobold_set_context_size_button, #webui_set_context_size_button {
+#proxy_set_context_size_button, #kobold_set_context_size_button, #webui_set_context_size_button, #claude_set_context_size_button {
     cursor: pointer;
     display: inline-block;
     font-weight: 600;
@@ -783,7 +783,7 @@ input[type=submit], input[type=button] {
     display: inline-block;
 }
 
-#api_loading, #api_loading_webui, #api_loading_novel, #api_loading_openai{
+#api_loading, #api_loading_webui, #api_loading_novel, #api_loading_openai, #api_loading_claude{
     width: 25px;
     height: 25px;
     display: none;
@@ -1662,7 +1662,7 @@ label form {
     margin-top: 1ex;
     display: inline-block;
 }
-#online_status2, #online_status3, #online_status4, #online_status_webui {
+#online_status2, #online_status3, #online_status4, #online_status_webui, #online_status_claude {
     opacity: 0.5;
     margin-top: 2px;
     margin-bottom: 30px;
@@ -1670,7 +1670,7 @@ label form {
 #online_status4 {
     margin-bottom: 26px;
 }
-#online_status_indicator, #online_status_indicator2, #online_status_indicator3 , #online_status_indicator4, #online_status_indicator_webui {
+#online_status_indicator, #online_status_indicator2, #online_status_indicator3 , #online_status_indicator4, #online_status_indicator_webui, #online_status_indicator_claude {
     border-radius: 7px;
     width: 14px;
     height: 14px;
@@ -1682,7 +1682,7 @@ label form {
 .online_status_indicator_online {
     background-color: green;
 }
-#online_status_text, #online_status_text2, #online_status_text3, #online_status_text4, #online_status_text_webui {
+#online_status_text, #online_status_text2, #online_status_text3, #online_status_text4, #online_status_text_webui, #online_status_text_claude {
     margin-left: 4px;
     display: inline-block;
 }
@@ -1754,7 +1754,17 @@ select {
     width:auto;
     height:26px;
 }
-#kobold_api, #novel_api, #openai_api, #horde_api, #webui_api {
+#claude_api_logo {
+    position: absolute; 
+    right:120px; 
+    top:-33px; 
+    opacity:0.23;
+}
+#claude_api_logo img {
+    width:auto;
+    height:18px;
+}
+#kobold_api, #novel_api, #openai_api, #horde_api, #webui_api, #claude_api {
     position: relative;
     margin-left: 10px;
 }

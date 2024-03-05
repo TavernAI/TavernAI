@@ -46,7 +46,7 @@ var chloeMes = {
         is_user: false,
         is_name: true,
         create_date: 0,
-        mes: '*Inside, the air smelled of fried meat, tobacco and a hint of wine. A dim light is cast throughout by candles and a fire crackling in the fireplace. It seems to be a very pleasant place. Behind the wooden bar is a smiling elf waitress wearing a white apron. Her ears are very pointy, and there is a twinkle in her eyes behind her glasses. As soon as she notices you, she makes her way over to greet you.*\n\n' +
+        mes: '*You went inside, the air smelled of fried meat, tobacco and a hint of wine. A dim light is cast throughout by candles and a fire crackling in the fireplace. It seems to be a very pleasant place. Behind the wooden bar is a smiling elf waitress wearing a white apron. Her ears are pointy, and there is a twinkle in her eyes behind her glasses. As soon as she notices you, she makes her way over to greet you.*\n\n' +
             ' Hello there! How is your day going?' +
             '<div id="characloud_img"><img src="img/tavern.png" id="chloe_star_dust_city"></div>\n<a id="verson" href="https://github.com/TavernAI/TavernAI" target="_blank">@@@TavernAI v'+VERSION+'@@@</a><a href="https://boosty.to/tavernai" target="_blank"><div id="characloud_url"><img src="img/heart.png" style="width:18px; heigth:18px; margin-right:2px;"><div id="characloud_title">Support</div></div></a><br><br><br><br>',
         chid: -2
@@ -123,6 +123,13 @@ export var chat = [chloeMes];
     export var model_proxy;
     var models_holder_openai = [];
     var is_need_load_models_proxy = true;
+    //Claude settings
+    export var top_p_claude = 1.0;
+    export var top_k_claude = 0;
+    export var temp_claude = 0.5;
+    export var amount_gen_claude = 220;
+    export var model_claude = 'claude-instant-1.2';
+    export var max_context_claude = 16000;
     // HORDE
     export var horde_api_key = "0000000000";
     export var horde_model = "";
@@ -177,13 +184,14 @@ export function select_rm_info(text){
     $( "#rm_button_selected_ch" ).children("h2").removeClass('seleced_button_style');
     $( "#rm_button_selected_ch" ).children("h2").addClass('deselected_button_style');
 }
-export function isChatModel() { // Checking is it chat model (for OpenAI and proxy)
+export function isOpenAIChatModel() { // Checking is it chat model (for OpenAI and proxy)
     let checked_model;
     if(main_api === 'openai'){
         checked_model = model_openai;
     }else if(main_api === 'proxy'){
         checked_model = model_proxy;
     }
+    
     if (checked_model === 'text-davinci-003' || checked_model === 'text-davinci-002' || checked_model === 'text-curie-001' || checked_model === 'text-babbage-001' || checked_model === 'text-ada-001' || checked_model === 'code-davinci-002'|| checked_model === 'gpt-3.5-turbo-instruct') {
         return false;
     } else {
@@ -591,11 +599,13 @@ $(document).ready(function(){
     var is_get_status = false;
     var is_get_status_novel = false;
     var is_get_status_openai = false;
+    var is_get_status_claude = false;
     var is_get_status_webui = false;
     var is_api_button_press = false;
     var is_api_button_press_novel = false;
     var is_api_button_press_openai = false;
     var is_api_button_press_webui = false;
+    var is_api_button_press_claude = false;
     var add_mes_without_animation = false;
     var this_del_mes = 0;
     var this_edit_mes_text = '';
@@ -629,6 +639,8 @@ $(document).ready(function(){
     var api_url_proxy = default_api_url_openai;
     var api_key_proxy = "";
     var switch_log_reg = 'login';
+    
+    var api_key_claude = "";
     //css
     var bg1_toggle = true;
     var css_mes_bg = $('<div class="mes"></div>').css('background');
@@ -765,16 +777,20 @@ $(document).ready(function(){
             $("#online_status_text_horde").html("No connection...");
             $("#online_status_indicator_webui").css("background-color", "red");
             $("#online_status_text_webui").html("No connection...");
+            $("#online_status_indicator_claude").css("background-color", "red");
+            $("#online_status_text_claude").html("No connection...");
             is_get_status = false;
             is_get_status_novel = false;
             is_get_status_openai = false;
             is_get_status_webui = false;
+            is_get_status_claude = false;
         }else{
             $("#online_status_indicator").removeClass('online_status_indicator_offline');
             $("#online_status_indicator2").removeClass('online_status_indicator_offline');
             $("#online_status_indicator3").removeClass('online_status_indicator_offline');
             $("#online_status_indicator4").removeClass('online_status_indicator_offline');
             $("#online_status_indicator_webui").removeClass('online_status_indicator_offline');
+            $("#online_status_indicator_claude").removeClass('online_status_indicator_offline');
             $("#online_status_indicator").addClass('online_status_indicator_online');
             $("#online_status").css("opacity", 0.0);
             $("#online_status_text").html("");
@@ -788,6 +804,8 @@ $(document).ready(function(){
             $("#online_status_text_horde").html(online_status);
             $("#online_status_indicator_webui").css("background-color", "green");
             $("#online_status_text_webui").html(online_status);
+            $("#online_status_indicator_claude").css("background-color", "green");
+            $("#online_status_text_claude").html(online_status);
         }
     }
     async function getLastVersion(){
@@ -886,11 +904,12 @@ $(document).ready(function(){
                 }
             });
         }else{
-            if(is_get_status_novel != true && is_get_status_openai != true){
+            if(is_get_status_novel != true && is_get_status_openai != true && is_get_status_webui != true && is_get_status_claude != true){
                 online_status = 'no_connection';
             }
         }
     }
+
     function resultCheckStatus(){
         is_api_button_press = false;  
         checkOnlineStatus();
@@ -941,7 +960,7 @@ $(document).ready(function(){
                 }
             });
         }else{
-            if(is_get_status_novel != true && is_get_status_openai != true){
+            if(is_get_status_novel != true && is_get_status_openai != true && is_get_status != true && is_get_status_claude != true){
                 online_status = 'no_connection';
             }
         }
@@ -1000,7 +1019,7 @@ $(document).ready(function(){
                 }
             });
         }else{
-            if(!is_get_status && !is_get_status_novel){
+            if(!is_get_status_novel && !is_get_status_webui && !is_get_status_claude && !is_get_status_openai){
                 online_status = 'no_connection';
             }
         }
@@ -1384,8 +1403,10 @@ $(document).ready(function(){
         } else {
             document.getElementById("hordeInfo").classList.add("hidden");
         }
-        if((main_api === 'openai' || main_api === 'proxy') && isChatModel()) 
-            this_gap_holder = parseInt(amount_gen_openai)+this_gap_holder;
+        if(((main_api === 'openai' || main_api === 'proxy') && isOpenAIChatModel()))
+            this_gap_holder = parseInt(amount_gen_openai)+this_gap_holder; //Takes a reserve for new tokens that will be generated otherwise there will be an error
+        if(main_api === 'claude')
+            this_gap_holder = parseInt(amount_gen_claude)+this_gap_holder; //Takes a reserve for new tokens that will be generated otherwise there will be an error
         var textareaText = '';
         tokens_already_generated = 0;
         if(online_status != 'no_connection' && Characters.selectedID != undefined){
@@ -1594,7 +1615,7 @@ $(document).ready(function(){
                 }
                 storyString = storyString.replace(/\n+/g, "\n");
             }
-            if(main_api === 'openai' || main_api === 'proxy' && isChatModel() && SystemPrompt.system_depth <= SystemPrompt.system_depth_max){
+            if((((main_api === 'openai' || main_api === 'proxy') && isOpenAIChatModel()) || main_api === 'claude') && SystemPrompt.system_depth <= SystemPrompt.system_depth_max){
                 let sp_string = "";
                 sp_string = SystemPrompt.system_prompt.replace(/{{user}}/gi, name1) //System prompt
                                 .replace(/{{char}}/gi, name2)
@@ -1652,6 +1673,7 @@ $(document).ready(function(){
                 }
             }
             if(main_api == 'openai' || main_api == 'proxy') this_max_context = max_context_openai;
+            if(main_api == 'claude') this_max_context = 100000;
             var i = 0;
             let mesExmString = '';
             count_exm_add = 0;
@@ -1673,7 +1695,7 @@ $(document).ready(function(){
                     chatString = "";
                     arrMes = arrMes.reverse();
                     var is_add_personality = false;
-                    if ((main_api === 'openai' || main_api === 'proxy') && isChatModel()) { // Jailbreak
+                    if (((main_api === 'openai' || main_api === 'proxy') && isOpenAIChatModel()) || main_api === 'claude') { // Jailbreak
                         if (SystemPrompt.user_jailbreak_prompt.length > 0) {
                             arrMes[arrMes.length-1]['mes'] = arrMes[arrMes.length-1]['mes']+'\n'+SystemPrompt.user_jailbreak_prompt.replace(/{{user}}/gi, name1)
                                     .replace(/{{char}}/gi, name2)
@@ -1718,7 +1740,7 @@ $(document).ready(function(){
                             //chatString+=postAnchor+"\n";//"[Writing style: very long messages]\n";
                             item['mes'] =item['mes']+ anchorBottom+"\n";
                         }
-                        if(!free_char_name_mode && !((main_api === 'openai' || main_api === 'proxy') && isChatModel())){
+                        if(!free_char_name_mode && !((main_api === 'openai' || main_api === 'proxy') && isOpenAIChatModel())){
                             if(i >= arrMes.length-1 && $.trim(item['mes']).substr(0, (name1+":").length) == name1+":"){//for add name2 when user sent
                                 item['mes'] =item['mes']+name2+":";
                             }
@@ -1816,7 +1838,7 @@ $(document).ready(function(){
                 //Add System Prompt and Jailbreak with depth
                 let this_system_depth;
                 let this_jailbreak_depth;
-                if ((main_api === 'openai' || main_api === 'proxy') && isChatModel()) {
+                if (((main_api === 'openai' || main_api === 'proxy') && isOpenAIChatModel()) || main_api === 'claude') {
                     this_system_depth = mesSend.length - SystemPrompt.system_depth; // for reverse array of messages
                     if (this_system_depth < 0 || SystemPrompt.system_depth > SystemPrompt.system_depth_max)
                         this_system_depth = 0;
@@ -1859,16 +1881,23 @@ $(document).ready(function(){
                 }else{
                     mesSendString = '\n'+mesSendString;
                 }
-                if((main_api === 'openai' || main_api === 'proxy') && isChatModel()){
+                if(((main_api === 'openai' || main_api === 'proxy') && isOpenAIChatModel()) || main_api === 'claude'){
+                    
+                    let system_role_name = 'system';
+                    let system_prompt_role_name = 'system';
+                    if(main_api === 'claude'){
+                        system_role_name = 'assistant';
+                        system_prompt_role_name = 'user';
+                    }
                     finalPromt = {};
                     finalPromt = [];
-                    finalPromt[0] = {"role": "system", "content": storyString+mesExmString};
+                    finalPromt[0] = {"role": system_prompt_role_name, "content": storyString+mesExmString};
                     mesSend.forEach(function(item,i){
                         if (SystemPrompt.system_prompt.length > 0 && this_system_depth === i  && SystemPrompt.system_depth <= SystemPrompt.system_depth_max) {
-                            finalPromt[i + 1] = {"role": "system", "content": item['mes']};
+                            finalPromt[i + 1] = {"role": system_role_name, "content": item['mes']};
                         } else {
                             if (SystemPrompt.jailbreak_prompt.length > 0 && this_jailbreak_depth+1 === i) {
-                                finalPromt[i + 1] = {"role": "system", "content": item['mes']};
+                                finalPromt[i + 1] = {"role": system_role_name, "content": item['mes']};
                             } else {
                                 if (item['mes'].indexOf(name1 + ':') === 0) {
                                     if(model_openai === 'gpt-4-vision-preview' && main_api === 'openai' && item['image_for_recognition'] !== undefined){
@@ -1938,6 +1967,9 @@ $(document).ready(function(){
                         break;
                     case 'proxy':
                         this_amount_gen = parseInt(amount_gen_openai);
+                        break;
+                    case 'claude':
+                        this_amount_gen = parseInt(amount_gen_claude);
                         break;
                 }
                 this_max_gen = this_amount_gen;
@@ -2102,11 +2134,22 @@ $(document).ready(function(){
                         "stop": [ name1+':', '<|endoftext|>'],
                         "max_tokens": this_amount_gen
                     };
-                    if(isChatModel()){
+                    if(isOpenAIChatModel()){
                         generate_data.messages = finalPromt;
                     }else{
                         generate_data.prompt = finalPromt;
                     }
+                }
+                if(main_api === 'claude'){
+                    generate_data = {
+                        "model": model_claude,
+                        "temperature": parseFloat(temp_claude),
+                        "top_p": parseFloat(top_p_claude),
+                        "top_k": parseFloat(top_k_claude),
+                        "max_tokens": this_amount_gen
+                    };
+                    generate_data.messages = finalPromt;
+
                 }
                 var generate_url = '';
                 if(main_api === 'kobold'){
@@ -2124,6 +2167,9 @@ $(document).ready(function(){
                 }
                 if(main_api === 'openai' || main_api === 'proxy'){
                     generate_url = '/generate_openai';
+                }
+                if(main_api === 'claude'){
+                    generate_url = '/generate_claude';
                 }
                 jQuery.ajax({
                     type: 'POST', //
@@ -2231,11 +2277,14 @@ $(document).ready(function(){
                 }
             }
             if(main_api === 'openai' || main_api === 'proxy'){
-                if(isChatModel()){
+                if(isOpenAIChatModel()){
                     getMessage = data.choices[0].message.content;
                 }else{
                     getMessage = data.choices[0].text;
                 }
+            }
+            if(main_api === 'claude'){
+                getMessage = data.content[0].text;
             }
             //Multigen run again
             if(multigen && (main_api === 'kobold' || main_api === 'novel')){
@@ -3535,6 +3584,7 @@ $(document).ready(function(){
             getStatusWebui();
         }
     });
+
     // HORDE
     $( "#api_button_horde" ).click(function() {
         if($('#horde_api_key').val() != ''){
@@ -3864,6 +3914,8 @@ $(document).ready(function(){
         is_get_status = false;
         is_get_status_novel = false;
         is_get_status_openai = false;
+        is_get_status_webui = false;
+        is_get_status_claude = false;
         online_status = 'no_connection';
         checkOnlineStatus();
         changeMainAPI();
@@ -3882,8 +3934,10 @@ $(document).ready(function(){
         $('#openai_api').css("display","none");
         $('#horde_api').css("display", "none");
         $('#webui_api').css("display", "none");
+        $('#claude_api').css("display", "none");
         $('#master_settings_novelai_block').css("display", "none");
         $('#master_settings_openai_block').css("display", "none");
+        $('#system_prompt_block').css("display", "none");
         $('#master_settings_koboldai_block').css("display", "none");
         $('#master_settings_webui_block').css("display", "none");
         $('#singleline_toggle').css("display", "none");
@@ -3905,6 +3959,7 @@ $(document).ready(function(){
         }
         if($('#main_api').find(":selected").val() === 'openai' || $('#main_api').find(":selected").val() === 'proxy'){
             $('#openai_api').css("display","block");
+            $('#system_prompt_block').css("display", "block");
             if(!is_mobile_user){$('#master_settings_openai_block').css("display", "grid");}
             $('#multigen_toggle').css("display", "grid");
             main_api = $('#main_api').find(":selected").val();
@@ -3961,6 +4016,14 @@ $(document).ready(function(){
             $(`#webui_api`).css("display", "block");
             main_api = 'webui';
             if(!is_mobile_user){$('#master_settings_webui_block').css("display", "grid");}
+        }
+        //CLAUDE
+        if($(`#main_api`).find(":selected").val() == 'claude'){
+            $('#system_prompt_block').css("display", "block");
+            $(`#claude_api`).css("display", "block");
+            $('#api_key_claude').val(api_key_claude);
+            main_api = 'claude';
+            if(!is_mobile_user){$('#master_settings_claude_block').css("display", "grid");}
         }
     }
     async function getUserAvatars(){
@@ -4412,8 +4475,41 @@ $(document).ready(function(){
         var amountTimer = setTimeout(saveSettings, 500);
     });
 
+    //Claude
+    $(document).on('input', '#temp_claude', function() {
+        temp_claude = $(this).val();
+        if(isInt(temp_claude)){
+            $('#temp_counter_claude').html( $(this).val()+".00" );
+        }else{
+            $('#temp_counter_claude').html( $(this).val() );
+        }
+        var tempTimer_claude = setTimeout(saveSettings, 500);
+    });
+    $(document).on('input', '#top_p_claude', function() {
+        top_p_claude = $(this).val();
+        if(isInt(top_p_claude)){
+            $('#top_p_counter_claude').html( $(this).val()+".00" );
+        }else{
+            $('#top_p_counter_claude').html( $(this).val() );
+        }
+        var saveRangeTimer = setTimeout(saveSettings, 500);
+    });
+    $(document).on('input', '#top_k_claude', function() {
+        top_k_claude = $(this).val();
+        $('#top_k_counter_claude').html( $(this).val() );
 
-
+        var saveRangeTimer = setTimeout(saveSettings, 500);
+    });
+    $(document).on('input', '#max_context_claude', function() {
+        max_context_claude = parseInt($(this).val());
+        $('#max_context_counter_claude').html( $(this).val() +' Tokens');
+        var max_contextTimer = setTimeout(saveSettings, 500);
+    });
+    $(document).on('input', '#amount_gen_claude', function() {
+        amount_gen_claude = $(this).val();
+        $('#amount_gen_counter_claude').html( $(this).val()+' Tokens' );
+        var amountTimer = setTimeout(saveSettings, 500);
+    });
 
     //***************SETTINGS****************//
     ///////////////////////////////////////////
@@ -4709,8 +4805,50 @@ $(document).ready(function(){
                     $('#amount_gen_counter_openai').html(amount_gen_openai+' Tokens');
 
 
-
-
+                    //Claude
+                    if(settings.top_p_claude !== undefined)
+                        top_p_claude = settings.top_p_claude;
+                    if(settings.top_k_claude !== undefined)
+                        top_k_claude = settings.top_k_claude;
+                    if(settings.max_context_claude !== undefined)
+                        max_context_claude = settings.max_context_claude;
+                    if(settings.amount_gen_claude !== undefined)
+                        amount_gen_claude = settings.amount_gen_claude;
+                    
+                    if(settings.model_claude !== undefined){
+                        model_claude = settings.model_claude;
+                    }
+                    $('#model_claude_select option[value="'+model_claude+'"]').attr('selected', 'true');
+                    if(settings.api_key_claude != undefined){
+                        api_key_claude = settings.api_key_claude;
+                        if(main_api === 'claude'){
+                            $("#api_key_claude").val(api_key_claude);
+                        }
+                    }
+                    if(settings.temp_claude !== undefined){
+                        temp_claude = settings.temp_claude;
+                    }
+                    addZeros = "";
+                    if(isInt(temp_claude)) addZeros = ".00";
+                    $('#temp_claude').val(temp_claude);
+                    $('#temp_counter_claude').html(temp_claude+addZeros);
+                    
+                    addZeros = "";
+                    if(isInt(temp_claude)) addZeros = ".00";
+                    $('#temp_claude').val(temp_claude);
+                    $('#temp_counter_claude').html(temp_claude+addZeros);
+                    addZeros = "";
+                    if(isInt(top_p_claude)) addZeros = ".00";
+                    $('#top_p_claude').val(top_p_claude);
+                    $('#top_p_counter_claude').html(top_p_claude+addZeros);
+                    
+                    $('#top_k_claude').val(top_k_claude);
+                    $('#top_k_counter_claude').html(top_k_claude);
+                    
+                    $('#max_context_claude').val(max_context_claude);
+                    $('#max_context_counter_claude').html(max_context_claude+' Tokens');
+                    $('#amount_gen_claude').val(amount_gen_claude);
+                    $('#amount_gen_counter_claude').html(amount_gen_claude+' Tokens');
                     //TavernAI master settings
 
 
@@ -4882,6 +5020,9 @@ $(document).ready(function(){
                             if(main_api === 'proxy' && api_key_proxy && api_url_proxy){
                                 $('#api_button_openai').click();
                             }
+                            if(main_api === 'claude' && api_key_openai){
+                                $('#api_button_claude').click();
+                            }
                         }, 2000);
                     }
                     aiImagePickerInit();
@@ -4960,6 +5101,7 @@ $(document).ready(function(){
                     api_key_openai: api_key_openai,
                     api_key_proxy: api_key_proxy,
                     api_url_proxy: api_url_proxy,
+                    api_key_claude: api_key_claude,
                     model_novel: model_novel,
                     temp_novel: temp_novel,
                     top_p_novel: top_p_novel,
@@ -4979,6 +5121,11 @@ $(document).ready(function(){
                     amount_gen_openai: amount_gen_openai,
                     model_openai: model_openai,
                     model_proxy: model_proxy,
+                    model_claude: model_claude,
+                    top_p_claude: top_p_claude,
+                    top_k_claude: top_k_claude,
+                    max_context_claude: max_context_claude,
+                    amount_gen_claude: amount_gen_claude,
                     character_sorting_type: character_sorting_type
                     }),
             beforeSend: function(){
@@ -5815,7 +5962,7 @@ $(document).ready(function(){
                 }
             });
         }else{
-            if(is_get_status != true && !is_get_status_openai){
+            if(!is_get_status && !is_get_status_openai && !is_get_status_claude && !is_get_status_webui){
                 online_status = 'no_connection';
             }
         }
@@ -5851,6 +5998,14 @@ $(document).ready(function(){
         }
         aiImagePickerInit();
         openAIChangeMaxContextForModels();
+        saveSettings();
+    });
+    $( "#model_claude_select" ).change(function() {
+
+        model_claude = $('#model_claude_select').find(":selected").val();
+
+        aiImagePickerInit();
+        //openAIChangeMaxContextForModels();
         saveSettings();
     });
     function openAIChangeMaxContextForModels(){
@@ -5915,6 +6070,19 @@ $(document).ready(function(){
                 max_context_openai = number;
                 openAIChangeMaxContextForModels();
                 saveSettings();
+            } else {
+                alert("Invalid input. Please enter a valid number.");
+            }
+        }
+    });
+    $('#claude_set_context_size_button').click(function(){
+        let number = prompt("Please enter a context size:");
+        if (number !== null) {
+            number = parseFloat(number);
+            if (!isNaN(number)) {
+                max_context_claude = number;
+                $('#max_context_claude').val(max_context_claude);
+                $('#max_context_counter_claude').html(max_context_claude+' Tokens');
             } else {
                 alert("Invalid input. Please enter a valid number.");
             }
@@ -6046,7 +6214,7 @@ $(document).ready(function(){
                 }
             });
         }else{
-            if(is_get_status_novel != true && is_get_status != true){
+            if(!is_get_status_novel && !is_get_status && !is_get_status_webui && !is_get_status_claude){
                 online_status = 'no_connection';
             }
         }
@@ -6107,6 +6275,82 @@ $(document).ready(function(){
         }
 
         return 0;
+    }
+    //************************************************************
+    //************************CLAUDE****************************
+    //************************************************************
+    async function getStatusClaude(){
+        let this_api_key;
+
+        this_api_key = api_key_claude;
+
+        if(is_get_status_claude){
+            jQuery.ajax({    
+                type: 'POST', // 
+                url: '/getstatus_claude', // 
+                data: JSON.stringify({
+                    key: this_api_key,
+                    url: $('#api_url_claude').val()
+                }),
+                beforeSend: function(){
+                    if(is_api_button_press_claude){
+                        //$("#api_loading").css("display", 'inline-block');
+                        //$("#api_button").css("display", 'none');
+                    }
+
+                },
+                cache: false,
+                timeout: 5500,
+                dataType: "json",
+                crossDomain: true,
+                contentType: "application/json",
+                //processData: false, 
+                success: function(data){
+                    online_status = data;
+                    if(data == undefined || data.error == true){
+                        online_status = 'no_connection';
+                        callPopup(data.error_message, 'alert_error');
+                    }else{
+                        online_status = 'Connected';
+
+                    }
+                    //console.log(online_status);
+                    resultCheckStatusClaude();
+                    if(online_status !== 'no_connection'){
+                        var checkStatusNowClaude = setTimeout(getStatusClaude, 3000);//getStatus();
+                    }
+                },
+                error: function (jqXHR, exception) {
+                    console.log(exception);
+                    console.log(jqXHR);
+                    online_status = 'no_connection';
+                    callPopup(exception, 'alert_error');
+                    resultCheckStatusClaude();
+                }
+            });
+        }else{
+            if(!is_get_status_novel && !is_get_status && !is_get_status_webui && !is_get_status_openai){
+                online_status = 'no_connection';
+            }
+        }
+    }
+    $( "#api_button_claude" ).click(function() {
+
+        api_key_claude = $('#api_key_claude').val();
+        api_key_claude = $.trim(api_key_claude);
+
+        $("#api_loading_claude").css("display", 'inline-block');
+        $("#api_button_claude").css("display", 'none');
+        saveSettings();
+        is_get_status_claude = true;
+        is_api_button_press_claude = true;
+        getStatusClaude();
+    });
+    function resultCheckStatusClaude(){
+        is_api_button_press_claude = false;  
+        checkOnlineStatus();
+        $("#api_loading_claude").css("display", 'none');
+        $("#api_button_claude").css("display", 'inline-block');
     }
 //**************************CHAT IMPORT EXPORT*************************//
     $( "#chat_import_button" ).click(function() {

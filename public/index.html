@@ -303,6 +303,35 @@
                             <input type="range" class="range_bar" id="max_context_openai" name="volume" min="1024" max="4096" step="1">
                         </div>
                     </div>
+                    
+                </div>
+                <div id="master_settings_claude_block">
+                    <div class="master_settings_range_block">
+
+                        <div>
+                            <h4 class="h4_menu_title">Top P Sample</h4><h5 id="top_p_counter_claude" class="range_counter">select</h5>
+                            <input type="range" class="range_bar" id="top_p_claude" name="volume" min="0.0" max="1.0" step="0.01">
+                        </div>
+                        <div>
+                            <h4 class="h4_menu_title">Top K Sample</h4><h5 id="top_k_counter_claude" class="range_counter">select</h5>
+                            <input type="range" class="range_bar" id="top_k_claude" name="volume" min="0" max="100" step="1">
+                        </div>
+                        <div>
+                            <h4 class="range_title">Amount of generation </h4><h5 id="amount_gen_counter_claude" class="range_counter">select</h5>
+                            <input type="range" class="range_bar" id="amount_gen_claude" name="volume" min="64" max="4096" step="1">
+                        </div>
+                        <div>
+                            <div>
+                                <h4 class="h4_menu_title">Context Size</h4><h5 id="max_context_counter_claude" style="display: inline-block" class="range_counter">select</h5>
+                                <div id="claude_set_context_size_button"><a>(set)</a></div>
+                            </div>
+                            <input type="range" class="range_bar" id="max_context_claude" name="volume" min="1024" max="100000" step="1">
+                        </div>
+
+                    </div>
+                    
+                </div>
+                <div id="system_prompt_block">
                     <div id="system_prompt">
                         <div style="display:grid;grid-template-columns: auto auto;position:relative;width:94%">
                             <div>
@@ -318,10 +347,10 @@
                                 <input style="margin-right: unset;" type="range" class="range_bar" id="system_depth_range" name="volume" min="0" max="34" step="1">
                             </div>
                         </div>
-                        
+
                         <textarea id="system_prompt_textarea" placeholder=""></textarea>
-                        
-                        
+
+
                     </div>
                     <div style="display:grid;grid-template-columns: auto auto;position:relative;width:94%">
                         <div>
@@ -339,7 +368,6 @@
                         <h5 class="h5_menu_help">An additional Jailbreak for circumventing censorship (<a href="/notes/24" target="_blank">?</a>)</h5>
                     </div>
                     <textarea id="user_jailbreak_prompt_textarea" placeholder=""></textarea>
-
                 </div>
                 <div id="master_settings_toggle_block">
                     <div class="menu_toggle" id="multigen_toggle">
@@ -606,6 +634,7 @@
                 <option value="horde">Kobold Horde</option>
                 <option value="novel">NovelAI</option>
                 <option value="openai">OpenAI</option>
+                <option value="claude">ClaudeAI</option>
                 <option value="proxy">Reverse Proxy</option>
                 <option value="webui">Text generation web UI</option>
             </select>
@@ -730,6 +759,32 @@
                 <div id="range_block_openai">
                     <h4 class="h4_menu_title">Temperature </h4><h5 id="temp_counter_openai" class="range_counter">select</h5>
                     <input type="range" id="temp_openai" name="volume" min="0" max="2.0" step="0.01">
+                </div>
+            </div>
+            <div id="claude_api">
+                <div id="claude_api_logo"><a href="https://claude.ai" target="_blank"><img src="img/claude.png"></a></div>
+                <form  action="javascript:void(null);" method="post" enctype="multipart/form-data" id="claude_auth">
+                    <h4 class="h4_menu_title" id="claude_api_h4_title">API Key</h4><h5 class="h5_menu_help">Where to get (<a href="https://claude.ai" target="_blank">?</a>)</h5>
+                    <input id="api_key_claude" name="api_key_claude" class="text_pole" maxlength="500" size="35" value="" autocomplete="off" placeholder="API key">
+                    <input id="api_button_claude" type="submit" value="Connect">
+                    <img id="api_loading_claude" src="img/load.svg" >
+                </form>
+                <div id="online_status_claude">
+                    <div id="online_status_indicator_claude" class="online_status_indicator_offline"></div><div id="online_status_text_claude">No connection...</div>
+                </div>
+                <div>
+                <h4 class="h4_menu_title">Model</h4><h5 class="h5_menu_help" id="h5_model_openai_help">OpenAI models (<a href="/notes/13" target="_blank">?</a>)</h5>
+                    <select id="model_claude_select" class="menu_select">
+                        <option value="claude-3-opus-20240229">Opus</option>
+                        <option value="claude-3-sonnet-20240229">Sonnet</option>
+                        <option value="claude-2.1">Claude-2.1</option>
+                        <option value="claude-2.0">Claude-2.0</option>
+                        <option value="claude-instant-1.2">Claude-instant-1.2</option>
+                    </select>
+                </div>
+                <div id="range_block_claude">
+                    <h4 class="h4_menu_title">Temperature </h4><h5 id="temp_counter_claude" class="range_counter">select</h5>
+                    <input type="range" id="temp_claude" name="volume" min="0" max="1.0" step="0.01">
                 </div>
             </div>
             <div id="webui_api">

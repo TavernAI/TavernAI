@@ -81,6 +81,7 @@ var response_get_story;
 var response_generate;
 var response_generate_novel;
 var response_generate_openai;
+var response_generate_claude;
 var request_promt;
 var response_promt;
 var response_characloud_loadcard;
@@ -92,9 +93,11 @@ var response_dw_bg;
 var response_getstatus;
 var response_getstatus_novel;
 var response_getstatus_openai;
+var response_getstatus_claude;
 var response_getlastversion;
 var api_key_novel;
 var api_key_openai;
+var api_key_claude;
 var api_url_openai;
 var is_colab = false;
 var charactersPath = 'public/characters/';
@@ -266,7 +269,7 @@ app.post("/getlastversion", jsonParser, function(request, response_getlastversio
             const glocation = res.headers.location;
             const versionStartIndex = glocation.lastIndexOf('@')+1;
             const version = glocation.substring(versionStartIndex);
-            console.log(version);
+            //console.log(version);
             response_getlastversion.send({version: version});
         }else{
             response_getlastversion.send({version: 'error'});
@@ -1417,9 +1420,11 @@ app.post('/getsettings', jsonParser, (request, response) => { //Wintermute's cod
         return data;
     });
     let settings_data = JSON.parse(settings);
-    if(settings_data.BETA_KEY !== undefined){
+    if(settings_data.BETA_KEY !== undefined && settings_data.BETA_KEY !== ""){
         BETA_KEY = settings_data.BETA_KEY;
         delete settings_data.BETA_KEY;
+    }else{
+        BETA_KEY = undefined;
     }
     settings = JSON.stringify(settings_data);
     //Kobold
@@ -1815,7 +1820,7 @@ app.get("/gethordeinfo", jsonParser, function(request, response){
         error: hordeError,
     });
 });
-//***********Open.ai API
+//***********OpenAI API
 app.post("/getstatus_openai", jsonParser, function(request, response_getstatus_openai){
     if(!request.body) return response_getstatus_openai.sendStatus(400);
     api_key_openai = request.body.key;
@@ -1948,6 +1953,112 @@ function isChatModel(model_openai){
         return true;
     }
 }
+
+//***********Claude API
+app.post("/getstatus_claude", jsonParser, function(request, response_getstatus_claude){
+    if(!request.body) return response_getstatus_claude.sendStatus(400);
+    api_key_claude = request.body.key;
+
+    var args = {};
+    if(api_key_openai && api_key_openai.length) {
+        args = {
+            headers: {"Authorization": "Bearer " + api_key_openai}
+        };
+    }
+
+    let data = {'connect':true};
+    response_getstatus_claude.send(data);
+
+
+});
+
+
+app.post("/generate_claude", jsonParser, function(request, response_generate_claude){
+    if(!request.body) return response_generate_claude.sendStatus(400);
+    console.log(request.body);
+    var data = {
+        "model": request.body.model,
+        "max_tokens": request.body.max_tokens,
+        "temperature": request.body.temperature,
+        "top_p": request.body.top_p,
+        "top_k": request.body.top_k
+    };
+
+    data.messages = request.body.messages;
+
+    let args = {};
+
+        args = {
+            data: data,
+            headers: {"Content-Type": "application/json", "x-api-key": api_key_claude, "anthropic-version": "2023-06-01"},
+            requestConfig: {
+                timeout: connectionTimeoutMS
+            }
+        };
+
+    client.post("https://api.anthropic.com/v1/messages",args, function (data, response) {
+        try {
+            console.log(data);
+            if(!data.content || !data.content[0]) {
+                let message = null;
+                let code = null;
+                if(data.error) {
+                    message = data.error.message;
+                    code = data.error.type;
+                }
+                response_generate_claude.send({ error: true, error_message: message, error_code: code });
+                return;
+            }
+            if(data.content[0].text !== undefined){
+                console.log(data.content[0].text);
+            }
+
+            console.log(response.statusCode);
+            if(response.statusCode <= 299){
+                return response_generate_claude.send(data);
+            }
+            if(response.statusCode == 400){
+                console.log('Issue with the format or content');
+                return response_generate_claude.send({error: true, error_code: 400, error_message: "There was an issue with the format or content of your request"});
+            }
+            if(response.statusCode == 401){
+                console.log('Invalid Authentication');
+                return response_generate_claude.send({error: true, error_code: 401, error_message: "Invalid Authentication"});
+            }
+            if(response.statusCode == 403){
+                console.log('Permission error');
+                return response_generate_claude.send({error: true, error_code: 403, error_message: "Your API key does not have permission to use the specified resource."});
+            }
+            if(response.statusCode == 404){
+                console.log('Resource  not found');
+                return response_generate_claude.send({error: true, error_code: 404, error_message: "Resource not found"});
+            }
+            if(response.statusCode == 429){
+                console.log('Rate limit reached for requests');
+                return response_generate_claude.send({error: true, error_code: 429, error_message: "Rate limit reached for requests"});
+            }
+            if(response.statusCode == 500){
+                console.log('The server had an error while processing your request');
+                return response_generate_claude.send({error: true, error_code: 500, error_message: "The server had an error while processing your request"});
+            }
+            if(response.statusCode == 529 ){
+                console.log('Anthropic API is temporarily overloaded.');
+                return response_generate_claude.send({error: true, error_code: 529 , error_message: "Anthropic's API is temporarily overloaded."});
+            }
+            console.log('Unique error');
+            return response_generate_claude.send({error: true, error_code: response.statusCode, error_message: "Unique error"});
+        }catch (error) {
+            console.log("An error occurred: " + error);
+            response_generate_claude.send({error: true, error_message: error});
+        }
+    }).on('error', function (err) {
+        //console.log('');
+    //console.log('something went wrong on the request', err.request.options);
+        response_generate_openai.send({error: true, error_message: "Unspecified error while sending the request.\n" + err});
+    });
+});
+
+//////////
 app.post("/getallchatsofchatacter", jsonParser, function(request, response){
     if(!request.body) return response.sendStatus(400);
     var char_dir = (request.body.filename).replace(`.${characterFormat}`,'');
