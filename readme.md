@@ -25,7 +25,7 @@
 * Configurable interface themes, including one that resembles CharacterAI
 * Configurable backgrounds, including beautiful defaults to select from
 * Edit, delete, and move any message
-* GPT-4.5 picture recognition
+* GPT-4.5 and Claude picture recognition
 
 ## How to install
 1. Download and install: [Node.js](https://nodejs.org/en/download/current) Please tick the box in the installer for "Additional Build-Tools" and answer Yes to All when the tools install script asks. <br>For [Win7x64SP1](https://nodejs.org/dist/v20.2.0/node-v20.2.0-x64.msi), [Wndows 10+](https://nodejs.org/dist/v21.3.0/node-v21.3.0-x64.msi), [MacOS](https://nodejs.org/dist/v21.3.0/node-v21.3.0.pkg), as well as [Linux(Source)](https://nodejs.org/dist/v21.3.0/node-v21.3.0.tar.gz) and [Debian/Ubuntu(Binaries)](https://nodejs.org/dist/v21.3.0/node-v21.3.0-linux-x64.tar.xz) 
@@ -45,6 +45,7 @@ For detailed instructions on how to setup TavernAI with KoboldAI or NovelAI:
 * [Oobabooga's Text Generation Web UI](https://github.com/oobabooga/text-generation-webui)
 * OpenAI (including ChatGPT, GPT-4, and reverse proxies)
 * [NovelAI](https://novelai.net/)
+* [Claude](https://claude.ai/)
 
 ## Tips
 Use this button to edit the message:
