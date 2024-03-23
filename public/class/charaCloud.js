@@ -11,6 +11,10 @@ class charaCloudClient {
         this.max_user_page_characters_count = 16;
         this.user_page_characters_count = 0;
         this.user_profile_page = 1;
+        this.selectedCategory = "";
+        this.max_category_page_characters_count = 50;
+        this.category_page_characters_count = 0;
+        this.category_page = 1;
         this.user_profile_name;
         this.cardeditor_data;
         this.cardeditor_image;
@@ -539,14 +543,14 @@ class charaCloudClient {
             });
         });
     }
-    getCharactersByCategory(category){
+    getCharactersByCategory(category, page){
         const self = this;
         let nsfw = 'on';
         if(!self.show_nsfw) nsfw = 'off';
         return new Promise((resolve, reject) => {
             jQuery.ajax({    
                 type: 'POST', // 
-                url: `/api/characloud/category/characters?nsfw=${nsfw}`, // 
+                url: `/api/characloud/category/characters?nsfw=${nsfw}&page=${page}`, // 
                 data: JSON.stringify({
                             category: category
                         }),
@@ -559,6 +563,7 @@ class charaCloudClient {
                 contentType: "application/json",
                 processData: false, 
                 success: function(data){
+                    self.category_page_characters_count = data.count;
                     resolve(data);
                 },
                 error: function (jqXHR, exception) {

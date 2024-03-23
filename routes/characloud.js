@@ -629,9 +629,9 @@ router.post("/users/avatar", urlencodedParser, async function (request, response
 
 router.post("/category/characters", jsonParser, function (request, response_characloud_category) {
     try {
-        const { nsfw } = request.query;
+        const { nsfw, page } = request.query;
         let {category} = request.body;
-        client.get(charaCloudServer + `/api/categories/${category}/characters?nsfw=${nsfw}`, function (data, response) {
+        client.get(charaCloudServer + `/api/categories/${category}/characters?nsfw=${nsfw}&page=${page}`, function (data, response) {
             try {
                 if (response.statusCode === 200) {
                     return response_characloud_category.status(200).json(data);

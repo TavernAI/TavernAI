@@ -6770,6 +6770,7 @@ $(document).ready(function(){
     $('#chara_cloud').on('click', '#characloud_search_result .character_select', function(){
 
         if($(this).attr('category') !== undefined){
+            charaCloud.category_page = 1;
             showCategory($(this).attr('category'));
         }else{
             charaCloudLoadCard($(this).attr('public_id'), $(this).attr('public_id_short'), $(this).attr('user_name'));
@@ -7428,6 +7429,7 @@ $(document).ready(function(){
     });
     // Navigator
     function showMain() {
+        charaCloud.category_page = 1;
         hideAll();
         $('#characloud_bottom').css('display', 'flex');
         $('#characloud_search_back_button').css('display', 'none');
@@ -7830,6 +7832,7 @@ $(document).ready(function(){
         $('.edit-moderation-gallery').css('display', 'none');
         
         $('.category-list').html('');
+        
     }
     $('#characloud_close_button').click(function(){
         hideCharaCloud();
@@ -7838,6 +7841,7 @@ $(document).ready(function(){
         showMain();
     });
     $('#characloud_header_navigator_p2').click(function () {
+        charaCloud.category_page = 1;
         if($('#characloud_header_navigator_p2').text() === 'Category'){
             showCategories();
         }else{
@@ -7974,13 +7978,30 @@ $(document).ready(function(){
         addCategory(category);
     });
     $('#chara_cloud').on('click', '.characloud_characters_category_title', function () {
+        charaCloud.category_page = 1;
         let category = $(this).attr('category');
         showCategory(category);
         
     });
+    
+    $('#category_prev_button').click(function(){
+        if(charaCloud.category_page > 1){
+            charaCloud.category_page--;
+            showCategory(charaCloud.selectedCategory);
+        }
+    });
+    $('#category_next_button').click(function(){
+        if(charaCloud.category_page < Math.ceil(charaCloud.category_page_characters_count/charaCloud.max_category_page_characters_count)){
+            charaCloud.category_page++;
+            showCategory(charaCloud.selectedCategory);
+        }
+    });
+
     function showCategory(category){
-        charaCloud.getCharactersByCategory(category)
+        charaCloud.getCharactersByCategory(category, charaCloud.category_page)
             .then(function (data) {
+                charaCloud.selectedCategory = category;
+                let results = data.results;
                 let count_char_in_row = 10; 
                 let characters_board = [];
                 if(category === '$random' || category === '$recent'){
@@ -7990,11 +8011,11 @@ $(document).ready(function(){
                 
                 let end = 0;
                 if (false) {
-                    for (let i = 0; end < data.length; i++) {
+                    for (let i = 0; end < results.length; i++) {
                         const start = i * count_char_in_row;
                         end = start + count_char_in_row;
-                        const anime_characters = data.slice(start, end);
-                        characters_board.push({title: category_show, characters: data.slice(start, end)});
+                        const anime_characters = results.slice(start, end);
+                        characters_board.push({title: category_show, characters: results.slice(start, end)});
                     }
                 }
                 hideAll();
@@ -8006,12 +8027,12 @@ $(document).ready(function(){
                 $('#characloud_header_navigator_p2').text('Category');
                 $('#characloud_header_navigator_p3').text(category_show);
 
-                $('#characloud_category').html('');
+                $('#characloud_category_characters').html('');
                 $('#characloud_category').css('display', 'block');
                 $('.characloud_content').css('display', 'block');
-                data.forEach(function (item, i) {
+                results.forEach(function (item, i) {
 
-                    $('#characloud_category').append(charaCloud.getCharacterDivBlock(item, charaCloudServer));
+                    $('#characloud_category_characters').append(charaCloud.getCharacterDivBlock(item, charaCloudServer));
                 });
                 $('.lazy').lazyLoadXT({edgeX:500, edgeY:500});
 
@@ -8019,6 +8040,13 @@ $(document).ready(function(){
                 //printCharactersBoard(characters_board);
                 //$('#chara_cloud').scrollTop(0);
 
+                //Pagination
+                let pagesCount = 1;
+                if(data.count > charaCloud.max_category_page_characters_count){
+                    pagesCount = Math.ceil(data.count/charaCloud.max_category_page_characters_count);
+                }
+
+                $('#category_page_pagination').text(`${charaCloud.category_page}/${pagesCount}`);
             })
             .catch(function (error) {
                 console.log(error);
@@ -8063,7 +8091,8 @@ $(document).ready(function(){
                         });
                     $categoriesList.append($category);
                 }
-
+                
+                
             })
             .catch(function (error) {
                 console.log(error);
@@ -8076,6 +8105,7 @@ $(document).ready(function(){
             });
     }
     $('#characloud_categories').on('click', '.show-category', function (e) {
+        charaCloud.category_page = 1;
         let category = $(this).attr('data-category');
         showCategory(category);
     });
