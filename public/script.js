@@ -6116,6 +6116,12 @@ $(document).ready(function(){
                 case 'gpt-4-0125-preview':
                     this_openai_max_context = 128000;
                     break;
+                case 'gpt-4-turbo-2024-04-09':
+                    this_openai_max_context = 128000;
+                    break;
+                case 'gpt-4-turbo':
+                    this_openai_max_context = 128000;
+                    break;
                 case 'gpt-4-vision-preview':
                     this_openai_max_context = 128000;
                     break;
