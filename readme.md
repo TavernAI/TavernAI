@@ -10,6 +10,8 @@
 * <img height="20" width="auto" src="https://raw.githubusercontent.com/TavernAI/TavernAI/main/public/img/five.png" alt="TavernAI"/> [Windows .exe version](https://sourceforge.net/projects/tavernaimain/files/TavernAI.rar/download)<br>
 ###### Run online: 
 * [TavernAI on Google Colab](https://colab.research.google.com/github/TavernAI/TavernAI/blob/main/colab/GPU.ipynb) <br><a href="https://colab.research.google.com/github/TavernAI/TavernAI/blob/main/colab/GPU.ipynb" target="_parent"><img height="42" width="auto" src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a><br>This is your only option if you're using a phone or tablet.<br>
+###### ⚡ One-click deployment:
+* [![Deploy to RepoCloud](https://d16t0pc4846x52.cloudfront.net/deploylobe.svg)](https://repocloud.io/details/?app_id=281)
 ###### Links:
 * [TavernAI on Boosty](https://boosty.to/tavernai) - Support the project!
 * [TavernAI Discord](https://discord.gg/zmK2gmr45t) - Meet the community!
