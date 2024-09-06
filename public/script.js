@@ -6135,6 +6135,18 @@ $(document).ready(function(){
                 case 'gpt-4o-2024-05-13':
                     this_openai_max_context = 128000;
                     break;
+                case 'gpt-4o-mini':
+                    this_openai_max_context = 128000;
+                    break;
+                case 'gpt-4o-mini-2024-07-18':
+                    this_openai_max_context = 128000;
+                break;
+                case 'gpt-4o-2024-08-06':
+                    this_openai_max_context = 128000;
+                break;
+                case 'chatgpt-4o-latest':
+                    this_openai_max_context = 128000;
+                break;
                 default:
                     this_openai_max_context = 4096;
                     break;
