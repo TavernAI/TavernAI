@@ -1326,6 +1326,16 @@ input[type=submit], input[type=button] {
     display: none;
 }
 
+/* Texts Input */
+.room-scenario {
+    max-height: 30em;
+    height: auto;
+    /* resize: block; */
+    resize: none;
+    width: 100%;
+    display: block;
+}
+
 
 /* Buttons */
 label.button.inline,
@@ -1412,6 +1422,12 @@ chareditor-button-close {
 
 #characters_rooms_switch_button_rooms_text {
     opacity: 0.5;
+}
+
+#characters_rooms_switch_button_div {
+	position: sticky;
+	top: 0;
+	z-index: 1;
 }
 
 .chareditor .chareditor-token-warning-count,
