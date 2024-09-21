@@ -609,7 +609,8 @@
                 <div id="room_scenario_div" style="display: none;">
                     <h4 class="h4_menu_title">Scenario</h4>
                     <h5 class="h5_menu_help">Circumstances and context of the room (<a href="/notes/12" target="_blank">?</a>)</h5>
-                    <input id="room_scenario" name="room_scenario" class="text_pole room-scenario" type="text" maxlength="9999" size="40" value="" autocomplete="off">
+                    <!-- <input id="room_scenario" name="room_scenario" class="text_pole room-scenario" type="text" maxlength="9999" size="40" value="" autocomplete="off"> -->
+                    <textarea id="room_scenario" name="room_scenario" class="text_pole room-scenario" autocomplete="off" rows="5"></textarea>
                 </div>
 
                 <input id="selected_chat_pole" name="chat" class="text_pole" type="hidden" maxlength="999" size="2" value="" autocomplete="off">
@@ -858,7 +859,7 @@
         </div>
         <div id="rm_charaters_block" class="right_menu">
 
-            <div><button id="characters_rooms_switch_button" type="submit" class="chareditor-button-online"><span id='characters_rooms_switch_button_characters_text'>Characters</span>/<span id='characters_rooms_switch_button_rooms_text'>Rooms</span></button></div>
+            <div id="characters_rooms_switch_button_div"><button id="characters_rooms_switch_button" type="submit" class="chareditor-button-online"><span id='characters_rooms_switch_button_characters_text'>Characters</span>/<span id='characters_rooms_switch_button_rooms_text'>Rooms</span></button></div>
             <div id="character_list">
                 <div id="rm_button_create" class="right_menu_title_button"><h2>+New Character</h2></div>
                 <div id="rm_button_import" class="right_menu_title_button"><h2>

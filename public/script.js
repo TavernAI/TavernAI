@@ -1167,7 +1167,8 @@ $(document).ready(function(){
                     missing_chars.push(item.name);
                 addOneMessage(item);
             });
-            if(is_room && missing_chars.length) {
+            // Popup should be called only if its hasn't been called before to avoid redundancy, since a popup might have been called when at least one of the room's active characters cannot be found and removed
+            if(is_room && missing_chars.length && $("#shadow_popup").css("display") === "none") {
                 let msg = "Cannot load one or more character images. The characters might have been deleted.\nMissing Characters: ";
                 missing_chars.forEach(function(curName, i) {
                     // selectedCharactersIdBuffer.length is equal to data[0]['character_names'].length
@@ -1177,6 +1178,7 @@ $(document).ready(function(){
                         msg += curName + ".";
                 });
                 msg += "\nYou can still use the chat room, but some images might be missing.";
+
                 callPopup(msg, "alert");
             }
         }
@@ -2359,6 +2361,8 @@ $(document).ready(function(){
                     chat[chat.length-1]['send_date'] = Date.now();
                     getMessage = $.trim(getMessage);
                     chat[chat.length-1]['mes'] = getMessage;
+                    if(is_room)
+                        chat[chat.length-1]['character_public_id'] = Characters.id[Characters.selectedID].public_id;
                     addOneMessage(chat[chat.length-1]);
                     Tavern.is_send_press = false;
                 }
@@ -2500,19 +2504,98 @@ $(document).ready(function(){
         return false;
     }
     //</OpenAI image input>
-    function getIDsByNames(ch_names) {
+    // function getIDsByNames(ch_names) {
+    //     let ids = [];
+    //     ch_names.forEach(function(name) {
+    //         const ch_ext = ".png"; // Assumed that character files would always have .webp extension
+    //         ids.push(Characters.getIDbyFilename(name+ch_ext));
+    //     });
+    //     return ids;
+    // }
+    // function getIDsByFilenames(ch_filenames) {
+    //     let ids = [];
+    //     ch_filenames.forEach(function(filename) {
+    //         ids.push(Characters.getIDbyFilename(filename));
+    //     });
+    //     return ids;
+    // }
+    function getLocalIDsByPublicIDs(ch_public_ids) {
         let ids = [];
-        ch_names.forEach(function(name) {
-            const ch_ext = ".png"; // Assumed that character files would always have .webp extension
-            ids.push(Characters.getIDbyFilename(name+ch_ext));
+        ch_public_ids.forEach(function(public_id) {
+            ids.push(Characters.getIDbyPublicID(public_id));
         });
         return ids;
     }
+    // Function accepts a character name and returns (the first) character's public ID with the given name, returns -1 if no character are found with given name
+    function getCharacterPublicIDByName(ch_name){
+        let localID = Characters.id.findIndex(char => char.name === ch_name);
+        // console.log(ch_name + " - " + localID);
+        return localID < 0 ? -1 : Characters.id[localID].public_id;
+    }
+    // Function accepts an array of JSON objects representation of a chatroom (including metadata / the first line) as parameter argument, return an array of objects with updated format keeping track of character public ids
+    function updateRoomsFormat(content) {
+        if("character_public_ids" in content[0]) return content; // If JSON object has the key for the character ids in the metadata (first line), assume update has been applied to content before
+
+        const updatedContent = [];
+        let i = 0;
+        for (const item of content) {
+            if(i === 0) {
+                updatedContent.push(item);
+                // delete updatedContent.character_names;
+                updatedContent[i].character_public_ids = [];
+                // for (const name of item.character_names)
+                //     updatedContent[i].character_files.push(name + img_ext);
+                for(let index = 0; index < updatedContent[i].character_names.length; index++) {
+                    let publicID = getCharacterPublicIDByName(updatedContent[i].character_names[index]);
+                    // console.log(updatedContent[i].character_names[index] + " - " + publicID);
+                    if(publicID != -1)
+                        updatedContent[i].character_public_ids.push(publicID);
+                    else {
+                        updatedContent[i].character_names.splice(index, 1); // Remove character(s) whose public ID cannot be found
+                        index--;
+                    }
+                }
+            }
+            else {
+                updatedContent.push(item);
+                updatedContent[i].character_public_id = getCharacterPublicIDByName(updatedContent[i].name);
+            }
+            i++;
+        }
+
+        // console.log(updatedContent);
+
+        // updatedContent[0].character_names.length now should be equal to the updatedContent[0].character_public_ids.length, 0 means none of the room's active characters exist in the system (the character list)
+        if(updatedContent[0].character_names.length > 0)
+            return updatedContent;
+        else
+            return -1;
+    }
+    // Function accepts an array of JSON objects representation of a chatroom (including metadata / the first line) as parameter argument, updating each instance of chat object/item with outdated public id
+    // ch_old_id and replace it with the newer public ID ch_new_id
+    function updateChatCharacterPublicID(content, ch_old_id, ch_new_id) {
+        content.forEach(function(item, i) {
+            if(i > 0 && item.character_public_id == ch_old_id) // i > 0 is needed because the first line is the metadata of the chatroom
+                item.character_public_id = ch_new_id;
+        });
+    }
     // Assumed that the chat array is filled already
-    function assignIDsByNames() {
+    // function assignIDsByNames() {
+    //     chat.forEach(function(mes, i) {
+    //         const ch_ext = ".png"; // Assumed that character files would always have .webp extension
+    //         chat[i].chid = Characters.getIDbyFilename(mes.name+ch_ext);
+    //     });
+    // }
+    // Assumed that the chat array is filled already
+    // function assignIDsByFilenames() {
+    //     chat.forEach(function(mes, i) {
+    //         chat[i].chid = Characters.getIDbyFilename(mes.character_file);
+    //     });
+    // }
+    // Assumed that the chat array is filled already
+    function assignLocalIDsByPublicIDs() {
         chat.forEach(function(mes, i) {
-            const ch_ext = ".png"; // Assumed that character files would always have .webp extension
-            chat[i].chid = Characters.getIDbyFilename(mes.name+ch_ext);
+            chat[i].chid = Characters.getIDbyPublicID(mes.character_public_id);
         });
     }
     /**
@@ -2552,28 +2635,129 @@ $(document).ready(function(){
                     // Rooms.selectedCharacters = getIDsByNames(chat[0]['character_names']);
                     // console.log(data[0]['character_names']);
                     // console.log(Characters.id);
-                    let selectedCharactersIdBuffer = getIDsByNames(data[0]['character_names']);
-                    let isMissingChars = false;
-                    selectedCharactersIdBuffer.forEach(function(curId, i) {
-                        if(curId < 0) // If name doesn't exist in the Characters.id objects array, then curId will be -1
-                        {
-                            let msg = "Cannot load room. Some characters expected are missing. Please check if you have all the characters.\nRequired Characters: ";
-                            for(var i = 0; i < selectedCharactersIdBuffer.length; i++)
+                    let characterNamesBuffer = data[0]['character_names'].slice(); // Needed in case room format updating fails, the slice() function is needed to make a shallow copy of data[0]['character_names']
+                    data = updateRoomsFormat(data);
+                    if(data === -1) {
+                        let msg = "Cannot load room. At least one of these characters is needed: ";
+                        let chNameBuffer = "";
+                        for(let i = 0; i < characterNamesBuffer.length; i++)
                             {
-                                // selectedCharactersIdBuffer.length is equal to data[0]['character_names'].length
-                                if(i < selectedCharactersIdBuffer.length - 1)
-                                    msg += data[0]['character_names'][i] + ", ";
+                                chNameBuffer = characterNamesBuffer[i];
+
+                                if(i < characterNamesBuffer.length - 1)
+                                    msg += chNameBuffer + ", ";
                                 else
-                                    msg += data[0]['character_names'][i] + ".";
+                                    msg += chNameBuffer + ".";
                             }
-                            callPopup(msg, "alert");
-                            isMissingChars = true;
-                            return;
-                        }
-                    });
-                    // Don't continue if one or more characters is missing
-                    if(isMissingChars)
+                        callPopup(msg, "alert");
                         return;
+                    }
+
+
+                    let selectedCharactersIdBuffer = getLocalIDsByPublicIDs(data[0]['character_public_ids']);
+                    let missingChars = [];
+                    let changedChars = [];
+
+                    let isMissingChars = false;
+                    // selectedCharactersIdBuffer.forEach(function(curId, i) {
+                    //     if(curId < 0) // If name doesn't exist in the Characters.id objects array, then curId will be -1
+                    //     {
+                    //         let msg = "Cannot load room. Some characters expected are missing. Please check if you have all the characters.\nRequired Characters: ";
+                    //         let chNameBuffer = "";
+                    //         for(var i = 0; i < selectedCharactersIdBuffer.length; i++)
+                    //         {
+                    //             chNameBuffer = Characters.id[curId].name;
+
+                    //             // selectedCharactersIdBuffer.length is equal to data[0]['character_names'].length
+                    //             // if(i < selectedCharactersIdBuffer.length - 1)
+                    //             //     msg += data[0]['character_names'][i] + ", ";
+                    //             // else
+                    //             //     msg += data[0]['character_names'][i] + ".";
+
+                    //             if(i < selectedCharactersIdBuffer.length - 1)
+                    //                 msg += chNameBuffer + ", ";
+                    //             else
+                    //                 msg += chNameBuffer + ".";
+                    //         }
+                    //         callPopup(msg, "alert");
+                    //         isMissingChars = true;
+                    //         return;
+                    //     }
+                    // });
+                    for(let i = 0; i < selectedCharactersIdBuffer.length; i++) {
+                        if(selectedCharactersIdBuffer[i] < 0) // If name doesn't exist in the Characters.id objects array, then curId will be -1
+                        {
+                            // Sometimes, a character's public ID might change especially when importing a card, so below line will try to find the closest character card using name
+                            let replacementPublicID = getCharacterPublicIDByName(data[0]['character_names'][i]);
+
+                            if(replacementPublicID == -1) { // If not found
+                                missingChars.push(data[0]['character_names'][i]);
+
+                                // All three below should be synchronized in length (and order)
+                                selectedCharactersIdBuffer.splice(i, 1);
+                                data[0].character_names.splice(i, 1);
+                                data[0].character_public_ids.splice(i, 1);
+
+                                i--;
+                            }
+                            else { // If a replacement public ID is found
+                                changedChars.push(data[0]['character_names'][i]);
+                                updateChatCharacterPublicID(data, data[0]['character_public_ids'][i], replacementPublicID); // Update chat
+                                data[0].character_public_ids[i] = replacementPublicID; // Update metadata of the chatroom
+                            }
+                        }
+                    }
+                    // Don't continue if one or more characters is missing
+                    // if(isMissingChars)
+                    //     return;
+
+                    if(data[0].character_public_ids.length <= 0) {
+                        let msg = "Cannot load room. At least one of these characters is needed: ";
+                        let chNameBuffer = "";
+                        for(let i = 0; i < missingChars.length; i++) // If all characters cannot be found, missingChars should contain all the original names
+                            {
+                                chNameBuffer = missingChars[i];
+
+                                if(i < missingChars.length - 1)
+                                    msg += chNameBuffer + ", ";
+                                else
+                                    msg += chNameBuffer + ".";
+                            }
+                        callPopup(msg, "alert");
+                        return;
+                    }
+
+                    let msg = "";
+                    if(missingChars.length > 0) {
+                        msg += "Some characters have been removed from the active character list: ";
+                        let chNameBuffer = "";
+                        for(let i = 0; i < missingChars.length; i++)
+                        {
+                            chNameBuffer = missingChars[i];
+
+                            if(i < missingChars.length - 1)
+                                msg += chNameBuffer + ", ";
+                            else
+                                msg += chNameBuffer + ".";
+                        }
+                    }
+                    if(changedChars.length > 0) {
+                        if(msg) msg += "\n"; // Separate previous message if exist
+                        msg += "Could not find the exact card for some characters, which has been replaced with a character card of the same name: ";
+                        let chNameBuffer = "";
+                        for(let i = 0; i < changedChars.length; i++)
+                        {
+                            chNameBuffer = changedChars[i];
+
+                            if(i < changedChars.length - 1)
+                                msg += chNameBuffer + ", ";
+                            else
+                                msg += chNameBuffer + ".";
+                        }
+                    }
+
+                    if(msg) callPopup(msg, "alert"); // Calling popup only if there was at least one warning messages
+
                     // console.log("Incorrect/Error");
                     clearChat();
                     chat.length = 0;
@@ -2583,8 +2767,16 @@ $(document).ready(function(){
                     //chat =  data;
                     // const ch_ext = ".webp"; // Assumed that character files would always have .webp extension
                     // Characters.selectedID = Characters.getIDbyFilename(chat[0]['character_names'][0]+ch_ext);
+                    // Rooms.selectedCharacterNames = chat[0]['character_names'];
+                    Rooms.selectedCharacters = getLocalIDsByPublicIDs(chat[0]['character_public_ids']);
                     Rooms.selectedCharacterNames = chat[0]['character_names'];
-                    Rooms.selectedCharacters = getIDsByNames(chat[0]['character_names']);
+
+                    // let chNames = [];
+                    // Rooms.selectedCharacters.forEach(function(curId, i) {
+                    //     chNames.push(Characters.id[curId].name);
+                    // });
+                    // Rooms.selectedCharacterNames = chNames;
+
                     Rooms.activeCharacterIdInit(chat[chat.length-1]);
                     chat_create_date = chat[0]['create_date'];
                     winNotes.text = chat[0].notes || "";
@@ -2600,7 +2792,8 @@ $(document).ready(function(){
                         winNotes.wppText = defaultWpp;
                     }
                     chat.shift();
-                    assignIDsByNames();
+                    // assignIDsByFilenames();
+                    assignLocalIDsByPublicIDs();
                 }else{
                     chat_create_date = Date.now();
                 }
@@ -2609,6 +2802,8 @@ $(document).ready(function(){
                 loadRoomSelectedCharacters();
                 saveChatRoom();
                 // console.log(data[0]);
+
+                textareaAutosize($('#room_scenario'));
             },
             error: function (jqXHR, exception) {
                 getChatResult();
@@ -2630,7 +2825,13 @@ $(document).ready(function(){
                 }
             }
         });
-        var save_chat = [{user_name:default_user_name, character_names:Rooms.selectedCharacterNames,create_date: chat_create_date, notes: winNotes.text, notes_type: winNotes.strategy, scenario: Rooms.id[Rooms.selectedRoomId].chat[0].scenario}, ...chat];
+        let chPublicIDs = [];
+        Rooms.selectedCharacters.forEach(function(curId, i) {
+            chPublicIDs.push(Characters.id[curId].public_id);
+        });
+        // var save_chat = [{user_name:default_user_name, character_names:Rooms.selectedCharacterNames,create_date: chat_create_date, notes: winNotes.text, notes_type: winNotes.strategy, scenario: Rooms.id[Rooms.selectedRoomId].chat[0].scenario}, ...chat];
+        // var save_chat = [{user_name:default_user_name, character_files:chFilenames,create_date: chat_create_date, notes: winNotes.text, notes_type: winNotes.strategy, scenario: Rooms.id[Rooms.selectedRoomId].chat[0].scenario}, ...chat];
+        var save_chat = [{user_name:default_user_name, character_public_ids:chPublicIDs, character_names:Rooms.selectedCharacterNames, create_date: chat_create_date, notes: winNotes.text, notes_type: winNotes.strategy, scenario: Rooms.id[Rooms.selectedRoomId].chat[0].scenario}, ...chat];
         jQuery.ajax({    
             type: 'POST', 
             url: '/savechatroom', 
@@ -2772,7 +2973,8 @@ $(document).ready(function(){
                         is_name: true,
                         send_date: Date.now(),
                         mes: first && first.length ? first : default_ch_mes,
-                        chid: curId
+                        chid: curId,
+                        character_public_id: Characters.id[curId].public_id
                     };
                 });
             }
@@ -2797,15 +2999,22 @@ $(document).ready(function(){
     function loadRoomCharacterSelection() {
         $("#room_character_select_items").empty();
         $("#room_character_selected_items").empty();
-        let characterNameList = [];
+        let characterPublicIDList = [];
         Characters.id.forEach(function(character, i) {
-            if(!characterNameList.includes(character.name))
+            // if(!characterNameList.includes(character.name))
+            //     $("#room_character_select_items")
+            //         .append('<div class="avatar" title="'+character.name+'" ch_name="'+character.name+'" style="position: relative;">'+
+            //         '<img src="characters/'+character.filename+'"><img src="../img/cross.png" class="ch_select_cross">' +
+            //         '<input type="hidden" name="room_characters" value="'+character.name+'" disabled>'+
+            //         '</div>');
+            if(!characterPublicIDList.includes(character.public_id))
                 $("#room_character_select_items")
                     .append('<div class="avatar" title="'+character.name+'" ch_name="'+character.name+'" style="position: relative;">'+
                     '<img src="characters/'+character.filename+'"><img src="../img/cross.png" class="ch_select_cross">' +
-                    '<input type="hidden" name="room_characters" value="'+character.name+'" disabled>'+
+                    '<input type="hidden" name="room_characters" value="'+character.public_id+'" disabled>'+
+                    '<input type="hidden" name="room_ch_names" value="'+character.name+'" disabled>'+
                     '</div>');
-            characterNameList.push(character.name);
+            characterPublicIDList.push(character.public_id);
         });
         $("#room_character_select_items .avatar").on("click", function(event) {
             if(event.currentTarget.parentElement.id == "room_character_select_items")
@@ -2828,18 +3037,36 @@ $(document).ready(function(){
         $("#room_character_select_items").empty();
         $("#room_character_selected_items").empty();
         Rooms.selectedCharacters.forEach(function(characterId, i) {
+            // $("#room_character_selected_items")
+            //     .append('<div class="avatar" title="'+Characters.id[characterId].name+'" ch_name="'+Characters.id[characterId].name+'" style="position: relative;">'+
+            //     '<img src="characters/'+Characters.id[characterId].filename+'">'+
+            //     '<img src="../img/cross.png" class="ch_select_cross">' +
+            //     '<input type="hidden" name="character_names" value="'+Characters.id[characterId].name+'" disabled>'+
+            //     '</div>');
             $("#room_character_selected_items")
                 .append('<div class="avatar" title="'+Characters.id[characterId].name+'" ch_name="'+Characters.id[characterId].name+'" style="position: relative;">'+
                 '<img src="characters/'+Characters.id[characterId].filename+'">'+
                 '<img src="../img/cross.png" class="ch_select_cross">' +
+                '<input type="hidden" name="character_public_ids" value="'+Characters.id[characterId].public_id+'" disabled>'+
                 '<input type="hidden" name="character_names" value="'+Characters.id[characterId].name+'" disabled>'+
                 '</div>');
         });
+        let selectedCharacterPublicIDs = [];
+        Rooms.selectedCharacters.forEach(function(curId, i) {
+            selectedCharacterPublicIDs.push(Characters.id[curId].public_id);
+        });
         Characters.id.forEach(function(character, i) {
-            if(!Rooms.selectedCharacterNames.includes(character.name))
+            // if(!Rooms.selectedCharacterNames.includes(character.name))
+            //     $("#room_character_select_items")
+            //         .append('<div class="avatar" title="'+character.name+'" ch_name="'+character.name+'" style="position: relative;">'+
+            //         '<img src="characters/'+character.filename+'"><img src="../img/cross.png" class="ch_select_cross">' +
+            //         '<input type="hidden" name="character_names" value="'+character.name+'" disabled>'+
+            //         '</div>');
+            if(!selectedCharacterPublicIDs.includes(character.public_id))
                 $("#room_character_select_items")
                     .append('<div class="avatar" title="'+character.name+'" ch_name="'+character.name+'" style="position: relative;">'+
                     '<img src="characters/'+character.filename+'"><img src="../img/cross.png" class="ch_select_cross">' +
+                    '<input type="hidden" name="character_public_ids" value="'+character.public_id+'" disabled>'+
                     '<input type="hidden" name="character_names" value="'+character.name+'" disabled>'+
                     '</div>');
         });
@@ -5515,8 +5742,10 @@ $(document).ready(function(){
         // message.chid = authorId < 0 ? undefined : authorId;
         message.chid = authorId == -1 ? undefined : authorId; // -1 is user, higher denotes characters, lower denotes characters that's deleted
         // message.name = authorId < 0 ? name1 : Characters.id[authorId].name;
-        if(authorId >= 0)
+        if(authorId >= 0) {
             message.name = Characters.id[authorId].name;
+            message.character_public_id = Characters.id[authorId].public_id ? Characters.id[authorId].public_id : -1;
+        }
         else if(authorId == -1)
             message.name = name1;
         // If authorId < -1, then character has chatted (in the room), but is no longer a part of the selected characters and has been deleted
@@ -7053,6 +7282,9 @@ $(document).ready(function(){
     $('textarea.characloud_character').on('input', function (event) {
         event.preventDefault();
         event.stopImmediatePropagation();  
+        textareaAutosize($(this));
+    });
+    $('#room_scenario').on('input', function (event) {
         textareaAutosize($(this));
     });
     function textareaAutosize(textarea){

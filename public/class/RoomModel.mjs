@@ -213,8 +213,26 @@ export class RoomModel extends EventEmitter {
     getIDsByNames(ch_names) {
         let ids = [];
         ch_names.forEach(function(name) {
-            const ch_ext = ".png"; // Assumed that character files would always have .webp extension
+            const ch_ext = ".png"; // Assumed that character files would always have this extension
             ids.push(this.characters.getIDbyFilename(name+ch_ext));
+        }.bind(this));
+        return ids;
+    }
+
+    // Get character IDs given their file names (as array)
+    getIDsByFilenames(ch_filenames) {
+        let ids = [];
+        ch_filenames.forEach(function(filename) {
+            ids.push(this.characters.getIDbyFilename(filename));
+        }.bind(this));
+        return ids;
+    }
+
+    // Get character local IDs given their public IDs (as array)
+    getLocalIDsByPublicIDs(ch_public_ids) {
+        let ids = [];
+        ch_public_ids.forEach(function(public_id) {
+            ids.push(this.characters.getIDbyPublicID(public_id));
         }.bind(this));
         return ids;
     }
@@ -302,18 +320,23 @@ export class RoomModel extends EventEmitter {
                 let edited_room = this.rooms.find(
                     room => room.filename == filename + ".jsonl"
                 );
-                let selectedCharacters = event.data.getAll("character_names");
+                let selectedCharacters = event.data.getAll("character_public_ids");
                 // Convert character names into an array if not already (happens when user selected only one character for a room)
                 if(!Array.isArray((selectedCharacters)))
                     selectedCharacters = [selectedCharacters];
                 // Expected only one removed character if any, since user should only be able to remove one character at a time
-                let removedCharacterName = edited_room.chat[0].character_names.filter(name => !selectedCharacters.includes(name));
+                let removedCharacterPublicID = edited_room.chat[0].character_public_ids.filter(public_id => !selectedCharacters.includes(public_id));
                 let isActiveCharacterRemoved = false;
-                if(this.characters.id[this.characters.selectedID].name == removedCharacterName)
+                if(this.characters.id[this.characters.selectedID].public_id == removedCharacterPublicID)
                     isActiveCharacterRemoved = true;
-                edited_room.chat[0].character_names = selectedCharacters;
-                this.selectedCharacterNames = selectedCharacters;
-                this.selectedCharacters = this.getIDsByNames(selectedCharacters);
+                edited_room.chat[0].character_public_ids = selectedCharacters;
+                // this.selectedCharacters = this.getIDsByFilenames(selectedCharacters);
+                this.selectedCharacters = this.getLocalIDsByPublicIDs(selectedCharacters);
+
+                let characterNames = [];
+                for(const id of this.selectedCharacters)
+                    characterNames.push(this.characters.id[id].name);
+                this.selectedCharacterNames = characterNames;
 
                 // Reset which character should be active if the active character is removed
                 if(isActiveCharacterRemoved)
