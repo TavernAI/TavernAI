@@ -7,7 +7,7 @@ export class SystemPromptModule extends EventEmitter {
     static SAVE_SETTINGS = "save_settings";
     empty_prest_id = '(empty)';
     
-    system_depth_max = 33; // 33 means a limit and if it exceeds this number then the system prompt locates at the very top in character description path
+    system_depth_max = 33; // 33 means the limit and if it exceeds this number then the system prompt locates at the very top in character description path
     constructor() {
         super();
         var presets = {};
@@ -270,7 +270,8 @@ export class SystemPromptModule extends EventEmitter {
             
             $('#system_depth_range').trigger('input');
             $('#jailbreak_depth_range').trigger('input');
-            
+            /////
+            //console.log(self.presets[self.selected_preset_name].system_depth +" "+self.presets[self.selected_preset_name].jailbreak_depth);
         }
     }
     get system_depth(){

@@ -2606,7 +2606,8 @@ app.listen(server_port, listenIp, function() {
             );
     if(autorun) open(autorunUrl.toString());
     console.log('TavernAI has started and is available on IP: 127.0.0.1 at PORT: '+server_port);
-    console.log('TavernAI is bound to interface: ' + listenIp)
+    console.log('TavernAI is bound to interface: ' + listenIp);
+    console.log('TavernAI url: ' + listenIp+ ':'+server_port);
 });
 function initializationCards() {
     const folderPath = charactersPath;
