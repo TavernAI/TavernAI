@@ -61,6 +61,7 @@ export class RoomModel extends EventEmitter {
     }
 
     set selectedCharacters(ch_ids) {
+        if(!Array.isArray(ch_ids)) ch_ids = [ch_ids];
         this.selectedIDs = ch_ids;
         return;
     }
@@ -70,6 +71,7 @@ export class RoomModel extends EventEmitter {
     }
 
     set selectedCharacterNames(ch_names) {
+        if(!Array.isArray(ch_names)) ch_names = [ch_names];
         this.selectedNames = ch_names;
         return;
     }
@@ -219,20 +221,11 @@ export class RoomModel extends EventEmitter {
         return ids;
     }
 
-    // Get character IDs given their file names (as array)
+    // Get character IDs and names given their file names (as array), returning an object where each key represents a character's id and its value the name
     getIDsByFilenames(ch_filenames) {
         let ids = [];
         ch_filenames.forEach(function(filename) {
             ids.push(this.characters.getIDbyFilename(filename));
-        }.bind(this));
-        return ids;
-    }
-
-    // Get character local IDs given their public IDs (as array)
-    getLocalIDsByPublicIDs(ch_public_ids) {
-        let ids = [];
-        ch_public_ids.forEach(function(public_id) {
-            ids.push(this.characters.getIDbyPublicID(public_id));
         }.bind(this));
         return ids;
     }
@@ -320,18 +313,17 @@ export class RoomModel extends EventEmitter {
                 let edited_room = this.rooms.find(
                     room => room.filename == filename + ".jsonl"
                 );
-                let selectedCharacters = event.data.getAll("character_public_ids");
+                let selectedCharacters = event.data.getAll("character_files");
                 // Convert character names into an array if not already (happens when user selected only one character for a room)
                 if(!Array.isArray((selectedCharacters)))
                     selectedCharacters = [selectedCharacters];
                 // Expected only one removed character if any, since user should only be able to remove one character at a time
-                let removedCharacterPublicID = edited_room.chat[0].character_public_ids.filter(public_id => !selectedCharacters.includes(public_id));
+                let removedCharacterFile = edited_room.chat[0].character_files.filter(file => !selectedCharacters.includes(file));
                 let isActiveCharacterRemoved = false;
-                if(this.characters.id[this.characters.selectedID].public_id == removedCharacterPublicID)
+                if(this.characters.id[this.characters.selectedID].filename == removedCharacterFile)
                     isActiveCharacterRemoved = true;
-                edited_room.chat[0].character_public_ids = selectedCharacters;
-                // this.selectedCharacters = this.getIDsByFilenames(selectedCharacters);
-                this.selectedCharacters = this.getLocalIDsByPublicIDs(selectedCharacters);
+                edited_room.chat[0].character_files = selectedCharacters;
+                this.selectedCharacters = this.getIDsByFilenames(selectedCharacters);
 
                 let characterNames = [];
                 for(const id of this.selectedCharacters)

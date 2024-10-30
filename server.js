@@ -594,8 +594,7 @@ app.post("/getchatroom", jsonParser, function(request, response){
                                 //console.log(data);
                                 const lines = data.split('\n');
                                 // Iterate through the array of strings and parse each line as JSON
-                                const jsonData = lines.map(json5.parse);
-                                // const jsonData = updateRoomsFormat(lines.map(json5.parse));
+                                const jsonData = updateRoomsFormat(lines.map(json5.parse));
                                 response.send(jsonData);
                             });
                         }
@@ -793,7 +792,7 @@ function charaFormatData(data){
     }
     return char;
 }
-// Function accepts an array of JSON objects representation of a chatroom (including metadata / the first line) as parameter argument, return an array of objects with updated format keeping track of character files (now redundant as the function has now been moved to client side / script.js)
+// Function accepts an array of JSON objects representation of a chatroom (including metadata / the first line) as parameter argument, return an array of objects with updated format keeping track of character files
 function updateRoomsFormat(content) {
     if("character_files" in content[0]) return content; // If JSON object has the key for the character files in the metadata (first line), assume update has been applied to content before
 
@@ -814,6 +813,7 @@ function updateRoomsFormat(content) {
         }
         i++;
     }
+    updatedContent[0].updated = true; // Functions only as a flag and needs to be removed before taken as the chat metadata in the client side or front end processing.
 
     return updatedContent;
 }
@@ -854,18 +854,16 @@ app.post("/createroom", urlencodedParser, async function(request, response){
     // since we are planning to re-use existing code, ch_name == filename (jsonl filename), since changing vvariables means we need
     // to also change the html file's form's input "name" attributes
     let target_file = request.body.ch_name; 
-
-    let characterPublicIDs = request.body.room_characters;
-    let characterNames = request.body.room_ch_names;
+    let characterFiles = request.body.room_characters;
     let scenario = request.body.room_scenario;
     const fileExtension = ".jsonl";
     if(!request.body) return response.sendStatus(400);
     if(!request.body.room_characters) return response.sendStatus(400); // A room needs to have at least one character
     if (!fs.existsSync(roomsPath+target_file+fileExtension)){
         if(!scenario)
-            await roomWrite(target_file, characterPublicIDs, characterNames);
+            await roomWrite(target_file, characterFiles);
         else
-            await roomWrite(target_file, characterPublicIDs, characterNames, "You", Date.now(), "", "discr", scenario, []);
+            await roomWrite(target_file, characterFiles, "You", Date.now(), "", "discr", scenario, []);
         response.status(200).send({file_name: target_file});
         console.log("The file was saved.");
     }else{
@@ -946,7 +944,7 @@ app.post("/editroom", urlencodedParser, async function(request, response){
         // let old_char_data = JSON.parse(old_char_data_json); // No need for this line, since roomRead() already returns a JSON object (not as string)
         let new_room_metadata = request.body;
         let merged_room_metadata = Object.assign({}, old_room_metadata, new_room_metadata);
-        await roomWrite(filename, merged_room_metadata.character_public_ids, merged_room_metadata.character_names, merged_room_metadata.user_name, merged_room_metadata.create_date,
+        await roomWrite(filename, merged_room_metadata.character_files, merged_room_metadata.user_name, merged_room_metadata.create_date,
             merged_room_metadata.notes, merged_room_metadata.notes_types, merged_room_metadata.scenario, room_chat_data);
         return response.status(200).send('Room saved');
     } catch (err) {
@@ -1086,14 +1084,14 @@ async function charaRead(img_url, input_format){
 //     }
 // }
 // The function already appends the roomsPath before filedir (filename), and the .jsonl extension after the filedir
-async function roomWrite(filedir, characterPublicIDs, characterNames, user_name="You", create_date="", notes="", notes_type="discr", scenario="", chat=[]) {
+async function roomWrite(filedir, characterFiles, user_name="You", create_date="", notes="", notes_type="discr", scenario="", chat=[]) {
     try {
         const fileExtension = ".jsonl"; 
         let fileContent = ''; // In string form
         let createDate = create_date ? create_date : Date.now();
         // let characterNamesArray = characterNames.isArray() ? characterNames : [characterNames];
-        if(!Array.isArray((characterPublicIDs)))
-            characterPublicIDs = [characterPublicIDs]; // Convert character names into an array if not already (happens when user selected only one character for a room)
+        if(!Array.isArray((characterFiles)))
+            characterFiles = [characterFiles]; // Convert character names into an array if not already (happens when user selected only one character for a room)
 
         notes = notes.replace(/\r\n|\n|"/g, function(match) {
             switch(match) {
@@ -1112,7 +1110,7 @@ async function roomWrite(filedir, characterPublicIDs, characterNames, user_name=
             }
         });
 
-        let firstLine = '{"user_name":"'+user_name+'","character_public_ids":'+JSON.stringify(characterPublicIDs)+',"character_names":'+JSON.stringify(characterNames)+',"create_date":'+createDate+',"notes":"'+notes+'","notes_type":"'+notes_type+'","scenario":"'+scenario+'"}';
+        let firstLine = '{"user_name":"'+user_name+'","character_files":'+JSON.stringify(characterFiles)+',"create_date":'+createDate+',"notes":"'+notes+'","notes_type":"'+notes_type+'","scenario":"'+scenario+'"}';
         fileContent += firstLine;
         fileContent += chat.length ? "\n" : "";
         chat.forEach(function(chat_msg, i) {
