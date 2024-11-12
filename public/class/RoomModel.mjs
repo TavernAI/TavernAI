@@ -61,6 +61,7 @@ export class RoomModel extends EventEmitter {
     }
 
     set selectedCharacters(ch_ids) {
+        if(!Array.isArray(ch_ids)) ch_ids = [ch_ids];
         this.selectedIDs = ch_ids;
         return;
     }
@@ -70,6 +71,7 @@ export class RoomModel extends EventEmitter {
     }
 
     set selectedCharacterNames(ch_names) {
+        if(!Array.isArray(ch_names)) ch_names = [ch_names];
         this.selectedNames = ch_names;
         return;
     }
@@ -213,8 +215,17 @@ export class RoomModel extends EventEmitter {
     getIDsByNames(ch_names) {
         let ids = [];
         ch_names.forEach(function(name) {
-            const ch_ext = ".png"; // Assumed that character files would always have .webp extension
+            const ch_ext = ".png"; // Assumed that character files would always have this extension
             ids.push(this.characters.getIDbyFilename(name+ch_ext));
+        }.bind(this));
+        return ids;
+    }
+
+    // Get character IDs and names given their file names (as array), returning an object where each key represents a character's id and its value the name
+    getIDsByFilenames(ch_filenames) {
+        let ids = [];
+        ch_filenames.forEach(function(filename) {
+            ids.push(this.characters.getIDbyFilename(filename));
         }.bind(this));
         return ids;
     }
@@ -302,18 +313,22 @@ export class RoomModel extends EventEmitter {
                 let edited_room = this.rooms.find(
                     room => room.filename == filename + ".jsonl"
                 );
-                let selectedCharacters = event.data.getAll("character_names");
+                let selectedCharacters = event.data.getAll("character_files");
                 // Convert character names into an array if not already (happens when user selected only one character for a room)
                 if(!Array.isArray((selectedCharacters)))
                     selectedCharacters = [selectedCharacters];
                 // Expected only one removed character if any, since user should only be able to remove one character at a time
-                let removedCharacterName = edited_room.chat[0].character_names.filter(name => !selectedCharacters.includes(name));
+                let removedCharacterFile = edited_room.chat[0].character_files.filter(file => !selectedCharacters.includes(file));
                 let isActiveCharacterRemoved = false;
-                if(this.characters.id[this.characters.selectedID].name == removedCharacterName)
+                if(this.characters.id[this.characters.selectedID].filename == removedCharacterFile)
                     isActiveCharacterRemoved = true;
-                edited_room.chat[0].character_names = selectedCharacters;
-                this.selectedCharacterNames = selectedCharacters;
-                this.selectedCharacters = this.getIDsByNames(selectedCharacters);
+                edited_room.chat[0].character_files = selectedCharacters;
+                this.selectedCharacters = this.getIDsByFilenames(selectedCharacters);
+
+                let characterNames = [];
+                for(const id of this.selectedCharacters)
+                    characterNames.push(this.characters.id[id].name);
+                this.selectedCharacterNames = characterNames;
 
                 // Reset which character should be active if the active character is removed
                 if(isActiveCharacterRemoved)
