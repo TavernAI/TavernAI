@@ -9,7 +9,7 @@
 * <a href="https://github.com/TavernAI/TavernAI/archive/refs/heads/main.zip" target="_parent"><img height="20" width="auto" src="https://raw.githubusercontent.com/TavernAI/TavernAI/main/public/img/five.png" alt="TavernAI"/> TavernAI</a><b> -> Requires -> </b><img height="20" width="auto" src="https://raw.githubusercontent.com/TavernAI/TavernAI/main/readme/nodelogo.png" alt="Node.js®"/><a href="https://nodejs.org/dist/v21.3.0/node-v21.3.0-x64.msi">Node.js®</a>
 * <img height="20" width="auto" src="https://raw.githubusercontent.com/TavernAI/TavernAI/main/public/img/five.png" alt="TavernAI"/> [Windows .exe version](https://sourceforge.net/projects/tavernaimain/files/TavernAI.rar/download)<br>
 ###### Run online: 
-* [TavernAI on Google Colab](https://colab.research.google.com/github/vrihatgan/TavernAI/blob/main/colab/colab.ipynb) <br><a href="https://colab.research.google.com/github/vrihatgan/TavernAI/blob/main/colab/colab.ipynb" target="_parent"><img height="42" width="auto" src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a><br>This is your only option if you're using a phone or tablet.<br>
+* [TavernAI on Google Colab](https://colab.research.google.com/github/vrihatgan/TavernAI/blob/main/colab/colab.ipynb) <br><a href="https://colab.research.google.com/github/vrihatgan/TavernAI/blob/main/colab/colab.ipynb" target="_parent"><img height="42" width="auto" src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a><br>The option for phones or tablets.<br>
 ###### Links:
 * [TavernAI on Boosty](https://boosty.to/tavernai) - Support the project!
 * [TavernAI Discord](https://discord.gg/zmK2gmr45t) - Meet the community!
