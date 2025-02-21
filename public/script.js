@@ -2363,6 +2363,8 @@ $(document).ready(function(){
                     chat[chat.length-1]['send_date'] = Date.now();
                     getMessage = $.trim(getMessage);
                     chat[chat.length-1]['mes'] = getMessage;
+                    if(is_room)
+                        chat[chat.length-1]['character_file'] = Characters.id[Characters.selectedID].filename;
                     addOneMessage(chat[chat.length-1]);
                     Tavern.is_send_press = false;
                 }
@@ -2504,19 +2506,32 @@ $(document).ready(function(){
         return false;
     }
     //</OpenAI image input>
-    function getIDsByNames(ch_names) {
+    // function getIDsByNames(ch_names) {
+    //     let ids = [];
+    //     ch_names.forEach(function(name) {
+    //         const ch_ext = ".png"; // Assumed that character files would always have .webp extension
+    //         ids.push(Characters.getIDbyFilename(name+ch_ext));
+    //     });
+    //     return ids;
+    // }
+    function getIDsByFilenames(ch_filenames) {
         let ids = [];
-        ch_names.forEach(function(name) {
-            const ch_ext = ".png"; // Assumed that character files would always have .webp extension
-            ids.push(Characters.getIDbyFilename(name+ch_ext));
+        ch_filenames.forEach(function(filename) {
+            ids.push(Characters.getIDbyFilename(filename));
         });
         return ids;
     }
     // Assumed that the chat array is filled already
-    function assignIDsByNames() {
+    // function assignIDsByNames() {
+    //     chat.forEach(function(mes, i) {
+    //         const ch_ext = ".png"; // Assumed that character files would always have .webp extension
+    //         chat[i].chid = Characters.getIDbyFilename(mes.name+ch_ext);
+    //     });
+    // }
+    // Assumed that the chat array is filled already
+    function assignIDsByFilenames() {
         chat.forEach(function(mes, i) {
-            const ch_ext = ".png"; // Assumed that character files would always have .webp extension
-            chat[i].chid = Characters.getIDbyFilename(mes.name+ch_ext);
+            chat[i].chid = Characters.getIDbyFilename(mes.character_file);
         });
     }
     /**
@@ -2556,19 +2571,27 @@ $(document).ready(function(){
                     // Rooms.selectedCharacters = getIDsByNames(chat[0]['character_names']);
                     // console.log(data[0]['character_names']);
                     // console.log(Characters.id);
-                    let selectedCharactersIdBuffer = getIDsByNames(data[0]['character_names']);
+                    let selectedCharactersIdBuffer = getIDsByFilenames(data[0]['character_files']);
                     let isMissingChars = false;
                     selectedCharactersIdBuffer.forEach(function(curId, i) {
                         if(curId < 0) // If name doesn't exist in the Characters.id objects array, then curId will be -1
                         {
                             let msg = "Cannot load room. Some characters expected are missing. Please check if you have all the characters.\nRequired Characters: ";
+                            let chNameBuffer = "";
                             for(var i = 0; i < selectedCharactersIdBuffer.length; i++)
                             {
+                                chNameBuffer = Characters.id[curId].name;
+
                                 // selectedCharactersIdBuffer.length is equal to data[0]['character_names'].length
+                                // if(i < selectedCharactersIdBuffer.length - 1)
+                                //     msg += data[0]['character_names'][i] + ", ";
+                                // else
+                                //     msg += data[0]['character_names'][i] + ".";
+
                                 if(i < selectedCharactersIdBuffer.length - 1)
-                                    msg += data[0]['character_names'][i] + ", ";
+                                    msg += chNameBuffer + ", ";
                                 else
-                                    msg += data[0]['character_names'][i] + ".";
+                                    msg += chNameBuffer + ".";
                             }
                             callPopup(msg, "alert");
                             isMissingChars = true;
@@ -2578,6 +2601,14 @@ $(document).ready(function(){
                     // Don't continue if one or more characters is missing
                     if(isMissingChars)
                         return;
+
+                    // Below block of code is for removing the redundant character_names attribute in selected room if exists, and removing the flag updated from the response.
+                    if(data[0]['updated']) {
+                        delete Rooms.id[Rooms.getIDbyFilename(filename + ".jsonl")].chat[0].character_names;
+                        Rooms.id[Rooms.getIDbyFilename(filename + ".jsonl")].chat[0].character_files = data[0]['character_files'];
+                        delete data[0].updated; // The flag should now no longer be needed, and must be removed before the next process.
+                    }
+
                     // console.log("Incorrect/Error");
                     clearChat();
                     chat.length = 0;
@@ -2587,8 +2618,15 @@ $(document).ready(function(){
                     //chat =  data;
                     // const ch_ext = ".webp"; // Assumed that character files would always have .webp extension
                     // Characters.selectedID = Characters.getIDbyFilename(chat[0]['character_names'][0]+ch_ext);
-                    Rooms.selectedCharacterNames = chat[0]['character_names'];
-                    Rooms.selectedCharacters = getIDsByNames(chat[0]['character_names']);
+                    // Rooms.selectedCharacterNames = chat[0]['character_names'];
+                    Rooms.selectedCharacters = getIDsByFilenames(chat[0]['character_files']);
+
+                    let chNames = [];
+                    Rooms.selectedCharacters.forEach(function(curId, i) {
+                        chNames.push(Characters.id[curId].name);
+                    });
+                    Rooms.selectedCharacterNames = chNames;
+
                     Rooms.activeCharacterIdInit(chat[chat.length-1]);
                     chat_create_date = chat[0]['create_date'];
                     winNotes.text = chat[0].notes || "";
@@ -2604,7 +2642,7 @@ $(document).ready(function(){
                         winNotes.wppText = defaultWpp;
                     }
                     chat.shift();
-                    assignIDsByNames();
+                    assignIDsByFilenames();
                 }else{
                     chat_create_date = Date.now();
                 }
@@ -2613,6 +2651,8 @@ $(document).ready(function(){
                 loadRoomSelectedCharacters();
                 saveChatRoom();
                 // console.log(data[0]);
+                
+                textareaAutosize($('#room_scenario'));
             },
             error: function (jqXHR, exception) {
                 getChatResult();
@@ -2634,7 +2674,12 @@ $(document).ready(function(){
                 }
             }
         });
-        var save_chat = [{user_name:default_user_name, character_names:Rooms.selectedCharacterNames,create_date: chat_create_date, notes: winNotes.text, notes_type: winNotes.strategy, scenario: Rooms.id[Rooms.selectedRoomId].chat[0].scenario}, ...chat];
+        let chFilenames = [];
+        Rooms.selectedCharacters.forEach(function(curId, i) {
+            chFilenames.push(Characters.id[curId].filename);
+        });
+        // var save_chat = [{user_name:default_user_name, character_names:Rooms.selectedCharacterNames,create_date: chat_create_date, notes: winNotes.text, notes_type: winNotes.strategy, scenario: Rooms.id[Rooms.selectedRoomId].chat[0].scenario}, ...chat];
+        var save_chat = [{user_name:default_user_name, character_files:chFilenames,create_date: chat_create_date, notes: winNotes.text, notes_type: winNotes.strategy, scenario: Rooms.id[Rooms.selectedRoomId].chat[0].scenario}, ...chat];
         jQuery.ajax({    
             type: 'POST', 
             url: '/savechatroom', 
@@ -2776,7 +2821,8 @@ $(document).ready(function(){
                         is_name: true,
                         send_date: Date.now(),
                         mes: first && first.length ? first : default_ch_mes,
-                        chid: curId
+                        chid: curId,
+                        character_file: Characters.id[curId].filename
                     };
                 });
             }
@@ -2801,15 +2847,21 @@ $(document).ready(function(){
     function loadRoomCharacterSelection() {
         $("#room_character_select_items").empty();
         $("#room_character_selected_items").empty();
-        let characterNameList = [];
+        let characterFilenameList = [];
         Characters.id.forEach(function(character, i) {
-            if(!characterNameList.includes(character.name))
+            // if(!characterNameList.includes(character.name))
+            //     $("#room_character_select_items")
+            //         .append('<div class="avatar" title="'+character.name+'" ch_name="'+character.name+'" style="position: relative;">'+
+            //         '<img src="characters/'+character.filename+'"><img src="../img/cross.png" class="ch_select_cross">' +
+            //         '<input type="hidden" name="room_characters" value="'+character.name+'" disabled>'+
+            //         '</div>');
+            if(!characterFilenameList.includes(character.filename))
                 $("#room_character_select_items")
                     .append('<div class="avatar" title="'+character.name+'" ch_name="'+character.name+'" style="position: relative;">'+
                     '<img src="characters/'+character.filename+'"><img src="../img/cross.png" class="ch_select_cross">' +
-                    '<input type="hidden" name="room_characters" value="'+character.name+'" disabled>'+
+                    '<input type="hidden" name="room_characters" value="'+character.filename+'" disabled>'+
                     '</div>');
-            characterNameList.push(character.name);
+            characterFilenameList.push(character.filename);
         });
         $("#room_character_select_items .avatar").on("click", function(event) {
             if(event.currentTarget.parentElement.id == "room_character_select_items")
@@ -2832,20 +2884,38 @@ $(document).ready(function(){
         $("#room_character_select_items").empty();
         $("#room_character_selected_items").empty();
         Rooms.selectedCharacters.forEach(function(characterId, i) {
+            // $("#room_character_selected_items")
+            //     .append('<div class="avatar" title="'+Characters.id[characterId].name+'" ch_name="'+Characters.id[characterId].name+'" style="position: relative;">'+
+            //     '<img src="characters/'+Characters.id[characterId].filename+'">'+
+            //     '<img src="../img/cross.png" class="ch_select_cross">' +
+            //     '<input type="hidden" name="character_names" value="'+Characters.id[characterId].name+'" disabled>'+
+            //     '</div>');
             $("#room_character_selected_items")
                 .append('<div class="avatar" title="'+Characters.id[characterId].name+'" ch_name="'+Characters.id[characterId].name+'" style="position: relative;">'+
                 '<img src="characters/'+Characters.id[characterId].filename+'">'+
                 '<img src="../img/cross.png" class="ch_select_cross">' +
-                '<input type="hidden" name="character_names" value="'+Characters.id[characterId].name+'" disabled>'+
+                '<input type="hidden" name="character_files" value="'+Characters.id[characterId].filename+'" disabled>'+
                 '</div>');
         });
+        let selectedCharacterFilenames = [];
+        Rooms.selectedCharacters.forEach(function(curId, i) {
+            selectedCharacterFilenames.push(Characters.id[curId].filename);
+        });
+        let characterFilenameList = []; // A brute force way to make sure no duplicate characters are put, which seems to happen when a new character is created, unable to find what causes it.
         Characters.id.forEach(function(character, i) {
-            if(!Rooms.selectedCharacterNames.includes(character.name))
+            // if(!Rooms.selectedCharacterNames.includes(character.name))
+            //     $("#room_character_select_items")
+            //         .append('<div class="avatar" title="'+character.name+'" ch_name="'+character.name+'" style="position: relative;">'+
+            //         '<img src="characters/'+character.filename+'"><img src="../img/cross.png" class="ch_select_cross">' +
+            //         '<input type="hidden" name="character_names" value="'+character.name+'" disabled>'+
+            //         '</div>');
+            if(!characterFilenameList.includes(character.filename) && !selectedCharacterFilenames.includes(character.filename))
                 $("#room_character_select_items")
                     .append('<div class="avatar" title="'+character.name+'" ch_name="'+character.name+'" style="position: relative;">'+
                     '<img src="characters/'+character.filename+'"><img src="../img/cross.png" class="ch_select_cross">' +
-                    '<input type="hidden" name="character_names" value="'+character.name+'" disabled>'+
+                    '<input type="hidden" name="character_files" value="'+character.filename+'" disabled>'+
                     '</div>');
+            characterFilenameList.push(character.filename);
         });
         $("#room_character_selected_items .avatar").on("click", function(event) {
             if(event.currentTarget.parentElement.id == "room_character_select_items") {
@@ -7072,6 +7142,9 @@ $(document).ready(function(){
     $('textarea.characloud_character').on('input', function (event) {
         event.preventDefault();
         event.stopImmediatePropagation();  
+        textareaAutosize($(this));
+    });
+    $('#room_scenario').on('input', function (event) {
         textareaAutosize($(this));
     });
     function textareaAutosize(textarea){
