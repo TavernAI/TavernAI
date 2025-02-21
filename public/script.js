@@ -6144,6 +6144,9 @@ $(document).ready(function(){
                 case 'gpt-4o-2024-08-06':
                     this_openai_max_context = 128000;
                 break;
+                case 'gpt-4o-2024-11-20':
+                    this_openai_max_context = 128000;
+                break;
                 case 'chatgpt-4o-latest':
                     this_openai_max_context = 128000;
                 break;
