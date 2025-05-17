@@ -6223,6 +6223,9 @@ $(document).ready(function(){
                 case 'gpt-4.5-preview':
                     this_openai_max_context = 128000;
                     break;
+                case 'gpt-4.1':
+                    this_openai_max_context = 1047576;
+                    break;
                 default:
                     this_openai_max_context = 4096;
                     break;
