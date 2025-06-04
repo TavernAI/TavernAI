@@ -72,6 +72,7 @@ var api_server = "http://127.0.0.1:5000/api";//"http://127.0.0.1:5000";
 const api_novelai = "https://api.novelai.net";
 const api_openai = "https://api.openai.com/v1";
 const api_horde = "https://stablehorde.net/api";
+const api_ollama = "http://127.0.0.1:11434"; // Default Ollama API URL
 var hordeActive = false;
 var hordeQueue;
 var hordeData = {};
@@ -94,11 +95,13 @@ var response_getstatus;
 var response_getstatus_novel;
 var response_getstatus_openai;
 var response_getstatus_claude;
+var response_getstatus_ollama;
 var response_getlastversion;
 var api_key_novel;
 var api_key_openai;
 var api_key_claude;
 var api_url_openai;
+var model_ollama; // Variable to store Ollama model name
 var is_colab = false;
 var charactersPath = 'public/characters/';
 var worldPath = 'public/worlds/';
@@ -2013,6 +2016,102 @@ app.post("/generate_openai", jsonParser, function(request, response_generate_ope
         response_generate_openai.send({error: true, error_message: "Unspecified error while sending the request.\n" + err});
     });
 });
+
+app.post("/generate_ollama", jsonParser, function(request, response_generate_ollama_func = response){ // Assign to a different name to avoid conflict
+    if(!request.body) return response_generate_ollama_func.sendStatus(400);
+    console.log(request.body);
+
+    // model_ollama should be set by /getstatus_ollama or a settings panel in a real app
+    // For now, ensure it's passed in the request or use a default.
+    const current_model_ollama = request.body.model || model_ollama || "llama2"; // Fallback to llama2 if no model specified
+
+    var data = {
+        "model": current_model_ollama,
+        "prompt": request.body.prompt,
+        "stream": false, // Ollama supports streaming, but for simplicity, we'll use non-streaming for now
+        // Add other parameters as supported by Ollama and needed by TavernAI
+        // e.g., "max_tokens": request.body.max_tokens, "temperature": request.body.temperature etc.
+        // Refer to Ollama documentation for available parameters: https://github.com/jmorganca/ollama/blob/main/docs/api.md
+        "options": {
+            "temperature": request.body.temperature,
+            "top_p": request.body.top_p,
+            "top_k": request.body.top_k,
+            "num_predict": request.body.max_tokens // Ollama uses num_predict for max tokens
+        }
+    };
+
+    var args = {
+        data: data,
+        headers: { "Content-Type": "application/json" },
+        requestConfig: {
+            timeout: connectionTimeoutMS // Use existing timeout setting
+        }
+    };
+
+    client.post(api_ollama + "/api/generate", args, function (data, response) {
+        try {
+            console.log(data); // Log the raw response from Ollama
+            if(response.statusCode == 200){
+                // The response structure for non-streaming is a single JSON object per line.
+                // We need to parse it if it's a string, or use directly if already an object.
+                let ollamaResponse;
+                if (typeof data === 'string') {
+                    // Split by newline and parse the last valid JSON object
+                    // This handles cases where multiple JSON objects might be sent in a single buffer
+                    // or if there are any leading/trailing non-JSON characters (though less likely for non-streaming)
+                    const lines = data.trim().split('\n');
+                    ollamaResponse = JSON.parse(lines[lines.length - 1]);
+                } else {
+                    ollamaResponse = data;
+                }
+                // Adapt the response to the format expected by TavernAI frontend
+                // This usually involves extracting the generated text and any other relevant info.
+                // For Ollama, the generated text is in the "response" field.
+                response_generate_ollama_func.send({ choices: [{ text: ollamaResponse.response }], usage: {completion_tokens: ollamaResponse.eval_count, prompt_tokens: ollamaResponse.prompt_eval_count} });
+            } else {
+                console.log("Ollama API Error - Status Code:", response.statusCode);
+                console.log("Ollama API Error - Data:", data);
+                let errorMessage = "Error generating text with Ollama.";
+                if (data && data.error) {
+                    errorMessage = data.error;
+                } else if (typeof data === 'string') {
+                    errorMessage = data;
+                }
+                response_generate_ollama_func.send({error: true, error_message: errorMessage, error_code: response.statusCode});
+            }
+        } catch (error) {
+            console.log("Error processing Ollama response: " + error);
+            console.log("Raw data from Ollama:", data); // Log raw data on error
+            response_generate_ollama_func.send({error: true, error_message: "Error processing Ollama response: " + error.message});
+        }
+    }).on('error', function (err) {
+        console.log("Ollama request error:", err);
+        response_generate_ollama_func.send({error: true, error_message: "Unspecified error while sending the request to Ollama.\n" + err});
+    });
+});
+
+//***********Ollama API
+app.post("/getstatus_ollama", jsonParser, function(request, response_getstatus_ollama_func = response){ // Assign to a different name to avoid conflict
+    if(!request.body) return response_getstatus_ollama_func.sendStatus(400);
+
+    let current_api_ollama = api_ollama; // Default to constant
+    if (request.body.api_url && request.body.api_url.trim() !== '') {
+        current_api_ollama = request.body.api_url.trim();
+    }
+
+    client.get(current_api_ollama + "/api/tags", function (data, response) { // Ollama uses /api/tags to list models
+        if(response.statusCode == 200){
+            // Assuming data contains model information, similar to other /getstatus endpoints
+            // Modify this part based on the actual response structure of Ollama's /api/tags
+            response_getstatus_ollama_func.send(data);
+        } else {
+            response_getstatus_ollama_func.send({error: true, error_message: "Error connecting to Ollama. Status code: " + response.statusCode});
+        }
+    }).on('error', function (err) {
+        response_getstatus_ollama_func.send({error: true, error_message: "Unspecified error while sending the request to Ollama.\n" + err});
+    });
+});
+
 function isChatModel(model_openai){
     if (model_openai === 'text-davinci-003' || model_openai === 'text-davinci-002' || model_openai === 'text-curie-001' || model_openai === 'text-babbage-001' || model_openai === 'text-ada-001' || model_openai === 'code-davinci-002' || model_openai === 'gpt-3.5-turbo-instruct') {
         return false;
