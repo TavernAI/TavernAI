@@ -2093,10 +2093,13 @@ app.post("/generate_ollama", jsonParser, function(request, response_generate_oll
 //***********Ollama API
 app.post("/getstatus_ollama", jsonParser, function(request, response_getstatus_ollama_func = response){ // Assign to a different name to avoid conflict
     if(!request.body) return response_getstatus_ollama_func.sendStatus(400);
-    // In a real scenario, you would get the Ollama API URL from the request or config
-    // For now, we use the globally defined api_ollama
 
-    client.get(api_ollama + "/api/tags", function (data, response) { // Ollama uses /api/tags to list models
+    let current_api_ollama = api_ollama; // Default to constant
+    if (request.body.api_url && request.body.api_url.trim() !== '') {
+        current_api_ollama = request.body.api_url.trim();
+    }
+
+    client.get(current_api_ollama + "/api/tags", function (data, response) { // Ollama uses /api/tags to list models
         if(response.statusCode == 200){
             // Assuming data contains model information, similar to other /getstatus endpoints
             // Modify this part based on the actual response structure of Ollama's /api/tags

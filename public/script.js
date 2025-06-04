@@ -5053,23 +5053,44 @@ $(document).ready(function(){
                     $('#amount_gen_counter_claude').html(amount_gen_claude+' Tokens');
 
                     // Load Ollama settings
-                    if(settings.api_url_ollama !== undefined) api_url_ollama = settings.api_url_ollama;
-                    $('#api_url_ollama').val(api_url_ollama); // Assuming an input field with id 'api_url_ollama'
-                    if(settings.model_ollama !== undefined) model_ollama = settings.model_ollama;
-                    // $('#ollama_model_select').val(model_ollama); // Assuming a select field for Ollama models
-                    if(settings.temp_ollama !== undefined) temp_ollama = settings.temp_ollama;
+                    if(settings.api_url_ollama !== undefined && settings.api_url_ollama.trim() !== '') {
+                        api_url_ollama = settings.api_url_ollama.trim();
+                    } else {
+                        api_url_ollama = "http://127.0.0.1:11434"; // Default if not set or empty
+                    }
+                    $('#api_url_ollama').val(api_url_ollama);
+
+                    if(settings.model_ollama !== undefined) {
+                        model_ollama = settings.model_ollama;
+                        // If a model is saved in settings, try to select it.
+                        // The actual population of the dropdown happens in resultCheckStatusOllama.
+                        // If getStatusOllama hasn't run yet, this might not select anything if #ollama_model_select is empty.
+                        // However, if auto-connect is on, getStatusOllama will run shortly and populate it.
+                        $('#ollama_model_select').val(model_ollama);
+                    }
+
+                    temp_ollama = parseFloat(settings.temp_ollama);
+                    if(isNaN(temp_ollama)) temp_ollama = 0.7; // Default if NaN
                     $('#temp_ollama').val(temp_ollama);
                     $('#temp_counter_ollama').html(temp_ollama);
-                    if(settings.top_p_ollama !== undefined) top_p_ollama = settings.top_p_ollama;
+
+                    top_p_ollama = parseFloat(settings.top_p_ollama);
+                    if(isNaN(top_p_ollama)) top_p_ollama = 1.0; // Default if NaN
                     $('#top_p_ollama').val(top_p_ollama);
                     $('#top_p_counter_ollama').html(top_p_ollama);
-                    if(settings.top_k_ollama !== undefined) top_k_ollama = settings.top_k_ollama;
+
+                    top_k_ollama = parseInt(settings.top_k_ollama);
+                    if(isNaN(top_k_ollama)) top_k_ollama = 0; // Default if NaN
                     $('#top_k_ollama').val(top_k_ollama);
                     $('#top_k_counter_ollama').html(top_k_ollama);
-                    if(settings.amount_gen_ollama !== undefined) amount_gen_ollama = settings.amount_gen_ollama;
+
+                    amount_gen_ollama = parseInt(settings.amount_gen_ollama);
+                    if(isNaN(amount_gen_ollama)) amount_gen_ollama = 200; // Default if NaN
                     $('#amount_gen_ollama').val(amount_gen_ollama);
                     $('#amount_gen_counter_ollama').html(amount_gen_ollama + ' Tokens');
-                    if(settings.max_context_ollama !== undefined) max_context_ollama = settings.max_context_ollama;
+
+                    max_context_ollama = parseInt(settings.max_context_ollama);
+                    if(isNaN(max_context_ollama)) max_context_ollama = 4096; // Default if NaN
                     $('#max_context_ollama').val(max_context_ollama);
                     $('#max_context_counter_ollama').html(max_context_ollama + ' Tokens');
 
@@ -5360,13 +5381,13 @@ $(document).ready(function(){
                     max_context_claude: max_context_claude,
                     amount_gen_claude: amount_gen_claude,
                     // Ollama settings to save
-                    api_url_ollama: api_url_ollama,
+                    api_url_ollama: ($('#api_url_ollama').val() && $('#api_url_ollama').val().trim() !== '') ? $('#api_url_ollama').val().trim() : "http://127.0.0.1:11434",
                     model_ollama: model_ollama,
-                    temp_ollama: temp_ollama,
-                    top_p_ollama: top_p_ollama,
-                    top_k_ollama: top_k_ollama,
-                    amount_gen_ollama: amount_gen_ollama,
-                    max_context_ollama: max_context_ollama,
+                    temp_ollama: parseFloat(temp_ollama) || 0.7, // Ensure float, provide default
+                    top_p_ollama: parseFloat(top_p_ollama) || 1.0, // Ensure float, provide default
+                    top_k_ollama: parseInt(top_k_ollama) || 0,   // Ensure int, provide default
+                    amount_gen_ollama: parseInt(amount_gen_ollama) || 200, // Ensure int, provide default
+                    max_context_ollama: parseInt(max_context_ollama) || 4096, // Ensure int, provide default
                     character_sorting_type: character_sorting_type
                     }),
             beforeSend: function(){
@@ -6632,10 +6653,12 @@ $(document).ready(function(){
 //************************************************************
     async function getStatusOllama() {
         if (is_get_status_ollama) {
+            // Ensure api_url_ollama is up-to-date from the input field before making the call
+            const current_api_url_ollama = ($('#api_url_ollama').val() && $('#api_url_ollama').val().trim() !== '') ? $('#api_url_ollama').val().trim() : "http://127.0.0.1:11434";
             jQuery.ajax({
                 type: 'POST',
                 url: '/getstatus_ollama', // Ensure this matches the backend route
-                data: JSON.stringify({ api_url: api_url_ollama }), // Send API URL if configurable
+                data: JSON.stringify({ api_url: current_api_url_ollama }), // Send API URL
                 beforeSend: function () {
                     // Visual feedback for API button press can be handled here if needed
                 },
@@ -6666,15 +6689,33 @@ $(document).ready(function(){
 
     function resultCheckStatusOllama(data) {
         is_api_button_press_ollama = false; // Reset button press state
-        if (data && data.models && data.models.length > 0) {
-            online_status = "Connected"; // Or derive from model data if more descriptive
-            model_ollama = data.models[0].name; // Example: set the first model as default
-            // Populate model dropdown if you have one for Ollama
-            // $('#ollama_model_select').empty();
-            // data.models.forEach(function(model) {
-            // $('#ollama_model_select').append($('<option></option>').val(model.name).html(model.name));
-            // });
-            // $('#ollama_model_select').val(model_ollama);
+        if (data && data.models && Array.isArray(data.models) && data.models.length > 0) {
+            online_status = "Connected";
+
+            $('#ollama_model_select').empty(); // Clear existing options
+            let modelFoundInList = false;
+            data.models.forEach(function(model) {
+                $('#ollama_model_select').append($('<option></option>').val(model.name).html(model.name));
+                if (model_ollama === model.name) {
+                    modelFoundInList = true;
+                }
+            });
+
+            if (model_ollama && modelFoundInList) {
+                $('#ollama_model_select').val(model_ollama);
+            } else if (data.models.length > 0) {
+                model_ollama = data.models[0].name;
+                $('#ollama_model_select').val(model_ollama);
+            } else {
+                model_ollama = "";
+                 $('#ollama_model_select').append($('<option></option>').val("").html("-- No models found --"));
+            }
+            // Update the global model_ollama if it changed, and save settings
+            if ($('#ollama_model_select').val() !== model_ollama) {
+                model_ollama = $('#ollama_model_select').val();
+                saveSettings();
+            }
+
             $("#online_status_indicator_ollama").removeClass('online_status_indicator_offline').addClass('online_status_indicator_online');
             $("#online_status_text_ollama").html(`Connected. Using model: ${model_ollama}`);
         } else if (data && data.error) {
@@ -6695,16 +6736,20 @@ $(document).ready(function(){
 
     // Add a click handler for the Ollama API button, similar to other APIs
     $("#api_button_ollama").click(function () {
-        if ($('#api_url_ollama').val() != '') { // Assuming there's an input for Ollama URL
+        const urlInput = $('#api_url_ollama').val();
+        if (urlInput && urlInput.trim() !== '') {
             $("#api_loading_ollama").css("display", 'inline-block');
             $("#api_button_ollama").css("display", 'none');
-            api_url_ollama = $('#api_url_ollama').val().trim();
-            // Persist api_url_ollama if necessary (e.g., in saveSettings)
-            saveSettings(); // Make sure saveSettings handles api_url_ollama
+            api_url_ollama = urlInput.trim(); // Update the global variable
+            saveSettings();
 
             is_get_status_ollama = true;
             is_api_button_press_ollama = true;
-            getStatusOllama();
+            getStatusOllama(); // getStatusOllama will use the updated api_url_ollama
+        } else {
+            // Handle empty URL input if necessary, e.g., show an error
+            $("#online_status_indicator_ollama").removeClass('online_status_indicator_online').addClass('online_status_indicator_offline');
+            $("#online_status_text_ollama").html("Ollama API URL cannot be empty.");
         }
     });
 
