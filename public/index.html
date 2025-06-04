@@ -331,6 +331,22 @@
                     </div>
                     
                 </div>
+                <div id="master_settings_ollama_block" class="master_settings_range_block" style="display: none;">
+                    <div>
+                        <h4 class="range_title">Top P Sampling </h4><h5 id="top_p_counter_ollama" class="range_counter">1.0</h5>
+                        <input type="range" class="range_bar" id="top_p_ollama" name="volume" min="0.0" max="1.0" step="0.01" value="1.0">
+                    </div>
+                    <div>
+                        <h4 class="range_title">Top K Sampling </h4><h5 id="top_k_counter_ollama" class="range_counter">0</h5>
+                        <input type="range" class="range_bar" id="top_k_ollama" name="volume" min="0" max="100" step="1" value="0">
+                    </div>
+                    <div>
+                        <h4 class="range_title">Context Size</h4><h5 id="max_context_counter_ollama" style="display: inline-block" class="range_counter">4096 Tokens</h5>
+                        <div id="ollama_set_context_size_button"><a>(set)</a></div>
+                        <input type="range" class="range_bar" id="max_context_ollama" name="volume" min="512" max="8192" step="128" value="4096">
+                    </div>
+                    <!-- Add other Ollama-specific advanced parameters here if needed -->
+                </div>
                 <div id="system_prompt_block">
                     <div id="system_prompt">
                         <div style="display:grid;grid-template-columns: auto auto;position:relative;width:94%">
@@ -638,6 +654,7 @@
                 <option value="claude">ClaudeAI</option>
                 <option value="proxy">Reverse Proxy</option>
                 <option value="webui">Text generation web UI</option>
+                <option value="ollama">Ollama</option>
             </select>
             <div id="kobold_api">
                 <div id="kobold_api_logo"><a href="https://github.com/henk717/KoboldAI" target="_blank"><img src="img/kobold.png"></a></div>
@@ -827,6 +844,28 @@
                     <input type="range" id="amount_gen" name="volume" min="16" max="512" step="1">-->
                     <h4 class="h4_menu_title">Repetition Penalty </h4><h5 id="rep_pen_counter_webui" class="range_counter">select</h5>
                     <input type="range" id="rep_pen_webui" name="volume" min="1" max="1.5" step="0.01">
+                </div>
+            </div>
+            <div id="ollama_api" style="display: none;">
+                <!-- <div id="ollama_api_logo"><a href="https://ollama.ai/" target="_blank"><img src="img/ollama.png"></a></div> -->
+                <form action="javascript:void(null);" method="post" enctype="multipart/form-data">
+                    <h4 class="h4_menu_title">API URL</h4><h5 class="h5_menu_help">Example: http://127.0.0.1:11434</h5>
+                    <input id="api_url_ollama" name="api_url_ollama" class="text_pole" type="text" maxlength="500" size="35" value="http://127.0.0.1:11434" autocomplete="off">
+                    <input id="api_button_ollama" type="submit" value="Connect">
+                    <img id="api_loading_ollama" src="img/load.svg" style="display: none;">
+                </form>
+                <div id="online_status_ollama">
+                    <div id="online_status_indicator_ollama" class="online_status_indicator_offline"></div><div id="online_status_text_ollama">No connection...</div>
+                </div>
+                <h4 class="h4_menu_title">Model</h4><h5 class="h5_menu_help">Select Ollama model (auto-populated)</h5>
+                <select id="ollama_model_select" class="menu_select">
+                    <option value="">-- Connect to get models --</option>
+                </select>
+                <div id="range_block_ollama">
+                    <h4 class="h4_menu_title">Temperature </h4><h5 id="temp_counter_ollama" class="range_counter">0.7</h5>
+                    <input type="range" id="temp_ollama" name="volume" min="0.0" max="2.0" step="0.01" value="0.7">
+                    <h4 class="h4_menu_title">Amount of generation </h4><h5 id="amount_gen_counter_ollama" class="range_counter">200 Tokens</h5>
+                    <input type="range" id="amount_gen_ollama" name="volume" min="16" max="2048" step="16" value="200">
                 </div>
             </div>
             <div id="additional_menu_settings">
