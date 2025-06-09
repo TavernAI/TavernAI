@@ -135,6 +135,16 @@ export var max_context_claude = 16000;
 // HORDE
 export var horde_api_key = "0000000000";
 export var horde_model = "";
+// Ollama settings
+export var api_url_ollama = "http://127.0.0.1:11434"; // Default, will be configurable
+export var model_ollama = ""; // Will be populated by getStatusOllama
+export var temp_ollama = 0.7;
+export var top_p_ollama = 1.0;
+export var top_k_ollama = 0;
+export var amount_gen_ollama = 200; // max_tokens for Ollama
+export var max_context_ollama = 4096; // context size for Ollama
+// Add other Ollama specific parameters here if needed
+
 Tavern.hordeCheck = false;
 Tavern.is_send_press = false; //Send generation
 export var characterFormat = 'png';
@@ -603,11 +613,13 @@ $(document).ready(function(){
     var is_get_status_openai = false;
     var is_get_status_claude = false;
     var is_get_status_webui = false;
+    var is_get_status_ollama = false; // For Ollama status check
     var is_api_button_press = false;
     var is_api_button_press_novel = false;
     var is_api_button_press_openai = false;
     var is_api_button_press_webui = false;
     var is_api_button_press_claude = false;
+    var is_api_button_press_ollama = false; // For Ollama API button press
     var add_mes_without_animation = false;
     var this_del_mes = 0;
     var this_edit_mes_text = '';
@@ -766,6 +778,7 @@ $(document).ready(function(){
             $("#online_status_indicator3").removeClass('online_status_indicator_online');
             $("#online_status_indicator4").removeClass('online_status_indicator_online');
             $("#online_status_indicator_webui").removeClass('online_status_indicator_online');
+            $("#online_status_indicator_ollama").removeClass('online_status_indicator_online'); // Ollama
             $("#online_status_indicator").addClass('online_status_indicator_offline');
             $("#online_status").removeAttr('style');
             $("#online_status_text").html("No connection...");
@@ -781,11 +794,14 @@ $(document).ready(function(){
             $("#online_status_text_webui").html("No connection...");
             $("#online_status_indicator_claude").css("background-color", "red");
             $("#online_status_text_claude").html("No connection...");
+            $("#online_status_indicator_ollama").css("background-color", "red"); // Ollama
+            $("#online_status_text_ollama").html("No connection..."); // Ollama
             is_get_status = false;
             is_get_status_novel = false;
             is_get_status_openai = false;
             is_get_status_webui = false;
             is_get_status_claude = false;
+            is_get_status_ollama = false; // Ollama
         }else{
             $("#online_status_indicator").removeClass('online_status_indicator_offline');
             $("#online_status_indicator2").removeClass('online_status_indicator_offline');
@@ -793,6 +809,7 @@ $(document).ready(function(){
             $("#online_status_indicator4").removeClass('online_status_indicator_offline');
             $("#online_status_indicator_webui").removeClass('online_status_indicator_offline');
             $("#online_status_indicator_claude").removeClass('online_status_indicator_offline');
+            $("#online_status_indicator_ollama").removeClass('online_status_indicator_offline'); // Ollama
             $("#online_status_indicator").addClass('online_status_indicator_online');
             $("#online_status").css("opacity", 0.0);
             $("#online_status_text").html("");
@@ -808,6 +825,8 @@ $(document).ready(function(){
             $("#online_status_text_webui").html(online_status);
             $("#online_status_indicator_claude").css("background-color", "green");
             $("#online_status_text_claude").html(online_status);
+            $("#online_status_indicator_ollama").css("background-color", "green"); // Ollama
+            $("#online_status_text_ollama").html(online_status); // Ollama
         }
     }
     async function getLastVersion(){
@@ -906,7 +925,7 @@ $(document).ready(function(){
                 }
             });
         }else{
-            if(is_get_status_novel != true && is_get_status_openai != true && is_get_status_webui != true && is_get_status_claude != true){
+            if(is_get_status_novel != true && is_get_status_openai != true && is_get_status_webui != true && is_get_status_claude != true && is_get_status_ollama != true){
                 online_status = 'no_connection';
             }
         }
@@ -962,7 +981,7 @@ $(document).ready(function(){
                 }
             });
         }else{
-            if(is_get_status_novel != true && is_get_status_openai != true && is_get_status != true && is_get_status_claude != true){
+            if(is_get_status_novel != true && is_get_status_openai != true && is_get_status != true && is_get_status_claude != true && is_get_status_ollama != true){
                 online_status = 'no_connection';
             }
         }
@@ -1021,7 +1040,7 @@ $(document).ready(function(){
                 }
             });
         }else{
-            if(!is_get_status_novel && !is_get_status_webui && !is_get_status_claude && !is_get_status_openai){
+            if(!is_get_status_novel && !is_get_status_webui && !is_get_status_claude && !is_get_status_openai && !is_get_status_ollama){
                 online_status = 'no_connection';
             }
         }
@@ -2187,6 +2206,18 @@ $(document).ready(function(){
                 if(main_api === 'claude'){
                     generate_url = '/generate_claude';
                 }
+                if(main_api === 'ollama'){
+                    generate_url = '/generate_ollama';
+                     generate_data = {
+                        prompt: finalPromt, // Assuming finalPromt is prepared correctly
+                        model: model_ollama, // Make sure model_ollama is set
+                        temperature: parseFloat(temp_ollama),
+                        top_p: parseFloat(top_p_ollama),
+                        top_k: parseInt(top_k_ollama),
+                        max_tokens: parseInt(amount_gen_ollama)
+                        // Add other necessary parameters for Ollama
+                    };
+                }
                 jQuery.ajax({
                     type: 'POST', //
                     url: generate_url, //
@@ -2301,6 +2332,19 @@ $(document).ready(function(){
             }
             if(main_api === 'claude'){
                 getMessage = data.content[0].text;
+            }
+            if(main_api === 'ollama'){
+                // Assuming the backend sends back data in a similar structure to OpenAI
+                // { choices: [{ text: "response from ollama" }] }
+                // Adjust if your backend sends a different structure for Ollama
+                if (data.choices && data.choices.length > 0) {
+                    getMessage = data.choices[0].text;
+                } else if (data.response) { // Direct response field from Ollama if not nested
+                    getMessage = data.response;
+                } else {
+                    console.error("Ollama response format not recognized:", data);
+                    getMessage = ""; // Fallback or handle error
+                }
             }
             //Multigen run again
             if(multigen && (main_api === 'kobold' || main_api === 'novel')){
@@ -4028,6 +4072,7 @@ $(document).ready(function(){
         is_get_status_openai = false;
         is_get_status_webui = false;
         is_get_status_claude = false;
+        is_get_status_ollama = false;
         online_status = 'no_connection';
         checkOnlineStatus();
         changeMainAPI();
@@ -4052,6 +4097,8 @@ $(document).ready(function(){
         //$('#system_prompt_block').css("display", "none");
         $('#master_settings_koboldai_block').css("display", "none");
         $('#master_settings_webui_block').css("display", "none");
+        $('#ollama_api').css("display", "none"); // Hide Ollama settings initially
+        $('#master_settings_ollama_block').css("display", "none"); // Hide Ollama master settings
         $('#singleline_toggle').css("display", "none");
         $('#openai_proxy_adress_block').css('display', 'none');
         $('#multigen_toggle').css("display", "none");
@@ -4139,6 +4186,17 @@ $(document).ready(function(){
             $('#api_key_claude').val(api_key_claude);
             main_api = 'claude';
             if(!is_mobile_user){$('#master_settings_claude_block').css("display", "grid");}
+        }
+        //Ollama
+        if ($('#main_api').find(":selected").val() == 'ollama') {
+            $('#ollama_api').css("display", "block");
+            main_api = 'ollama';
+            // Show Ollama specific master settings if they exist
+            if (!is_mobile_user) { $('#master_settings_ollama_block').css("display", "grid"); }
+            // Call getStatusOllama if auto_connect is true or if it's the first time selecting Ollama
+            if (auto_connect || !is_get_status_ollama) {
+                setTimeout(function () { $('#api_button_ollama').click(); }, 100); // Add a small delay
+            }
         }
     }
     async function getUserAvatars(){
@@ -4993,6 +5051,49 @@ $(document).ready(function(){
                     $('#max_context_counter_claude').html(max_context_claude+' Tokens');
                     $('#amount_gen_claude').val(amount_gen_claude);
                     $('#amount_gen_counter_claude').html(amount_gen_claude+' Tokens');
+
+                    // Load Ollama settings
+                    if(settings.api_url_ollama !== undefined && settings.api_url_ollama.trim() !== '') {
+                        api_url_ollama = settings.api_url_ollama.trim();
+                    } else {
+                        api_url_ollama = "http://127.0.0.1:11434"; // Default if not set or empty
+                    }
+                    $('#api_url_ollama').val(api_url_ollama);
+
+                    if(settings.model_ollama !== undefined) {
+                        model_ollama = settings.model_ollama;
+                        // If a model is saved in settings, try to select it.
+                        // The actual population of the dropdown happens in resultCheckStatusOllama.
+                        // If getStatusOllama hasn't run yet, this might not select anything if #ollama_model_select is empty.
+                        // However, if auto-connect is on, getStatusOllama will run shortly and populate it.
+                        $('#ollama_model_select').val(model_ollama);
+                    }
+
+                    temp_ollama = parseFloat(settings.temp_ollama);
+                    if(isNaN(temp_ollama)) temp_ollama = 0.7; // Default if NaN
+                    $('#temp_ollama').val(temp_ollama);
+                    $('#temp_counter_ollama').html(temp_ollama);
+
+                    top_p_ollama = parseFloat(settings.top_p_ollama);
+                    if(isNaN(top_p_ollama)) top_p_ollama = 1.0; // Default if NaN
+                    $('#top_p_ollama').val(top_p_ollama);
+                    $('#top_p_counter_ollama').html(top_p_ollama);
+
+                    top_k_ollama = parseInt(settings.top_k_ollama);
+                    if(isNaN(top_k_ollama)) top_k_ollama = 0; // Default if NaN
+                    $('#top_k_ollama').val(top_k_ollama);
+                    $('#top_k_counter_ollama').html(top_k_ollama);
+
+                    amount_gen_ollama = parseInt(settings.amount_gen_ollama);
+                    if(isNaN(amount_gen_ollama)) amount_gen_ollama = 200; // Default if NaN
+                    $('#amount_gen_ollama').val(amount_gen_ollama);
+                    $('#amount_gen_counter_ollama').html(amount_gen_ollama + ' Tokens');
+
+                    max_context_ollama = parseInt(settings.max_context_ollama);
+                    if(isNaN(max_context_ollama)) max_context_ollama = 4096; // Default if NaN
+                    $('#max_context_ollama').val(max_context_ollama);
+                    $('#max_context_counter_ollama').html(max_context_ollama + ' Tokens');
+
                     //TavernAI master settings
 
 
@@ -5167,6 +5268,14 @@ $(document).ready(function(){
                             if(main_api === 'claude' && api_key_openai){
                                 $('#api_button_claude').click();
                             }
+                    // Ollama auto-connect
+                    if (main_api === 'ollama' && api_url_ollama) { // Assuming api_url_ollama is defined
+                        $('#api_button_ollama').click();
+                    }
+                    // Ollama auto-connect
+                    if (main_api === 'ollama' && api_url_ollama) { // Assuming api_url_ollama is defined
+                        $('#api_button_ollama').click();
+                    }
                         }, 2000);
                     }
                     aiImagePickerInit();
@@ -5271,6 +5380,14 @@ $(document).ready(function(){
                     top_k_claude: top_k_claude,
                     max_context_claude: max_context_claude,
                     amount_gen_claude: amount_gen_claude,
+                    // Ollama settings to save
+                    api_url_ollama: ($('#api_url_ollama').val() && $('#api_url_ollama').val().trim() !== '') ? $('#api_url_ollama').val().trim() : "http://127.0.0.1:11434",
+                    model_ollama: model_ollama,
+                    temp_ollama: parseFloat(temp_ollama) || 0.7, // Ensure float, provide default
+                    top_p_ollama: parseFloat(top_p_ollama) || 1.0, // Ensure float, provide default
+                    top_k_ollama: parseInt(top_k_ollama) || 0,   // Ensure int, provide default
+                    amount_gen_ollama: parseInt(amount_gen_ollama) || 200, // Ensure int, provide default
+                    max_context_ollama: parseInt(max_context_ollama) || 4096, // Ensure int, provide default
                     character_sorting_type: character_sorting_type
                     }),
             beforeSend: function(){
@@ -6392,7 +6509,7 @@ $(document).ready(function(){
                 }
             });
         }else{
-            if(!is_get_status_novel && !is_get_status && !is_get_status_webui && !is_get_status_claude){
+            if(!is_get_status_novel && !is_get_status && !is_get_status_webui && !is_get_status_claude && !is_get_status_ollama){
                 online_status = 'no_connection';
             }
         }
@@ -6507,7 +6624,7 @@ $(document).ready(function(){
                 }
             });
         }else{
-            if(!is_get_status_novel && !is_get_status && !is_get_status_webui && !is_get_status_openai){
+            if(!is_get_status_novel && !is_get_status && !is_get_status_webui && !is_get_status_openai && !is_get_status_ollama){
                 online_status = 'no_connection';
             }
         }
@@ -6530,6 +6647,112 @@ $(document).ready(function(){
         $("#api_loading_claude").css("display", 'none');
         $("#api_button_claude").css("display", 'inline-block');
     }
+
+//************************************************************
+//************************Ollama****************************
+//************************************************************
+    async function getStatusOllama() {
+        if (is_get_status_ollama) {
+            // Ensure api_url_ollama is up-to-date from the input field before making the call
+            const current_api_url_ollama = ($('#api_url_ollama').val() && $('#api_url_ollama').val().trim() !== '') ? $('#api_url_ollama').val().trim() : "http://127.0.0.1:11434";
+            jQuery.ajax({
+                type: 'POST',
+                url: '/getstatus_ollama', // Ensure this matches the backend route
+                data: JSON.stringify({ api_url: current_api_url_ollama }), // Send API URL
+                beforeSend: function () {
+                    // Visual feedback for API button press can be handled here if needed
+                },
+                cache: false,
+                timeout: requestTimeout, // Use existing timeout variable
+                dataType: "json",
+                contentType: "application/json",
+                success: function (data) {
+                    resultCheckStatusOllama(data); // Pass data to the result handler
+                    if (online_status !== 'no_connection') {
+                        setTimeout(getStatusOllama, 5000); // Poll every 5 seconds
+                    }
+                },
+                error: function (jqXHR, exception) {
+                    console.log(exception);
+                    console.log(jqXHR);
+                    online_status = 'no_connection';
+                    resultCheckStatusOllama({ error: true, error_message: "Connection failed or server error." });
+                }
+            });
+        } else {
+            // If other APIs are not being checked, set status to no_connection
+            if (!is_get_status_novel && !is_get_status_openai && !is_get_status_webui && !is_get_status_claude && !is_get_status) {
+                online_status = 'no_connection';
+            }
+        }
+    }
+
+    function resultCheckStatusOllama(data) {
+        is_api_button_press_ollama = false; // Reset button press state
+        if (data && data.models && Array.isArray(data.models) && data.models.length > 0) {
+            online_status = "Connected";
+
+            $('#ollama_model_select').empty(); // Clear existing options
+            let modelFoundInList = false;
+            data.models.forEach(function(model) {
+                $('#ollama_model_select').append($('<option></option>').val(model.name).html(model.name));
+                if (model_ollama === model.name) {
+                    modelFoundInList = true;
+                }
+            });
+
+            if (model_ollama && modelFoundInList) {
+                $('#ollama_model_select').val(model_ollama);
+            } else if (data.models.length > 0) {
+                model_ollama = data.models[0].name;
+                $('#ollama_model_select').val(model_ollama);
+            } else {
+                model_ollama = "";
+                 $('#ollama_model_select').append($('<option></option>').val("").html("-- No models found --"));
+            }
+            // Update the global model_ollama if it changed, and save settings
+            if ($('#ollama_model_select').val() !== model_ollama) {
+                model_ollama = $('#ollama_model_select').val();
+                saveSettings();
+            }
+
+            $("#online_status_indicator_ollama").removeClass('online_status_indicator_offline').addClass('online_status_indicator_online');
+            $("#online_status_text_ollama").html(`Connected. Using model: ${model_ollama}`);
+        } else if (data && data.error) {
+            online_status = 'no_connection';
+            $("#online_status_indicator_ollama").removeClass('online_status_indicator_online').addClass('online_status_indicator_offline');
+            $("#online_status_text_ollama").html(data.error_message || "Error connecting to Ollama.");
+            // Optionally, display a more specific error message from data.error_message
+        } else {
+            online_status = 'no_connection';
+            $("#online_status_indicator_ollama").removeClass('online_status_indicator_online').addClass('online_status_indicator_offline');
+            $("#online_status_text_ollama").html("No connection or no models found.");
+        }
+        checkOnlineStatus(); // This function might need adjustment to show Ollama status correctly
+        // Hide loading indicator and show button
+        $("#api_loading_ollama").css("display", 'none');
+        $("#api_button_ollama").css("display", 'inline-block');
+    }
+
+    // Add a click handler for the Ollama API button, similar to other APIs
+    $("#api_button_ollama").click(function () {
+        const urlInput = $('#api_url_ollama').val();
+        if (urlInput && urlInput.trim() !== '') {
+            $("#api_loading_ollama").css("display", 'inline-block');
+            $("#api_button_ollama").css("display", 'none');
+            api_url_ollama = urlInput.trim(); // Update the global variable
+            saveSettings();
+
+            is_get_status_ollama = true;
+            is_api_button_press_ollama = true;
+            getStatusOllama(); // getStatusOllama will use the updated api_url_ollama
+        } else {
+            // Handle empty URL input if necessary, e.g., show an error
+            $("#online_status_indicator_ollama").removeClass('online_status_indicator_online').addClass('online_status_indicator_offline');
+            $("#online_status_text_ollama").html("Ollama API URL cannot be empty.");
+        }
+    });
+
 //**************************CHAT IMPORT EXPORT*************************//
     $( "#chat_import_button" ).click(function() {
         $("#chat_import_file").click();
