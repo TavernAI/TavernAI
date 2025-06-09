@@ -46,6 +46,7 @@ For detailed instructions on how to setup TavernAI with KoboldAI or NovelAI:
 * OpenAI (including ChatGPT, GPT-4, and reverse proxies)
 * [NovelAI](https://novelai.net/)
 * [Claude](https://claude.ai/)
+* [Ollama](https://ollama.com/)
 
 ## Tips
 Use this button to edit the message:
