@@ -2021,13 +2021,18 @@ app.post("/generate_ollama", jsonParser, function(request, response_generate_oll
     if(!request.body) return response_generate_ollama_func.sendStatus(400);
     console.log(request.body);
 
+    let current_api_ollama = api_ollama; // Default to constant
+    if (request.body.api_url && request.body.api_url.trim() !== '') {
+        current_api_ollama = request.body.api_url.trim();
+    }
+
     // model_ollama should be set by /getstatus_ollama or a settings panel in a real app
     // For now, ensure it's passed in the request or use a default.
     const current_model_ollama = request.body.model || model_ollama || "llama2"; // Fallback to llama2 if no model specified
 
     var data = {
         "model": current_model_ollama,
-        "prompt": request.body.prompt,
+        "messages": request.body.messages,
         "stream": false, // Ollama supports streaming, but for simplicity, we'll use non-streaming for now
         // Add other parameters as supported by Ollama and needed by TavernAI
         // e.g., "max_tokens": request.body.max_tokens, "temperature": request.body.temperature etc.
@@ -2048,7 +2053,7 @@ app.post("/generate_ollama", jsonParser, function(request, response_generate_oll
         }
     };
 
-    client.post(api_ollama + "/api/generate", args, function (data, response) {
+    client.post(current_api_ollama + "/api/chat", args, function (data, response) {
         try {
             console.log(data); // Log the raw response from Ollama
             if(response.statusCode == 200){
@@ -2067,7 +2072,7 @@ app.post("/generate_ollama", jsonParser, function(request, response_generate_oll
                 // Adapt the response to the format expected by TavernAI frontend
                 // This usually involves extracting the generated text and any other relevant info.
                 // For Ollama, the generated text is in the "response" field.
-                response_generate_ollama_func.send({ choices: [{ text: ollamaResponse.response }], usage: {completion_tokens: ollamaResponse.eval_count, prompt_tokens: ollamaResponse.prompt_eval_count} });
+                response_generate_ollama_func.send({ choices: [{ text: ollamaResponse.message.content }], usage: {completion_tokens: ollamaResponse.eval_count, prompt_tokens: ollamaResponse.prompt_eval_count} });
             } else {
                 console.log("Ollama API Error - Status Code:", response.statusCode);
                 console.log("Ollama API Error - Data:", data);
