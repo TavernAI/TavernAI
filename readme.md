@@ -61,7 +61,6 @@ If the message is not finished, you can simply send the request again, or say "c
 
 ## Additional materials
 * [paniphons's guide to text generation](https://github.com/TavernAI/TavernAI/blob/main/faq.md)
-* [Crataco's guide to text generation](https://github.com/Crataco/ai-guide)
 ## Contact
 #### Humi (the original developer):
 * Discord: Humi#5044
