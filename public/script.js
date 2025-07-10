@@ -141,7 +141,7 @@ export var model_ollama = ""; // Will be populated by getStatusOllama
 export var temp_ollama = 0.7;
 export var top_p_ollama = 1.0;
 export var top_k_ollama = 0;
-export var amount_gen_ollama = 200; // max_tokens for Ollama
+export var amount_gen_ollama = 400; // max_tokens for Ollama
 export var max_context_ollama = 4096; // context size for Ollama
 // Add other Ollama specific parameters here if needed
 
@@ -1879,13 +1879,16 @@ $(document).ready(function(){
                 }else{
                     mesSendString = '\n'+mesSendString;
                 }
-                if(((main_api === 'openai' || main_api === 'proxy') && isOpenAIChatModel()) || main_api === 'claude'){
+                if(((main_api === 'openai' || main_api === 'proxy') && isOpenAIChatModel()) || main_api === 'claude' || main_api === 'ollama'){
                     
                     let system_role_name = 'system';
                     let system_prompt_role_name = 'system';
                     if(main_api === 'claude'){
                         system_role_name = 'assistant';
                         system_prompt_role_name = 'user';
+                    } else if(main_api === 'ollama'){
+                        // only 1 system message is supported
+                        system_role_name = 'user';
                     }
                     finalPromt = {};
                     finalPromt = [];
@@ -1903,15 +1906,17 @@ $(document).ready(function(){
                         u++;
                         if(mesSend[i]['system_prompt'] !== undefined){
                             if(mesSend[i]['system_prompt'].length > 0){
+                                // system prompt when depth isn't "very top"
+                                // FIXME {{char}} and {{user}} are not replaced
                                 mesSendFinal[u] = {};
-                                mesSendFinal[u]['mes'] = mesSend[i]['system_prompt'];
+                                mesSendFinal[u]['system_prompt'] = mesSend[i]['system_prompt'];
                                 u++;
                             }
                         }
                         if(mesSend[i]['jailbreak_prompt'] !== undefined){
                             if(mesSend[i]['jailbreak_prompt'].length > 0){
                                 mesSendFinal[u] = {};
-                                mesSendFinal[u]['mes'] = mesSend[i]['jailbreak_prompt'];
+                                mesSendFinal[u]['jailbreak_prompt'] = mesSend[i]['jailbreak_prompt'];
                                 u++;
                             }
                         }
@@ -2025,7 +2030,8 @@ $(document).ready(function(){
                     var generate_data = {prompt: finalPromt, gui_settings: true, max_context_length: this_max_context, singleline: singleline};
                     if(preset_settings != 'gui'){
                         var this_settings = koboldai_settings[koboldai_setting_names[preset_settings]];
-                        generate_data = {prompt: finalPromt,
+                        generate_data = {
+                            prompt: finalPromt,
                             gui_settings: false,
                             max_context_length: parseInt(this_max_context),//this_settings.max_length,
                             max_length: this_amount_gen,//parseInt(amount_gen),
@@ -2209,7 +2215,8 @@ $(document).ready(function(){
                 if(main_api === 'ollama'){
                     generate_url = '/generate_ollama';
                      generate_data = {
-                        prompt: finalPromt, // Assuming finalPromt is prepared correctly
+                        api_url: api_url_ollama,
+                        messages: finalPromt, // Assuming finalPromt is prepared correctly
                         model: model_ollama, // Make sure model_ollama is set
                         temperature: parseFloat(temp_ollama),
                         top_p: parseFloat(top_p_ollama),
@@ -5085,7 +5092,7 @@ $(document).ready(function(){
                     $('#top_k_counter_ollama').html(top_k_ollama);
 
                     amount_gen_ollama = parseInt(settings.amount_gen_ollama);
-                    if(isNaN(amount_gen_ollama)) amount_gen_ollama = 200; // Default if NaN
+                    if(isNaN(amount_gen_ollama)) amount_gen_ollama = 400; // Default if NaN
                     $('#amount_gen_ollama').val(amount_gen_ollama);
                     $('#amount_gen_counter_ollama').html(amount_gen_ollama + ' Tokens');
 
@@ -5386,7 +5393,7 @@ $(document).ready(function(){
                     temp_ollama: parseFloat(temp_ollama) || 0.7, // Ensure float, provide default
                     top_p_ollama: parseFloat(top_p_ollama) || 1.0, // Ensure float, provide default
                     top_k_ollama: parseInt(top_k_ollama) || 0,   // Ensure int, provide default
-                    amount_gen_ollama: parseInt(amount_gen_ollama) || 200, // Ensure int, provide default
+                    amount_gen_ollama: parseInt(amount_gen_ollama) || 400, // Ensure int, provide default
                     max_context_ollama: parseInt(max_context_ollama) || 4096, // Ensure int, provide default
                     character_sorting_type: character_sorting_type
                     }),
@@ -6752,6 +6759,25 @@ $(document).ready(function(){
             $("#online_status_text_ollama").html("Ollama API URL cannot be empty.");
         }
     });
+    // ollama config listeners
+    $('#temp_ollama')
+        .on('input', function() {
+            $('#temp_counter_ollama').html(temp_ollama);
+        })
+        .change(function() {
+            temp_ollama = parseFloat($('#temp_ollama').val());
+            $('#temp_counter_ollama').html(temp_ollama);
+            saveSettings();
+        });
+    $('#amount_gen_ollama')
+        .on('input', function() {
+            $('#amount_gen_counter_ollama').html(amount_gen_ollama + ' Tokens');
+        })
+        .change(function() {
+            amount_gen_ollama = parseInt($('#amount_gen_ollama').val());
+            $('#amount_gen_counter_ollama').html(amount_gen_ollama + ' Tokens');
+            saveSettings();
+        });
 
 //**************************CHAT IMPORT EXPORT*************************//
     $( "#chat_import_button" ).click(function() {
