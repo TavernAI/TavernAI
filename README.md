@@ -1,0 +1,97 @@
+﻿# TavernAI 2
+
+TavernAI 2 is a portable AI roleplay chat app built around character cards, branching scenes, custom prompts, visual context, and scripted scene logic.
+
+It works with local and remote model providers, keeps chats and cards on your machine, and gives each scene room to grow beyond a single linear conversation.
+
+<p align="center">
+	<img src="assets/TavernAI-2-main.png" alt="TavernAI 2 main interface" width="960">
+</p>
+
+## Download
+
+Stable public builds are published through GitHub Releases.
+
+- [Windows build](https://github.com/TavernAI/TavernAI/releases/latest)
+- [Linux build](https://github.com/TavernAI/TavernAI/releases/latest)
+- [Download the latest release](https://github.com/TavernAI/TavernAI/releases/latest)
+
+VPS or Linux server install:
+
+```bash
+curl -fsSL https://tavernai.net/install.sh | bash
+```
+
+Links are placeholders for the first public setup and can be adjusted before release.
+
+## What TavernAI 2 Does
+
+- Portable app: download, extract, run. 100 mb size.
+- Character-card chats with user-side and AI-side participants.
+- Branching swipes: any message can become a new path in the same chat.
+- Multi-generation: several AI replies can run at the same time.
+- Dynamic chat participants: add, remove, reorder, or replace cards as the scene changes.
+- Unified Prompt Manager for prompts, rules, placeholders, world info, and card-level context.
+- Prompt attachments for files and images.
+- Theme editor for interface-level customization.
+- Pre-gen and post-gen Macros for prompt automation.
+- Prompt Manager Scripts for interactive scene mechanics and AI games.
+
+## Documentation
+
+Public documentation lives on the TavernAI website.
+
+- [Getting Started](https://tavernai.net/docs/getting-started/)
+- [Installation](https://tavernai.net/docs/installation/)
+- [Quick Start](https://tavernai.net/docs/quick-start/)
+- [TavernAI Pro](https://tavernai.net/docs/pro/)
+
+This repository also contains documentation translation files in `docs-site/` when they are ready for community review.
+
+## TavernAI Pro
+
+TavernAI Pro is the supporter edition for people who need deeper prompt testing, message history control, request inspection, and recovery tools.
+
+Pro does not replace TavernAI 2. It adds advanced working tools on top of the base app.
+
+- [Patreon](https://www.patreon.com/tavernai)
+- [Boosty](https://boosty.to/tavernai)
+
+## Legacy TavernAI
+
+The original TavernAI repository is kept separately for TavernAI 1.x history and legacy reference.
+
+- Legacy TavernAI repository: https://github.com/TavernAI/TavernAI-v1
+
+
+## Community
+
+- [Website](https://tavernai.net)
+- [Discord](https://discord.gg/zmK2gmr45t)
+- [Reddit](https://www.reddit.com/r/TavernAIApp/)
+- [GitHub Releases](https://github.com/TavernAI/TavernAI/releases)
+- [Issues](https://github.com/TavernAI/TavernAI/issues)
+
+## Repository Scope
+
+This public repository is for releases, translations, public documentation mirrors, issue tracking, and community files.
+
+Included here:
+
+- app locale files in `locales/app/`
+- public documentation mirror files in `docs-site/`
+- release notes and changelog
+- issue reports and community contribution flow
+
+
+## Contributing
+
+Community contributions are welcome for app translations, documentation translations, typo fixes, and issue reports.
+
+Start with [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Privacy
+
+TavernAI is private by design. It does not collect telemetry, analytics, crash reports, or personally identifiable information.
+
+The app does not make background network requests: It does not check for updates automatically, and it does not load remote frameworks, fonts, scripts, or other external assets.

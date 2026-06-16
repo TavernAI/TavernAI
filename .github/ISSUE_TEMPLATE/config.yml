@@ -1,0 +1,11 @@
+﻿blank_issues_enabled: true
+contact_links:
+  - name: TavernAI website
+    url: https://tavernai.net
+    about: Main website and documentation.
+  - name: TavernAI Discord
+    url: https://discord.gg/zmK2gmr45t
+    about: Community discussion and support.
+  - name: TavernAI Pro
+    url: https://www.patreon.com/tavernai
+    about: Supporter edition access and updates.

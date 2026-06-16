@@ -1,0 +1,71 @@
+﻿name: Bug report
+description: Report a problem in a public TavernAI 2 build.
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a TavernAI 2 issue. Include enough detail for someone else to reproduce the problem.
+  - type: input
+    id: version
+    attributes:
+      label: TavernAI version
+      description: Example: 2.1.0 or 2.1.0-dev.2.5
+      placeholder: 2.x.x
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - Windows
+        - Linux
+        - macOS
+        - Other
+    validations:
+      required: true
+  - type: dropdown
+    id: edition
+    attributes:
+      label: Edition
+      options:
+        - Standard
+        - Pro
+        - Not sure
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Write the smallest sequence of actions that triggers the issue.
+      placeholder: |
+        1. Open ...
+        2. Click ...
+        3. See ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What should have happened?
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: What happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or screenshots
+      description: Paste logs, attach screenshots, or mention where the error appears.
+      render: text
+    validations:
+      required: false

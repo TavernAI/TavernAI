@@ -1,0 +1,36 @@
+﻿name: Translation update
+description: Suggest or track an app or documentation translation change.
+title: "[Translation]: "
+labels: [translation]
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - App locale
+        - Documentation
+        - Repository text
+    validations:
+      required: true
+  - type: input
+    id: language
+    attributes:
+      label: Language
+      placeholder: English, Russian, Spanish, French, German, Japanese, etc.
+    validations:
+      required: true
+  - type: textarea
+    id: change
+    attributes:
+      label: Suggested change
+      description: Describe the translation issue or the files you want to update.
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Mention the screen, page, or phrase where this appears.
+    validations:
+      required: false
