@@ -63,7 +63,6 @@ The original TavernAI repository is kept separately for TavernAI 1.x history and
 
 - [Website](https://tavernai.net)
 - [Discord](https://discord.gg/zmK2gmr45t)
-- [Reddit](https://www.reddit.com/r/TavernAIApp/)
 - [GitHub Releases](https://github.com/TavernAI/TavernAI/releases)
 - [Issues](https://github.com/TavernAI/TavernAI/issues)
 
