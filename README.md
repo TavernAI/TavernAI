@@ -19,8 +19,6 @@ VPS or Linux server install:
 curl -fsSL https://tavernai.net/install.sh | bash
 ```
 
-Links are placeholders for the first public setup and can be adjusted before release.
-
 ## What TavernAI 2 Does
 
 - Portable app: download, extract, run. 100 mb size.
