@@ -12,8 +12,8 @@ It works with local and remote model providers, keeps chats and cards on your ma
 
 Stable public builds are published through GitHub Releases.
 
-- [Windows build](https://github.com/TavernAI/TavernAI/releases/latest)
-- [Linux build](https://github.com/TavernAI/TavernAI/releases/latest)
+- [Windows 10, 11](https://github.com/TavernAI/TavernAI/releases/download/v2.0.0/TavernAI-v2.0.0-standard-win-x64.zip)
+- [Linux build](https://github.com/TavernAI/TavernAI/releases/download/v2.0.0/TavernAI-v2.0.0-standard-linux-x64.tar.gz)
 - [Download the latest release](https://github.com/TavernAI/TavernAI/releases/latest)
 
 VPS or Linux server install:
