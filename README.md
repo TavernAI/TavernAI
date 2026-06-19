@@ -10,8 +10,8 @@ It works with local and remote model providers, keeps chats and cards on your ma
 
 ## Download
 
-- [Windows 10, 11](https://github.com/TavernAI/TavernAI/releases/download/v2.0.1/TavernAI-v2.0.1-standard-win-x64.zip)
-- [Linux](https://github.com/TavernAI/TavernAI/releases/download/v2.0.1/TavernAI-v2.0.1-standard-linux-x64.tar.gz)
+- [Windows 10, 11](https://github.com/TavernAI/TavernAI/releases/download/v2.0.2/TavernAI-v2.0.2-standard-win-x64.zip)
+- [Linux](https://github.com/TavernAI/TavernAI/releases/download/v2.0.2/TavernAI-v2.0.2-standard-linux-x64.tar.gz)
 
 VPS or Linux server install:
 
@@ -88,4 +88,4 @@ Start with [CONTRIBUTING.md](CONTRIBUTING.md).
 
 TavernAI is private by design. It does not collect telemetry, analytics, crash reports, or personally identifiable information.
 
-The app does not make background network requests: It does not check for updates automatically, and it does not load remote frameworks, fonts, scripts, or other external assets.
+The app does not make background network requests - no auto update checks, no load remote frameworks, fonts, scripts, or other external assets.
