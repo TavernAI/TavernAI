@@ -1,4 +1,15 @@
 ﻿# TavernAI 2 Changelog
+## [2.0.2] - 2026-06-19
+
+### Added
+* Custom provider Chat Completions endpoints now support image recognition.
+* KoboldCPP OpenAI-compatible Chat Completions endpoints now support image recognition.
+
+### Changed
+* Attachment capability settings are now defined at the model and endpoint level instead of only at the provider level.
+
+### Fixed
+* Fixed an issue where the Custom provider always required an API key.
 
 ## [2.0.1] - 2026-06-19
 
