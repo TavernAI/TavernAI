@@ -1,4 +1,13 @@
 ﻿# TavernAI 2 Changelog
+## [2.0.3] - 2026-06-25
+
+### Added
+* Added PM Script access to current chat cards via `TAI.chat.getChatCards()`.
+* Added `chatCardId` support to generation `cardOverrides`, allowing scripts to target the exact ChatCard entry in the current chat instead of only the shared library Card ID.
+
+### Changed
+* Generation card overrides now resolve by `chatCardId` first, then fall back to `cardId` for backwards compatibility.
+ 
 ## [2.0.2] - 2026-06-19
 
 ### Added
