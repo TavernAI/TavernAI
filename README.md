@@ -10,8 +10,8 @@ It works with local and remote model providers, keeps chats and cards on your ma
 
 ## Download
 
-- [Windows 10, 11](https://github.com/TavernAI/TavernAI/releases/download/v2.0.2/TavernAI-v2.0.2-standard-win-x64.zip)
-- [Linux](https://github.com/TavernAI/TavernAI/releases/download/v2.0.2/TavernAI-v2.0.2-standard-linux-x64.tar.gz)
+- [Windows 10, 11](https://github.com/TavernAI/TavernAI/releases/download/v2.0.3/TavernAI-v2.0.3-standard-win-x64.zip)
+- [Linux](https://github.com/TavernAI/TavernAI/releases/download/v2.0.3/TavernAI-v2.0.3-standard-linux-x64.tar.gz)
 
 VPS or Linux server install:
 
