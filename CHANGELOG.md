@@ -18,6 +18,7 @@
 * Added z.AI / GLM provider support.
 * Added AIHorde provider support.
 * Added Moonshot / Kimi provider support.
+* Added support for loading available models directly from AI providers.
 * Added a native updater available from the application interface.
 * Added the ability to duplicate Prompt Managers into libraries.
 * Added the ability to duplicate prompts inside a Prompt Manager.
