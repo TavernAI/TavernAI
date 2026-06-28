@@ -1,3 +1,62 @@
 ﻿# TavernAI 2 Changelog
+## [2.1.2] - 2026-06-28
 
-Release notes for public TavernAI 2 builds will be published here.
+### Fixed
+* Fixed Chat Sequencer role message structures not being applied when saved from the UI. Prefixes and suffixes now deserialize correctly from saved settings, preventing duplicate role placeholder ID errors during prompt assembly.
+
+## [2.1.1] - 2026-06-28
+
+### Fixed
+* Fixed LocalLLM crashes when using the CPU backend for LLMs on Linux.
+
+## [2.1.0] - 2026-06-28
+
+### Added
+* Added local AI model execution through built-in engines.
+* Added support for CPU, CUDA, and Vulkan backends.
+* Added x.AI provider support.
+* Added z.AI / GLM provider support.
+* Added AIHorde provider support.
+* Added Moonshot / Kimi provider support.
+* Added a native updater available from the application interface.
+* Added the ability to duplicate Prompt Managers into libraries.
+* Added the ability to duplicate prompts inside a Prompt Manager.
+
+### Changed
+* Merged Standard and Pro editions into a single public version.
+* All previously separated features are now available in one public build.
+
+## [2.0.3] - 2026-06-25
+
+### Added
+* Added PM Script access to current chat cards via `TAI.chat.getChatCards()`.
+* Added `chatCardId` support to generation `cardOverrides`, allowing scripts to target the exact ChatCard entry in the current chat instead of only the shared library Card ID.
+
+### Changed
+* Generation card overrides now resolve by `chatCardId` first, then fall back to `cardId` for backwards compatibility.
+ 
+## [2.0.2] - 2026-06-19
+
+### Added
+* Custom provider Chat Completions endpoints now support image recognition.
+* KoboldCPP OpenAI-compatible Chat Completions endpoints now support image recognition.
+
+### Changed
+* Attachment capability settings are now defined at the model and endpoint level instead of only at the provider level.
+
+### Fixed
+* Fixed an issue where the Custom provider always required an API key.
+
+## [2.0.1] - 2026-06-19
+
+### Added
+* Added Chinese (Simplified) localization. @GhostXia
+
+### Fixed
+* Fixed selector rendering on Linux WebKitGTK.
+* Fixed a library drag-and-drop issue on Linux WebKitGTK.
+* Fixed a startup crash affecting some Linux versions.
+* Minor fixes and improvements.
+
+## [2.0.0] - 2026-06-16
+Initial release.

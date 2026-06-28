@@ -10,8 +10,8 @@ It works with local and remote model providers, keeps chats and cards on your ma
 
 ## Download
 
-- [Windows 10, 11](https://github.com/TavernAI/TavernAI/releases/download/v2.0.0/TavernAI-v2.0.0-standard-win-x64.zip)
-- [Linux](https://github.com/TavernAI/TavernAI/releases/download/v2.0.0/TavernAI-v2.0.0-standard-linux-x64.tar.gz)
+- [Windows 10, 11](https://github.com/TavernAI/TavernAI/releases/download/v2.1.2/TavernAI-v2.1.2-standard-win-x64.zip)
+- [Linux](https://github.com/TavernAI/TavernAI/releases/download/v2.1.2/TavernAI-v2.1.2-standard-linux-x64.tar.gz)
 
 VPS or Linux server install:
 
@@ -31,6 +31,7 @@ curl -fsSL https://tavernai.net/install.sh | bash
 - Theme editor for interface-level customization.
 - Pre-gen and post-gen Macros for prompt automation.
 - Prompt Manager Scripts for interactive scene mechanics and AI games.
+- Run local LLM visual models: CPU, CUDA, and Vulkan backends
 
 ## Documentation
 
@@ -39,18 +40,10 @@ Public documentation lives on the TavernAI website.
 - [Getting Started](https://tavernai.net/docs/getting-started/)
 - [Installation](https://tavernai.net/docs/installation/)
 - [Quick Start](https://tavernai.net/docs/quick-start/)
-- [TavernAI Pro](https://tavernai.net/docs/pro/)
+- [Advanced features](https://tavernai.net/docs/advanced-features/)
 
 This repository also contains documentation translation files in `docs-site/` when they are ready for community review.
 
-## TavernAI Pro
-
-TavernAI Pro is the supporter edition for people who need deeper prompt testing, message history control, request inspection, and recovery tools.
-
-Pro does not replace TavernAI 2. It adds advanced working tools on top of the base app.
-
-- [Patreon](https://www.patreon.com/tavernai)
-- [Boosty](https://boosty.to/tavernai)
 
 ## Legacy TavernAI
 
@@ -88,4 +81,4 @@ Start with [CONTRIBUTING.md](CONTRIBUTING.md).
 
 TavernAI is private by design. It does not collect telemetry, analytics, crash reports, or personally identifiable information.
 
-The app does not make background network requests: It does not check for updates automatically, and it does not load remote frameworks, fonts, scripts, or other external assets.
+The app does not make background network requests - no auto update checks, no load remote frameworks, fonts, scripts, or other external assets.
