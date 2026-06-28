@@ -104,4 +104,4 @@ Cette fois, nous jouons Marika, propriétaire de la boulangerie de nuit, et nous
 
 - [Macros](/fr/docs/macros/)
 - [PM Scripts](/fr/docs/pm-scripts/)
-- [TavernAI Pro](/fr/docs/pro/)
+- [Advanced features](/fr/docs/advanced-features/)

@@ -4,7 +4,7 @@ description: Extension-level scripting für interaktive TavernAI-Szenen.
 sidebar:
   order: 70
 ---
-<small><em>Tech term: Unsafe Scripts</em></small>
+<small><em>Tech term: PM Scripts</em></small>
 
 PM Scripts (Prompt Manager Scripts) sind extension-level scripts, die direkt im Prompt Manager für interaktive Szenen geschrieben werden.
 
@@ -107,6 +107,50 @@ TAI.ui.container.innerHTML = `<div>Scene state: active</div>`;
 
 Nutze `TAI.ui.showNotification(message, type)` für kleine scene notifications.
 
+## ChatCards und Generierung
+
+PM Scripts können die ChatCards des aktuellen Chats lesen und eine Generierung mit temporären participant overrides starten.
+
+Nutze `TAI.chat.getChatCards()`, um eine flache Liste der ChatCards im geöffneten Chat zu bekommen:
+
+```js
+const chatCards = await TAI.chat.getChatCards();
+// [{ id, cardId, name, chatRolePlaceholderId, isSelectedForGenerated, ... }]
+```
+
+`id` ist die ChatCard ID: die konkrete Card-Verknüpfung im aktuellen Chat. `cardId` ist die Library Card ID. Wenn ein Script auswählt, wer in diesem Chat antworten soll, verwende `chatCardId` in generation overrides.
+
+```js
+await TAI.chat.generate({
+  cardOverrides: {
+    replaceOriginal: true,
+    items: [
+      { chatCardId: selectedChatCard.id, isSelectedForGenerated: true }
+    ]
+  }
+});
+```
+
+`cardId` ist nur für Kompatibilität mit älterem card-level Verhalten gedacht. Wenn dieselbe Library Card mehrfach in einem Chat vorhanden ist, kann `cardId` mehrere ChatCards treffen; `chatCardId` wählt den exakten Eintrag im aktuellen Chat.
+
+Für einmalige helper calls nutze `saveResult: false`, `emitToClient: false` und `stream: false`. Die Antwort enthält `generatedText` und erstellt keine sichtbare Chat-Nachricht.
+
+Wenn du `customPrompt` übergibst, umgeht der helper call die normale chat prompt construction und sendet nur diesen raw prompt. Wenn der helper die aktuelle Chat-Historie und den Prompt Manager sehen soll, lass `customPrompt` weg und nutze stattdessen `injectedPrompts`.
+
+```js
+const pick = await TAI.chat.generate({
+  stream: false,
+  saveResult: false,
+  emitToClient: false,
+  injectedPrompts: [{
+    content: "Based on the current chat, return only JSON: {\"chatCardIds\":[123]}",
+    chatRole: "system"
+  }]
+});
+
+console.log(pick.generatedText);
+```
+
 ## Example shape
 
 ```js
@@ -184,5 +228,6 @@ Praxis:
 
 ## Weiter
 
+- [PM Script Beispiele](/de/docs/pm-script-examples/) für einsatzbereite script patterns.
 - [Macros](/de/docs/macros/) für server-side dynamic prompt text.
 - [Referenz für Karten-Placeholders](/de/docs/placeholders/) für Kartennamen und prompt context-Werte.

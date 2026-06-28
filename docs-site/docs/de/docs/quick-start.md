@@ -104,4 +104,4 @@ Diesmal spielen wir Marika, die Besitzerin der Nachtbäckerei, und empfangen Sco
 
 - [Macros](/de/docs/macros/)
 - [PM Scripts](/de/docs/pm-scripts/)
-- [TavernAI Pro](/de/docs/pro/)
+- [Advanced features](/de/docs/advanced-features/)

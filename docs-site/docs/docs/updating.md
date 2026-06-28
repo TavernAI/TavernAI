@@ -5,9 +5,21 @@ sidebar:
   order: 40
 ---
 
-TavernAI updates by replacing the app build and keeping `user_data`.
+TavernAI can update itself from the interface. Use the manual methods only when the interface updater is not available or when you need to move the installation by hand.
+
+## Update from the interface
+
+1. Open TavernAI.
+2. Go to `Settings` -> `Updates`.
+3. Install the update.
+
+The updater downloads the matching build, verifies it, stages it in `update_cache`, and replaces the app files after TavernAI exits. After a successful update, `update_cache` is removed. Local data stays in place: `user_data`, `logs`, `models`, and `config.yaml`.
+
+Let TavernAI finish any startup migration before closing it again.
 
 ## Manual update
+
+Use this when the interface updater cannot be used, or when you want to replace the build yourself.
 
 1. Close TavernAI completely.
 2. Back up the old `user_data` folder.
@@ -16,18 +28,16 @@ TavernAI updates by replacing the app build and keeping `user_data`.
 5. Copy `user_data` from the old folder into the new folder.
 6. Start the new build.
 
-Let TavernAI finish any startup migration before closing it.
-
 ## VPS update
 
-If TavernAI was installed with the VPS script, update from the app folder:
+If TavernAI was installed with the VPS script and you need a terminal update, update from the app folder:
 
 ```bash
 cd ~/TavernAI
-./update.sh
+./updater/update.sh
 ```
 
-If you installed TavernAI somewhere else, run `update.sh` from that folder.
+If you installed TavernAI somewhere else, run `updater/update.sh` from that folder.
 
 ## What to back up
 

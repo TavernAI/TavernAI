@@ -5,9 +5,21 @@ sidebar:
   order: 40
 ---
 
-TavernAI se met à jour en remplaçant la build de l'application et en conservant `user_data`.
+TavernAI peut se mettre à jour depuis l'interface. Les méthodes manuelles servent seulement quand l'updater de l'interface n'est pas disponible ou quand l'installation doit être déplacée à la main.
+
+## Mise à jour depuis l'interface
+
+1. Ouvrez TavernAI.
+2. Allez dans `Settings` -> `Updates`.
+3. Installez la mise à jour.
+
+L'updater télécharge la build compatible, la vérifie, la prépare dans `update_cache`, puis remplace les fichiers de l'application après la fermeture de TavernAI. Après une mise à jour réussie, `update_cache` est supprimé. Les données locales restent en place : `user_data`, `logs`, `models` et `config.yaml`.
+
+Laissez TavernAI terminer toutes les startup migrations avant de fermer à nouveau l'application.
 
 ## Mise à jour manuelle
+
+Utilisez cette méthode si la mise à jour depuis l'interface ne peut pas être utilisée, ou si vous voulez remplacer la build vous-même.
 
 1. Fermez complètement TavernAI.
 2. Faites une copie de sauvegarde de l'ancien dossier `user_data`.
@@ -16,18 +28,16 @@ TavernAI se met à jour en remplaçant la build de l'application et en conservan
 5. Copiez `user_data` de l'ancien dossier vers le nouveau.
 6. Lancez la nouvelle build.
 
-Laissez TavernAI terminer toutes les startup migrations avant de fermer l'application.
-
 ## Mise à jour VPS
 
-Si TavernAI a été installé avec le VPS script, mettez-le à jour depuis le dossier de l'application :
+Si TavernAI a été installé avec le VPS script et qu'une mise à jour par terminal est nécessaire, lancez l'updater depuis le dossier de l'application :
 
 ```bash
 cd ~/TavernAI
-./update.sh
+./updater/update.sh
 ```
 
-Si vous avez installé TavernAI ailleurs, lancez `update.sh` depuis ce dossier.
+Si vous avez installé TavernAI ailleurs, lancez `updater/update.sh` depuis ce dossier.
 
 ## Ce qu'il faut conserver
 

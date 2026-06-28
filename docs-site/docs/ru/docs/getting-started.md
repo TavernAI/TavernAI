@@ -44,6 +44,6 @@ sidebar:
 - [Быстрый старт](/ru/docs/quick-start/) для первого запуска, подключения провайдера и первого сообщения.
 - [Macros](/ru/docs/macros/) для pre-gen и post-gen автоматизации промптов.
 - [PM Scripts](/ru/docs/pm-scripts/) для интерактивных сценариев сцены.
-- [TavernAI Pro](/ru/docs/pro/) для supporter edition.
+- [Advanced features](/ru/docs/advanced-features/) для inspection промптов, версий сообщений и request records.
 - [Обновление](/ru/docs/updating/), если у вас уже есть папка TavernAI.
 - [Массовый импорт из TavernAI и SillyTavern](/ru/docs/migrating-from-tavernaiv1-sillytavern/), если вы переносите старый контент.

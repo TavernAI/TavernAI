@@ -104,4 +104,4 @@ This time, we are playing as Marika, the owner of the night bakery, and receivin
 
 - [Macros](/docs/macros/)
 - [PM Scripts](/docs/pm-scripts/)
-- [TavernAI Pro](/docs/pro/)
+- [Advanced features](/docs/advanced-features/)

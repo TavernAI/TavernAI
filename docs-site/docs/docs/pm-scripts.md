@@ -4,7 +4,7 @@ description: Extension-level scripting for interactive TavernAI scenes.
 sidebar:
   order: 70
 ---
-<small><em>Tech term: Unsafe Scripts</em></small>
+<small><em>Tech term: PM Scripts</em></small>
 
 PM Scripts (Prompt Manager Scripts) are extension-level scripts written directly in Prompt Manager for interactive scenes.
 
@@ -106,6 +106,50 @@ TAI.ui.container.innerHTML = `<div>Scene state: active</div>`;
 
 Use `TAI.ui.showNotification(message, type)` for small scene notifications.
 
+## Chat cards and generation
+
+PM Scripts can read the current chat's ChatCards and start a generation with temporary participant overrides.
+
+Use `TAI.chat.getChatCards()` to get a flat list of ChatCards in the open chat:
+
+```js
+const chatCards = await TAI.chat.getChatCards();
+// [{ id, cardId, name, chatRolePlaceholderId, isSelectedForGenerated, ... }]
+```
+
+`id` is the ChatCard ID: the card's concrete attachment in the current chat. `cardId` is the library Card ID. When selecting who should answer in this chat, prefer `chatCardId` in generation overrides.
+
+```js
+await TAI.chat.generate({
+  cardOverrides: {
+    replaceOriginal: true,
+    items: [
+      { chatCardId: selectedChatCard.id, isSelectedForGenerated: true }
+    ]
+  }
+});
+```
+
+Use `cardId` only for compatibility with older card-level behavior. If the same library Card appears more than once in a chat, `cardId` can match more than one ChatCard; `chatCardId` targets the exact current-chat entry.
+
+For one-off helper calls, pass `saveResult: false`, `emitToClient: false`, and `stream: false`. The response includes `generatedText` and does not create a visible chat message.
+
+If you pass `customPrompt`, the helper call bypasses normal chat prompt construction and sends that raw prompt only. If the helper must see the current chat history and Prompt Manager, omit `customPrompt` and use `injectedPrompts` instead.
+
+```js
+const pick = await TAI.chat.generate({
+  stream: false,
+  saveResult: false,
+  emitToClient: false,
+  injectedPrompts: [{
+    content: "Based on the current chat, return only JSON: {\"chatCardIds\":[123]}",
+    chatRole: "system"
+  }]
+});
+
+console.log(pick.generatedText);
+```
+
 ## Example shape
 
 ```js
@@ -183,5 +227,6 @@ Good practice:
 
 ## Next
 
+- [PM Script Examples](/docs/pm-script-examples/) for ready-to-use script patterns.
 - [Macros](/docs/macros/) for server-side dynamic prompt text.
 - [Card Placeholders Reference](/docs/placeholders/) for card names and prompt context values.

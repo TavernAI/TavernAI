@@ -104,4 +104,4 @@ sidebar:
 
 - [Macros](/ru/docs/macros/)
 - [PM Scripts](/ru/docs/pm-scripts/)
-- [TavernAI Pro](/ru/docs/pro/)
+- [Advanced features](/ru/docs/advanced-features/)

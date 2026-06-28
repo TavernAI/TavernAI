@@ -43,7 +43,7 @@ ssh USERNAME@SERVER_IP
 curl -fsSL https://tavernai.net/install.sh | bash
 ```
 
-Скрипт скачивает последнюю стабильную Linux-сборку, распаковывает ее в `~/TavernAI` и добавляет файл `update.sh` для последующих обновлений.
+Скрипт скачивает последнюю стабильную Linux-сборку, распаковывает ее в `~/TavernAI` и добавляет `updater/update.sh` для последующих обновлений.
 
 Когда установщик спросит про `systemd` service, ответьте `y`, если TavernAI нужно запустить сразу и автоматически запускать после перезагрузки сервера:
 
@@ -98,7 +98,7 @@ curl -fsSL https://tavernai.net/install.sh | TAVERNAI_INSTALL_DIR="/path/to/Tave
 
 ```bash
 cd ~/TavernAI
-./update.sh
+./updater/update.sh
 ```
 
 Если TavernAI работает через systemd, остановите service перед обновлением и запустите снова после обновления:
@@ -106,7 +106,7 @@ cd ~/TavernAI
 ```bash
 sudo systemctl stop tavernai
 cd ~/TavernAI
-./update.sh
+./updater/update.sh
 sudo systemctl start tavernai
 ```
 

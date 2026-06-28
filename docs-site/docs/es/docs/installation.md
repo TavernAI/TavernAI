@@ -43,7 +43,7 @@ Ejecuta el instalador en el VPS:
 curl -fsSL https://tavernai.net/install.sh | bash
 ```
 
-El script descarga la última build estable de Linux, la extrae en `~/TavernAI` y agrega un archivo `update.sh` para futuras actualizaciones.
+El script descarga la última build estable de Linux, la extrae en `~/TavernAI` y agrega `updater/update.sh` para futuras actualizaciones.
 
 Cuando el instalador pregunte por un `systemd` service, responde `y` si quieres que TavernAI se inicie ahora y vuelva a iniciarse automáticamente después de reiniciar el servidor:
 
@@ -98,7 +98,7 @@ Para actualizar más adelante:
 
 ```bash
 cd ~/TavernAI
-./update.sh
+./updater/update.sh
 ```
 
 Si TavernAI se ejecuta con systemd, detén el service antes de actualizar y vuelve a iniciarlo después de la actualización:
@@ -106,7 +106,7 @@ Si TavernAI se ejecuta con systemd, detén el service antes de actualizar y vuel
 ```bash
 sudo systemctl stop tavernai
 cd ~/TavernAI
-./update.sh
+./updater/update.sh
 sudo systemctl start tavernai
 ```
 

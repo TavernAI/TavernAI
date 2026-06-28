@@ -44,6 +44,6 @@ sidebar:
 - [Schnellstart](/de/docs/quick-start/) für den ersten Start, die Provider-Verbindung und die erste Nachricht.
 - [Macros](/de/docs/macros/) für pre-gen und post-gen Prompt-Automatisierung.
 - [PM Scripts](/de/docs/pm-scripts/) für interaktive Szenarios.
-- [TavernAI Pro](/de/docs/pro/) für die supporter edition.
+- [Advanced features](/de/docs/advanced-features/) für Prompt-Inspection, Nachrichtenversionen und request records.
 - [Aktualisierung](/de/docs/updating/), wenn du bereits einen TavernAI-Ordner hast.
 - [Massenimport aus TavernAI und SillyTavern](/de/docs/migrating-from-tavernaiv1-sillytavern/), wenn du alte Inhalte mitbringst.

@@ -5,9 +5,21 @@ sidebar:
   order: 40
 ---
 
-TavernAI wird aktualisiert, indem die App-Build ersetzt und `user_data` behalten wird.
+TavernAI kann sich über die Oberfläche aktualisieren. Die manuellen Methoden sind nur nötig, wenn der Interface-Updater nicht verfügbar ist oder wenn die Installation von Hand verschoben werden soll.
+
+## Aktualisierung über die Oberfläche
+
+1. Öffne TavernAI.
+2. Gehe zu `Settings` -> `Updates`.
+3. Installiere das Update.
+
+Der updater lädt die passende Build herunter, prüft sie, legt sie in `update_cache` bereit und ersetzt die App-Dateien nach dem Beenden von TavernAI. Nach einem erfolgreichen Update wird `update_cache` entfernt. Lokale Daten bleiben erhalten: `user_data`, `logs`, `models` und `config.yaml`.
+
+Lass TavernAI alle startup migrations abschließen, bevor du die App erneut schließt.
 
 ## Manuelle Aktualisierung
+
+Nutze diesen Weg, wenn die Aktualisierung über die Oberfläche nicht verwendet werden kann oder wenn du die Build selbst ersetzen willst.
 
 1. Schließe TavernAI vollständig.
 2. Erstelle ein Backup des alten `user_data`-Ordners.
@@ -16,18 +28,16 @@ TavernAI wird aktualisiert, indem die App-Build ersetzt und `user_data` behalten
 5. Kopiere `user_data` aus dem alten Ordner in den neuen.
 6. Starte die neue Build.
 
-Lass TavernAI alle startup migrations abschließen, bevor du die App schließt.
-
 ## VPS-Aktualisierung
 
-Wenn TavernAI mit dem VPS script installiert wurde, aktualisiere es aus dem App-Ordner:
+Wenn TavernAI mit dem VPS script installiert wurde und du eine Aktualisierung im Terminal brauchst, starte den updater aus dem App-Ordner:
 
 ```bash
 cd ~/TavernAI
-./update.sh
+./updater/update.sh
 ```
 
-Wenn du TavernAI an einem anderen Ort installiert hast, führe `update.sh` aus diesem Ordner aus.
+Wenn du TavernAI an einem anderen Ort installiert hast, führe `updater/update.sh` aus diesem Ordner aus.
 
 ## Was behalten werden muss
 

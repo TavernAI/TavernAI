@@ -104,4 +104,4 @@ Esta vez jugamos como Marika, la dueña de la panadería nocturna, y recibimos a
 
 - [Macros](/es/docs/macros/)
 - [PM Scripts](/es/docs/pm-scripts/)
-- [TavernAI Pro](/es/docs/pro/)
+- [Advanced features](/es/docs/advanced-features/)

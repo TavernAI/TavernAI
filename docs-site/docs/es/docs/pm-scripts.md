@@ -4,7 +4,7 @@ description: Extension-level scripting para escenas interactivas de TavernAI.
 sidebar:
   order: 70
 ---
-<small><em>Tech term: Unsafe Scripts</em></small>
+<small><em>Tech term: PM Scripts</em></small>
 
 PM Scripts (Prompt Manager Scripts) son extension-level scripts escritos directamente en Prompt Manager para escenas interactivas.
 
@@ -107,6 +107,50 @@ TAI.ui.container.innerHTML = `<div>Scene state: active</div>`;
 
 Usa `TAI.ui.showNotification(message, type)` para pequeñas scene notifications.
 
+## ChatCards y generación
+
+PM Scripts pueden leer las ChatCards del chat actual e iniciar una generación con participant overrides temporales.
+
+Usa `TAI.chat.getChatCards()` para obtener una lista plana de las ChatCards del chat abierto:
+
+```js
+const chatCards = await TAI.chat.getChatCards();
+// [{ id, cardId, name, chatRolePlaceholderId, isSelectedForGenerated, ... }]
+```
+
+`id` es el ChatCard ID: la vinculación concreta de la Card en el chat actual. `cardId` es el ID de la Card en la biblioteca. Cuando un script elige quién debe responder en este chat, usa `chatCardId` en generation overrides.
+
+```js
+await TAI.chat.generate({
+  cardOverrides: {
+    replaceOriginal: true,
+    items: [
+      { chatCardId: selectedChatCard.id, isSelectedForGenerated: true }
+    ]
+  }
+});
+```
+
+`cardId` queda solo para compatibilidad con el comportamiento card-level antiguo. Si la misma Library Card está en el chat más de una vez, `cardId` puede coincidir con varias ChatCards; `chatCardId` selecciona la entrada exacta del chat actual.
+
+Para helper calls de una sola vez, pasa `saveResult: false`, `emitToClient: false` y `stream: false`. La respuesta incluye `generatedText` y no crea un mensaje visible en el chat.
+
+Si pasas `customPrompt`, el helper call omite la construcción normal del chat prompt y envía solo ese raw prompt. Si el helper debe ver el historial actual del chat y el Prompt Manager, omite `customPrompt` y usa `injectedPrompts`.
+
+```js
+const pick = await TAI.chat.generate({
+  stream: false,
+  saveResult: false,
+  emitToClient: false,
+  injectedPrompts: [{
+    content: "Based on the current chat, return only JSON: {\"chatCardIds\":[123]}",
+    chatRole: "system"
+  }]
+});
+
+console.log(pick.generatedText);
+```
+
 ## Example shape
 
 ```js
@@ -184,5 +228,6 @@ Practica:
 
 ## Siguiente
 
+- [Ejemplos de PM Scripts](/es/docs/pm-script-examples/) para script patterns listos para usar.
 - [Macros](/es/docs/macros/) para server-side dynamic prompt text.
 - [Referencia de placeholders de tarjetas](/es/docs/placeholders/) para nombres de tarjetas y valores de prompt context.

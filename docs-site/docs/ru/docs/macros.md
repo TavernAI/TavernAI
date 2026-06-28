@@ -4,7 +4,7 @@ description: Server-side JavaScript для prompt-time и post-generation обр
 sidebar:
   order: 60
 ---
-<small><em>Tech term: Safe Scripts</em></small>
+<small><em>Tech term: Pre-gen Macros, Post-gen Macros</em></small>
 
 Macros позволяют тексту Prompt Manager запускать небольшие JavaScript-фрагменты во время генерации.
 
