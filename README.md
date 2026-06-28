@@ -31,7 +31,7 @@ curl -fsSL https://tavernai.net/install.sh | bash
 - Theme editor for interface-level customization.
 - Pre-gen and post-gen Macros for prompt automation.
 - Prompt Manager Scripts for interactive scene mechanics and AI games.
-- Run local LLM visual models: CPU, CUDA, and Vulkan backends
+- Run local LLM and VLM models: CPU, CUDA, and Vulkan backends
 
 ## Documentation
 
