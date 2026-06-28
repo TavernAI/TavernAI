@@ -10,8 +10,8 @@ It works with local and remote model providers, keeps chats and cards on your ma
 
 ## Download
 
-- [Windows 10, 11](https://github.com/TavernAI/TavernAI/releases/download/v2.0.3/TavernAI-v2.0.3-standard-win-x64.zip)
-- [Linux](https://github.com/TavernAI/TavernAI/releases/download/v2.0.3/TavernAI-v2.0.3-standard-linux-x64.tar.gz)
+- [Windows 10, 11](https://github.com/TavernAI/TavernAI/releases/download/v2.1.0/TavernAI-v2.1.0-standard-win-x64.zip)
+- [Linux](https://github.com/TavernAI/TavernAI/releases/download/v2.1.0/TavernAI-v2.1.0-standard-linux-x64.tar.gz)
 
 VPS or Linux server install:
 
@@ -31,6 +31,7 @@ curl -fsSL https://tavernai.net/install.sh | bash
 - Theme editor for interface-level customization.
 - Pre-gen and post-gen Macros for prompt automation.
 - Prompt Manager Scripts for interactive scene mechanics and AI games.
+- Run local AI models: CPU, CUDA, and Vulkan backends
 
 ## Documentation
 
