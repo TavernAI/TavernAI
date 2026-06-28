@@ -1,4 +1,14 @@
 ﻿# TavernAI 2 Changelog
+## [2.1.2] - 2026-06-28
+
+### Fixed
+* Fixed Chat Sequencer role message structures not being applied when saved from the UI. Prefixes and suffixes now deserialize correctly from saved settings, preventing duplicate role placeholder ID errors during prompt assembly.
+
+## [2.1.1] - 2026-06-28
+
+### Fixed
+* Fixed LocalLLM crashes when using the CPU backend for LLMs on Linux.
+
 ## [2.1.0] - 2026-06-28
 
 ### Added
