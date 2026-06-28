@@ -1,4 +1,21 @@
 ﻿# TavernAI 2 Changelog
+## [2.1.0] - 2026-06-28
+
+### Added
+* Added local AI model execution through built-in engines.
+* Added support for CPU, CUDA, and Vulkan backends.
+* Added x.AI provider support.
+* Added z.AI / GLM provider support.
+* Added AIHorde provider support.
+* Added Moonshot / Kimi provider support.
+* Added a native updater available from the application interface.
+* Added the ability to duplicate Prompt Managers into libraries.
+* Added the ability to duplicate prompts inside a Prompt Manager.
+
+### Changed
+* Merged Standard and Pro editions into a single public version.
+* All previously separated features are now available in one public build.
+
 ## [2.0.3] - 2026-06-25
 
 ### Added
