@@ -1,4 +1,9 @@
 ﻿# TavernAI 2 Changelog
+## [2.1.3] - 2026-06-30
+
+### Added
+* Added a native tokenizer for the LocalLLM provider
+ 
 ## [2.1.2] - 2026-06-28
 
 ### Fixed
