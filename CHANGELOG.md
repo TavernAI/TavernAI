@@ -1,6 +1,7 @@
 ﻿# TavernAI 2 Changelog
 ## [2.1.5] - 2026-07-01
 
+### Changed
 * Improve updater presentation and update handling.
 
 ## [2.1.4] - 2026-07-01
