@@ -1,4 +1,9 @@
 ﻿# TavernAI 2 Changelog
+## [2.1.4] - 2026-07-01
+
+### Fixed
+* Fix Custom Provider generation settings not being applied.
+
 ## [2.1.3] - 2026-06-30
 
 ### Added
