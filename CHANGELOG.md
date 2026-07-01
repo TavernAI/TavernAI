@@ -1,4 +1,10 @@
 ﻿# TavernAI 2 Changelog
+## [2.1.6] - 2026-07-01
+
+### Fixed
+* Custom provider identity is now preserved for generated message metadata and statistics.
+* Fixed Response Record saving for Custom/OpenAI-compatible streaming providers when the API does not return usage metadata.
+ 
 ## [2.1.5] - 2026-07-01
 
 ### Changed
