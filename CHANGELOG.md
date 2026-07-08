@@ -1,4 +1,29 @@
 ﻿# TavernAI 2 Changelog
+## [2.2.2] - 2026-07-08
+
+### Added
+* Added the NovelAI provider.
+  * Supports native generation and native streaming.
+  * Supports OpenAI-compatible endpoints: Chat Completions and Text Completions.
+  * Added NovelAI model templates: Xialong, GLM-4.6, Erato, Kayra.
+  * Added NovelAI tokenizers, including NerdStash and NerdStash v2.
+
+* Added the LM Studio provider.
+  * Supports Chat Completions and Text Completions.
+  * Added support for LM Studio vision models for image input.
+
+* Added message counters in chat.
+  * The counter can be hidden.
+  * Message numbers can be shown under the avatar or next to the timestamp.
+
+### Improved
+* Improved token counting for Chat Completions: the structural overhead of response formatting is now included.
+* Improved database migrations: old auto-backup files are now cleaned up during migration.
+
+### Fixed
+* Fixed handling of empty KoboldCPP responses: TavernAI now shows a clear error instead of an unclear failure.
+* Fixed overlapping locale strings in model settings.
+
 ## [2.1.6] - 2026-07-01
 
 ### Fixed
