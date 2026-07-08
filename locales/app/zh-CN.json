@@ -391,6 +391,7 @@
       "ai_label_mode_full": "图标 + 模型名称",
       "ai_label_mode_icon_only": "仅图标",
       "ai_label_mode_none": "隐藏",
+      "chat_display_section": "聊天显示",
       "prompt_manager_section": "提示词管理器",
       "pm_chat_switch_behavior": "聊天切换行为",
       "pm_chat_switch_behavior_desc": "控制当进入带有固定 PM 的聊天时，用户级别选择的提示词管理器是否自动更新。",
@@ -417,7 +418,12 @@
       "message_time_full": "完整日期和时间",
       "message_time_only": "仅时间（HH:MM:SS）",
       "message_time_short": "短时间（HH:MM）",
-      "message_time_hidden": "隐藏"
+      "message_time_hidden": "隐藏",
+      "message_counter_display": "消息计数器",
+      "message_counter_display_desc": "选择消息编号的显示位置",
+      "message_counter_hidden": "不显示",
+      "message_counter_rail": "头像下方",
+      "message_counter_header": "时间戳前"
     },
     "ai_provider": {
       "title": "AI 提供商",

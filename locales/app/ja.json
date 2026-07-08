@@ -391,6 +391,7 @@
       "ai_label_mode_full": "アイコン + モデル名",
       "ai_label_mode_icon_only": "アイコンのみ",
       "ai_label_mode_none": "非表示",
+      "chat_display_section": "チャット表示",
       "prompt_manager_section": "プロンプトマネージャー",
       "pm_chat_switch_behavior": "チャット切り替え時の動作",
       "pm_chat_switch_behavior_desc": "ピン留めされたPMを持つチャットに入ったとき、ユーザーレベルで選択されたプロンプトマネージャーを自動更新するかを制御します。",
@@ -417,7 +418,12 @@
       "message_time_full": "完全な日付と時刻",
       "message_time_only": "時刻のみ（HH:MM:SS）",
       "message_time_short": "短い時刻（HH:MM）",
-      "message_time_hidden": "非表示"
+      "message_time_hidden": "非表示",
+      "message_counter_display": "メッセージ番号",
+      "message_counter_display_desc": "メッセージ番号を表示する場所を選択します",
+      "message_counter_hidden": "表示しない",
+      "message_counter_rail": "アバターの下",
+      "message_counter_header": "時刻の前"
     },
     "ai_provider": {
       "title": "AIプロバイダー",

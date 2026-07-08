@@ -421,6 +421,7 @@
       "ai_label_mode_full": "Иконка + название модели",
       "ai_label_mode_icon_only": "Только иконка",
       "ai_label_mode_none": "Скрыто",
+      "chat_display_section": "Отображение чата",
       "prompt_manager_section": "Prompt Manager",
       "pm_chat_switch_behavior": "Поведение при смене чата",
       "pm_chat_switch_behavior_desc": "Определяет, обновляется ли выбранный Prompt Manager на уровне пользователя при входе в чат с прикреплённым PM.",
@@ -432,7 +433,12 @@
       "message_time_full": "Полная дата и время",
       "message_time_only": "Только время (ЧЧ:ММ:СС)",
       "message_time_short": "Кратко (ЧЧ:ММ)",
-      "message_time_hidden": "Скрыто"
+      "message_time_hidden": "Скрыто",
+      "message_counter_display": "Счётчик сообщений",
+      "message_counter_display_desc": "Выберите, где показывать номер сообщения",
+      "message_counter_hidden": "Не показывать",
+      "message_counter_rail": "Под аватаром",
+      "message_counter_header": "Перед временем"
     },
     "ai_provider": {
       "title": "AI Провайдер",

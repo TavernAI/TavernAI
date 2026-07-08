@@ -391,6 +391,7 @@
       "ai_label_mode_full": "Icono + nombre del modelo",
       "ai_label_mode_icon_only": "Solo icono",
       "ai_label_mode_none": "Oculto",
+      "chat_display_section": "Visualización del chat",
       "prompt_manager_section": "Gestor de prompts",
       "pm_chat_switch_behavior": "Comportamiento al cambiar de chat",
       "pm_chat_switch_behavior_desc": "Controla si el gestor de prompts seleccionado a nivel de usuario se actualiza automáticamente al entrar en un chat con un PM fijado.",
@@ -417,7 +418,12 @@
       "message_time_full": "Fecha y hora completas",
       "message_time_only": "Solo hora (HH:MM:SS)",
       "message_time_short": "Hora corta (HH:MM)",
-      "message_time_hidden": "Oculto"
+      "message_time_hidden": "Oculto",
+      "message_counter_display": "Contador de mensajes",
+      "message_counter_display_desc": "Elige dónde se muestra el número del mensaje",
+      "message_counter_hidden": "No mostrar",
+      "message_counter_rail": "Debajo del avatar",
+      "message_counter_header": "Antes de la hora"
     },
     "ai_provider": {
       "title": "Proveedor de IA",

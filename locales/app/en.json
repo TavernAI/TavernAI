@@ -421,6 +421,7 @@
       "ai_label_mode_full": "Icon + model name",
       "ai_label_mode_icon_only": "Icon only",
       "ai_label_mode_none": "Hidden",
+      "chat_display_section": "Chat display",
       "prompt_manager_section": "Prompt Manager",
       "pm_chat_switch_behavior": "Chat switch behavior",
       "pm_chat_switch_behavior_desc": "Controls whether the user-level selected Prompt Manager automatically updates when entering a chat with a pinned PM.",
@@ -447,7 +448,12 @@
       "message_time_full": "Full date and time",
       "message_time_only": "Time only (HH:MM:SS)",
       "message_time_short": "Time short (HH:MM)",
-      "message_time_hidden": "Hidden"
+      "message_time_hidden": "Hidden",
+      "message_counter_display": "Message counter",
+      "message_counter_display_desc": "Choose where the message number is shown",
+      "message_counter_hidden": "Hidden",
+      "message_counter_rail": "Under avatar",
+      "message_counter_header": "Before timestamp"
     },
     "ai_provider": {
       "title": "AI Provider",

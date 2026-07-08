@@ -379,6 +379,7 @@
       "ai_label_mode_full": "Symbol + Modellname",
       "ai_label_mode_icon_only": "Nur Symbol",
       "ai_label_mode_none": "Ausgeblendet",
+      "chat_display_section": "Chat-Anzeige",
       "prompt_manager_section": "Prompt-Manager",
       "pm_chat_switch_behavior": "Verhalten beim Chat-Wechsel",
       "pm_chat_switch_behavior_desc": "Steuert, ob der auf Benutzerebene ausgewählte Prompt-Manager beim Betreten eines Chats mit angeheftetem PM automatisch aktualisiert wird.",
@@ -405,7 +406,12 @@
       "message_time_full": "Vollständiges Datum und Uhrzeit",
       "message_time_only": "Nur Uhrzeit (HH:MM:SS)",
       "message_time_short": "Kurze Uhrzeit (HH:MM)",
-      "message_time_hidden": "Ausgeblendet"
+      "message_time_hidden": "Ausgeblendet",
+      "message_counter_display": "Nachrichtenzähler",
+      "message_counter_display_desc": "Wählen Sie, wo die Nachrichtennummer angezeigt wird",
+      "message_counter_hidden": "Nicht anzeigen",
+      "message_counter_rail": "Unter dem Avatar",
+      "message_counter_header": "Vor dem Zeitstempel"
     },
     "ai_provider": {
       "title": "KI-Anbieter",
