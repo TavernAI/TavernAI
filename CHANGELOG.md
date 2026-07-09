@@ -1,5 +1,13 @@
 ﻿# TavernAI 2 Changelog
-## [2.2.2] - 2026-07-08
+## [2.2.1] - 2026-07-09
+
+### Added
+* Added new OpenAI models of the GPT-5.6 family:
+  * gpt-5.6 for GPT-5.6 Sol
+  * gpt-5.6-terra for GPT-5.6 Terra
+  * gpt-5.6-luna for GPT-5.6 Luna
+ 
+## [2.2.0] - 2026-07-08
 
 ### Added
 * Added the NovelAI provider.
