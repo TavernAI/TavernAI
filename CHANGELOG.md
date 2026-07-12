@@ -1,4 +1,16 @@
 ﻿# TavernAI 2 Changelog
+## [2.2.2] - 2026-07-12
+
+### Added
+* Added xAI Grok 4.5.
+* Added provider icons for LM Studio and NovelAI.
+
+### Changed
+* Updated the character heuristic tokenizer from approximately 4 to 3 characters per token.
+
+### Fixed
+* Fixed `StatEvent` token tracking when providers omit input or output token usage, using tokenizer-based estimates as a fallback.
+
 ## [2.2.1] - 2026-07-09
 
 ### Added
