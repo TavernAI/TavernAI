@@ -1,4 +1,9 @@
 ﻿# TavernAI 2 Changelog
+## [2.2.3] - 2026-07-17
+
+### Added
+* Added Kimi-3 model for Moonshot AI provider.
+
 ## [2.2.2] - 2026-07-12
 
 ### Added
