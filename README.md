@@ -122,7 +122,7 @@ curl -fsSL https://tavernai.net/install.sh | bash
 <table>
 	<tr>
 		<td width="42%" valign="top">
-			<h3>Any Character Can Be AI, User, or Context</h3>
+			<h3>Any Character Can Be AI or User Side</h3>
 			<p>Add any number of participants and decide independently who generates replies, who represents the user, and whose information enters the model context.</p>
 		</td>
 		<td width="58%" valign="top">
