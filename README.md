@@ -20,7 +20,7 @@
 
 Chats, cards, settings, and generated data stay on your machine. Connect a remote AI provider or run local LLM and vision models through CPU, CUDA, or Vulkan backends.
 
-## ⚡️ Download
+## 🚀 Download
 
 | System | Package | Download |
 | :-- | :-- | :-- |
