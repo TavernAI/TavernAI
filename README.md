@@ -1,6 +1,6 @@
 ﻿<div align="center">
 
-<h1 align="center"><img src="assets/tavernai-logo.svg" alt="TavernAI logo" width="42"> TavernAI 2</h1>
+<h1 align="center"><img src="assets/tavernai-logo.svg" alt="TavernAI logo" width="24"> TavernAI 2</h1>
 
 **A private, portable AI roleplay chat for characters, branching scenes, and complete prompt control.**
 
@@ -16,16 +16,16 @@
 	<img src="assets/TavernAI-2-main-rounded.png" alt="TavernAI 2 chat, Prompt Manager, and character library" width="100%">
 </p>
 
-TavernAI 2 gives roleplay chats room to change. A scene can branch at any message, bring new characters into the cast, run several replies at once, and use its own prompts, rules, images, files, and scripts.
+[TavernAI 2](https://tavernai.net) gives roleplay chats room to change. A scene can branch at any message, bring new characters into the cast, run several replies at once, and use its own prompts, rules, images, files, and scripts.
 
 Chats, cards, settings, and generated data stay on your machine. Connect a remote AI provider or run local LLM and vision models through CPU, CUDA, or Vulkan backends.
 
-## Download
+## 🚀 Download
 
 | System | Package | Download |
 | :-- | :-- | :-- |
-| Windows 10 / 11 | Portable `.zip`, x64 (117 MB) | **[Download v2.2.3](https://github.com/TavernAI/TavernAI/releases/download/v2.2.3/TavernAI-v2.2.3-win-x64.zip)** |
-| Linux | Portable `.tar.gz`, x64 (120 MB) | **[Download v2.2.3](https://github.com/TavernAI/TavernAI/releases/download/v2.2.3/TavernAI-v2.2.3-linux-x64.tar.gz)** |
+| Windows 10 / 11 | Portable `.zip`, x64 (117 MB) | **[Download v2.3.0](https://github.com/TavernAI/TavernAI/releases/download/v2.3.0/TavernAI-v2.3.0-win-x64.zip)** |
+| Linux | Portable `.tar.gz`, x64 (120 MB) | **[Download v2.3.0](https://github.com/TavernAI/TavernAI/releases/download/v2.3.0/TavernAI-v2.3.0-linux-x64.tar.gz)** |
 
 For a VPS or Linux server:
 
@@ -33,7 +33,7 @@ For a VPS or Linux server:
 curl -fsSL https://tavernai.net/install.sh | bash
 ```
 
-## Beyond a Roleplay Chat
+## ✨ Beyond a Roleplay Chat
 
 <table>
 	<tr>
@@ -143,7 +143,7 @@ curl -fsSL https://tavernai.net/install.sh | bash
 	</tr>
 </table>
 
-## Documentation
+## 📄 Documentation
 
 - [Getting Started](https://tavernai.net/docs/getting-started/)
 - [Installation](https://tavernai.net/docs/installation/)
@@ -152,7 +152,7 @@ curl -fsSL https://tavernai.net/install.sh | bash
 
 Translation sources for the app live in [`locales/`](locales/). Documentation translation files live in [`docs-site/`](docs-site/) when they are ready for community review.
 
-## Community and Contributions
+## 👋 Community and Contributions
 
 Join the [TavernAI Discord](https://discord.gg/zmK2gmr45t). Bug reports and feature discussions belong in [GitHub Issues](https://github.com/TavernAI/TavernAI/issues).
 
@@ -160,5 +160,5 @@ Community contributions are open for app translations, documentation translation
 
 This repository contains releases, translations, public documentation mirrors, issue tracking, and community files. The original TavernAI 1.x repository remains available as the [legacy TavernAI repository](https://github.com/TavernAI/TavernAI-v1).
 
-## Portable and silent by default
+## 🛡️ Privacity
 TavernAI has no telemetry, crash reporting, background update checks, remote fonts, or external frameworks.
