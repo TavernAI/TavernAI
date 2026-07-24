@@ -160,5 +160,5 @@ Community contributions are open for app translations, documentation translation
 
 This repository contains releases, translations, public documentation mirrors, issue tracking, and community files. The original TavernAI 1.x repository remains available as the [legacy TavernAI repository](https://github.com/TavernAI/TavernAI-v1).
 
-## Portable and silent by default
+## Privacity
 TavernAI has no telemetry, crash reporting, background update checks, remote fonts, or external frameworks.
