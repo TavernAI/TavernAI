@@ -1,6 +1,6 @@
 ﻿<div align="center">
 
-<h1 align="center"><img src="assets/tavernai-logo.svg" alt="TavernAI logo" width="42"> TavernAI 2</h1>
+<h1 align="center"><img src="assets/tavernai-logo.svg" alt="TavernAI logo" width="24"> TavernAI 2</h1>
 
 **A private, portable AI roleplay chat for characters, branching scenes, and complete prompt control.**
 
