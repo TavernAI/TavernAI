@@ -80,6 +80,17 @@
       "chat_actions_mode_split": "Last and New buttons",
       "save_error": "Failed to save library setting"
     },
+    "multichat": {
+      "title": "MultiChat",
+      "auto_select_label": "Auto-select created chats",
+      "auto_select_desc": "Open a chat after creating it in a MultiChat project",
+      "virtual_sources_label": "Sources for new virtual chats",
+      "virtual_sources_desc": "Choose when regular project chats are added to a new virtual chat",
+      "virtual_sources_all": "Add all regular chats to every virtual chat",
+      "virtual_sources_first": "Add all regular chats only to the first virtual chat",
+      "virtual_sources_none": "Do not add chats automatically",
+      "save_error": "Failed to save MultiChat setting"
+    },
     "appearance": {
       "title": "Appearance",
       "sidebar_label": "Show sidebar",
@@ -189,6 +200,7 @@
       "group_view": "View",
       "group_chat": "Chat",
       "chat_settings": "Chat settings",
+      "multichat_settings": "MultiChat",
       "scripting": "PM Scripts",
       "updates": "Updates",
       "group_maintenance": "Maintenance",
@@ -835,6 +847,8 @@
     "links": {
       "documentation": "Documentation",
       "documentation_desc": "Main documentation hub",
+      "multichat": "Multichat",
+      "multichat_desc": "Multichat projects, virtual chats, ordering, and timelines",
       "macros": "Macros",
       "macros_desc": "Macro reference and usage notes",
       "placeholders": "Placeholders",

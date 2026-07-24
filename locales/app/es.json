@@ -805,6 +805,8 @@
     "links": {
       "documentation": "Documentación",
       "documentation_desc": "Centro principal de documentación",
+      "multichat": "Multichat",
+      "multichat_desc": "Proyectos multichat, chats virtuales, ordenación y líneas de tiempo",
       "macros": "Macros",
       "macros_desc": "Referencia de macros y notas de uso",
       "placeholders": "Placeholders",

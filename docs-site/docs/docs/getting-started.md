@@ -42,6 +42,7 @@ sidebar:
 
 - [Installation](/docs/installation/) for Windows, Linux, and VPS setup.
 - [Quick Start](/docs/quick-start/) for the first launch, provider connection, and first message.
+- [Multichat](/docs/multichat/) for connected chat projects, Virtual Chats, Ordering Formats, and shared timelines.
 - [Macros](/docs/macros/) for pre-gen and post-gen prompt automation.
 - [PM Scripts](/docs/pm-scripts/) for interactive scene scripting.
 - [Advanced features](/docs/advanced-features/) for prompt inspection, message versions, and request records.

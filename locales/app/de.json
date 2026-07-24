@@ -793,6 +793,8 @@
     "links": {
       "documentation": "Dokumentation",
       "documentation_desc": "Zentrale Dokumentationsplattform",
+      "multichat": "Multichat",
+      "multichat_desc": "Multichat-Projekte, virtuelle Chats, Sortierung und Zeitleisten",
       "macros": "Makros",
       "macros_desc": "Makro-Referenz und Nutzungshinweise",
       "placeholders": "Platzhalter",

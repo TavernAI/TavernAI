@@ -805,6 +805,8 @@
     "links": {
       "documentation": "ドキュメント",
       "documentation_desc": "メインのドキュメントハブ",
+      "multichat": "マルチチャット",
+      "multichat_desc": "マルチチャットプロジェクト、仮想チャット、並び順、タイムライン",
       "macros": "マクロ",
       "macros_desc": "マクロのリファレンスと使用方法",
       "placeholders": "プレースホルダー",

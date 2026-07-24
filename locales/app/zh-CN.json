@@ -805,6 +805,8 @@
     "links": {
       "documentation": "文档",
       "documentation_desc": "主文档中心",
+      "multichat": "多聊天",
+      "multichat_desc": "多聊天项目、虚拟聊天、排序和时间线",
       "macros": "宏",
       "macros_desc": "宏参考和使用说明",
       "placeholders": "占位符",
