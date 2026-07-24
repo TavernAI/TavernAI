@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg37" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4a0e0e"/>
+      <stop offset="100%" stop-color="#1a0505"/>
+    </linearGradient>
+    <linearGradient id="tg37" x1="0.3" y1="0" x2="0.7" y2="1">
+      <stop offset="0%" stop-color="#ffd700"/>
+      <stop offset="40%" stop-color="#daa520"/>
+      <stop offset="70%" stop-color="#b8860b"/>
+      <stop offset="100%" stop-color="#ffd700"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="64" fill="url(#bg37)"/>
+  <text x="256" y="385" text-anchor="middle" font-family="Georgia, serif" font-size="400" font-weight="bold" fill="url(#tg37)">T</text>
+</svg>
