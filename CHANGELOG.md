@@ -1,4 +1,27 @@
 ﻿# TavernAI 2 Changelog
+## [2.3.0] - 2026-07-24
+
+ ### Added
+* Added the **Multichat system** for running one story through several separate chat histories
+  * Added **MultiChat Projects** for organizing regular chats and Virtual Chats without merging or moving their original histories.
+  * Added **Virtual Chats**, live combined views built from selected source chats. Each source can be configured for message display, AI context, new message targets, and message actions.
+  * Added **Ordering Formats** for placing messages in in-world order using dates, chapters, scenes, turns, fictional calendars, or custom sequences. Ordering values can be managed at project or chat level and are stored with each new message.
+  * Added the **Timeline**, with one lane per source chat, selectable scales, elapsed gaps, message previews, and an Unplaced section for messages without valid ordering data.
+  * Added **shared messages**. One message can belong to several chats while keeping an independent position and branch structure in each chat.
+* Added **Nano Banana image generation** through Google AI
+* Added Google AI models: **Gemini 3.6 Flash** and **Gemini 3.5 Flash-Lite**.
+
+### Improved
+* Improved AI provider presets: AI Model Settings, Chat Sequencer, Message Structure, and AutoSave selections are now stored separately for each provider.
+* Improved synchronization of AI provider settings between app windows. Preset selection remains local, while Apply and AutoSave follow the **Sync AI Provider Settings** option.
+
+### Fixed
+* Fixed system instructions being sent to providers that do not support them.
+* Fixed Anthropic reasoning settings for adaptive, manual, disabled, and legacy budget modes.
+* Fixed re-adding a card after it had been removed from a chat.
+* Fixed duplicated library entries appearing in reverse order inside folders.
+* Fixed Prompt Manager export dialogs being covered by right-side panels when opened from the left panel.
+
 ## [2.2.3] - 2026-07-17
 
 ### Added
