@@ -16,7 +16,7 @@
 	<img src="assets/TavernAI-2-main-rounded.png" alt="TavernAI 2 chat, Prompt Manager, and character library" width="100%">
 </p>
 
-TavernAI 2 gives roleplay chats room to change. A scene can branch at any message, bring new characters into the cast, run several replies at once, and use its own prompts, rules, images, files, and scripts.
+**TavernAI 2** gives roleplay chats room to change. A scene can branch at any message, bring new characters into the cast, run several replies at once, and use its own prompts, rules, images, files, and scripts.
 
 Chats, cards, settings, and generated data stay on your machine. Connect a remote AI provider or run local LLM and vision models through CPU, CUDA, or Vulkan backends.
 
