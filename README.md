@@ -51,7 +51,7 @@ curl -fsSL https://tavernai.net/install.sh | bash
 	<tr>
 		<td width="42%" valign="top">
 			<h3>Turn TavernAI into an AI Game Engine</h3>
-			<p>Build interactive AI games with their own interface, persistent state, branching logic, scripts, prompts, and assets.</p>
+			<p>Build interactive AI games with their own interface, persistent state, branching logic, scripts, and assets.</p>
 		</td>
 		<td width="58%" valign="top">
 			<img src="assets/feature-ai-games.png" alt="Scout RPG running inside TavernAI" width="100%">
