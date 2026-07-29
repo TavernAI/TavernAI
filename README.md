@@ -21,7 +21,8 @@
 <p align="center">
 	<img src="assets/TavernAI-2-main-rounded.png" alt="TavernAI 2 chat, Prompt Manager, and character library" width="100%">
 </p>
-Roleplay scenes in [TavernAI 2](https://tavernai.net) can change direction at any moment. Branch from any message, bring characters in or out, explore multiple replies in parallel, and shape each scene with its own prompts, rules, images, files, and scripts.
+
+[TavernAI 2](https://tavernai.net) gives roleplay chats room to change. A scene can branch at any message, bring new characters into the cast, run several replies at once, and shape each scene with its own prompts, rules, images, files, and scripts.
 
 Chats, cards, settings, and generated data stay on your machine. Connect a remote AI provider or run local LLM and vision models through CPU, CUDA, or Vulkan backends.
 
