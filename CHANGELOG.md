@@ -1,4 +1,12 @@
 ﻿# TavernAI 2 Changelog
+## [2.3.1] - 2026-07-29
+
+### Added
+* Added Claude-Opus-5 model for Anthropic AI provider.
+
+### Fixed
+* Fixed an issue where swiping in virtual chats could show an older version of an edited message.
+
 ## [2.3.0] - 2026-07-24
 
  ### Added
