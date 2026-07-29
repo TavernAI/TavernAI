@@ -1,12 +1,18 @@
-﻿<div align="center">
+<div align="center">
 
-<h1 align="center"><img src="assets/tavernai-logo.svg" alt="TavernAI logo" width="24"> TavernAI 2</h1>
+<p><img src="assets/tavernai-logo.svg" alt="TavernAI logo" width="72" height="72"></p>
+
+<h1>TavernAI 2</h1>
 
 **A private, portable AI roleplay chat for characters, branching scenes, and complete prompt control.**
 
-[![Latest release](https://img.shields.io/github/v/release/TavernAI/TavernAI?display_name=tag&sort=semver&style=for-the-badge&label=release&color=D89A35)](https://github.com/TavernAI/TavernAI/releases/latest)
-[![Total downloads](https://img.shields.io/github/downloads/TavernAI/TavernAI/total?style=for-the-badge&label=downloads&color=3D8F6F)](https://github.com/TavernAI/TavernAI/releases)
-[![Discord online](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fdiscord.com%2Fapi%2Fv10%2Finvites%2FzmK2gmr45t%3Fwith_counts%3Dtrue&query=%24.approximate_presence_count&suffix=%20online&style=for-the-badge&label=Discord&logo=discord&logoColor=white&color=5865F2)](https://discord.gg/zmK2gmr45t)
+<table>
+	<tr>
+		<td><a href="https://github.com/TavernAI/TavernAI/releases/latest"><img src="https://img.shields.io/github/v/release/TavernAI/TavernAI?display_name=tag&amp;sort=semver&amp;style=for-the-badge&amp;label=release&amp;color=D89A35" alt="Latest release"></a></td>
+		<td><a href="https://github.com/TavernAI/TavernAI/releases"><img src="https://img.shields.io/github/downloads/TavernAI/TavernAI/total?style=for-the-badge&amp;label=downloads&amp;color=3D8F6F" alt="Total downloads"></a></td>
+		<td><a href="https://discord.gg/zmK2gmr45t"><img src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fdiscord.com%2Fapi%2Fv10%2Finvites%2FzmK2gmr45t%3Fwith_counts%3Dtrue&amp;query=%24.approximate_presence_count&amp;suffix=%20online&amp;style=for-the-badge&amp;label=Discord&amp;logo=discord&amp;logoColor=white&amp;color=5865F2" alt="Discord online"></a></td>
+	</tr>
+</table>
 
 [Website](https://tavernai.net) &nbsp;&bull;&nbsp; [Documentation](https://tavernai.net/docs/getting-started/) &nbsp;&bull;&nbsp; [Discord](https://discord.gg/zmK2gmr45t) &nbsp;&bull;&nbsp; [Releases](https://github.com/TavernAI/TavernAI/releases)
 
@@ -15,8 +21,7 @@
 <p align="center">
 	<img src="assets/TavernAI-2-main-rounded.png" alt="TavernAI 2 chat, Prompt Manager, and character library" width="100%">
 </p>
-
-[TavernAI 2](https://tavernai.net) gives roleplay chats room to change. A scene can branch at any message, bring new characters into the cast, run several replies at once, and use its own prompts, rules, images, files, and scripts.
+Roleplay scenes in [TavernAI 2](https://tavernai.net) can change direction at any moment. Branch from any message, bring characters in or out, explore multiple replies in parallel, and shape each scene with its own prompts, rules, images, files, and scripts.
 
 Chats, cards, settings, and generated data stay on your machine. Connect a remote AI provider or run local LLM and vision models through CPU, CUDA, or Vulkan backends.
 
@@ -51,7 +56,7 @@ curl -fsSL https://tavernai.net/install.sh | bash
 	<tr>
 		<td width="42%" valign="top">
 			<h3>Turn TavernAI into an AI Game Engine</h3>
-			<p>Build interactive AI games with their own interface, persistent state, branching logic, scripts, and assets.</p>
+			<p>Build interactive AI games with their own interface, persistent state, branching logic, scripts, prompts, and assets.</p>
 		</td>
 		<td width="58%" valign="top">
 			<img src="assets/feature-ai-games.png" alt="Scout RPG running inside TavernAI" width="100%">
@@ -122,7 +127,7 @@ curl -fsSL https://tavernai.net/install.sh | bash
 <table>
 	<tr>
 		<td width="42%" valign="top">
-			<h3>Any Character Can Be Played by the AI or the User</h3>
+			<h3>Any Character Can Be AI, User, or Context</h3>
 			<p>Add any number of participants and decide independently who generates replies, who represents the user, and whose information enters the model context.</p>
 		</td>
 		<td width="58%" valign="top">
