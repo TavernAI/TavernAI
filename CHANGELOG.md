@@ -1,4 +1,18 @@
 ﻿# TavernAI 2 Changelog
+## [2.3.2] - 2026-08-14
+
+### Added
+* Added Grok 4.6 support for the xAI provider.
+* Added Gemini 3.7 Flash support for the Google AI provider.
+* Added local GGUF inference support for models using `<|turn>...<turn|>` chat templates, including Gemma 4-style models.
+* Added native backend details to error messages when local GGUF models fail to load.
+
+### Changed
+* Updated local GGUF inference to LLamaSharp 0.27.0.
+
+### Removed
+* Removed outdated `grok-4.3-latest` and `grok-latest` aliases from the xAI model list.
+
 ## [2.3.1] - 2026-07-29
 
 ### Added
