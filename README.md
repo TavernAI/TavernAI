@@ -30,8 +30,8 @@ Chats, cards, settings, and generated data stay on your machine. Connect a remot
 
 | System | Package | Download |
 | :-- | :-- | :-- |
-| Windows 10 / 11 | Portable `.zip`, x64 (117 MB) | **[Download v2.3.1](https://github.com/TavernAI/TavernAI/releases/download/v2.3.1/TavernAI-v2.3.1-win-x64.zip)** |
-| Linux | Portable `.tar.gz`, x64 (120 MB) | **[Download v2.3.1](https://github.com/TavernAI/TavernAI/releases/download/v2.3.1/TavernAI-v2.3.1-linux-x64.tar.gz)** |
+| Windows 10 / 11 | Portable `.zip`, x64 (117 MB) | **[Download v2.3.2](https://github.com/TavernAI/TavernAI/releases/download/v2.3.2/TavernAI-v2.3.2-win-x64.zip)** |
+| Linux | Portable `.tar.gz`, x64 (120 MB) | **[Download v2.3.2](https://github.com/TavernAI/TavernAI/releases/download/v2.3.2/TavernAI-v2.3.2-linux-x64.tar.gz)** |
 
 For a VPS or Linux server:
 
