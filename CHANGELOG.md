@@ -1,4 +1,37 @@
 ﻿# TavernAI 2 Changelog
+## [2.4.0] - 2026-08-23
+### Added
+* Added **Media Tools**, allowing the AI to request image generation as part of its reply
+  * Added image generation tools for **Google AI**, **OpenAI**, **xAI**, and **NovelAI**.
+  * Added a Media Tool node to Prompt Manager, with independent provider connections, instruction prompts, image references, provider limits, and automatic instruction updates.
+  * Added tool execution markers to chat messages, with generating and failed states followed by generated images after successful execution.
+  * Added an image generation workspace for each Media Tool node, with independent prompts, references, recent results, and result clearing for manual generation and regeneration.
+* Added **Global Cards**, reusable Card collections that are available across chats
+  * Global Cards use presets, can be switched from the Chat Cards panel, and keep each Card enabled or disabled separately.
+* Added the **Card Preset catalog** for adding ready-made Cards directly to Chat Cards or Global Cards
+  * Added built-in presets for Google AI, OpenAI, xAI, and NovelAI image generation.
+  * Added presets for AI speaker selection, output trimming, hiding tagged text from AI context, and hiding tagged text from the rendered chat.
+* Added **prompt caching controls** for **OpenAI**, **Anthropic**, **xAI**, and **Google AI**
+  * Added cache read and, where reported by the provider, write usage to chat generation controls and request details.
+  * Added cache breakpoint visualization to the Final Prompt viewer.
+* Added direct **document attachments** for compatible Anthropic, OpenAI, OpenRouter, and Google AI models, with provider-specific format and size validation.
+* Added file preview and download for chat attachments, plus a dedicated image viewer with image metadata.
+* Added optional library subtitles for Cards, Chat Presets, and MultiChat Projects.
+* Added model presets for **GLM-5.3**.
+* Added **DeepSeek V4 Flash Vision Experimental** (`deepseek-v4-flash-vision-exp`) with image input support.
+
+### Improved
+* Improved attachment controls so available file types and limits follow the selected provider and model capabilities.
+* Improved provider endpoint handling so image APIs can use a different base address from text generation APIs.
+* Improved maintenance cleanup for generated files and expired tool execution data.
+* Improved log readability by truncating embedded base64 data, including base64 nested inside JSON and image generation logs.
+* Improved library rows and narrow side panels so names, subtitles, counters, and action buttons remain readable at smaller widths.
+* Improved Nano Banana model display names.
+
+### Fixed
+* Fixed Google AI thought signatures being sent back when they should not be included.
+* Fixed Virtual Chat and shared-message covers reverting to default images after switching MultiChat Projects.
+* Fixed preset dropdowns being covered by adjacent right-side panels.
 ## [2.3.2] - 2026-08-14
 
 ### Added
