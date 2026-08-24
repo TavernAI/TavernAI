@@ -1019,6 +1019,8 @@
     "author_placeholder": "Name des Autors",
     "version": "Version",
     "version_placeholder": "1.0.0",
+    "caption": "Bibliotheksbeschriftung",
+    "caption_placeholder": "Kurze Beschriftung unter dem Namen in Bibliotheken",
     "note": "Notiz",
     "note_placeholder": "Zusätzliche Notizen zu diesem Eintrag...",
     "save": "Speichern",

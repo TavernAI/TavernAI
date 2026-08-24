@@ -1031,6 +1031,8 @@
     "author_placeholder": "Nombre del autor",
     "version": "Versión",
     "version_placeholder": "1.0.0",
+    "caption": "Subtítulo de biblioteca",
+    "caption_placeholder": "Subtítulo breve bajo el nombre en las bibliotecas",
     "note": "Nota",
     "note_placeholder": "Notas adicionales sobre esta entidad...",
     "save": "Guardar",

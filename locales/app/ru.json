@@ -1058,6 +1058,8 @@
     "author_placeholder": "Имя автора",
     "version": "Версия",
     "version_placeholder": "1.0.0",
+    "caption": "Подпись в библиотеке",
+    "caption_placeholder": "Короткая подпись под названием в библиотеках",
     "note": "Заметка",
     "note_placeholder": "Дополнительные заметки о сущности...",
     "save": "Сохранить",

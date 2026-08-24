@@ -28,7 +28,7 @@ Cards have their own Prompt Managers. Open a card and select its prompts tab to 
 
 ## Build the tree
 
-The Prompt Manager toolbar provides **Create Item**, **Create Folder**, **Script**, and **Presets**.
+The Prompt Manager toolbar provides **Create Item**, **Create Folder**, **Script**, **Media Tool**, and **Presets**. A [Media Tool](/docs/media-tools/) gives the chat model an image-generation function backed by an independently configured image provider.
 
 ### Items
 
@@ -166,7 +166,7 @@ Press the attachment button beside **Prompt** to upload a file. TavernAI inserts
 
 During prompt assembly, that reference becomes a media part owned by the item. Text before or after the reference remains text in the same prompt entry. Merge groups preserve media parts when they combine items.
 
-The picker accepts images, audio, video, PDF, Word documents, text, Markdown, JSON, CSV, and XML. Provider and model support still determines which media can be sent. Images have the broadest support; some provider paths support additional types such as PDF, while others ignore unsupported file parts.
+The picker follows the selected provider and model capabilities. Images have the broadest support; compatible Anthropic, OpenAI, OpenRouter, and Google AI models can also receive direct document inputs. Available formats and size limits appear in **AI attachment settings** for the effective provider and model.
 
 Open **AI attachment settings** in the right settings pane and select the effective attachment provider and model. Enable **Send Attachments** and, when available, **Send Images**. A model that reports no attachment support cannot receive Prompt Manager media.
 
@@ -200,6 +200,8 @@ Use **Preview** after changing rules, merge groups, roles, or attachments. It sh
 
 ## Related pages
 
+- [Media Tools](/docs/media-tools/) for AI-requested and manual image generation.
+- [Prompt Caching](/docs/prompt-caching/) for cache breakpoints in the assembled prompt.
 - [Card Placeholders Reference](/docs/placeholders/) for card-name placeholders inside prompt text.
 - [Macros](/docs/macros/) for dynamic prompt text and pre-generation transformations.
 - [PM Scripts](/docs/pm-scripts/) for browser-side chat logic and custom scene UI.

@@ -1073,6 +1073,8 @@
     "author_placeholder": "Author name",
     "version": "Version",
     "version_placeholder": "1.0.0",
+    "caption": "Library Caption",
+    "caption_placeholder": "Short caption shown under the name in libraries",
     "note": "Note",
     "note_placeholder": "Additional notes about this entity...",
     "save": "Save",

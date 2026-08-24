@@ -55,3 +55,5 @@ Final Prompt Viewer shows the exact prompt that would be sent to the model if yo
 The viewer shows the final request as readable parts, with the source of each part attached.
 ![Advanced feature](/img/docs/pro_8.png)
 Because the viewer uses the same build path as real generation, what you see is what the model receives. Changes to structure, roles, or item state update the preview before sending anything.
+
+For models with TavernAI-managed prompt caching, the viewer also marks eligible boundaries and lets you set or remove a manual cache breakpoint. See [Prompt Caching](/docs/prompt-caching/) for modes, boundary selection, and cache usage.

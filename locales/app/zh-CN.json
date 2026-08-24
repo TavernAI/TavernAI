@@ -1031,6 +1031,8 @@
     "author_placeholder": "作者名称",
     "version": "版本",
     "version_placeholder": "1.0.0",
+    "caption": "库中副标题",
+    "caption_placeholder": "在库中显示于名称下方的简短副标题",
     "note": "备注",
     "note_placeholder": "关于此项目的附加备注...",
     "save": "保存",

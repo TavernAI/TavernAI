@@ -1031,6 +1031,8 @@
     "author_placeholder": "作者名",
     "version": "バージョン",
     "version_placeholder": "1.0.0",
+    "caption": "ライブラリのキャプション",
+    "caption_placeholder": "ライブラリで名前の下に表示する短いキャプション",
     "note": "メモ",
     "note_placeholder": "このエンティティに関する追加メモ...",
     "save": "保存",

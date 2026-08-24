@@ -1031,6 +1031,8 @@
     "author_placeholder": "Nom de l'auteur",
     "version": "Version",
     "version_placeholder": "1.0.0",
+    "caption": "Légende de bibliothèque",
+    "caption_placeholder": "Courte légende affichée sous le nom dans les bibliothèques",
     "note": "Note",
     "note_placeholder": "Notes supplémentaires sur cet élément...",
     "save": "Enregistrer",

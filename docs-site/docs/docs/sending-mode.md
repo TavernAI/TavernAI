@@ -9,7 +9,7 @@ Sending Mode controls what happens after you submit text in a chat. It separates
 
 The current mode appears in the compact toolbar above the chat input. Press the **Sending mode** button to cycle through **auto**, **manual**, and **blank**.
 
-> **Screenshot:** 
+> **Screenshot:** ![TavernAI Sending Mode](/img/docs/sending_mode_1.png)
 ## Modes
 
 | Mode | Sending non-empty text | Pressing Send with an empty input | Generate controls in Current chat |
