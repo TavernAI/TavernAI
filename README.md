@@ -155,6 +155,7 @@ curl -fsSL https://tavernai.net/install.sh | bash
 - [Installation](https://tavernai.net/docs/installation/)
 - [Quick Start](https://tavernai.net/docs/quick-start/)
 - [Advanced Features](https://tavernai.net/docs/advanced-features/)
+- [Change Log](https://github.com/TavernAI/TavernAI/blob/main/CHANGELOG.md)
 
 Translation sources for the app live in [`locales/`](locales/). Documentation translation files live in [`docs-site/`](docs-site/) when they are ready for community review.
 
