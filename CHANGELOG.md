@@ -1,4 +1,8 @@
 ﻿# TavernAI 2 Changelog
+## [2.4.1] - 2026-08-28
+### Fixed
+* Fixed a database migration error that could prevent TavernAI from starting after upgrading from older versions to 2.4.0.
+
 ## [2.4.0] - 2026-08-23
 ### Added
 * Added **Media Tools**, allowing the AI to request image generation as part of its reply
