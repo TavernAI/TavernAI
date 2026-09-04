@@ -1,4 +1,12 @@
 ﻿# TavernAI 2 Changelog
+## [2.4.2] - 2026-09-04
+### Added
+* Added request storage controls for Google AI text and image generation.
+* Added support for Gemini 3.8 Flash.
+* Added support for GLM-5.3-Flash.
+* Added support for Claude Fable 5.1.
+* Added support for GPT-6 Astra.
+
 ## [2.4.1] - 2026-08-28
 ### Fixed
 * Fixed a database migration error that could prevent TavernAI from starting after upgrading from older versions to 2.4.0.
