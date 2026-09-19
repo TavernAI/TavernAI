@@ -30,8 +30,8 @@ Chats, cards, settings, and generated data stay on your machine. Connect a remot
 
 | System | Package | Download |
 | :-- | :-- | :-- |
-| Windows 10 / 11 | Portable `.zip`, x64 (139 MB) | **[Download v2.4.0](https://github.com/TavernAI/TavernAI/releases/download/v2.4.0/TavernAI-v2.4.0-win-x64.zip)** |
-| Linux | Portable `.tar.gz`, x64 (142 MB) | **[Download v2.4.0](https://github.com/TavernAI/TavernAI/releases/download/v2.4.0/TavernAI-v2.4.0-linux-x64.tar.gz)** |
+| Windows 10 / 11 | Portable `.zip`, x64 (139 MB) | **[Download v2.4.2](https://github.com/TavernAI/TavernAI/releases/download/v2.4.2/TavernAI-v2.4.2-win-x64.zip)** |
+| Linux | Portable `.tar.gz`, x64 (142 MB) | **[Download v2.4.2](https://github.com/TavernAI/TavernAI/releases/download/v2.4.2/TavernAI-v2.4.2-linux-x64.tar.gz)** |
 
 For a VPS or Linux server:
 
@@ -168,6 +168,7 @@ curl -fsSL https://tavernai.net/install.sh | bash
 - [Installation](https://tavernai.net/docs/installation/)
 - [Quick Start](https://tavernai.net/docs/quick-start/)
 - [Advanced Features](https://tavernai.net/docs/advanced-features/)
+- [Change Log](https://github.com/TavernAI/TavernAI/blob/main/CHANGELOG.md)
 
 Translation sources for the app live in [`locales/`](locales/). Documentation translation files live in [`docs-site/`](docs-site/) when they are ready for community review.
 
