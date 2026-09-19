@@ -1,4 +1,38 @@
 ﻿# TavernAI 2 Changelog
+## [2.5.0] - 2026-09-19
+### Added
+* Added **ComfyUI** as a Media Tool image provider for image requests from chat and manual generation.
+	* Import a workflow exported in ComfyUI's API JSON format, bind its prompt and image inputs, and select the image output nodes.
+	* Supports positive and negative prompts, reference images, randomized seed bindings, and output count bindings, according to the configured workflow.
+	* Includes connection testing, workflow compatibility checks, automatic saving, and a configurable execution timeout.
+* Added **Media Tool generation history** for both chat-triggered and manual image generation.
+	* Browse attempts from the current node or all nodes, filter successful and unsuccessful attempts, and change the date order.
+	* Inspect prompts, references, generated images, errors, and generation times. Restore prompts and available references to the Generate tab.
+	* Added named **Media Tool sessions** shared across nodes, with folders for organizing session history.
+	* Added an **Output folder** setting for placing generated files in a selected folder in the Files library.
+* Added the **Files library** for uploaded and generated files, with folders, search, file-type filters, previews, renaming, deletion, and reusable file markers.
+* Added **Statistics** with 30-day, 90-day, and yearly views of personal activity.
+	* Shows the most active Cards, chats, models, and providers, with dates grouped according to the configured time zone.
+* Added **Google Vertex AI** with service-account JSON authentication, project and location settings, Gemini text generation, image and document input, and image generation through Media Tools.
+* Added **GPT Image 2.5 Sunburst** and **GPT Image 2.5 Flare** to OpenAI Media Tools.
+* Added **Favorite** stars for individual message content variants.
+* Added **Cut / Paste** to library context menus for moving individual items or a selection.
+* Added show/hide controls for provider API keys and secret connection fields. Viewing saved credentials requires `security.allow_api_key_viewing` in the server configuration and remains disabled by default.
+
+### Improved
+* Added image thumbnails to the Files library, including background thumbnail generation for existing images.
+* Added loading of older messages in Virtual Chats.
+* Added confirmation before duplicating a chat message.
+* Added a shutdown dialog with a **Force quit** option when the desktop app takes longer to close.
+* Improved Media Tool controls, output-folder selection, preset ordering, and scrolling.
+
+### Fixed
+* Fixed normal desktop shutdowns being recorded as backend crashes. Existing session records marked `ServerCrash` are reset to `Unknown` once during the update.
+* Fixed generation failures being reported as user cancellations when the user had not cancelled the request.
+* Fixed light theme colors in affected controls.
+* Fixed built-in Card Preset scripts being treated as unapproved imported scripts.
+* Fixed full embedded image base64 data appearing in Media Tool logs and request records.
+
 ## [2.4.2] - 2026-09-04
 ### Added
 * Added request storage controls for Google AI text and image generation.
