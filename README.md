@@ -149,6 +149,19 @@ curl -fsSL https://tavernai.net/install.sh | bash
 	</tr>
 </table>
 
+<table>
+	<tr>
+		<td width="42%" valign="top">
+			<h3>Let Any Chat Model Generate Images</h3>
+			<p>Connect Google AI, OpenAI, xAI, or NovelAI for image generation while keeping your current provider for the conversation. Even a local text model can request images and place them directly into its replies.</p>
+			<p><a href="https://tavernai.net/docs/media-tools/">Explore Media Tools</a></p>
+		</td>
+		<td width="58%" valign="top">
+			<img src="assets/media-tools.png" alt="An AI-generated city scene embedded in a TavernAI chat reply" width="100%">
+		</td>
+	</tr>
+</table>
+
 ## 📄 Documentation
 
 - [Getting Started](https://tavernai.net/docs/getting-started/)

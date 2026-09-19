@@ -14,6 +14,14 @@
     "creating": "Creating..."
   },
 
+  "window_shutdown": {
+    "title": "Closing TavernAI",
+    "waiting": "Waiting for the backend to stop...",
+    "warning": "Force quitting may lose unsaved changes.",
+    "force_quit": "Force quit",
+    "close_failed": "Could not close the window. Try force quitting again."
+  },
+
   "auth": {
     "welcome_title": "Welcome to TavernAI 2!",
     "welcome_desc": "TavernAI 2 is an advanced chat platform for AI roleplay games. Create unique characters, configure prompts, and enjoy creative conversations!",
@@ -78,6 +86,9 @@
       "chat_actions_mode_desc": "Choose whether Card Library shows a single Chat button or separate Last and New buttons",
       "chat_actions_mode_single": "Single Chat button",
       "chat_actions_mode_split": "Last and New buttons",
+      "file_previews_section": "File Library",
+      "show_image_previews_label": "Show image previews",
+      "show_image_previews_desc": "Load original images as previews in the File Library. Disable this on a remote server to reduce network traffic.",
       "save_error": "Failed to save library setting"
     },
     "multichat": {
@@ -610,6 +621,7 @@
       "message_copied": "Message copied",
       "copy_title": "Copy",
       "copy_failed": "Failed to copy",
+      "confirm_copy_message": "Copy this message?",
       "confirm_delete_swipe": "Delete this swipe?",
       "confirm_delete_all_swipes": "Delete this message and ALL its swipes?",
       "delete_all": "Delete all",
@@ -765,6 +777,9 @@
     "delete_item_confirm": "Delete {entity} \"{name}\"?",
     "delete_multi_confirm": "Delete {count} {entities}? Folders will be deleted with their contents.",
     "duplicate": "Duplicate",
+    "cut": "Cut",
+    "paste": "Paste",
+    "cut_count": "Cut {count, plural, one {# item} other {# items}}",
     "delete_selected": "Delete selected ({count})",
     "clear_selection": "Clear selection",
     "clear_search": "Clear search",
@@ -805,6 +820,54 @@
       "last": "Last page",
       "total": "total"
     }
+  },
+
+  "statistics": {
+    "title": "Tavern Statistics",
+    "personal_activity": "Personal activity",
+    "close": "Close statistics",
+    "period_30": "30 days",
+    "period_90": "90 days",
+    "period_year": "1 year",
+    "metric_activity": "Activity",
+    "metric_messages": "Messages",
+    "metric_generations": "Generations",
+    "metric_tokens": "Tokens",
+    "recorded_actions": "recorded actions",
+    "sent_by_you": "sent by you",
+    "errors_cancelled": "{errors} errors · {cancelled} cancelled",
+    "input_output": "{input} in · {output} out",
+    "new_chats": "New chats",
+    "cards_created": "{count} cards created",
+    "activity_calendar": "Activity calendar",
+    "last_year": "The last year",
+    "last_days": "The last {count} days",
+    "less": "Less",
+    "more": "More",
+    "rhythm": "Rhythm",
+    "activity_over_time": "Activity over time",
+    "by_hour": "By hour",
+    "active_hours": "Your active hours",
+    "by_weekday": "By weekday",
+    "active_days": "Your active days",
+    "generation_outcomes": "Generation outcomes",
+    "favorites": "Favorites",
+    "most_active": "Most active",
+    "cards": "Cards",
+    "chats": "Chats",
+    "models": "Models",
+    "providers": "Providers",
+    "no_card_activity": "No card activity",
+    "no_chat_activity": "No chat activity",
+    "no_model_activity": "No model activity",
+    "no_provider_activity": "No provider activity",
+    "deleted_card": "Deleted card",
+    "deleted_chat": "Deleted chat",
+    "unknown_model": "Unknown model",
+    "unknown_provider": "Unknown provider",
+    "load_failed": "Statistics could not be loaded",
+    "try_again": "Try again",
+    "loading": "Loading activity"
   },
 
   "sidebar": {

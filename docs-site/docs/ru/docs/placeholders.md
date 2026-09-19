@@ -4,7 +4,6 @@ description: Как карточные плейсхолдеры разрешаю
 sidebar:
   order: 55
 ---
-<small><em>Tech term: Text Placeholder Resolution</em></small>
 
 Плейсхолдеры вставляют имена карточек из текущего чата или prompt context.
 

@@ -78,6 +78,9 @@
       "chat_actions_mode_desc": "Elige si la biblioteca de tarjetas muestra un único botón Chat o botones separados Último y Nuevo",
       "chat_actions_mode_single": "Un único botón Chat",
       "chat_actions_mode_split": "Botones Último y Nuevo",
+      "file_previews_section": "Biblioteca de archivos",
+      "show_image_previews_label": "Mostrar vistas previas de imágenes",
+      "show_image_previews_desc": "Carga las imágenes originales como vistas previas en la biblioteca de archivos. Desactívalo en un servidor remoto para reducir el tráfico de red.",
       "save_error": "Error al guardar la configuración de la biblioteca"
     },
     "appearance": {
@@ -568,6 +571,7 @@
       "message_copied": "Mensaje copiado",
       "copy_title": "Copiar",
       "copy_failed": "Error al copiar",
+      "confirm_copy_message": "¿Copiar este mensaje?",
       "confirm_delete_swipe": "¿Eliminar esta variante?",
       "confirm_delete_all_swipes": "¿Eliminar este mensaje y TODAS sus variantes?",
       "delete_all": "Eliminar todo",

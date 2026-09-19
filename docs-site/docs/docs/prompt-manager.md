@@ -30,6 +30,8 @@ Cards have their own Prompt Managers. Open a card and select its prompts tab to 
 
 The Prompt Manager toolbar provides **Create Item**, **Create Folder**, **Script**, **Media Tool**, and **Presets**. A [Media Tool](/docs/media-tools/) gives the chat model an image-generation function backed by an independently configured image provider.
 
+Media Tools have Settings, Prompt, Generate, and History tabs. History keeps chat-triggered and manual attempts and can group them in shared sessions. [ComfyUI](/docs/comfyui/) tools run a configured API workflow. Imported Media Tools start disabled and require a local connection; ComfyUI workflows are imported separately before enabling the tool.
+
 ### Items
 
 An item is one prompt entry. Open it to edit these fields:
@@ -164,9 +166,11 @@ Press the attachment button beside **Prompt** to upload a file. TavernAI inserts
 ![[a1b2c3.png]]
 ```
 
+To reuse a file already stored in TavernAI, open the [Files library](/docs/files/), choose **Copy marker**, and paste it into Prompt. The same marker can be used in several items without uploading another copy. Renaming or moving the file in the library preserves the marker; deleting the file breaks its references.
+
 During prompt assembly, that reference becomes a media part owned by the item. Text before or after the reference remains text in the same prompt entry. Merge groups preserve media parts when they combine items.
 
-The picker follows the selected provider and model capabilities. Images have the broadest support; compatible Anthropic, OpenAI, OpenRouter, and Google AI models can also receive direct document inputs. Available formats and size limits appear in **AI attachment settings** for the effective provider and model.
+The picker follows the selected provider and model capabilities. Images have the broadest support; compatible Anthropic, OpenAI, OpenRouter, Google AI, and Google Vertex AI models can also receive direct document inputs. Available formats and size limits appear in **AI attachment settings** for the effective provider and model.
 
 Open **AI attachment settings** in the right settings pane and select the effective attachment provider and model. Enable **Send Attachments** and, when available, **Send Images**. A model that reports no attachment support cannot receive Prompt Manager media.
 
@@ -200,7 +204,9 @@ Use **Preview** after changing rules, merge groups, roles, or attachments. It sh
 
 ## Related pages
 
-- [Media Tools](/docs/media-tools/) for AI-requested and manual image generation.
+- [Media Tools](/docs/media-tools/) for AI-requested and manual image generation, history, and shared sessions.
+- [ComfyUI](/docs/comfyui/) for image workflow setup.
+- [Files](/docs/files/) for reusable attachments and file management.
 - [Prompt Caching](/docs/prompt-caching/) for cache breakpoints in the assembled prompt.
 - [Card Placeholders Reference](/docs/placeholders/) for card-name placeholders inside prompt text.
 - [Macros](/docs/macros/) for dynamic prompt text and pre-generation transformations.

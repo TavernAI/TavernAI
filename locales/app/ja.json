@@ -78,6 +78,9 @@
       "chat_actions_mode_desc": "カードライブラリに単一のチャットボタンを表示するか、最後と新規のボタンを分けて表示するかを選択します",
       "chat_actions_mode_single": "単一のチャットボタン",
       "chat_actions_mode_split": "最後と新規のボタン",
+      "file_previews_section": "ファイルライブラリ",
+      "show_image_previews_label": "画像プレビューを表示",
+      "show_image_previews_desc": "ファイルライブラリで元の画像をプレビューとして読み込みます。リモートサーバーでは通信量を減らすため無効にしてください。",
       "save_error": "ライブラリ設定の保存に失敗しました"
     },
     "appearance": {
@@ -568,6 +571,7 @@
       "message_copied": "メッセージをコピーしました",
       "copy_title": "コピー",
       "copy_failed": "コピーに失敗しました",
+      "confirm_copy_message": "このメッセージをコピーしますか？",
       "confirm_delete_swipe": "このスワイプを削除しますか？",
       "confirm_delete_all_swipes": "このメッセージと、そのすべてのスワイプを削除しますか？",
       "delete_all": "すべて削除",

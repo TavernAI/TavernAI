@@ -4,7 +4,6 @@ description: Wie Karten-Placeholders in Karten-Prompts, Chat-Prompts und Chat-Na
 sidebar:
   order: 55
 ---
-<small><em>Tech term: Text Placeholder Resolution</em></small>
 
 Placeholders fügen Kartennamen aus dem aktuellen Chat oder prompt context ein.
 

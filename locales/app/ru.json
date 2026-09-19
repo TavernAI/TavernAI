@@ -14,6 +14,14 @@
     "creating": "Создание..."
   },
 
+  "window_shutdown": {
+    "title": "Завершение работы TavernAI",
+    "waiting": "Ожидание остановки сервера...",
+    "warning": "При принудительном завершении несохранённые изменения могут быть потеряны.",
+    "force_quit": "Принудительно завершить",
+    "close_failed": "Не удалось закрыть окно. Повторите принудительное завершение."
+  },
+
   "auth": {
     "welcome_title": "Добро пожаловать в TavernAI 2!",
     "welcome_desc": "TavernAI 2 — это продвинутая чат платформа для AI-ролеплей игр. Создавайте уникальных персонажей, настраивайте промпты и наслаждайтесь творческими беседами!",
@@ -78,6 +86,9 @@
       "chat_actions_mode_desc": "Выберите, показывать ли в Card Library одну кнопку Chat или отдельные кнопки Последний и Новый",
       "chat_actions_mode_single": "Одна кнопка Chat",
       "chat_actions_mode_split": "Кнопки Последний и Новый",
+      "file_previews_section": "Библиотека файлов",
+      "show_image_previews_label": "Показывать превью изображений",
+      "show_image_previews_desc": "Загружать оригинальные изображения как превью в библиотеке файлов. На удалённом сервере лучше выключить, чтобы уменьшить сетевой трафик.",
       "save_error": "Не удалось сохранить настройку библиотек"
     },
     "multichat": {
@@ -595,6 +606,7 @@
       "message_copied": "Сообщение скопировано",
       "copy_title": "Копирование",
       "copy_failed": "Не удалось скопировать",
+      "confirm_copy_message": "Скопировать это сообщение?",
       "confirm_delete_swipe": "Удалить этот свайп?",
       "confirm_delete_all_swipes": "Удалить это сообщение и ВСЕ его свайпы?",
       "delete_all": "Удалить всё",
@@ -750,6 +762,9 @@
     "delete_item_confirm": "Удалить {entity} «{name}»?",
     "delete_multi_confirm": "Удалить {count} {entities}? Папки будут удалены вместе с содержимым.",
     "duplicate": "Дублировать",
+    "cut": "Вырезать",
+    "paste": "Вставить",
+    "cut_count": "Вырезано: {count}",
     "delete_selected": "Удалить выбранные ({count})",
     "clear_selection": "Снять выделение",
     "clear_search": "Очистить поиск",
@@ -790,6 +805,54 @@
       "last": "Последняя страница",
       "total": "всего"
     }
+  },
+
+  "statistics": {
+    "title": "Статистика таверны",
+    "personal_activity": "Личная активность",
+    "close": "Закрыть статистику",
+    "period_30": "30 дней",
+    "period_90": "90 дней",
+    "period_year": "1 год",
+    "metric_activity": "Активность",
+    "metric_messages": "Сообщения",
+    "metric_generations": "Генерации",
+    "metric_tokens": "Токены",
+    "recorded_actions": "зафиксированных действий",
+    "sent_by_you": "отправлено вами",
+    "errors_cancelled": "ошибок: {errors} · отменено: {cancelled}",
+    "input_output": "вход: {input} · выход: {output}",
+    "new_chats": "Новые чаты",
+    "cards_created": "создано карточек: {count}",
+    "activity_calendar": "Календарь активности",
+    "last_year": "Последний год",
+    "last_days": "Последние {count} дней",
+    "less": "Меньше",
+    "more": "Больше",
+    "rhythm": "Ритм",
+    "activity_over_time": "Активность по времени",
+    "by_hour": "По часам",
+    "active_hours": "Ваши активные часы",
+    "by_weekday": "По дням недели",
+    "active_days": "Ваши активные дни",
+    "generation_outcomes": "Результаты генераций",
+    "favorites": "Избранное",
+    "most_active": "Самые активные",
+    "cards": "Карточки",
+    "chats": "Чаты",
+    "models": "Модели",
+    "providers": "Провайдеры",
+    "no_card_activity": "Нет активности карточек",
+    "no_chat_activity": "Нет активности чатов",
+    "no_model_activity": "Нет активности моделей",
+    "no_provider_activity": "Нет активности провайдеров",
+    "deleted_card": "Удалённая карточка",
+    "deleted_chat": "Удалённый чат",
+    "unknown_model": "Неизвестная модель",
+    "unknown_provider": "Неизвестный провайдер",
+    "load_failed": "Не удалось загрузить статистику",
+    "try_again": "Повторить",
+    "loading": "Загрузка активности"
   },
 
   "sidebar": {

@@ -4,7 +4,6 @@ description: Comment les placeholders de cartes sont résolus dans les prompts d
 sidebar:
   order: 55
 ---
-<small><em>Tech term: Text Placeholder Resolution</em></small>
 
 Les placeholders insèrent les noms de cartes depuis le chat actuel ou le prompt context.
 

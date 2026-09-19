@@ -4,7 +4,6 @@ description: Server-side JavaScript for prompt-time and post-generation processi
 sidebar:
   order: 60
 ---
-<small><em>Tech term: Pre-gen Macros, Post-gen Macros</em></small>
 
 Macros let Prompt Manager text run small JavaScript snippets during generation.
 

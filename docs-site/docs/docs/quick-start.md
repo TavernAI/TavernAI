@@ -23,7 +23,6 @@ Open provider settings and add the model backend you want to use.
 
 ![Provider setup placeholder](/img/docs/2.png)
 
-
 ### 1.3 Create a chat
 
 Press the character **Chat** button to create a new chat.
@@ -102,6 +101,8 @@ This time, we are playing as Marika, the owner of the night bakery, and receivin
 
 ## Next
 
+- [Media Tools](/docs/media-tools/)
+- [Files](/docs/files/)
 - [Macros](/docs/macros/)
 - [PM Scripts](/docs/pm-scripts/)
 - [Advanced features](/docs/advanced-features/)

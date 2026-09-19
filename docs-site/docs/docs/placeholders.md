@@ -4,7 +4,6 @@ description: How card placeholders resolve in card prompts, chat prompts, and ch
 sidebar:
   order: 55
 ---
-<small><em>Tech term: Text Placeholder Resolution</em></small>
 
 Card placeholders insert card names from the current chat or prompt context.
 

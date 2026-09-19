@@ -78,6 +78,9 @@
       "chat_actions_mode_desc": "选择卡片库中显示一个聊天按钮，还是分别显示最近聊天和新建聊天按钮",
       "chat_actions_mode_single": "单个聊天按钮",
       "chat_actions_mode_split": "最近聊天和新建聊天按钮",
+      "file_previews_section": "文件库",
+      "show_image_previews_label": "显示图片预览",
+      "show_image_previews_desc": "在文件库中加载原始图片作为预览。远程服务器建议关闭，以减少网络流量。",
       "save_error": "保存库设置失败"
     },
     "appearance": {
@@ -568,6 +571,7 @@
       "message_copied": "消息已复制",
       "copy_title": "复制",
       "copy_failed": "复制失败",
+      "confirm_copy_message": "复制此消息吗？",
       "confirm_delete_swipe": "删除此消息变体？",
       "confirm_delete_all_swipes": "删除此消息及其所有变体？",
       "delete_all": "全部删除",

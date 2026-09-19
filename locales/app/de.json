@@ -66,6 +66,9 @@
       "chat_actions_mode_desc": "Wählen Sie, ob die Kartenbibliothek eine einzelne Chat-Schaltfläche oder getrennte Letzte- und Neue-Schaltflächen anzeigen soll",
       "chat_actions_mode_single": "Eine einzelne Chat-Schaltfläche",
       "chat_actions_mode_split": "Letzte- und Neue-Schaltflächen",
+      "file_previews_section": "Dateibibliothek",
+      "show_image_previews_label": "Bildvorschauen anzeigen",
+      "show_image_previews_desc": "Originalbilder als Vorschauen in der Dateibibliothek laden. Auf einem entfernten Server deaktivieren, um den Netzwerkverkehr zu reduzieren.",
       "save_error": "Fehler beim Speichern der Bibliothekseinstellung"
     },
     "appearance": {
@@ -556,6 +559,7 @@
       "message_copied": "Nachricht kopiert",
       "copy_title": "Kopieren",
       "copy_failed": "Fehler beim Kopieren",
+      "confirm_copy_message": "Diese Nachricht kopieren?",
       "confirm_delete_swipe": "Diesen Swipe löschen?",
       "confirm_delete_all_swipes": "Diese Nachricht und ALLE ihre Swipes löschen?",
       "delete_all": "Alle löschen",

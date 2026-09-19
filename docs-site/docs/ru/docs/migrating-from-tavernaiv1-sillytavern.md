@@ -4,7 +4,6 @@ description: Импорт карточек, чатов, групповых ча�
 sidebar:
   order: 52
 ---
-<small><em>Tech term: Mass Import</em></small>
 
 Mass Import переносит существующий контент TavernAI v1 или SillyTavern в TavernAI 2.
 

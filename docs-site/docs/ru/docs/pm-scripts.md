@@ -4,7 +4,6 @@ description: Extension-level scripting для интерактивных сце�
 sidebar:
   order: 70
 ---
-<small><em>Tech term: PM Scripts</em></small>
 
 PM Scripts (Prompt Manager Scripts) — extension-level scripts, написанные прямо в Prompt Manager для интерактивных сцен.
 

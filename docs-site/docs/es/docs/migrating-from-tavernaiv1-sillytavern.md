@@ -4,7 +4,6 @@ description: Importar tarjetas, chats, chats de grupo, lorebooks y prompt preset
 sidebar:
   order: 52
 ---
-<small><em>Tech term: Mass Import</em></small>
 
 Mass Import mueve contenido existente de TavernAI v1 o SillyTavern a TavernAI 2.
 

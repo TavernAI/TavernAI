@@ -7,7 +7,6 @@ sidebar:
 Advanced features are the deeper working tools for chats, prompts, and generations that need more control than the basic flow.
 
 ### 1. Quick Presets
-<small><em>Tech term: Quick Presets</em></small>
 
 Quick Presets let you save versions of prompt items, Prompt Manager setups, and participant configurations.
 
@@ -25,7 +24,6 @@ The same system works for whole Prompt Manager states:
 And chat participant setups:
 ![Advanced feature](/img/docs/pro_4.png)
 ### 2. Message Content Swipes
-<small><em>Tech term: Message Content Swipes</em></small>
 
 Content Swipes let you regenerate a message in the middle of the chat without creating a new branch.
 ![Advanced feature](/img/docs/pro_5.png)
@@ -34,21 +32,19 @@ Branching swipes create another path. Content Swipes create another answer in th
 Use them when one message needs another version, but the scene structure should stay where it is.
 
 ### 3. Message Content Version
-<small><em>Tech term: Message Content Version</em></small>
 
 Message Content Version keeps editable versions of message content.
 
 Change a message without losing the original text. An edit becomes a version you can inspect or return to later.
 ![Advanced feature](/img/docs/pro_6.png)
+
 ### 4. Response/Request Message Record
-<small><em>Tech term: Prompt Record</em></small>
 
-Every message stores the raw API request and response that produced it.
+Generated messages retain request and response records for inspecting the API exchange that produced them.
 
-Open the record to see the full prompt, parameters, headers, and raw model response. When a reply works unusually well or fails in a strange way, the exact request is still there.
+Open the record to inspect the stored prompt, parameters, headers, and model response. Embedded image base64 is shortened in Media Tool logs and request records, so those records are not a complete backup of the original image bytes. Use [Files](/docs/files/) or [Media Tool History](/docs/media-tools/#generation-history) to inspect available images.
 ![Advanced feature](/img/docs/pro_7.png)
 ### 5. Final Prompt Viewer
-<small><em>Tech term: Final Prompt Viewer</em></small>
 
 Final Prompt Viewer shows the exact prompt that would be sent to the model if you generated right now.
 
@@ -57,3 +53,19 @@ The viewer shows the final request as readable parts, with the source of each pa
 Because the viewer uses the same build path as real generation, what you see is what the model receives. Changes to structure, roles, or item state update the preview before sending anything.
 
 For models with TavernAI-managed prompt caching, the viewer also marks eligible boundaries and lets you set or remove a manual cache breakpoint. See [Prompt Caching](/docs/prompt-caching/) for modes, boundary selection, and cache usage.
+
+### 6. Move library items
+
+Library context menus provide **Cut** and **Paste** for moving entries. Select one entry, or several entries in a library that supports multi-selection, then choose Cut from the selection's context menu.
+
+Open the destination entry's context menu and choose Paste. A container receives the cut entries inside it; a non-container receives them after its own row. Cut records the selection for a later move, and Paste performs the move without duplicating the entries.
+
+Paste is available only for compatible destinations. Moving between different library trees is limited to tree types that support that operation; it does not convert one kind of entry into another.
+
+### 7. Favorite messages
+
+Mark a message as a favorite with the **Favorite** star. Select the star again to remove the mark.
+
+For a message with Content Swipes, switch to the reply you want to mark. Each content swipe keeps its own Favorite state, so you can mark individual versions of a reply.
+
+![Advanced feature](/img/docs/pro_9.png)

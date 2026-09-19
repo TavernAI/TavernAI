@@ -4,7 +4,6 @@ description: Cómo se resuelven los placeholders de tarjetas en prompts de tarje
 sidebar:
   order: 55
 ---
-<small><em>Tech term: Text Placeholder Resolution</em></small>
 
 Los placeholders insertan nombres de tarjetas desde el chat actual o el prompt context.
 

@@ -4,7 +4,6 @@ description: Extension-level scripting para escenas interactivas de TavernAI.
 sidebar:
   order: 70
 ---
-<small><em>Tech term: PM Scripts</em></small>
 
 PM Scripts (Prompt Manager Scripts) son extension-level scripts escritos directamente en Prompt Manager para escenas interactivas.
 

@@ -4,7 +4,6 @@ description: Import cards, chats, group chats, lorebooks, and prompt presets fro
 sidebar:
   order: 52
 ---
-<small><em>Tech term: Mass Import</em></small>
 
 Mass Import moves existing TavernAI v1 or SillyTavern content into TavernAI 2.
 

@@ -7,7 +7,6 @@ sidebar:
 Advanced features — расширенные рабочие инструменты для чатов, промптов и генераций, которым нужен более точный контроль, чем базовому потоку.
 
 ### 1. Quick Presets
-<small><em>Tech term: Quick Presets</em></small>
 
 Quick Presets позволяют сохранять версии промптов, настроек Prompt Manager и конфигураций участников.
 
@@ -25,7 +24,6 @@ Quick Presets позволяют сохранять версии промпто�
 И для настроек участников чата:
 ![Advanced feature](/img/docs/pro_4.png)
 ### 2. Message Content Swipes
-<small><em>Tech term: Message Content Swipes</em></small>
 
 Content Swipes позволяют перегенерировать сообщение в середине чата без создания новой ветки.
 ![Advanced feature](/img/docs/pro_5.png)
@@ -34,21 +32,18 @@ Branching swipes создают другой путь. Content Swipes созда
 Используйте их, когда одному сообщению нужна другая версия, но структура чата должна остаться на месте.
 
 ### 3. Message Content Version
-<small><em>Tech term: Message Content Version</em></small>
 
 Message Content Version хранит редактируемые версии содержимого сообщения.
 
 Меняйте сообщение без потери исходного текста. Редактирование становится версией, которую можно посмотреть или вернуть позже.
 ![Advanced feature](/img/docs/pro_6.png)
 ### 4. Response/Request Message Record
-<small><em>Tech term: Prompt Record</em></small>
 
 Каждое сообщение хранит raw API request и response, которые его создали.
 
 Откройте record, чтобы увидеть полный промпт, параметры, headers и raw model response. Когда ответ получился хорошим, точный запрос остается на месте, чтобы его можно было воспроизвести позднее.
 ![Advanced feature](/img/docs/pro_7.png)
 ### 5. Final Prompt Viewer
-<small><em>Tech term: Final Prompt Viewer</em></small>
 
 Final Prompt Viewer показывает точный промпт, который был бы отправлен модели, если запустить генерацию прямо сейчас.
 

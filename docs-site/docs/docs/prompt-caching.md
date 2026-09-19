@@ -23,6 +23,8 @@ Turn on **Enable Prompt Caching**, then choose the available **Mode**:
 
 Some models show **On (managed by provider)** and **Full prompt** instead of editable breakpoint controls. In that mode, the provider decides which prompt prefix is reused.
 
+Compatible Gemini models on **Google AI** and **Google Vertex AI** use this provider-managed mode. TavernAI reports the cache usage returned by the provider; manual cache breakpoints are not available for these connections.
+
 **Merged Boundary** controls how a manual breakpoint interacts with entries combined by Prompt Manager merge groups. Keep the default unless a specific merged prompt needs a different boundary policy.
 
 > **Screenshot:** ![TavernAI Prompt Cashing](/img/docs/prompt_cashing_1.png)

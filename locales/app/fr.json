@@ -78,6 +78,9 @@
       "chat_actions_mode_desc": "Choisissez si la bibliothèque de cartes affiche un seul bouton Chat ou des boutons séparés Dernier et Nouveau",
       "chat_actions_mode_single": "Un seul bouton Chat",
       "chat_actions_mode_split": "Boutons Dernier et Nouveau",
+      "file_previews_section": "Bibliothèque de fichiers",
+      "show_image_previews_label": "Afficher les aperçus d’images",
+      "show_image_previews_desc": "Charge les images originales comme aperçus dans la bibliothèque de fichiers. Désactivez cette option sur un serveur distant pour réduire le trafic réseau.",
       "save_error": "Échec de l'enregistrement du paramètre de bibliothèque"
     },
     "appearance": {
@@ -568,6 +571,7 @@
       "message_copied": "Message copié",
       "copy_title": "Copier",
       "copy_failed": "Échec de la copie",
+      "confirm_copy_message": "Copier ce message ?",
       "confirm_delete_swipe": "Supprimer cette variante ?",
       "confirm_delete_all_swipes": "Supprimer ce message et TOUTES ses variantes ?",
       "delete_all": "Tout supprimer",

@@ -32,9 +32,15 @@ sidebar:
 
 - **Prompt attachments**: Prompt Manager can attach files and images to each prompt. And because cards have their own Prompt Manager, a card can include character images, so the AI can see the character directly through the card.
 
-- **Media Tools**: let the chat model request image generation as part of a text reply. Each tool keeps its own provider connection and manual generation workspace.
+- **Media Tools**: let the chat model request image generation as part of a text reply. Each tool has its own image settings and manual workspace, with generation history and shared sessions across nodes.
 
-- **Global Cards and Card Presets**: keep reusable Card collections available across chats and add ready-made ьувшф tools and scripted cards from the built-in catalog.
+- **ComfyUI workflows**: use your ComfyUI server for image requests from chat or manual generation. Import an API workflow, bind its inputs, and choose the image outputs.
+
+- **Files library**: organize uploaded and generated files in folders, preview them, and reuse their markers in chats and prompts. Media Tools can save outputs to a selected folder.
+
+- **Statistics**: inspect recorded activity, completed generations, token usage, and the most active Cards, chats, models, and providers over 30 days, 90 days, or a year.
+
+- **Global Cards and Card Presets**: keep reusable Card collections available across chats and add ready-made Media Tools and scripted Cards from the built-in catalog.
 
 - **Theme editor**: change the look of every major part of the app. Build a theme for the whole interface, not just a new accent color.
 
@@ -49,7 +55,10 @@ sidebar:
 - [Multichat](/docs/multichat/) for connected chat projects, Virtual Chats, Ordering Formats, and shared timelines.
 - [Macros](/docs/macros/) for pre-gen and post-gen prompt automation.
 - [PM Scripts](/docs/pm-scripts/) for interactive scene scripting.
-- [Media Tools](/docs/media-tools/) for AI-requested image generation.
+- [Media Tools](/docs/media-tools/) for AI-requested image generation, history, and shared sessions.
+- [ComfyUI](/docs/comfyui/) for custom image workflows and bindings.
+- [Files](/docs/files/) for uploaded and generated files, folders, and reusable markers.
+- [Statistics](/docs/statistics/) for activity calendars, token counts, and generation outcomes.
 - [Global Cards and Card Presets](/docs/global-cards-and-card-presets/) for shared Cards and ready-made configurations.
 - [Prompt Caching](/docs/prompt-caching/) for cache controls and usage details.
 - [Advanced features](/docs/advanced-features/) for prompt inspection, message versions, and request records.
