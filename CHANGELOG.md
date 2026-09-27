@@ -1,4 +1,17 @@
 ﻿# TavernAI 2 Changelog
+## [2.5.1] - 2026-09-27
+### Added
+* Added **grok-4.7** for **xAI**.
+* Added **claude-opus-5-5** for **Anthropic**.
+* Added **gpt-6-luna** and **gpt-6-sol** for **OpenAI**.
+
+### Improved
+* When `security.allow_api_key_viewing` is enabled, saved provider credentials now remain hidden until explicitly revealed with the eye button.
+
+### Fixed
+* Fixed the API key displayed for viewing not refreshing when switching between presets that use the same provider. This only affected credential display when `security.allow_api_key_viewing` was enabled.
+* Fixed the loading indicator appearing for the entire message while generating a content swipe. Other variants now remain visible during generation.
+
 ## [2.5.0] - 2026-09-19
 ### Added
 * Added **ComfyUI** as a Media Tool image provider for image requests from chat and manual generation.
