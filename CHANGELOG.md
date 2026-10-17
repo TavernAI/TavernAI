@@ -1,4 +1,20 @@
 ﻿# TavernAI 2 Changelog
+## [2.5.2] - 2026-10-17
+### Added
+* Added **Anthropic (Vertex AI)** — a new provider for connecting Claude models through Google Cloud Vertex AI.
+* Added **gpt-6.1-sol** for **OpenAI**.
+* Added **gemini-4-argon** for **GoogleAI**.
+* Added **gemini-nano-banana-2.1** for **GoogleAI**.
+
+### Improved
+* For Google models, `thinking_level` and `thinking_budget` are now sent independently of `include_thoughts`, so thinking settings no longer disappear when showing thoughts is disabled.
+
+### Fixed
+* Fixed the Tauri window hanging on close after a page reload.
+
+### Documentation
+* Added the official **TAI Pack** format specification for exporting and importing.
+
 ## [2.5.1] - 2026-09-27
 ### Added
 * Added **grok-4.7** for **xAI**.
