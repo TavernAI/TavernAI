@@ -113,7 +113,7 @@ The keyword and value are encoded as Latin-1 (ISO-8859-1); because base64 and th
 
 The chunk is written **immediately before the `IEND` chunk** (this is a placement detail of the reference writer; readers should scan all chunks up to `IEND` and not assume a position).
 
-#### Coexistence with the SillyTavern `chara` chunk
+#### Coexistence with the SillyTavern/TavernAI-v1 `chara` chunk
 
 A card can be exported as `"format": "both"`, which produces a PNG containing **two** chunks:
 
