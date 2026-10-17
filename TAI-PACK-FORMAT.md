@@ -1,8 +1,11 @@
 # TavernAI Pack Format Specification (TAI)
 
 **Document version:** 1.0
+
 **Format version:** `1.0` (major version `1`)
+
 **Format identifier:** `tavernai`
+
 **Status:** Official specification
 
 This document formally describes the **TavernAI Pack format ("TAI")** used by TavernAI 2 for exporting and importing cards, chats, chat presets, and Prompt Managers. It is written for third-party developers who want to read, write, or validate `.tai.json` and `.png` packs — for example, to build a website that hosts and distributes resources.
