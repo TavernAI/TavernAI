@@ -30,7 +30,7 @@ A pack is delivered in one of two **containers**:
 | Raw JSON  | `.tai.json`    | A single UTF-8 JSON document |
 | PNG       | `.png`         | A valid PNG image with the JSON document embedded in a `tEXt` chunk |
 
-Both containers carry exactly the same JSON payload. The JSON payload is the actual format; the PNG container is a convenience for distributing character cards as images (the same mechanism used by the SillyTavern "character card" convention).
+Both containers carry exactly the same JSON payload. The JSON payload is the actual format; the PNG container is a convenience for distributing character cards as images (the same mechanism used by the TavernAI-v1/SillyTavern "character card" convention).
 
 ### 1.1 Design goals
 
@@ -75,7 +75,7 @@ Matching rules used by the reference implementation:
 When a file is imported by content (rather than by extension):
 
 1. If the JSON has `"format": "tavernai"` → **TAI pack**.
-2. Otherwise, legacy heuristics are applied (Prompt Manager preset, lorebook, regex script, SillyTavern character card V1/V2).
+2. Otherwise, legacy heuristics are applied (Prompt Manager preset, lorebook, regex script, TavernAI-v1/SillyTavern character card V1/V2).
 
 For PNG files:
 
@@ -120,7 +120,7 @@ A card can be exported as `"format": "both"`, which produces a PNG containing **
 | Keyword | Content |
 |---------|---------|
 | `tavernai` | base64 of the TAI JSON pack |
-| `chara`   | base64 of the SillyTavern V2 JSON |
+| `chara`   | base64 of the TavernAI-v1/SillyTavern V2 JSON |
 
 On import, the `tavernai` chunk takes priority over `chara`.
 
@@ -694,4 +694,4 @@ def read_png_pack(path: str) -> dict:
 | Content block | `type` | `text`, `thinking`, … (open set) |
 | Activation condition | `type` | `keyword`, `regex`, … (open set) |
 | PNG chunk keyword (TAI) | — | `tavernai` |
-| PNG chunk keyword (SillyTavern V2) | — | `chara` |
+| PNG chunk keyword (TavernAI-v1/SillyTavern V2) | — | `chara` |
