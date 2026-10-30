@@ -6,8 +6,6 @@
 
 **Format identifier:** `tavernai`
 
-**Status:** Official specification
-
 This document formally describes the **TavernAI Pack format** used by TavernAI 2 for exporting and importing cards, chats, chat presets, and Prompt Managers. It is written for third-party developers who want to read, write, or validate `.tai.json` and `.png` packs — for example, to build a website that hosts and distributes resources.
 
 ---
@@ -30,7 +28,7 @@ A pack is delivered in one of two **containers**:
 | Raw JSON  | `.tai.json`    | A single UTF-8 JSON document |
 | PNG       | `.png`         | A valid PNG image with the JSON document embedded in a `tEXt` chunk |
 
-Both containers carry exactly the same JSON payload. The JSON payload is the actual format; the PNG container is a convenience for distributing character cards as images (the same mechanism used by the TavernAI-v1/SillyTavern "character card" convention).
+Both containers carry exactly the same JSON payload. The JSON payload is the actual format; the PNG container is a convenience for distributing character cards as images (the same mechanism used by the TavernAI-v1/vern "character card" convention).
 
 ### 1.1 Design goals
 
