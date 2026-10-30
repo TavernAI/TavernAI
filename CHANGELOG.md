@@ -1,4 +1,18 @@
 ﻿# TavernAI 2 Changelog
+## [2.5.3] - 2026-10-30
+### Added
+* Added **gpt-6.1-terra** for **OpenAI**.
+* Added **kimi-k3.1-pro** and **kimi-k3.1-pro-highspeed** for **Moonshot**.
+* Added a setting under **General Settings → MultiChat** for creating message swipes: inherit Virtual Ordering from the source message (default) or use the current ordering panel values.
+
+### Improved
+* Copying a message now preserves its **Virtual Ordering** data, which is used for **Virtual Chats**.
+
+### Fixed
+* Fixed **Activation Rules** rejecting whitespace-only patterns. Leading and trailing whitespace is now preserved exactly.
+* Fixed empty replacement content being skipped in **Activation Rules**. Replacing matches with an empty string now correctly removes them in both AI generation and display.
+* Fixed long error messages overflowing in **Media Tool History** — they now wrap correctly.
+
 ## [2.5.2] - 2026-10-17
 ### Added
 * Added **Anthropic (Vertex AI)** — a new provider for connecting Claude models through Google Cloud Vertex AI.
