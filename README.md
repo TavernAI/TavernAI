@@ -39,6 +39,10 @@ For a VPS or Linux server:
 curl -fsSL https://tavernai.net/install.sh | bash
 ```
 
+## ☁️ One-Click Deploy
+
+[![Deploy on RepoCloud](https://d16t0pc4846x52.cloudfront.net/deploylobe.svg)](https://repocloud.io/details/TavernAI/)
+
 ## ✨ Beyond a Roleplay Chat
 
 <table>
